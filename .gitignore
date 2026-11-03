@@ -1,0 +1,32 @@
+# Secrets — never commit. .env.example carries the variable names.
+.env
+.env.*
+!.env.example
+keys.txt
+
+# Personal notes. They govern nothing — CONVENTIONS.md §8.
+*.me.md
+
+# Environment
+.venv/
+__pycache__/
+*.py[cod]
+
+# Test and tool caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Generated artifacts — rebuildable, so not tracked
+outputs/
+chroma_db/
+*.zip
+
+# Raw inputs. Samples are committed; add them back explicitly.
+data/raw/
+# Parsed from crawled pages: third-party content, never published.
+data/processed/
+
+# OS and editor
+.DS_Store
+Thumbs.db
