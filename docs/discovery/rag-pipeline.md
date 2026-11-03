@@ -57,27 +57,31 @@ flowchart LR
 ```mermaid
 flowchart LR
     q[Question] -.-> hyb[Hybrid retrieval<br/>BM25 + vector]
-    hyb -.-> rr[Rerank]
-    rr -.-> aug[Augment<br/>dedupe, expand to parent article,<br/>add amending text, token budget,<br/>citation ids, prompt]
+    hyb -.-> aug[Augment<br/>dedupe, expand to parent article,<br/>add amending text, token budget,<br/>citation ids, prompt]
     aug -.-> gen[Generate<br/>answer from context only]
     gen -.-> out[Answer + citations<br/>doc / article / clause + link]
     gen -.-> none[Not found]
+    hyb -.- rr[Rerank<br/>deferred: not in v1]
 
     classDef planned stroke-dasharray: 5 5
-    class q,hyb,rr,aug,gen,out,none planned
+    classDef deferred stroke-dasharray: 2 4,color:#999
+    class q,hyb,aug,gen,out,none planned
+    class rr deferred
 ```
 
 ### Notes on the online steps
 
-The three RAG letters map to: **R** = hybrid retrieval + rerank, **A** = augment,
+The three RAG letters map to: **R** = hybrid retrieval (+ rerank later), **A** = augment,
 **G** = generate.
 
 - **Question.** Vietnamese, free text. It may name a document or article directly
   ("Điều 9 Luật 48/2024"); see Open questions on handling that before retrieval.
 - **Hybrid retrieval.** BM25 and vector search each return their top candidates; the two
   lists are merged into one, typically by rank (reciprocal rank fusion), because their raw
-  scores are not on the same scale. Goal here is recall: cast a wide net, ~20–50 chunks.
-- **Rerank.** A cross-encoder reads question and chunk *together* and scores relevance, which
+  scores are not on the same scale. With a reranker this step casts a wide net (~20–50) for the
+  reranker to cut; **without one (v1) the fused list is cut directly to the top ~5–10**.
+- **Rerank — deferred, not in v1.** Too slow on CPU (Risks checked); added only if eval
+  shows the right article is retrieved but ranked too low. What it would do: a cross-encoder reads question and chunk *together* and scores relevance, which
   is more accurate than the separate embeddings used in retrieval but too slow to run over the
   whole corpus. Cuts the wide list down to the best few, ~5–10. Goal here is precision.
 - **Augment.** Builds what the LLM will read. Each item:
@@ -95,7 +99,8 @@ The three RAG letters map to: **R** = hybrid retrieval + rerank, **A** = augment
 - **Answer + citations.** Citation ids are turned back into document / article / clause and
   a link to the source page. An id the LLM made up, that was not in the context, is a
   detectable error.
-- **Not found.** Two triggers: rerank scores all below a threshold (nothing relevant was
+- **Not found.** Two triggers: retrieval scores all below a threshold (rerank score once
+  there is a reranker) (nothing relevant was
   retrieved), or the LLM finds the passages do not answer the question. Saying so is a
   correct answer, not a failure.
 
@@ -110,18 +115,77 @@ flowchart LR
     class qs,run,m planned
 ```
 
+## Tech stack — proposal
+
+Write the RAG core by hand; use libraries only for the heavy parts (models, indexes). No
+LangChain / LlamaIndex in the first version: the point of the project is to understand and
+measure each step, and hand-written retrieval code shows that better than framework glue.
+Each choice becomes an ADR once settled.
+
+| Step | Proposal | Why / alternative |
+|---|---|---|
+| Chunk + enrich | Plain Python + regex; `pydantic` chunk schema; JSONL on disk | Legal structure is explicit, no library needed. This is where the project differs from a tutorial. |
+| Embed | `BAAI/bge-m3` via `sentence-transformers`, local | Multilingual, good Vietnamese, up to 8k tokens, free. Alternative: `intfloat/multilingual-e5-large` — compare on the eval set. |
+| BM25 tokenization | `underthesea` or `pyvi` | Compare against plain syllable tokens. |
+| BM25 | `bm25s` | Fast, small. Alternative: `rank_bm25`. |
+| Vector store | Chroma, persisted locally | Enough for a few thousand chunks; `chroma_db/` is already gitignored. Alternative: Qdrant — native hybrid search, but a server to run. |
+| Hybrid retrieval | Reciprocal rank fusion, hand-written | ~10 lines; no reason to hide it. |
+| Rerank | **Deferred — not in v1.** Candidate if added: `BAAI/bge-reranker-v2-m3` | Too slow on CPU (Risks checked). |
+| Generate | Keep the scaffold's Gemini default behind a thin interface | Swapping to Claude or another provider is one file. Check current pricing before choosing. |
+| Eval | Hand-written recall@k / MRR for retrieval; LLM-as-judge for faithfulness | RAGAS later if useful. Writing the metrics is how you learn what they measure. |
+| UI + demo | Streamlit on Hugging Face Spaces | Fast, gives the README a demo link. Alternative: FastAPI + a small frontend. |
+
+### Risks checked
+
+Rough benchmark, 2026-11-03: bge-m3 and bge-reranker-v2-m3 on CPU, over chunks cut from the
+crawled corpus (article per chunk, clause split above 4000 chars, appendix cut by a rough regex).
+Dev laptop: i7-10610U 4 cores, 16 GB RAM with only ~2 GB free during the run, no GPU.
+
+| Measure | Result |
+|---|---|
+| Corpus | 1,824 chunks, 564k tokens; per chunk p50 186, p90 751, max 3,289 tokens; ~4 chars/token |
+| Embed corpus | ~93 tokens/s, so ~95 min for the full index (4 and 2 threads alike) |
+| Embed one query | 0.25–0.46 s |
+| Rerank 20 / 50 pairs | 19–28 s / 65–76 s |
+| RAM, both models loaded | ~4 GB |
+
+4 and 2 threads gave the same embed speed, which points at memory pressure rather than compute:
+treat these as pessimistic, not as the machine's real speed.
+
+**Risk 1 — local hardware.**
+- Indexing is a one-off batch: ~1.5 h worst case is acceptable. Vectors are saved, never
+  recomputed per run; a free Colab GPU is the fallback if it has to be re-run often.
+- Query embedding is fast enough.
+- **Rerank on CPU is not usable interactively** — 20 s for 20 pairs. Options: skip it in v1
+  and add it only if eval shows retrieval misses; rerank fewer, shorter inputs (top 10,
+  truncated to 256 tokens); a smaller reranker; or a hosted rerank API.
+
+**Risk 2 — Hugging Face Spaces free tier** (CPU Basic: 2 vCPU, 16 GB RAM, 50 GB non-persistent
+disk; sleeps after 48 h idle — official docs, see links below).
+- RAM fits: ~4 GB for both models against 16 GB.
+- The Space only embeds queries and searches a prebuilt index; indexing never runs there.
+- Same rerank problem as locally, on 2 vCPU.
+- Cold start after sleep: disk is not persistent, so models may be downloaded again on wake —
+  a first visitor could wait minutes. Not measured; check when deploying.
+
+Sources: [Spaces overview](https://huggingface.co/docs/hub/spaces-overview),
+[Spaces hardware](https://huggingface.co/docs/hub/en/spaces-gpus).
+
 ## Open questions
 
 - Chunk unit: one article per chunk, split by clause above some length? What length?
 - Context header: is the rule-based one enough, or does an LLM-written one (Anthropic's
   "contextual retrieval") measurably help on the eval set?
 - BM25 tokenization: syllables, or word-segmented (e.g. underthesea / pyvi)?
-- Not-found threshold on rerank score: what value, tuned how?
 - Amendments: extract `amends` from the amending text itself ("Sửa đổi khoản 25 Điều 5 của
   Luật …"), then invert it across the corpus to get `amended_by` — the amended document never
   says it was amended. Both directions on the chunk: `amends` makes an amending fragment
   readable, `amended_by` stops an answer from the outdated original. Same edge shape for
   replaces / repeals, at article or clause level, not just document level.
 - Query by reference ("Điều 9 Luật 48/2024"): regex lookup before retrieval, or trust BM25?
-- Rerank: worth it at 27 documents, or only once eval shows retrieval misses?
+- Rerank: leaning to drop it from v1 (CPU too slow, Risks checked). Add it if eval shows the
+  right article retrieved but ranked below the cut — then which of: fewer/shorter pairs,
+  smaller model, hosted API?
+- Not-found threshold without a reranker: fused rank scores are not calibrated, so a
+  threshold on vector similarity? Or leave the call to the LLM?
 - Embedding model with good Vietnamese: bge-m3, multilingual-e5 — compare on the eval set.
