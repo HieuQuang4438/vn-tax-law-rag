@@ -29,7 +29,11 @@ flowchart LR
   enrichment: it strips the site's UI and keeps only what the source already says — metadata
   from the overview table, and the text as ordered blocks.
 - **Chunk.** Unit is the legal structure, not a token count:
-  - one article (Điều) per chunk; split by clause (Khoản) only when an article is too long;
+  - one article (Điều) per chunk; split by clause (Khoản) when the article is over ~800
+    tokens. Measured: p50 186, p90 751, max 3,289 tokens per article, so about 1 article in 10
+    is split. bge-m3 would take 8k tokens, so the split is for retrieval precision — a
+    3k-token article covers several topics — not a model limit. Augment pulls the parent
+    article back in when needed. 800 is a starting point for eval to tune;
   - each chunk keeps its position: document, chapter, article, clause — the citation is built
     from it;
   - article headings are found by text (`^Điều \d+\s*\.`), not the site's CSS classes, which
@@ -39,7 +43,11 @@ flowchart LR
   - *context header* — a short prefix naming where the chunk sits, built from metadata:
     `[Thông tư 90/2026/TT-BTC — Quy định về đăng ký thuế] [Chương II > Điều 5 > Khoản 2]`.
     A clause like "Trường hợp quy định tại khoản 1 Điều này…" means nothing alone;
-  - *amends / amended_by* — see Open questions;
+  - *amends / amended_by* — extract `amends` from the amending text itself ("Sửa đổi khoản 25
+    Điều 5 của Luật …"), then invert it across the corpus to get `amended_by`: the amended
+    document never says it was amended. Both directions go on the chunk — `amends` makes an
+    amending fragment readable, `amended_by` stops an answer from the outdated original. Same
+    edge shape for replaces / repeals, at article or clause level, not just document level;
   - *effective date* — paid-only on the site, so read from the document's own
     "Hiệu lực thi hành" article.
 
@@ -75,7 +83,10 @@ The three RAG letters map to: **R** = hybrid retrieval (+ rerank later), **A** =
 **G** = generate.
 
 - **Question.** Vietnamese, free text. It may name a document or article directly
-  ("Điều 9 Luật 48/2024"); see Open questions on handling that before retrieval.
+  ("Điều 9 Luật 48/2024"). A regex catches such references first and fetches those chunks
+  directly by metadata; hybrid retrieval still runs for the rest of the question. BM25 alone
+  is not trusted for this: "Điều 9" appears in hundreds of chunks, and document numbers like
+  `48/2024/QH15` are split into fragments by tokenizers.
 - **Hybrid retrieval.** BM25 and vector search each return their top candidates; the two
   lists are merged into one, typically by rank (reciprocal rank fusion), because their raw
   scores are not on the same scale. With a reranker this step casts a wide net (~20–50) for the
@@ -173,19 +184,24 @@ Sources: [Spaces overview](https://huggingface.co/docs/hub/spaces-overview),
 
 ## Open questions
 
-- Chunk unit: one article per chunk, split by clause above some length? What length?
+Need the eval set — each is a measurement, not an argument:
+
 - Context header: is the rule-based one enough, or does an LLM-written one (Anthropic's
-  "contextual retrieval") measurably help on the eval set?
+  "contextual retrieval") measurably help?
 - BM25 tokenization: syllables, or word-segmented (e.g. underthesea / pyvi)?
-- Amendments: extract `amends` from the amending text itself ("Sửa đổi khoản 25 Điều 5 của
-  Luật …"), then invert it across the corpus to get `amended_by` — the amended document never
-  says it was amended. Both directions on the chunk: `amends` makes an amending fragment
-  readable, `amended_by` stops an answer from the outdated original. Same edge shape for
-  replaces / repeals, at article or clause level, not just document level.
-- Query by reference ("Điều 9 Luật 48/2024"): regex lookup before retrieval, or trust BM25?
-- Rerank: leaning to drop it from v1 (CPU too slow, Risks checked). Add it if eval shows the
-  right article retrieved but ranked below the cut — then which of: fewer/shorter pairs,
-  smaller model, hosted API?
-- Not-found threshold without a reranker: fused rank scores are not calibrated, so a
-  threshold on vector similarity? Or leave the call to the LLM?
-- Embedding model with good Vietnamese: bge-m3, multilingual-e5 — compare on the eval set.
+- Embedding model: bge-m3 vs multilingual-e5.
+- Not-found threshold: fused rank scores are not calibrated. Starting point: the LLM decides,
+  plus a floor on vector similarity, tuned with eval questions the corpus deliberately cannot
+  answer.
+- Chunk split threshold: is ~800 tokens right?
+
+Smaller, checkable on the data:
+
+- Does a regex catch every amending phrasing ("Sửa đổi, bổ sung…", "Bổ sung … vào sau …",
+  "Thay thế…", "bãi bỏ…")? Run it over the amending documents and read the misses.
+
+Leaning, with the condition that would reopen it:
+
+- Rerank out of v1 (CPU too slow, Risks checked). Reopen if eval shows the right article
+  retrieved but ranked below the cut; then choose between fewer/shorter pairs, a smaller
+  model, or a hosted API.
