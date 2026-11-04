@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: approved
 updated: 2026-11-03
 owner: HieuQuang4438
 ---
@@ -7,7 +7,7 @@ owner: HieuQuang4438
 # ADR-0001: Chunk by legal structure and enrich each chunk with its context
 
 ## Status
-Proposed on 2026-11-03.
+Approved by HieuQuang4438 on 2026-11-04.
 
 ## Context
 The corpus is 27 Vietnamese tax laws, decrees and circulars, crawled as ordered text blocks

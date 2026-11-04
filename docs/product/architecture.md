@@ -1,7 +1,8 @@
 ---
-status: draft
+status: approved
 updated: 2026-11-04
 owner: HieuQuang4438
+approved-by: peer
 ---
 
 # Architecture — vn-tax-law-rag
