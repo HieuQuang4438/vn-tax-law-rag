@@ -19,6 +19,8 @@ sys.path.insert(0, str(ROOT / "scripts"))  # crawl_index imports crawl_one as a 
 import crawl_index  # noqa: E402
 import crawl_one  # noqa: E402
 
+from src.chunking import chunk_document  # noqa: E402
+
 FIXTURES = Path(__file__).parent / "fixtures" / "crawler"
 SITE = "https://luatvietnam.vn"
 TAX_INDEX = f"{SITE}/thue-phi-le-phi/tong-hop-danh-sach-luat-thue-565-110892-article.html"
@@ -272,4 +274,10 @@ def test_corpus_crawl_from_cache_meets_ac_001(tmp_path, monkeypatch, no_network,
         missing = [k for k in ("so_hieu", "loai_van_ban", "co_quan_ban_hanh", "ngay_ban_hanh") if not doc["metadata"].get(k)]
         if missing:
             problems.append((d["doc_id"], "metadata", missing))
+        # Articles 1..N with no gap and none lost at the end — the chunker's structural checks.
+        result = chunk_document(doc, count_tokens=lambda text: len(text.split()))
+        problems += [(d["doc_id"], i.kind, i.article) for i in result.issues
+                     if i.kind in ("article_gap", "hidden_heading", "unexpected_last_article")]
+        if not result.articles or result.articles[0].article != "1":
+            problems.append((d["doc_id"], "no Điều 1", None))
     assert problems == []
