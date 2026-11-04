@@ -30,10 +30,15 @@ flowchart LR
   from the overview table, and the text as ordered blocks.
 - **Chunk.** Unit is the legal structure, not a token count:
   - one article (Điều) per chunk; split by clause (Khoản) when the article is over ~800
-    tokens. Measured: p50 186, p90 751, max 3,289 tokens per article, so about 1 article in 10
-    is split. bge-m3 would take 8k tokens, so the split is for retrieval precision — a
-    3k-token article covers several topics — not a model limit. Augment pulls the parent
-    article back in when needed. 800 is a starting point for eval to tune;
+    tokens. Measured per article (2026-11-04): p50 532, p75 1,136, p90 2,064, max 8,087
+    tokens, so about 37% of articles are split at 800. The split is mainly for retrieval
+    precision — a 2k-token article covers several topics — but the largest article is also
+    close to bge-m3's 8,192-token limit. Augment pulls the parent article back in when needed.
+    800 is a starting point for eval to tune;
+
+    > **Correction, 2026-11-04.** An earlier version of this note gave p50 186, p90 751, max
+    > 3,289 "per article" and "about 1 article in 10 split". Those were per-chunk numbers from
+    > the benchmark, where articles over 4,000 chars had already been split by clause.
   - each chunk keeps its position: document, chapter, article, clause — the citation is built
     from it;
   - article headings are found by text (`^Điều \d+\s*\.`), not the site's CSS classes, which
@@ -155,6 +160,7 @@ Dev laptop: i7-10610U 4 cores, 16 GB RAM with only ~2 GB free during the run, no
 | Measure | Result |
 |---|---|
 | Corpus | 1,824 chunks, 564k tokens; per chunk p50 186, p90 751, max 3,289 tokens; ~4 chars/token |
+| Per article, unsplit | 638 articles; p50 532, p75 1,136, p90 2,064, max 8,087 tokens |
 | Embed corpus | ~93 tokens/s, so ~95 min for the full index (4 and 2 threads alike) |
 | Embed one query | 0.25–0.46 s |
 | Rerank 20 / 50 pairs | 19–28 s / 65–76 s |
@@ -193,7 +199,8 @@ Need the eval set — each is a measurement, not an argument:
 - Not-found threshold: fused rank scores are not calibrated. Starting point: the LLM decides,
   plus a floor on vector similarity, tuned with eval questions the corpus deliberately cannot
   answer.
-- Chunk split threshold: is ~800 tokens right?
+- Chunk split threshold: is ~800 tokens right? Share of articles split: 59% at 400, 37% at
+  800, 30% at 1,000, 18% at 1,500 (issue #12).
 
 Smaller, checkable on the data:
 
