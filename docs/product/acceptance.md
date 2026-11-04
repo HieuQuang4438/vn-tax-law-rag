@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-03
+updated: 2026-11-04
 owner: HieuQuang4438
 ---
 
@@ -14,11 +14,11 @@ over the eval set defined below.
 
 | ID | Criterion | Checks |
 |---|---|---|
-| AC-001 | A crawl of the summary article yields every listed document, each with number, type, issuer and issue date, and every article from Điều 1 to its last with no gap. | FR-CORE-001 |
-| AC-002 | Every chunk carries document, chapter, article, clause and parent ids; no chunk is appendix-form text; an article over the split threshold is split into clauses and none under it is. | FR-CORE-002 |
-| AC-003 | Every chunk has a non-empty context header naming its document number and article, stored in a separate field from its text. | FR-CORE-003 |
-| AC-004 | Every document has an effective date, or is listed in a report of documents where none could be read. | FR-CORE-004 |
-| AC-005 | On a hand-checked list of the amending provisions in the corpus, every one produces both the `amends` link and the matching `amended_by` link. | FR-CORE-005 |
+| AC-001 | A crawl of both summary articles yields every listed document exactly once — 30 documents as of 2026-11-04 — each with number, type, issuer and issue date, and every article from Điều 1 to its last with no gap. | FR-CORE-001 |
+| AC-002 | Every chunk carries document, chapter, article, clause and parent ids. No chunk contains appendix-form text, the heading block, the preamble or the signature block. Every article over 800 tokens that has clauses is split into them; no article at or under 800 is split; an article over 800 with no clauses is one chunk. | FR-CORE-002 |
+| AC-003 | Every chunk's header names its document number, document title, chapter (where the document has chapters), article, and clause for a clause chunk, in a field separate from its text. The indexed text of a chunk is header + text; the text shown for a citation contains no header. | FR-CORE-003 |
+| AC-004 | Every chunk has an effective date, or its document is listed in a report of documents where none could be read. Check case: in Law 09/2026/QH16, articles 1–3 carry 01/01/2026 and the other articles the adoption date, 24/04/2026. | FR-CORE-004 |
+| AC-005 | On a hand-checked list of the amending, replacing and repealing provisions in the corpus, every one produces its link; every link to an in-corpus target has the matching inverse link; every link to a document outside the corpus is kept and marked out-of-corpus. | FR-CORE-005 |
 | AC-006 | The vector index and the keyword index contain exactly the same set of chunk ids. | FR-CORE-006 |
 | AC-007 | For each eval question that names an article of a document, that article is among the retrieved chunks. | FR-CORE-007 |
 | AC-008 | For a fixed set of retrieved chunks, assembly is deterministic, contains no duplicate passage, includes the parent article of every clause and the amending text of every amended chunk, and stays within the token budget. | FR-CORE-009 |
@@ -27,6 +27,9 @@ over the eval set defined below.
 | AC-011 | One command runs the full eval set and writes a results file holding every EVAL score, the commit and the configuration. | FR-CORE-015 |
 | AC-012 | Index build and retrieval run on the dev laptop (CPU, 16 GB RAM) with no paid service; median retrieval time over the eval set is under 2 s. | NFR-001, NFR-002 |
 | AC-013 | `git ls-files data/` lists nothing but `.gitkeep`; re-running the crawler on a full cache makes no network request; two index builds from the same cache produce identical chunk files. | NFR-003, NFR-004, NFR-005 |
+| AC-014 | On the eval set's conversations, every follow-up turn is rewritten into a standalone question before retrieval, and every first turn is passed through unchanged. | FR-CORE-016 |
+| AC-015 | For every eval question whose expected article has an `amended_by` link, the answer says the provision was amended and cites the amending provision. | FR-CORE-010 |
+| AC-016 | The eval results file holds latency and token cost for every question, and the run reports median and p95 latency and the average cost per question against NFR-006 and NFR-007. | NFR-006, NFR-007 |
 
 ## Eval targets
 
@@ -39,6 +42,7 @@ that baseline, by a recorded decision — never quietly to fit a result.
 | EVAL-002 | Citation correctness | ≥ 0.90 | FR-CORE-010, FR-CORE-011 |
 | EVAL-003 | Faithfulness | ≥ 0.90 | FR-CORE-010 |
 | EVAL-004 | Not-found accuracy on unanswerable questions | ≥ 0.80 | FR-CORE-012 |
+| EVAL-005 | Retrieval recall@k on follow-up turns of conversations | ≥ 0.70 at k = 8 | FR-CORE-016 |
 
 ## Measurement definitions
 
@@ -46,7 +50,9 @@ that baseline, by a recorded decision — never quietly to fit a result.
 sentence and the list of articles (or clauses) that support it. At least 20% are unanswerable
 from the corpus — outside its scope, or about repealed rules — with an empty expected list.
 Questions mix plain-language wording with explicit references ("Điều 9 Luật 48/2024"), and
-cover every tax type in the corpus. The set is versioned; a score is only comparable to
+cover every tax type in the corpus. It also holds at least 5 conversations of 2–3 turns whose
+follow-up turns cannot be answered without the earlier ones ("còn hộ kinh doanh thì sao?");
+each follow-up has its own expected articles. The set is versioned; a score is only comparable to
 scores from the same set version.
 
 **recall@k** — over answerable questions, the share of expected articles that appear among the
@@ -62,4 +68,13 @@ passages in the context, whether cited or not. Same judge and spot-check as abov
 **Not-found accuracy** — over unanswerable questions, the share answered with the not-found
 reply rather than an answer.
 
-Every run reports all four, including the ones that got worse.
+**Follow-up recall@k** — recall@k as above, over follow-up turns only, retrieving with the
+rewritten question.
+
+**Latency** — wall-clock time from receiving a question to the complete answer, per question.
+Reported as median and p95, with the machine it ran on.
+
+**Cost** — input and output tokens per question, from the provider's usage report, times the
+provider's list price on the day of the run.
+
+Every run reports all of these, including the ones that got worse.

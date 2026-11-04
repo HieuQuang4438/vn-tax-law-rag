@@ -28,7 +28,7 @@ Solid boxes are built; dashed boxes are planned.
 flowchart LR
     subgraph offline["Offline — build the index"]
         direction LR
-        src[Summary article<br/>27 documents] --> crawl[Crawl + parse]
+        src[2 summary articles<br/>30 documents] --> crawl[Crawl + parse]
         crawl -.-> chunk[Chunk by<br/>article / clause]
         chunk -.-> enrich[Enrich<br/>context header,<br/>amendment links,<br/>effective date]
         enrich -.-> vec[(Vector index<br/>bge-m3 + Chroma)]
@@ -36,8 +36,9 @@ flowchart LR
     end
     subgraph online["Online — answer a question"]
         direction LR
-        q[Question] -.-> ref[Resolve explicit<br/>references]
-        q -.-> hyb[Hybrid retrieval<br/>rank fusion, top k]
+        q[Question +<br/>conversation] -.-> rw[Rewrite follow-up<br/>as standalone]
+        rw -.-> ref[Resolve explicit<br/>references]
+        rw -.-> hyb[Hybrid retrieval<br/>rank fusion, top k]
         ref -.-> aug[Assemble context<br/>parent article, amending text,<br/>citation ids]
         hyb -.-> aug
         aug -.-> llm[LLM answers from<br/>context only]
@@ -47,7 +48,7 @@ flowchart LR
     kw -.-> hyb
 
     classDef planned stroke-dasharray: 5 5
-    class chunk,enrich,vec,kw,q,ref,hyb,aug,llm,out planned
+    class chunk,enrich,vec,kw,q,rw,ref,hyb,aug,llm,out planned
 ```
 
 Why it is built this way: chunking in [ADR-0001](docs/adr/0001-chunk-by-legal-structure.md),
@@ -67,7 +68,13 @@ reranker in the first version: on CPU it took ~20 s per question.
 
 ## Data
 
-The corpus is about 27 tax laws, decrees and circulars in force in 2026. Vietnamese legal
+The corpus is the 30 tax laws, decrees and circulars listed in two summary articles on
+luatvietnam.vn:
+
+- [Tổng hợp danh sách luật thuế và nghị định, thông tư thuế mới nhất 2026](https://luatvietnam.vn/thue-phi-le-phi/tong-hop-danh-sach-luat-thue-va-nghi-dinh-thong-tu-thue-moi-nhat-2026-565-110892-article.html) — 27 documents
+- [Luật Thuế TNCN mới nhất 2026 và văn bản hướng dẫn](https://luatvietnam.vn/thue-phi-le-phi/tong-hop-van-ban-huong-dan-ve-thue-tncn-moi-nhat-565-96172-article.html) — adds the personal income tax law, decree and circular
+
+The crawler reads its list from `INDEX_URLS` in `scripts/crawl_index.py`. Vietnamese legal
 normative documents are not protected by copyright (Law on Intellectual Property, Article 15),
 but the website they are taken from adds its own summaries and annotations. Only the crawler is
 published; crawled pages and parsed text stay local (`data/` is gitignored).
@@ -96,5 +103,5 @@ Python 3.12, requests, BeautifulSoup + lxml. LLM, embedding model and vector sto
 
 ## Status
 
-Early. The crawler fetches all 27 listed documents; every one has an unbroken run of articles
+Early. The crawler fetches all 30 listed documents; every one has an unbroken run of articles
 from Điều 1 to its last article. Chunking, retrieval, the agent and evaluation do not exist yet.

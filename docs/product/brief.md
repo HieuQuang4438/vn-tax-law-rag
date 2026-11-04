@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-03
+updated: 2026-11-04
 owner: HieuQuang4438
 ---
 
@@ -30,7 +30,9 @@ rules, mix up document numbers, or invent articles, and the reader has no way to
 
 A question-answering agent, in Vietnamese, that answers only from the current tax documents and
 cites the document, article and clause behind every claim, linked to the source text. When the
-documents do not cover a question, it says so instead of guessing.
+documents do not cover a question, it says so instead of guessing. It holds a conversation:
+a follow-up such as "còn hộ kinh doanh thì sao?" is understood in the context of the turns
+before it.
 
 Three choices carry the design:
 
@@ -45,8 +47,10 @@ Three choices carry the design:
 
 In scope:
 
-- The 27 tax laws, decrees and circulars listed as current in luatvietnam.vn's 2026 summary
-  article (`data/processed/_index.json` after a crawl).
+- The 30 tax laws, decrees and circulars listed as current in two luatvietnam.vn summary
+  articles: the 2026 list of tax documents (27), and the personal income tax list, which adds
+  the Personal Income Tax Law 109/2025, Decree 253/2026 and
+  Circular 87/2026. Without the second list the most-asked tax type had no law in the corpus.
 - Vietnamese questions and answers.
 - Answers grounded in, and citing, those documents only.
 
