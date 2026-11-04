@@ -22,6 +22,38 @@ Planned — see Status for what exists today.
 
 ## How it works
 
+Solid boxes are built; dashed boxes are planned.
+
+```mermaid
+flowchart LR
+    subgraph offline["Offline — build the index"]
+        direction LR
+        src[Summary article<br/>27 documents] --> crawl[Crawl + parse]
+        crawl -.-> chunk[Chunk by<br/>article / clause]
+        chunk -.-> enrich[Enrich<br/>context header,<br/>amendment links,<br/>effective date]
+        enrich -.-> vec[(Vector index<br/>bge-m3 + Chroma)]
+        enrich -.-> kw[(Keyword index<br/>BM25)]
+    end
+    subgraph online["Online — answer a question"]
+        direction LR
+        q[Question] -.-> ref[Resolve explicit<br/>references]
+        q -.-> hyb[Hybrid retrieval<br/>rank fusion, top k]
+        ref -.-> aug[Assemble context<br/>parent article, amending text,<br/>citation ids]
+        hyb -.-> aug
+        aug -.-> llm[LLM answers from<br/>context only]
+        llm -.-> out[Answer with citations,<br/>or not found]
+    end
+    vec -.-> hyb
+    kw -.-> hyb
+
+    classDef planned stroke-dasharray: 5 5
+    class chunk,enrich,vec,kw,q,ref,hyb,aug,llm,out planned
+```
+
+Why it is built this way: chunking in [ADR-0001](docs/adr/0001-chunk-by-legal-structure.md),
+retrieval in [ADR-0002](docs/adr/0002-hybrid-retrieval-without-rerank.md). There is no
+reranker in the first version: on CPU it took ~20 s per question.
+
 1. **Crawl** — `scripts/crawl_index.py` reads the summary article listing current tax documents and
    runs `scripts/crawl_one.py` on each: fetch the page, cache the raw HTML, extract metadata plus
    the full text as ordered blocks.
