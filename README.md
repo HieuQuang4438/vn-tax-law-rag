@@ -55,6 +55,9 @@ Why it is built this way: chunking in [ADR-0001](docs/adr/0001-chunk-by-legal-st
 retrieval in [ADR-0002](docs/adr/0002-hybrid-retrieval-without-rerank.md). There is no
 reranker in the first version: on CPU it took ~20 s per question.
 
+Step by step, with examples from the corpus: [docs/product/architecture.md](docs/product/architecture.md).
+All project documents: [docs/README.md](docs/README.md).
+
 1. **Crawl** — `scripts/crawl_index.py` reads the summary article listing current tax documents and
    runs `scripts/crawl_one.py` on each: fetch the page, cache the raw HTML, extract metadata plus
    the full text as ordered blocks.
