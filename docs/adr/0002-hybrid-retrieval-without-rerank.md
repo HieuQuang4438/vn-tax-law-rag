@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: approved
 updated: 2026-11-03
 owner: HieuQuang4438
 ---
@@ -7,7 +7,7 @@ owner: HieuQuang4438
 # ADR-0002: Hybrid retrieval with local models, no reranker in v1
 
 ## Status
-Proposed on 2026-11-03.
+Approved by HieuQuang4438 on 2026-11-03.
 
 ## Context
 Users ask in plain Vietnamese ("hộ kinh doanh phải nộp thuế gì") and by reference ("Điều 9
