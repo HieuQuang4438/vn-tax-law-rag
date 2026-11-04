@@ -8,7 +8,7 @@ an approach. The rule it implements is in `CONVENTIONS.md` §7.
 ## Procedure
 
 - [ ] Read the issue and the owning document its `Spec:` line points at.
-- [ ] Draft the proposal in chat, using the template below. **Nothing posted, nothing coded.**
+- [ ] Draft the proposal in chat, using the template below. **Nothing posted, nothing coded.** Write it as rendered markdown, not inside a code block: the reviewer has to read it, and a fenced block shows raw `**` and `###` instead of formatting. The code block is only for the exact text being posted, once approved, if it is needed at all.
 - [ ] A human approves or edits it in chat.
 - [ ] Post the approved version as an issue comment, keeping **every** option that was raised and marking the one chosen.
 - [ ] Implement. Where the work departs from what was approved, record it in the owning document with the reason — never by editing the comment.
@@ -28,8 +28,8 @@ an approach. The rule it implements is in `CONVENTIONS.md` §7.
 ### Choices
 
 **1. <the decision>**
-- [x] A: <option>. <one line of trade-off>
-- [ ] B: <option>. <one line of trade-off>
+- ✅ A: <option>. <one line of trade-off>
+- ⬜ B: <option>. <one line of trade-off>
 
 **2. <the decision>**
 - ...
@@ -39,6 +39,7 @@ an approach. The rule it implements is in `CONVENTIONS.md` §7.
 ```
 
 - Every decision carries at least two options, each with its trade-off on one line. One option is not a choice, it is a plan.
+- Mark the chosen option ✅ and the others ⬜, not `- [x]` / `- [ ]`: on GitHub a task-list checkbox in a comment can be ticked by a click, which would silently change the record.
 - For anything measured, the configuration goes in `Fixed` or in an option: time limit, seed, commit, model, quantization, dataset.
 
 ## Comment template — a decision approved mid-work

@@ -175,6 +175,8 @@ Two reasons this is worth the step. A proposal in chat is cheap to reject; a pro
 
 **Never close an issue directly.** Let the merge close it through `Closes #`, so "done" is tied to merged, tested code rather than to somebody's claim. This is the same rule as §4 of DOCS-CONVENTIONS.md, where a document cannot be approved by the person asserting it is finished.
 
+In this repo work merges into `develop`, while `main` stays the default branch, so GitHub's own `Closes #` handling would wait for the release merge. `.github/workflows/close-issues-on-develop.yml` closes the issue when the PR or commit lands on `develop` instead. Same rule, earlier branch.
+
 At release, the milestone is the release note's source:
 
 ```bash
