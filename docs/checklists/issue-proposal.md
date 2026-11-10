@@ -1,6 +1,6 @@
 # Checklist: issue proposal
 
-Copy into `docs/checklists/`. Use when an issue carries a design choice.
+Use when an issue carries a design choice.
 Mechanical work skips this file entirely.
 The universal gate is `CONVENTIONS.md` §10 — this file only adds what is specific to proposing
 an approach. The rule it implements is in `CONVENTIONS.md` §7.

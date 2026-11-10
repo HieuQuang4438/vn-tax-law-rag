@@ -1,6 +1,6 @@
 # Checklist: go public
 
-Copy into `docs/checklists/`. Tick **once**, the one time this repo is flipped from private to
+Tick **once**, the one time this repo is flipped from private to
 public. This is not the checklist for shipping a snapshot to a separate public repo — that is a
 different, recurring process and belongs in whichever repo does it.
 

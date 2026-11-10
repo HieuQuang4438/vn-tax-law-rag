@@ -1,6 +1,6 @@
 # Checklist: release
 
-Copy into `docs/checklists/`. Tick every time a version ships.
+Tick every time a version ships.
 The universal gate is `CONVENTIONS.md` §10 — this file only adds what is specific to a release.
 
 - [ ] Every issue in the milestone is closed, or moved out of it deliberately.

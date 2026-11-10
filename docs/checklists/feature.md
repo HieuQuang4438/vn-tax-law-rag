@@ -1,11 +1,12 @@
 # Checklist: new feature
 
-Copy into `docs/checklists/`. Tick every time a feature ships.
+Tick every time a feature ships.
 The universal gate is `CONVENTIONS.md` §10 — this file only adds what is specific to a feature.
 
 - [ ] The requirement exists in its owning document with an ID, before any code.
 - [ ] The acceptance criterion exists with an ID and says how it is judged, before any code.
-- [ ] Wrote a failing test naming that AC.
+- [ ] Wrote a failing test naming that AC, and confirmed it fails for the real reason.
+- [ ] Reported the red test and stopped there, or the stop was explicitly waived (§6).
 - [ ] Implemented until the test passes, and nothing else changed result.
 - [ ] Traceability row added: problem → goal → FR → AC → test.
 - [ ] Docs updated in the **same commit** as the behavior.

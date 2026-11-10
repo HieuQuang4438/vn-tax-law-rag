@@ -1,6 +1,6 @@
 # Checklist: new service
 
-Copy into `docs/checklists/`. Tick every time a new deployable unit is added.
+Tick every time a new deployable unit is added.
 The universal gate is `CONVENTIONS.md` §10 — this file only adds what is specific to a new service.
 
 - [ ] Named the one thing this service owns. If it needs "and", it is two services.
