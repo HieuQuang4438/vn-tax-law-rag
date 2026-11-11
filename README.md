@@ -77,6 +77,10 @@ luatvietnam.vn:
 - [Tổng hợp danh sách luật thuế và nghị định, thông tư thuế mới nhất 2026](https://luatvietnam.vn/thue-phi-le-phi/tong-hop-danh-sach-luat-thue-va-nghi-dinh-thong-tu-thue-moi-nhat-2026-565-110892-article.html) — 27 documents
 - [Luật Thuế TNCN mới nhất 2026 và văn bản hướng dẫn](https://luatvietnam.vn/thue-phi-le-phi/tong-hop-van-ban-huong-dan-ve-thue-tncn-moi-nhat-565-96172-article.html) — adds the personal income tax law, decree and circular
 
+Every document, how they relate and what is irregular in them:
+[docs/reference/corpus.md](docs/reference/corpus.md). Vietnamese legal terms used throughout:
+[docs/reference/glossary.md](docs/reference/glossary.md).
+
 The crawler reads its list from `INDEX_URLS` in `scripts/crawl_index.py`. Vietnamese legal
 normative documents are not protected by copyright (Law on Intellectual Property, Article 15),
 but the website they are taken from adds its own summaries and annotations. Only the crawler is
