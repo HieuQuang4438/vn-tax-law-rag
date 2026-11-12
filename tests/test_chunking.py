@@ -102,6 +102,46 @@ def test_document_without_chapters_has_no_chapter():
     assert [c.chapter for c in chunk(doc).chunks] == [None, None]
 
 
+# AC-003 needs the chapter title for the context header; the chunker records it (approach on #3).
+
+
+def test_chapter_title_is_the_all_caps_line_after_the_chapter_heading():
+    result = chunk(short_doc())
+
+    assert [c.chapter_title for c in result.chunks] == ["QUY ĐỊNH CHUNG", "QUY ĐỊNH CHUNG", "THỦ TỤC ĐĂNG KÝ THUẾ"]
+    assert [a.chapter_title for a in result.articles] == ["QUY ĐỊNH CHUNG", "QUY ĐỊNH CHUNG", "THỦ TỤC ĐĂNG KÝ THUẾ"]
+
+
+def test_section_title_does_not_replace_the_chapter_title():
+    # short_doc's Điều 3 sits under "Mục 1 / ĐĂNG KÝ THUẾ LẦN ĐẦU" inside Chương II.
+    assert chunk(short_doc()).chunks[2].chapter_title == "THỦ TỤC ĐĂNG KÝ THUẾ"
+
+
+def test_document_without_chapters_has_no_chapter_title():
+    doc = make_doc(HEADING, "Điều 1. Phạm vi\nNội dung.", "Điều 2. Hiệu lực\nNội dung.", SIGNATURE)
+
+    assert [c.chapter_title for c in chunk(doc).chunks] == [None, None]
+
+
+def test_chapter_without_all_caps_title_line_has_no_title_and_is_reported():
+    doc = make_doc(
+        "Chương I", "Điều 1. Phạm vi\nNội dung.",
+        "Chương II\nTHỦ TỤC", "Điều 2. Hiệu lực thi hành\nNội dung.",
+        SIGNATURE,
+    )
+    result = chunk(doc)
+
+    assert [c.chapter_title for c in result.chunks] == [None, "THỦ TỤC"]
+    assert [(i.kind, i.article) for i in result.issues] == [("missing_chapter_title", "1")]
+
+
+def test_chapter_title_is_kept_as_written_in_the_source():
+    doc = make_doc("CHƯƠNG I\nNHỮNG QUY ĐỊNH CHUNG", "Điều 1. Hiệu lực thi hành\nNội dung.", SIGNATURE)
+    first = chunk(doc).chunks[0]
+
+    assert (first.chapter, first.chapter_title) == ("Chương I", "NHỮNG QUY ĐỊNH CHUNG")
+
+
 def test_chunk_text_is_article_body_without_heading_line():
     chunks = chunk(short_doc()).chunks
 
@@ -482,7 +522,7 @@ def test_build_writes_chunks_and_articles_for_every_document_sorted_by_doc_id(tm
     assert [c["doc_id"] for c in chunks] == sorted(c["doc_id"] for c in chunks)
     assert {c["doc_id"] for c in chunks} == {"500001", "500002"}
     assert [a["id"] for a in articles] == ["500001:D1", "500001:D2", "500002:D1", "500002:D2", "500002:D3"]
-    assert set(chunks[0]) == {"id", "doc_id", "chapter", "article", "clause", "parent_id", "text"}
+    assert set(chunks[0]) == {"id", "doc_id", "chapter", "chapter_title", "article", "clause", "parent_id", "text"}
 
 
 def test_build_is_deterministic(tmp_path):
