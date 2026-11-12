@@ -17,7 +17,8 @@ and both outrank this page. Steps marked **Planned** are not built yet.
 ## Offline: from source pages to two indexes
 
 Runs once, and again whenever the corpus or the chunking changes. Nothing here runs per
-question. Numbers match the sections below; solid steps are built, dashed are planned.
+question. Numbers match the sections below; every step is built. Once the pages are cached,
+`python scripts/rebuild.py` runs steps 2–5 in one command and makes no network request (NFR-005).
 
 ```mermaid
 flowchart LR
@@ -28,12 +29,9 @@ flowchart LR
     proc --> s3[3. Chunk<br/>article / clause]
     s3 --> s4[4. Enrich<br/>header, effective date,<br/>amendment links]
     s4 --> chunks[("data/enriched/<br/>header + text + metadata")]
-    chunks -.-> s5[5. Index]
-    s5 -.-> vec[("vector index<br/>bge-m3, Chroma")]
-    s5 -.-> kw[("keyword index<br/>BM25")]
-
-    classDef planned stroke-dasharray: 5 5
-    class s5,vec,kw planned
+    chunks --> s5[5. Index]
+    s5 --> vec[("data/index/<br/>vector index<br/>bge-m3, Chroma")]
+    s5 --> kw[("data/index/<br/>keyword index<br/>BM25")]
 ```
 
 ### 1. Crawl — built
@@ -98,15 +96,19 @@ Nothing in it says it belongs to a circular on tax registration. Enrichment adds
   ([corpus.md](../reference/corpus.md#amendments-from-outside-the-corpus)). Rules in
   [chunk-schema.md](../reference/chunk-schema.md#amendment-links). — FR-CORE-005
 
-### 5. Index — planned
+### 5. Index — built
 
-Two indexes over the same chunk ids:
+`python -m src.index` builds two indexes over the same chunk ids, from header + text:
 
 - **Vector index** — bge-m3 embeddings in a local Chroma collection; finds chunks by meaning.
-- **Keyword index** — BM25; finds exact terms such as "mã số thuế" or "khoản 25".
+- **Keyword index** — BM25 over lowercased syllables; finds exact terms such as "mã số thuế"
+  or a document number such as `48/2024/QH15`, which stays one token.
 
-The corpus is embedded once (about an hour and a half on the dev laptop's CPU) and saved; the
-demo only embeds questions. — FR-CORE-006, [ADR-0002](../adr/0002-hybrid-retrieval-without-rerank.md)
+Each index holds only ids; everything else is read back from the enriched chunks. The corpus
+is embedded once (82 minutes on the dev laptop's CPU) and the vectors are cached by text, so a
+rebuild embeds only what changed; the demo only embeds questions. The model loads from the
+local cache, with no network request. Format in [index.md](../reference/index.md).
+— FR-CORE-006, NFR-005, [ADR-0002](../adr/0002-hybrid-retrieval-without-rerank.md)
 
 ## Online: from a question to a cited answer
 

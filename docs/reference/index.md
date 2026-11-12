@@ -42,11 +42,14 @@ the three holds an id twice.
   `5617a9f61b028005a4858fdac845db406aefb181`, on CPU (NFR-001). `max_seq_length` 8192, so no
   chunk is cut: the largest indexed text in the corpus is 3,363 tokens. Vectors are normalized
   to unit length (1,024 dimensions).
-- **Offline.** The model is loaded from the local Hugging Face cache only (`HF_HUB_OFFLINE=1`,
-  `local_files_only=True`), so a build makes no network request. If the cache lacks that
-  revision, the build stops with `ModelNotCachedError`, whose message names the one-time
-  download command: `hf download BAAI/bge-m3 --revision 5617a9f61b028005a4858fdac845db406aefb181`.
-  Approved on #6.
+- **Offline.** The model is loaded from the local Hugging Face cache only, so a build makes no
+  network request (approved on #6). The snapshot folder of the pinned revision is resolved with
+  `local_files_only=True` and the model is loaded from that folder. Setting `HF_HUB_OFFLINE=1` is
+  not enough on its own: `huggingface_hub` reads it once, at import, and in a test run where an
+  earlier test had imported it, loading by model name still opened 12 connections to the Hub.
+  If the cache lacks that revision, the build stops with `ModelNotCachedError`, whose message
+  names the one-time download command:
+  `hf download BAAI/bge-m3 --revision 5617a9f61b028005a4858fdac845db406aefb181`.
 - **Collection.** One collection, `chunks`, with cosine distance. One record per chunk:
   `id` = chunk id, the embedding of its indexed text, metadata `{"doc_id": <doc_id>}`. No
   document text is stored. Chroma's anonymized telemetry is turned off.
@@ -55,8 +58,11 @@ the three holds an id twice.
 
 ## Vector cache — `embeddings/`
 
-Embedding the whole corpus takes about 95 minutes on the dev laptop (ADR-0002), so vectors are
-cached by what was embedded:
+Embedding the whole corpus takes most of the build, so vectors are cached by what was embedded.
+Measured on the dev laptop (i7-10610U, 16 GB RAM, CPU only; torch 2.15.0+cpu,
+sentence-transformers 6.3.0, batch size 4, the code that closes #6): the first build of 1,923 chunks
+embedded 1,923 texts in 4,912.5 s (82 min); a rebuild with nothing changed took 2.0 s. ADR-0002
+estimated about 95 minutes for 1,824 chunks.
 
 - One folder per model and revision: `embeddings/BAAI--bge-m3@<revision>/`, holding
   `keys.json` (a JSON list of `sha256` hex digests of the indexed text, sorted ascending) and
@@ -112,13 +118,31 @@ Written last: a build that stops early leaves no manifest, so a manifest means a
 | `seconds` | `41.7` | wall time of the whole build |
 | `versions` | `{"bm25s": "0.3.16", …}` | installed versions of `bm25s`, `chromadb`, `sentence-transformers` and `torch` |
 
-## Running it
+## Rebuilding from the cached pages
+
+One command rebuilds everything from the pages cached in `data/raw/` (NFR-005, approved on #6):
 
 ```bash
-python -m src.chunking   # data/processed/ -> data/chunks/
-python -m src.enrich     # data/chunks/    -> data/enriched/
-python -m src.index      # data/enriched/  -> data/index/
+python scripts/rebuild.py
 ```
+
+It runs four steps in this order, each as its own process, from the repository root:
+
+| Step | Command | Writes |
+|---|---|---|
+| parse | `python scripts/crawl_index.py` | `data/processed/` |
+| chunk | `python -m src.chunking` | `data/chunks/` |
+| enrich | `python -m src.enrich` | `data/enriched/` |
+| index | `python -m src.index` | `data/index/` |
+
+- A step that exits with an error stops the run; the later steps do not start, and the command
+  exits with that step's code.
+- The parse step records a failed document in `data/processed/_index.json` and goes on with
+  the others. A rebuild must not quietly drop a document, so if any document's `status` there is
+  not `ok`, the run stops before chunking, naming those documents, and exits with code 1.
+- On a full cache the parse step makes no network request (AC-013). A page missing from the cache
+  is fetched by the crawler, as in a normal crawl.
+- Each step can still be run alone, with the command in the table.
 
 The first build embeds every chunk; its time is recorded in the manifest. Later builds embed
 only what changed.

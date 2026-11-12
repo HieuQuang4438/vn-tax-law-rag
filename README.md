@@ -31,8 +31,8 @@ flowchart LR
         src[2 summary articles<br/>30 documents] --> crawl[Crawl + parse]
         crawl --> chunk[Chunk by<br/>article / clause]
         chunk --> enrich[Enrich<br/>context header,<br/>effective date,<br/>amendment links]
-        enrich -.-> vec[(Vector index<br/>bge-m3 + Chroma)]
-        enrich -.-> kw[(Keyword index<br/>BM25)]
+        enrich --> vec[(Vector index<br/>bge-m3 + Chroma)]
+        enrich --> kw[(Keyword index<br/>BM25)]
     end
     subgraph online["Online — answer a question"]
         direction LR
@@ -48,7 +48,7 @@ flowchart LR
     kw -.-> hyb
 
     classDef planned stroke-dasharray: 5 5
-    class vec,kw,q,rw,ref,hyb,aug,llm,out planned
+    class q,rw,ref,hyb,aug,llm,out planned
 ```
 
 Why it is built this way: chunking in [ADR-0001](docs/adr/0001-chunk-by-legal-structure.md),
@@ -65,7 +65,8 @@ All project documents: [docs/README.md](docs/README.md).
    so each retrieved unit is something a citation can point to; each chunk then gets a context
    header naming its document, chapter, article and clause.
 3. **Retrieve** — hybrid keyword + embedding search, because users ask both in prose and by
-   document number. *Not built yet.*
+   document number. Both indexes are built (`python -m src.index`); searching them is
+   *not built yet.*
 4. **Answer** — an LLM answers only from the retrieved articles and cites them. *Not built yet.*
 5. **Evaluate** — a hand-written question set with expected articles, scored on retrieval recall
    and citation correctness. *Not built yet.*
@@ -97,8 +98,16 @@ python -m venv .venv
 pip install -r requirements.txt
 cp .env.example .env              # then fill in the real values
 python scripts/crawl_index.py        # all listed documents; or crawl_one.py <document-url>
+python scripts/rebuild.py            # from the cache: parse, chunk, enrich, index; first run ~82 min on CPU
+```
+
+`rebuild.py` runs these steps in order; each can also be run alone:
+
+```bash
+python scripts/crawl_index.py        # data/raw/ -> data/processed/ (no request on a full cache)
 python -m src.chunking               # data/processed/ -> data/chunks/
 python -m src.enrich                 # data/chunks/ -> data/enriched/: header, effective date, amendment links
+python -m src.index                  # data/enriched/ -> data/index/: bge-m3 + Chroma and BM25, offline
 ```
 
 ## Tests
@@ -109,11 +118,13 @@ pytest
 
 ## Built with
 
-Python 3.12, requests, BeautifulSoup + lxml. LLM, embedding model and vector store not chosen yet.
+Python 3.12, requests, BeautifulSoup + lxml; bge-m3 through sentence-transformers on CPU, Chroma,
+bm25s. LLM not chosen yet.
 
 ## Status
 
 Early. The crawler fetches all 30 listed documents; every one has an unbroken run of articles
 from Điều 1 to its last article. Chunking (744 articles, 1,923 chunks), the context header,
-each chunk's effective date and the amendment links between documents (175) are built;
-retrieval, the agent and evaluation do not exist yet.
+each chunk's effective date, the amendment links between documents (175) and both indexes
+over the chunks (vector and BM25) are built; retrieval, the agent and evaluation do not exist
+yet.

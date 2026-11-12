@@ -17,6 +17,13 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   effectiveness articles becomes a link in `data/enriched/links.jsonl`, out-of-corpus targets
   kept and marked; each amended chunk lists its links in `amended_by`. 175 links on the corpus,
   checked against a hand-read list. FR-CORE-005, AC-005, ADR-0001.
+- Vector and keyword indexes: `python -m src.index` writes a bge-m3 Chroma collection and a
+  bm25s index over the same chunk ids to `data/index/`, with a manifest; vectors are cached by
+  text, so a rebuild embeds only changed chunks, and the BM25 files are byte-identical across
+  builds. FR-CORE-006, NFR-005, AC-006, AC-013, ADR-0002.
+- One command rebuilds everything from the cached pages: `python scripts/rebuild.py` runs parse,
+  chunk, enrich and index in order, and stops on a failed step or a document that failed to
+  parse. NFR-005, AC-013.
 
 ### Changed
 
