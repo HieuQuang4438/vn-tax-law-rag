@@ -180,6 +180,9 @@ flagged rather than shown as a source. — FR-CORE-011, FR-CORE-013
 ## Measuring it — planned
 
 A hand-written eval set of 30–50 questions, some unanswerable and some multi-turn, each with
-its expected articles, is run through the whole pipeline by one command. It records retrieval
-recall, citation correctness, faithfulness, not-found accuracy, latency and cost. Definitions
-and targets are in [acceptance.md](acceptance.md). — FR-CORE-015
+its expected answer, key facts and supporting articles, is run through the whole pipeline by
+one command. It records retrieval recall and context precision, answer correctness, citation
+correctness, faithfulness, answer relevancy, not-found accuracy, latency and cost. Definitions
+and targets are in [acceptance.md](acceptance.md). The set lives in `eval/questions.yaml`;
+`python -m src.eval.check` checks it against the corpus while it is written
+([eval-set.md](../reference/eval-set.md)). — FR-CORE-015

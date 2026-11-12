@@ -24,6 +24,11 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 - One command rebuilds everything from the cached pages: `python scripts/rebuild.py` runs parse,
   chunk, enrich and index in order, and stops on a failed step or a document that failed to
   parse. NFR-005, AC-013.
+- Eval set format and checker: `eval/questions.yaml` holds questions with expected answer, key
+  facts and provisions written as cited; `python -m src.eval.check` resolves each provision to
+  its article, checks the set's shape and warns on amended provisions. New metrics EVAL-006
+  answer correctness, EVAL-007 context precision@k, EVAL-008 answer relevancy. FR-CORE-015,
+  EVAL-006, EVAL-007, EVAL-008.
 
 ### Changed
 

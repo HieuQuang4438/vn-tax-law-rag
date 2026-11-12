@@ -124,6 +124,8 @@ line of that question in the file. Messages about the set as a whole have no pre
 | fewer than 5 conversations | `at least 5 conversations, found <n>` |
 | a conversation with fewer than 2 or more than 3 turns | `2 to 3 turns` |
 | `version` not a positive integer, `as_of` not a date | `version`, `as_of` |
+| a field of the wrong type | `"<field>" must be text`, `"<field>" must be a list of text` |
+| the file is not YAML, or not a mapping at the top | `not valid YAML`, `must be a mapping` |
 
 The counts in the last rows are over the standalone questions; conversations are counted apart.
 

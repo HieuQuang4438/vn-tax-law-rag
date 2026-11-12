@@ -1,0 +1,46 @@
+# Eval set v1: hand-written questions over the corpus (#7).
+# Format and rules: docs/reference/eval-set.md. Check while writing:
+#   python -m src.eval.check
+#
+# Order of work, against bias: write the question as a user would ask it first,
+# then look up the provisions that answer it.
+#
+# Each question (a conversation turn has the same fields, without id):
+#
+#   - id: q01                       # unique: q01, q02, ...
+#     question: ...                 # as a user would ask it
+#     tax_type: vat                 # administration | vat | pit | cit | sct | household
+#     form: plain                   # plain | reference (names Điều <n> or a document number)
+#     answer: ...                   # the expected answer, one sentence
+#     key_facts:                    # answerable only: 1-4 facts, each checkable on its own
+#       - ...                       #   a figure, a rate, a condition, a deadline
+#     provisions:                   # answerable only: as cited, one per line
+#       - 48/2024/QH15 Điều 5 khoản 25
+#       - 149/2025/QH15 Điều 1      #   an amended provision goes with the one amending it
+#
+#   - id: q02
+#     question: ...
+#     tax_type: pit
+#     form: plain
+#     answer: ...                   # what the not-found reply should say
+#     unanswerable: out_of_scope    # out_of_scope | repealed; no key_facts, no provisions
+#
+# Targets: 30-50 questions, at least 20% unanswerable, every tax_type, both forms;
+# at least 5 conversations of 2-3 turns whose follow-ups need the earlier turns.
+
+version: 1
+as_of: 2026-11-04  # the corpus crawl date: answers follow the corpus text as of then
+
+questions: []
+
+conversations: []
+# - id: c01
+#   turns:
+#     - question: ...
+#       tax_type: pit
+#       form: plain
+#       answer: ...
+#       key_facts: [...]
+#       provisions: [...]
+#     - question: Còn hộ kinh doanh thì sao?
+#       ...

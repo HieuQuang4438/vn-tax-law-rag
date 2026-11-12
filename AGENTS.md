@@ -28,3 +28,4 @@ Both files are this repo's own. A rule that does not fit this project gets chang
 | `tests/` | `pytest` tests, mirroring `src/` |
 | `scripts/` | one-off and ops scripts, never imported by `src/` |
 | `data/` | inputs; raw data gitignored, samples committed |
+| `eval/` | the hand-written eval set, versioned (`docs/reference/eval-set.md`) |

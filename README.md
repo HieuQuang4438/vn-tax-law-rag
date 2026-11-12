@@ -68,8 +68,9 @@ All project documents: [docs/README.md](docs/README.md).
    document number. Both indexes are built (`python -m src.index`); searching them is
    *not built yet.*
 4. **Answer** — an LLM answers only from the retrieved articles and cites them. *Not built yet.*
-5. **Evaluate** — a hand-written question set with expected articles, scored on retrieval recall
-   and citation correctness. *Not built yet.*
+5. **Evaluate** — a hand-written question set with expected answers, key facts and articles,
+   scored on retrieval and on the answers. The set's format and its checker
+   (`python -m src.eval.check`) are built; the questions and the scoring are *not yet.*
 
 ## Data
 

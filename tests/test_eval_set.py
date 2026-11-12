@@ -236,7 +236,7 @@ def test_too_many_questions(tmp_path, corpus):
 
 def test_too_few_unanswerable_questions(tmp_path, corpus):
     data = valid_set()
-    item(data, "q30").update(answerable(30))
+    data["questions"][-1] = answerable(30)  # q30 becomes answerable: 5 of 30 left
     assert has(run(tmp_path, corpus, data).errors, "unanswerable share 0.17 is below 0.20")
 
 
@@ -306,11 +306,11 @@ def test_a_provision_amended_from_outside_the_corpus_is_warned(tmp_path, corpus,
 
 def test_a_reference_question_that_names_no_provision_is_warned(tmp_path, corpus):
     data = valid_set()
-    item(data, "q02")["question"] = "Đối tượng nào phải nộp thuế?"  # q02 is a reference question
-    item(data, "q04")["question"] = "Luật 48/2024/QH15 áp dụng cho ai?"  # a document number is enough
+    item(data, "q01")["question"] = "Đối tượng nào phải nộp thuế?"  # odd questions are reference ones
+    item(data, "q03")["question"] = "Luật 48/2024/QH15 áp dụng cho ai?"  # a document number is enough
     warnings = run(tmp_path, corpus, data).warnings
-    assert has(warnings, "q02: ", "form reference but names no provision")
-    assert not has(warnings, "q04: ")
+    assert has(warnings, "q01: ", "form reference but names no provision")
+    assert not has(warnings, "q03: ")
 
 
 # --- The real set (Done when on #7) -----------------------------------------------------------
