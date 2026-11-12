@@ -174,6 +174,18 @@ def test_site_widgets_and_empty_blocks_are_dropped():
     assert "demuc3663499" not in [b["id"] for b in blocks]
 
 
+def test_amendment_label_is_dropped_but_the_amended_clause_is_kept():
+    # Decree 181/2025, Article 4 (#21): the site's "Bổ sung" label became a line of the text.
+    soup = BeautifulSoup((FIXTURES / "amended_clause.html").read_text(encoding="utf-8"), "lxml")
+    lines = "\n".join(b["text"] for b in crawl_one.parse_body(soup)).split("\n")
+
+    assert lines == [
+        "Điều 4. Đối tượng không chịu thuế",
+        "1. Sản phẩm cây trồng, rừng trồng, chăn nuôi, thủy sản nuôi trồng, đánh bắt chưa chế biến thành các sản phẩm khác.",
+        "2. Nhà ở thuộc tài sản công do Nhà nước bán cho người đang thuê.",
+    ]
+
+
 def test_line_breaks_and_paragraphs_become_lines():
     heading_block = parsed()["blocks"][0]["text"]
 
@@ -280,4 +292,8 @@ def test_corpus_crawl_from_cache_meets_ac_001(tmp_path, monkeypatch, no_network,
                      if i.kind in ("article_gap", "hidden_heading", "unexpected_last_article")]
         if not result.articles or result.articles[0].article != "1":
             problems.append((d["doc_id"], "no Điều 1", None))
+        # The site's amendment label is not document text (#21).
+        labels = sum(line == "Bổ sung" for b in doc["blocks"] for line in b["text"].split("\n"))
+        if labels:
+            problems.append((d["doc_id"], "amendment label", labels))
     assert problems == []
