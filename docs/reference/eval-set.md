@@ -66,7 +66,7 @@ The figures in this example show the shape only; they are not checked answers.
 | `question` | yes | the question as a user would ask it |
 | `tax_type` | yes | `administration`, `vat`, `pit`, `cit`, `sct` or `household` |
 | `form` | yes | `plain` for plain language, `reference` when the question names a provision or a document number ("Điều 9 Luật 48/2024") |
-| `answer` | yes | the expected answer, one sentence; for an unanswerable question, what the not-found reply should say |
+| `answer` | yes | the expected answer, in a sentence or a short paragraph (approved on #7); for an unanswerable question, what the not-found reply should say. A paragraph is written as a YAML block (`answer: >` followed by indented lines). What EVAL-006 scores is `key_facts`, not this wording |
 | `key_facts` | answerable only | 1–4 short facts that can each be checked: a figure, a rate, a condition, a deadline. An answer is correct when it states every one and contradicts none (EVAL-006) |
 | `provisions` | answerable only | the provisions that support the answer, at least one, in the form below |
 | `unanswerable` | unanswerable only | `out_of_scope` (the corpus does not cover it) or `repealed` (about a rule no longer in force) |

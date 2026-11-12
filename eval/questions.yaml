@@ -11,7 +11,8 @@
 #     question: ...                 # as a user would ask it
 #     tax_type: vat                 # administration | vat | pit | cit | sct | household
 #     form: plain                   # plain | reference (names Điều <n> or a document number)
-#     answer: ...                   # the expected answer, one sentence
+#     answer: ...                   # the expected answer: a sentence or a short paragraph
+#                                   #   (a paragraph: `answer: >` then indented lines)
 #     key_facts:                    # answerable only: 1-4 facts, each checkable on its own
 #       - ...                       #   a figure, a rate, a condition, a deadline
 #     provisions:                   # answerable only: as cited, one per line
