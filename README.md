@@ -29,8 +29,8 @@ flowchart LR
     subgraph offline["Offline — build the index"]
         direction LR
         src[2 summary articles<br/>30 documents] --> crawl[Crawl + parse]
-        crawl -.-> chunk[Chunk by<br/>article / clause]
-        chunk -.-> enrich[Enrich<br/>context header,<br/>amendment links,<br/>effective date]
+        crawl --> chunk[Chunk by<br/>article / clause]
+        chunk --> enrich[Enrich<br/>context header;<br/>amendment links,<br/>effective date planned]
         enrich -.-> vec[(Vector index<br/>bge-m3 + Chroma)]
         enrich -.-> kw[(Keyword index<br/>BM25)]
     end
@@ -48,7 +48,7 @@ flowchart LR
     kw -.-> hyb
 
     classDef planned stroke-dasharray: 5 5
-    class chunk,enrich,vec,kw,q,rw,ref,hyb,aug,llm,out planned
+    class vec,kw,q,rw,ref,hyb,aug,llm,out planned
 ```
 
 Why it is built this way: chunking in [ADR-0001](docs/adr/0001-chunk-by-legal-structure.md),
@@ -62,7 +62,8 @@ All project documents: [docs/README.md](docs/README.md).
    runs `scripts/crawl_one.py` on each: fetch the page, cache the raw HTML, extract metadata plus
    the full text as ordered blocks.
 2. **Chunk** — split along the legal structure (chapter / article / clause), not by token count,
-   so each retrieved unit is something a citation can point to. *Not built yet.*
+   so each retrieved unit is something a citation can point to; each chunk then gets a context
+   header naming its document, chapter, article and clause.
 3. **Retrieve** — hybrid keyword + embedding search, because users ask both in prose and by
    document number. *Not built yet.*
 4. **Answer** — an LLM answers only from the retrieved articles and cites them. *Not built yet.*
@@ -96,6 +97,8 @@ python -m venv .venv
 pip install -r requirements.txt
 cp .env.example .env              # then fill in the real values
 python scripts/crawl_index.py        # all listed documents; or crawl_one.py <document-url>
+python -m src.chunking               # data/processed/ -> data/chunks/
+python -m src.enrich                 # data/chunks/ -> data/enriched/, adds the context header
 ```
 
 ## Tests
@@ -111,4 +114,5 @@ Python 3.12, requests, BeautifulSoup + lxml. LLM, embedding model and vector sto
 ## Status
 
 Early. The crawler fetches all 30 listed documents; every one has an unbroken run of articles
-from Điều 1 to its last article. Chunking, retrieval, the agent and evaluation do not exist yet.
+from Điều 1 to its last article. Chunking (744 articles, 1,923 chunks) and the context header
+are built; effective dates, amendment links, retrieval, the agent and evaluation do not exist yet.

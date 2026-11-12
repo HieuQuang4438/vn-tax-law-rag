@@ -27,6 +27,7 @@ data/raw/
 # Parsed from crawled pages: third-party content, never published.
 data/processed/
 data/chunks/
+data/enriched/
 
 # OS and editor
 .DS_Store

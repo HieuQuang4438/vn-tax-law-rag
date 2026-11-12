@@ -1,6 +1,6 @@
 ---
 status: approved
-updated: 2026-11-04
+updated: 2026-11-12
 owner: HieuQuang4438
 approved-by: peer
 ---
@@ -25,15 +25,15 @@ flowchart LR
     s1 --> raw[("data/raw/<br/>page HTML")]
     raw --> s2[2. Parse]
     s2 --> proc[("data/processed/<br/>metadata + blocks")]
-    proc -.-> s3[3. Chunk<br/>article / clause]
-    s3 -.-> s4[4. Enrich<br/>header, effective date,<br/>amendment links]
-    s4 -.-> chunks[("chunks<br/>header + text + metadata")]
+    proc --> s3[3. Chunk<br/>article / clause]
+    s3 --> s4[4. Enrich<br/>header; effective date,<br/>amendment links planned]
+    s4 --> chunks[("data/enriched/<br/>header + text + metadata")]
     chunks -.-> s5[5. Index]
     s5 -.-> vec[("vector index<br/>bge-m3, Chroma")]
     s5 -.-> kw[("keyword index<br/>BM25")]
 
     classDef planned stroke-dasharray: 5 5
-    class s3,s4,chunks,s5,vec,kw planned
+    class s5,vec,kw planned
 ```
 
 ### 1. Crawl — built
@@ -51,7 +51,7 @@ table (number, type, issuer, issue date, signer, title) and the text as ordered 
 `data/processed/`. Site menus, ads and buttons are dropped. Effective dates are not on the free
 page; they come from the text in step 4. — FR-CORE-001
 
-### 3. Chunk — planned
+### 3. Chunk — built
 
 Each document is cut along its legal structure, because an answer has to cite one provision:
 
@@ -62,9 +62,11 @@ Each document is cut along its legal structure, because an answer has to cite on
   the signature block and appendix forms are not.
 
 Every chunk keeps its place — document, chapter, article, clause — and a clause chunk keeps a
-link to its parent article. — FR-CORE-002, [ADR-0001](../adr/0001-chunk-by-legal-structure.md)
+link to its parent article. `python -m src.chunking` writes them to `data/chunks/`; the format
+is [chunk-schema.md](../reference/chunk-schema.md). — FR-CORE-002,
+[ADR-0001](../adr/0001-chunk-by-legal-structure.md)
 
-### 4. Enrich — planned
+### 4. Enrich — context header built; effective date and amendment links planned
 
 A chunk alone often cannot be understood. Take clause 1 of Article 5 of Circular 90/2026:
 
@@ -73,9 +75,9 @@ A chunk alone often cannot be understood. Take clause 1 of Article 5 of Circular
 
 Nothing in it says it belongs to a circular on tax registration. Enrichment adds:
 
-- **Context header** — where the chunk sits, built from metadata. Illustrative form (the exact
-  format is set with the chunk schema):
-  `[Thông tư 90/2026/TT-BTC — Quy định về đăng ký thuế] [Chương I > Điều 5. Cấu trúc mã số thuế > Khoản 1]`.
+- **Context header** — where the chunk sits, built from metadata by `python -m src.enrich`
+  (exact rules in [chunk-schema.md](../reference/chunk-schema.md)):
+  `[Thông tư 90/2026/TT-BTC — Quy định về đăng ký thuế] [Chương I. QUY ĐỊNH CHUNG > Điều 5. Cấu trúc mã số thuế > Khoản 1]`.
   Header + text is what gets indexed; the text alone is what a reader sees in a citation.
   — FR-CORE-003
 - **Effective date** — read from the document's own effectiveness article, per chunk, because

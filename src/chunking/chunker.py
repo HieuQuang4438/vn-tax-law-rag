@@ -32,6 +32,7 @@ class Article:
     id: str
     doc_id: str
     chapter: str | None
+    chapter_title: str | None
     article: str
     title: str
     text: str
@@ -42,6 +43,7 @@ class Chunk:
     id: str
     doc_id: str
     chapter: str | None
+    chapter_title: str | None
     article: str
     clause: str | None
     parent_id: str
@@ -52,7 +54,7 @@ class Chunk:
 class Issue:
     doc_id: str
     kind: str  # duplicate_heading | article_gap | clause_numbering | unbalanced_quotes | mismatched_quotes
-    # | hidden_heading | unexpected_last_article
+    # | hidden_heading | unexpected_last_article | missing_chapter_title
     article: str
     detail: str
 
@@ -75,6 +77,7 @@ class _Draft:
     number: str
     title: str
     chapter: str | None
+    chapter_title: str | None
     lines: list[_Line] = field(default_factory=list)
 
     @property
@@ -97,7 +100,7 @@ def _lines(doc: dict) -> Iterator[str]:
 
 
 def _is_title(line: str) -> bool:
-    return line == line.upper()
+    return line == line.upper() and not (CHAPTER.match(line) or SECTION.match(line) or ARTICLE.match(line))
 
 
 def _quote_depth(line: str, depth: int) -> tuple[int, bool]:
@@ -122,28 +125,41 @@ def _drafts(doc: dict, doc_id: str, issues: list[Issue]) -> list[_Draft]:
     """Walk the text once, tracking chapter and quotation depth, and collect article bodies."""
     drafts: list[_Draft] = []
     chapter: str | None = None
+    chapter_title: str | None = None
     depth = 0
     opened_in = ""  # article where the open quotation started
-    skip_title = False
+    title_of = ""  # "chapter" or "section": the heading whose title line may come next
+    untitled = False  # the current chapter has no title line; reported at its first article
     for line in _lines(doc):
         if drafts and END.match(line):
             break
         quoted = depth > 0
         is_heading = False
         if not quoted:
-            if skip_title:
-                skip_title = False
+            if title_of:
+                pending, title_of = title_of, ""
                 if _is_title(line):
+                    if pending == "chapter":
+                        chapter_title = line
                     continue
+                if pending == "chapter":
+                    untitled = True
             if match := CHAPTER.match(line):
-                chapter, skip_title = f"Chương {match.group(1)}", True
+                if untitled:
+                    issues.append(Issue(doc_id, "missing_chapter_title", "",
+                                        f"no all-caps title line after {chapter} heading, which has no article"))
+                chapter, chapter_title, title_of, untitled = f"Chương {match.group(1)}", None, "chapter", False
                 continue
             if SECTION.match(line):
-                skip_title = True
+                title_of = "section"
                 continue
             if match := ARTICLE.match(line):
-                drafts.append(_Draft(match.group(1), match.group(2).strip(), chapter))
+                drafts.append(_Draft(match.group(1), match.group(2).strip(), chapter, chapter_title))
                 is_heading = True
+                if untitled:
+                    issues.append(Issue(doc_id, "missing_chapter_title", match.group(1),
+                                        f"no all-caps title line after {chapter} heading"))
+                    untitled = False
         if drafts:
             if not is_heading:  # chunk text leaves the heading out; it lives in Article.title
                 drafts[-1].lines.append(_Line(line, quoted))
@@ -160,6 +176,9 @@ def _drafts(doc: dict, doc_id: str, issues: list[Issue]) -> list[_Draft]:
             if depth == 0 and opened > 0:
                 opened_in = drafts[-1].number
             depth = max(0, opened)
+    if untitled or title_of == "chapter":
+        issues.append(Issue(doc_id, "missing_chapter_title", "",
+                            f"no all-caps title line after {chapter} heading, which has no article"))
     if depth > 0:
         issues.append(Issue(doc_id, "unbalanced_quotes", opened_in, f"{depth} quotation(s) never closed"))
     return drafts
@@ -252,7 +271,8 @@ def _split(
 
 
 def _chunk(article: Article, clause: str | None, chunk_id: str, text: str) -> Chunk:
-    return Chunk(chunk_id, article.doc_id, article.chapter, article.article, clause, article.id, text)
+    return Chunk(chunk_id, article.doc_id, article.chapter, article.chapter_title, article.article, clause,
+                 article.id, text)
 
 
 def chunk_document(
@@ -270,7 +290,8 @@ def chunk_document(
     articles: list[Article] = []
     chunks: list[Chunk] = []
     for draft in drafts:
-        article = Article(f"{doc_id}:D{draft.number}", doc_id, draft.chapter, draft.number, draft.title, draft.text)
+        article = Article(f"{doc_id}:D{draft.number}", doc_id, draft.chapter, draft.chapter_title, draft.number,
+                          draft.title, draft.text)
         articles.append(article)
         if count_tokens(article.text) <= max_tokens:
             chunks.append(_chunk(article, None, article.id, article.text))
