@@ -1,14 +1,15 @@
-"""Give every chunk a context header, apart from its text — FR-CORE-003, approach on #3.
+"""Enrich every chunk: its context header (FR-CORE-003, #3) and effective date (FR-CORE-004, #4).
 
-The header form is specified in `docs/reference/chunk-schema.md` (`data/enriched/chunks.jsonl`).
+Both are specified in `docs/reference/chunk-schema.md` (`data/enriched/`).
 """
 
 import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from src.chunking import Article, Chunk, ChunkedDocument
+from src.chunking import Article, Chunk, ChunkedDocument, Issue
 from src.chunking.chunker import doc_id_of
+from src.enrich.effective import effective_dates
 
 DOCUMENT_FIELDS = ("loai_van_ban", "so_hieu", "trich_yeu")
 
@@ -24,6 +25,7 @@ class EnrichedChunk:
     parent_id: str
     text: str
     header: str
+    effective_date: str | None
 
 
 def indexed_text(chunk: EnrichedChunk) -> str:
@@ -49,21 +51,33 @@ def _position_part(chunk: Chunk, article_title: str) -> str:
     return "[" + " > ".join(parts) + "]"
 
 
-def enrich_document(doc: dict, chunked: ChunkedDocument) -> list[EnrichedChunk]:
+def _enrich(doc: dict, chunked: ChunkedDocument) -> tuple[list[EnrichedChunk], list[Issue]]:
     document = _document_part(doc)
     titles = {article.id: article.title for article in chunked.articles}
-    return [
-        EnrichedChunk(**asdict(chunk), header=f"{document} {_position_part(chunk, titles[chunk.parent_id])}")
+    dates = effective_dates(doc, chunked)
+    chunks = [
+        EnrichedChunk(**asdict(chunk), header=f"{document} {_position_part(chunk, titles[chunk.parent_id])}",
+                      effective_date=dates.by_chunk[chunk.id])
         for chunk in chunked.chunks
     ]
+    return chunks, dates.issues
+
+
+def enrich_document(doc: dict, chunked: ChunkedDocument) -> list[EnrichedChunk]:
+    return _enrich(doc, chunked)[0]
 
 
 def _read_jsonl(path: Path) -> list[dict]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
 
 
-def build(processed_dir: Path, chunks_dir: Path, out_dir: Path) -> list[EnrichedChunk]:
-    """Enrich the chunker's output; write `chunks.jsonl` in the chunker's order."""
+def _write_jsonl(path: Path, records: list) -> None:
+    lines = [json.dumps(asdict(record), ensure_ascii=False) + "\n" for record in records]
+    path.write_text("".join(lines), encoding="utf-8", newline="\n")
+
+
+def build(processed_dir: Path, chunks_dir: Path, out_dir: Path) -> tuple[list[EnrichedChunk], list[Issue]]:
+    """Enrich the chunker's output; write `chunks.jsonl` in the chunker's order, and `issues.jsonl`."""
     docs = {}
     for path in processed_dir.glob("*.json"):
         if not path.name.startswith("_"):
@@ -78,13 +92,16 @@ def build(processed_dir: Path, chunks_dir: Path, out_dir: Path) -> list[Enriched
         articles_by_doc.setdefault(record["doc_id"], []).append(Article(**record))
 
     enriched: list[EnrichedChunk] = []
-    for doc_id, chunks in chunks_by_doc.items():  # dicts keep the file's order
+    issues: list[Issue] = []
+    for doc_id, chunks in chunks_by_doc.items():  # dicts keep the file's order, sorted by doc id
         if doc_id not in docs:
             raise ValueError(f"chunks of document {doc_id} but no parsed document in {processed_dir}")
         chunked = ChunkedDocument(articles_by_doc.get(doc_id, []), chunks, [])
-        enriched += enrich_document(docs[doc_id], chunked)
+        chunks_of_doc, issues_of_doc = _enrich(docs[doc_id], chunked)
+        enriched += chunks_of_doc
+        issues += issues_of_doc
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    lines = [json.dumps(asdict(chunk), ensure_ascii=False) + "\n" for chunk in enriched]
-    (out_dir / "chunks.jsonl").write_text("".join(lines), encoding="utf-8", newline="\n")
-    return enriched
+    _write_jsonl(out_dir / "chunks.jsonl", enriched)
+    _write_jsonl(out_dir / "issues.jsonl", issues)
+    return enriched, issues

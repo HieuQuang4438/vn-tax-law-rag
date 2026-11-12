@@ -162,11 +162,15 @@ def test_indexed_text_is_header_then_text():
 # --- Effective date (AC-004) ---------------------------------------------------------------
 
 
-def dates(doc: dict, max_tokens: int = 20) -> dict[str, str | None]:
+# Splits split_article() and none of the effectiveness articles below (at most about 70 words).
+SPLIT_AT = 100
+
+
+def dates(doc: dict, max_tokens: int = SPLIT_AT) -> dict[str, str | None]:
     return {c.id: c.effective_date for c in enrich(doc, max_tokens=max_tokens)}
 
 
-def date_issues(doc: dict, max_tokens: int = 20) -> list[tuple[str, str]]:
+def date_issues(doc: dict, max_tokens: int = SPLIT_AT) -> list[tuple[str, str]]:
     chunked = chunk_document(doc, count_tokens=words, max_tokens=max_tokens)
     return [(i.kind, i.article) for i in effective_dates(doc, chunked).issues]
 
@@ -179,7 +183,7 @@ def doc_with(effect: str, *articles: str, title: str = "Hiệu lực thi hành",
 
 
 def split_article() -> str:
-    return "\n".join(clause(i) for i in (1, 2, 3))  # 33 words: split at max_tokens=20
+    return "\n".join(clause(i, size=40) for i in (1, 2, 3))  # 123 words: split at SPLIT_AT
 
 
 def test_every_chunk_takes_the_documents_date():

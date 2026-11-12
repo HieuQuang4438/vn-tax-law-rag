@@ -45,7 +45,7 @@ Next to it, `data/enriched/issues.jsonl` reports what the enrich step could not 
 |---|---|---|---|
 | every field of `chunks.jsonl` | | | unchanged; `text` is still the chunk's own text, with no header |
 | `header` | string | see below | where the chunk sits, built from metadata only — FR-CORE-003 |
-| `effective_date` | string or null | `2026-01-01` | the date the chunk's provision takes effect, `YYYY-MM-DD`; null only when its document is reported as `no_effective_date` — FR-CORE-004. *Planned, #4* |
+| `effective_date` | string or null | `2026-01-01` | the date the chunk's provision takes effect, `YYYY-MM-DD`; null only when its document is reported as `no_effective_date` — FR-CORE-004 |
 
 **Header form.** Two bracketed groups, separated by one space:
 
@@ -85,7 +85,7 @@ header + text 3,363 (`404357:D27:K3`).
 
 ### Effective date
 
-*Planned, #4.* Read from the document's own text, because the site keeps it behind a paywall.
+Read from the document's own text, because the site keeps it behind a paywall.
 Every chunk gets a date of its own document, amending documents included: when amended wording
 takes effect inside the document it amends is #5's concern.
 
@@ -109,8 +109,10 @@ this document*. It needs both:
 
 - `có hiệu lực [thi hành] [kể] từ ngày <D>`;
 - a reference to this document's provisions — `Điều <m>`, `khoản <n> Điều <m>`,
-  `điểm <x> khoản <n> Điều <m>`, or a list `các điều <m>, <m> và <m>` — followed by
-  `[của] <Luật|Nghị định|Thông tư> này`.
+  `điểm <x> khoản <n> Điều <m>`, or a list `các điều <m>, <m> và <m>`. At least one reference
+  in the line is followed by `[của] <Luật|Nghị định|Thông tư> này`; a bare reference beside it
+  counts too ("Quy định tại Điều 13 và … Điều 26 của Luật này"), one followed by another
+  document's name does not.
 
 Not exceptions: a line about another document, even with a date ("Nghị định số 125/2020/NĐ-CP
 … tiếp tục có hiệu lực thi hành kể từ ngày …"), and a line on a provision ceasing to apply
@@ -163,7 +165,7 @@ and 5 carry `2026-04-24`.
 
 ## `data/enriched/issues.jsonl` — what the enrich step could not settle
 
-*Planned, #4.* Same fields as the chunker's `issues.jsonl`, ordered by document id, then by
+Same fields as the chunker's `issues.jsonl`, ordered by document id, then by
 position in the effectiveness article.
 
 | `kind` | `article` | Meaning |

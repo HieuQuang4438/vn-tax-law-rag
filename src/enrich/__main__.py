@@ -1,5 +1,6 @@
 """Enrich the chunked corpus. Run `python -m src.chunking` first, then `python -m src.enrich`."""
 
+from collections import Counter
 from pathlib import Path
 
 from src.chunking.tokens import bge_m3_token_counter
@@ -12,8 +13,13 @@ EMBEDDING_INPUT_LIMIT = 8192  # bge-m3 maximum input, in tokens
 
 
 def main() -> None:
-    chunks = build(PROCESSED_DIR, CHUNKS_DIR, ENRICHED_DIR)
+    chunks, issues = build(PROCESSED_DIR, CHUNKS_DIR, ENRICHED_DIR)
     print(f"{len(chunks)} chunks -> {ENRICHED_DIR}")
+    undated = sum(chunk.effective_date is None for chunk in chunks)
+    print(f"{len(chunks) - undated} chunks with an effective date, {undated} without")
+    print(f"{len(issues)} issues: {dict(Counter(issue.kind for issue in issues))}")
+    for issue in issues:
+        print(f"  {issue.doc_id} Điều {issue.article} {issue.kind}: {issue.detail[:100]}")
     count = bge_m3_token_counter()
     header = max(chunks, key=lambda c: count(c.header))
     indexed = max(chunks, key=lambda c: count(indexed_text(c)))

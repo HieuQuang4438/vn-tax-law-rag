@@ -26,7 +26,7 @@ flowchart LR
     raw --> s2[2. Parse]
     s2 --> proc[("data/processed/<br/>metadata + blocks")]
     proc --> s3[3. Chunk<br/>article / clause]
-    s3 --> s4[4. Enrich<br/>header; effective date,<br/>amendment links planned]
+    s3 --> s4[4. Enrich<br/>header, effective date;<br/>amendment links planned]
     s4 --> chunks[("data/enriched/<br/>header + text + metadata")]
     chunks -.-> s5[5. Index]
     s5 -.-> vec[("vector index<br/>bge-m3, Chroma")]
@@ -66,7 +66,7 @@ link to its parent article. `python -m src.chunking` writes them to `data/chunks
 is [chunk-schema.md](../reference/chunk-schema.md). — FR-CORE-002,
 [ADR-0001](../adr/0001-chunk-by-legal-structure.md)
 
-### 4. Enrich — context header built; effective date and amendment links planned
+### 4. Enrich — context header and effective date built; amendment links planned
 
 A chunk alone often cannot be understood. Take clause 1 of Article 5 of Circular 90/2026:
 
@@ -82,8 +82,10 @@ Nothing in it says it belongs to a circular on tax registration. Enrichment adds
   — FR-CORE-003
 - **Effective date** — read from the document's own effectiveness article, per chunk, because
   one document can set different dates for different articles: Law 09/2026/QH16 puts
-  articles 1–3 in force from 01/01/2026 and the rest from its adoption on 24/04/2026.
-  — FR-CORE-004
+  articles 1–3 in force from 01/01/2026 and the rest from its adoption on 24/04/2026. A date
+  that holds for only part of a chunk, an application rule ("áp dụng từ kỳ tính thuế…") and an
+  end date are reported rather than guessed; rules in
+  [chunk-schema.md](../reference/chunk-schema.md#effective-date). — FR-CORE-004
 - **Amendment links** — Law 149/2025/QH15, Article 1, rewrites clause 25 of Article 5 of the
   VAT Law 48/2024/QH15 (the revenue threshold for household businesses). The amending text
   says so; the original does not. So the link is read from the amending side (`amends`) and
