@@ -174,15 +174,31 @@ def test_site_widgets_and_empty_blocks_are_dropped():
     assert "demuc3663499" not in [b["id"] for b in blocks]
 
 
+def amended_clause_lines() -> list[str]:
+    soup = BeautifulSoup((FIXTURES / "amended_clause.html").read_text(encoding="utf-8"), "lxml")
+    return "\n".join(b["text"] for b in crawl_one.parse_body(soup)).split("\n")
+
+
 def test_amendment_label_is_dropped_but_the_amended_clause_is_kept():
     # Decree 181/2025, Article 4 (#21): the site's "Bổ sung" label became a line of the text.
-    soup = BeautifulSoup((FIXTURES / "amended_clause.html").read_text(encoding="utf-8"), "lxml")
-    lines = "\n".join(b["text"] for b in crawl_one.parse_body(soup)).split("\n")
+    lines = amended_clause_lines()
 
-    assert lines == [
+    assert "Bổ sung" not in lines
+    assert lines[:3] == [
         "Điều 4. Đối tượng không chịu thuế",
         "1. Sản phẩm cây trồng, rừng trồng, chăn nuôi, thủy sản nuôi trồng, đánh bắt chưa chế biến thành các sản phẩm khác.",
         "2. Nhà ở thuộc tài sản công do Nhà nước bán cho người đang thuê.",
+    ]
+
+
+def test_site_comment_block_is_dropped():
+    # Law 48/2024, Article 9 (#21): the site's note on the 2% VAT cut was read as a provision.
+    lines = amended_clause_lines()
+
+    assert not any("giảm 2% thuế suất" in line for line in lines)
+    assert lines[-2:] == [
+        "2. Nhà ở thuộc tài sản công do Nhà nước bán cho người đang thuê.",
+        "3. Chuyển quyền sử dụng đất theo quy định của pháp luật về đất đai.",
     ]
 
 
@@ -260,6 +276,18 @@ REAL_RAW = ROOT / "data" / "raw"
 CORPUS_SIZE = 30  # as of 2026-11-04, acceptance.md AC-001
 
 
+# Phrases from the 22 site comment blocks (div.docitem-binhluan) in the corpus as of 2026-11-12.
+SITE_COMMENTS = (
+    "giảm 2% thuế suất thuế giá trị gia tăng",
+    "Nghị quyết 66.18/2026/NQ-CP",
+    "nêu tại khoản 1 Điều 8 được sửa đổi, bổ sung bởi",
+    "được thay thế bởi Phụ lục",
+    "thay thế bằng biểu Mẫu số",
+    "được thay thế bởi Mẫu số",
+    "được thay thế bởi khoản Mẫu số",
+)
+
+
 def corpus_cached() -> bool:
     return all(
         (REAL_RAW / f"{crawl_one.slug_from_url(url)}.html").exists() for url in crawl_index.INDEX_URLS
@@ -292,8 +320,12 @@ def test_corpus_crawl_from_cache_meets_ac_001(tmp_path, monkeypatch, no_network,
                      if i.kind in ("article_gap", "hidden_heading", "unexpected_last_article")]
         if not result.articles or result.articles[0].article != "1":
             problems.append((d["doc_id"], "no Điều 1", None))
-        # The site's amendment label is not document text (#21).
-        labels = sum(line == "Bổ sung" for b in doc["blocks"] for line in b["text"].split("\n"))
+        # The site's amendment label and comment blocks are not document text (#21).
+        lines = [line for b in doc["blocks"] for line in b["text"].split("\n")]
+        labels = sum(line == "Bổ sung" for line in lines)
         if labels:
             problems.append((d["doc_id"], "amendment label", labels))
+        comments = sum(text in line for line in lines for text in SITE_COMMENTS)
+        if comments:
+            problems.append((d["doc_id"], "site comment", comments))
     assert problems == []
