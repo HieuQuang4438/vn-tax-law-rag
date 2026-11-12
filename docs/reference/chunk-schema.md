@@ -47,7 +47,7 @@ link and `data/enriched/issues.jsonl` reports what the enrich step could not set
 | every field of `chunks.jsonl` | | | unchanged; `text` is still the chunk's own text, with no header |
 | `header` | string | see below | where the chunk sits, built from metadata only — FR-CORE-003 |
 | `effective_date` | string or null | `2026-01-01` | the date the chunk's provision takes effect, `YYYY-MM-DD`; null only when its document is reported as `no_effective_date` — FR-CORE-004 |
-| `amended_by` | list | `[{"type": "amends", "source": "421739:D1"}]` | every in-corpus link whose target chunks include this chunk: its `type` and its `source` chunk id, ordered by the source chunk's `effective_date`, then by source id; empty when nothing in the corpus changes the chunk — FR-CORE-005. *Planned, #5* |
+| `amended_by` | list | `[{"type": "amends", "source": "421739:D1"}]` | the in-corpus links whose target chunks include this chunk, one entry per `type` and `source` chunk id (two targets of one source inside this chunk give one entry; approved on #5), ordered by the source chunk's `effective_date`, then by source id; empty when nothing in the corpus changes the chunk — FR-CORE-005 |
 
 **Header form.** Two bracketed groups, separated by one space:
 
@@ -168,7 +168,7 @@ and 5 carry `2026-04-24`.
 
 ### Amendment links
 
-*Planned, #5.* A **directive** is a provision telling the reader to amend, replace or repeal another one. Each
+A **directive** is a provision telling the reader to amend, replace or repeal another one. Each
 directive gives one link per provision it names, from the chunk that holds it (the **source**)
 to the provision named (the **target**); the target's chunks then list the link in
 `amended_by`. Links are read from the amending side only: the amended text does not say it was
@@ -212,7 +212,10 @@ names a document or starts with `trừ`:
 
 - a **provision** is `[điểm <p>] [khoản <c>] Điều <a>`; a run like `Điều 6, Điều 9 và Điều 15`
   or `điểm a và điểm c khoản 2; khoản 3 Điều 4` gives one target per provision, each taking the
-  next `khoản` and `Điều` to its right;
+  next `khoản` and `Điều` to its right. A run holds only `,`, `;`, `và`, `của`, `tại` and
+  `[ban hành] kèm theo` between its parts; other text ends it, and a point or clause left without
+  an article there takes one from the context below, or is dropped ("điểm g mục 4 phần I của
+  Biểu thuế … tại khoản 1 Điều 8" names clause 1 of Article 8, not a point of it);
 - a **part** is `Chương <n>`, `Phụ lục <n>` or `Mẫu số <code>` (case ignored, written
   `Mẫu số`); a form followed by its annex (`Mẫu số 14, Phụ lục II`) is one part;
 - a **document** is `<kind> [liên tịch] [số] <number>`, a law named with its number (`Luật Thuế
@@ -239,11 +242,14 @@ Which documents in a directive are targets:
   số 26/2023/NĐ-CP");
 - anything else is the description of a target ("Thông tư số 193/2015/TT-BTC … sửa đổi, bổ sung
   Thông tư số 219/2013/TT-BTC …" replaces 193/2015 only). In a `Thay thế X bằng|thành Y`
-  directive, Y is the replacement, not a target; `[vào] sau <provision>` says where an added
-  provision goes and is not a target.
+  directive, Y is the replacement, not a target, when Y starts with `Danh mục`, `Mẫu số`,
+  `Phụ lục`, `quy định` or `các` ("giá thành sản phẩm" is not a replacement);
+  `[vào] sau <provision>` says where an added provision goes and is not a target.
 
 A directive with a verb but no target it can resolve is reported as `unresolved_link`, with the
-line quoted.
+line quoted. An article title with no target ("Điều 3. Thay thế mẫu biểu") is a heading, not a
+directive, and is not reported. When the title and a line of its body name the same target, the
+link is recorded once.
 
 **Target chunks.** A target in the corpus maps to chunks of its document:
 
@@ -277,7 +283,7 @@ The full hand-checked list is `tests/fixtures/amendment_links.csv`: one row per 
 
 ## `data/enriched/links.jsonl` — every amendment link
 
-*Planned, #5.* One record per link, ordered by the source chunk's position in `data/chunks/chunks.jsonl`,
+One record per link, ordered by the source chunk's position in `data/chunks/chunks.jsonl`,
 then by the target's position in the directive. Byte-identical across two builds (NFR-005).
 
 | Field | Type | Example | Meaning |
@@ -304,7 +310,7 @@ effective-date issues come first, then `unresolved_link`, each in text order.
 | `partial_effective_date` | the referenced article | an exception narrower than the chunks it falls in; `detail` quotes the line |
 | `application_period` | the effectiveness article | an application rule; `detail` quotes the line |
 | `effective_until` | the effectiveness article | an end date; `detail` quotes the line |
-| `unresolved_link` | the article holding the directive | a directive with no target that could be resolved; `detail` quotes the line. *Planned, #5* |
+| `unresolved_link` | the article holding the directive | a directive with no target that could be resolved; `detail` quotes the line |
 
 ## `articles.jsonl` — full articles for context assembly
 

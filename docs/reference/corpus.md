@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-11
+updated: 2026-11-12
 owner: HieuQuang4438
 ---
 
@@ -151,3 +151,23 @@ and does not repair them.
 
 Not reported as an issue, but handled: article headings written `Điều 1 .` with a space before
 the dot, and a heading sitting as bare text beside a table (`09/2026/QH16`, Article 4).
+
+## Amendments from outside the corpus
+
+Amendment links are read from the amending text, so a provision changed by a document that is
+not in the corpus has no `amended_by` link, and retrieval can return its superseded wording.
+The site's notes name 19 such changes (as of 2026-11-12); they are listed here, not modelled:
+
+| Amended | Provisions | Amended by |
+|---|---|---|
+| 379409 (Law 48/2024) | point a, clause 1, Article 9 | Law 90/2025/QH15, Article 4 |
+| 404357 (Decree 181/2025) | Annex III | Decree 273/2026/NĐ-CP |
+| 404386 (Law 67/2025) | clauses 11a and 11b, Article 4 | Law 141/2025/QH15, Article 2 clause 2 |
+| 404386 (Law 67/2025) | clause 6, Article 4 | Law 127/2025/QH15, Article 178 |
+| 404386 (Law 67/2025) | points a, e, e1, e2 of clause 2, Article 12; clause 1a, point d of clause 4 and clause 7, Article 13; point a of clause 1 and clause 4, Article 14; clause 1a, Article 20 | Law 133/2025/QH15, Article 25 clause 7 (10 provisions) |
+| 404386 (Law 67/2025) | point h, clause 2, Article 12 | Law 143/2025/QH15, Article 50 clause 2 |
+| 421539 (Law 108/2025) | points g and n of clause 1, Articles 38 and 37 | Law 15/2026/QH16, Article 2 clause 2 |
+| 422908 (Circular 158/2025) | clause 2, Article 3 | Circular 136/2026/TT-BTC, Article 1 |
+
+Adding these documents to the corpus would let the links be read; that is a corpus change, not
+part of FR-CORE-005.

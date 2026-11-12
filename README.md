@@ -30,7 +30,7 @@ flowchart LR
         direction LR
         src[2 summary articles<br/>30 documents] --> crawl[Crawl + parse]
         crawl --> chunk[Chunk by<br/>article / clause]
-        chunk --> enrich[Enrich<br/>context header,<br/>effective date;<br/>amendment links planned]
+        chunk --> enrich[Enrich<br/>context header,<br/>effective date,<br/>amendment links]
         enrich -.-> vec[(Vector index<br/>bge-m3 + Chroma)]
         enrich -.-> kw[(Keyword index<br/>BM25)]
     end
@@ -98,7 +98,7 @@ pip install -r requirements.txt
 cp .env.example .env              # then fill in the real values
 python scripts/crawl_index.py        # all listed documents; or crawl_one.py <document-url>
 python -m src.chunking               # data/processed/ -> data/chunks/
-python -m src.enrich                 # data/chunks/ -> data/enriched/: context header, effective date
+python -m src.enrich                 # data/chunks/ -> data/enriched/: header, effective date, amendment links
 ```
 
 ## Tests
@@ -114,6 +114,6 @@ Python 3.12, requests, BeautifulSoup + lxml. LLM, embedding model and vector sto
 ## Status
 
 Early. The crawler fetches all 30 listed documents; every one has an unbroken run of articles
-from Điều 1 to its last article. Chunking (744 articles, 1,923 chunks), the context header and
-each chunk's effective date are built; amendment links, retrieval, the agent and evaluation do
-not exist yet.
+from Điều 1 to its last article. Chunking (744 articles, 1,923 chunks), the context header,
+each chunk's effective date and the amendment links between documents (175) are built;
+retrieval, the agent and evaluation do not exist yet.

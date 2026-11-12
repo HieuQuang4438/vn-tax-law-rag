@@ -26,7 +26,7 @@ flowchart LR
     raw --> s2[2. Parse]
     s2 --> proc[("data/processed/<br/>metadata + blocks")]
     proc --> s3[3. Chunk<br/>article / clause]
-    s3 --> s4[4. Enrich<br/>header, effective date;<br/>amendment links planned]
+    s3 --> s4[4. Enrich<br/>header, effective date,<br/>amendment links]
     s4 --> chunks[("data/enriched/<br/>header + text + metadata")]
     chunks -.-> s5[5. Index]
     s5 -.-> vec[("vector index<br/>bge-m3, Chroma")]
@@ -68,7 +68,7 @@ link to its parent article. `python -m src.chunking` writes them to `data/chunks
 is [chunk-schema.md](../reference/chunk-schema.md). — FR-CORE-002,
 [ADR-0001](../adr/0001-chunk-by-legal-structure.md)
 
-### 4. Enrich — context header and effective date built; amendment links planned
+### 4. Enrich — built
 
 A chunk alone often cannot be understood. Take clause 1 of Article 5 of Circular 90/2026:
 
@@ -93,7 +93,10 @@ Nothing in it says it belongs to a circular on tax registration. Enrichment adds
   says so; the original does not. So the link is read from the amending side (`amends`) and
   inverted across the corpus (`amended_by`). Without it, retrieval can return the original
   clause and the answer would quote superseded wording. A target outside the corpus is kept
-  and marked as such. — FR-CORE-005
+  and marked as such. The corpus holds 175 links, 37 of them onto its own chunks; amendments
+  made by documents outside the corpus are not seen
+  ([corpus.md](../reference/corpus.md#amendments-from-outside-the-corpus)). Rules in
+  [chunk-schema.md](../reference/chunk-schema.md#amendment-links). — FR-CORE-005
 
 ### 5. Index — planned
 

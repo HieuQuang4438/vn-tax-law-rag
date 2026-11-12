@@ -13,6 +13,10 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 - Effective date on every chunk, read from its document's effectiveness article, with whole
   and partial exceptions; `data/enriched/issues.jsonl` reports undated documents, partial
   exceptions, application rules and end dates. FR-CORE-004, AC-004, ADR-0001.
+- Amendment links: every amend, replace and repeal directive in the amending documents and the
+  effectiveness articles becomes a link in `data/enriched/links.jsonl`, out-of-corpus targets
+  kept and marked; each amended chunk lists its links in `amended_by`. 175 links on the corpus,
+  checked against a hand-read list. FR-CORE-005, AC-005, ADR-0001.
 
 ### Changed
 

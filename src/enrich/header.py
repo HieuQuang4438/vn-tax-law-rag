@@ -1,15 +1,17 @@
-"""Enrich every chunk: its context header (FR-CORE-003, #3) and effective date (FR-CORE-004, #4).
+"""Enrich every chunk: its context header (FR-CORE-003, #3), effective date (FR-CORE-004, #4) and
+the amendment links that change it (FR-CORE-005, #5).
 
-Both are specified in `docs/reference/chunk-schema.md` (`data/enriched/`).
+All three are specified in `docs/reference/chunk-schema.md` (`data/enriched/`).
 """
 
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 
 from src.chunking import Article, Chunk, ChunkedDocument, Issue
 from src.chunking.chunker import doc_id_of
 from src.enrich.effective import effective_dates
+from src.enrich.links import amendment_links
 
 DOCUMENT_FIELDS = ("loai_van_ban", "so_hieu", "trich_yeu")
 
@@ -26,6 +28,7 @@ class EnrichedChunk:
     text: str
     header: str
     effective_date: str | None
+    amended_by: list[dict] = field(default_factory=list)  # [{type, source}], see links.py
 
 
 def indexed_text(chunk: EnrichedChunk) -> str:
@@ -77,7 +80,8 @@ def _write_jsonl(path: Path, records: list) -> None:
 
 
 def build(processed_dir: Path, chunks_dir: Path, out_dir: Path) -> tuple[list[EnrichedChunk], list[Issue]]:
-    """Enrich the chunker's output; write `chunks.jsonl` in the chunker's order, and `issues.jsonl`."""
+    """Enrich the chunker's output; write `chunks.jsonl` in the chunker's order, `links.jsonl` and
+    `issues.jsonl`."""
     docs = {}
     for path in processed_dir.glob("*.json"):
         if not path.name.startswith("_"):
@@ -92,16 +96,24 @@ def build(processed_dir: Path, chunks_dir: Path, out_dir: Path) -> tuple[list[En
         articles_by_doc.setdefault(record["doc_id"], []).append(Article(**record))
 
     enriched: list[EnrichedChunk] = []
-    issues: list[Issue] = []
+    issues_by_doc: dict[str, list[Issue]] = {}
+    corpus: list[tuple[dict, ChunkedDocument]] = []
     for doc_id, chunks in chunks_by_doc.items():  # dicts keep the file's order, sorted by doc id
         if doc_id not in docs:
             raise ValueError(f"chunks of document {doc_id} but no parsed document in {processed_dir}")
         chunked = ChunkedDocument(articles_by_doc.get(doc_id, []), chunks, [])
-        chunks_of_doc, issues_of_doc = _enrich(docs[doc_id], chunked)
+        chunks_of_doc, issues_by_doc[doc_id] = _enrich(docs[doc_id], chunked)
         enriched += chunks_of_doc
-        issues += issues_of_doc
+        corpus.append((docs[doc_id], chunked))
+
+    links = amendment_links(corpus)
+    enriched = [replace(c, amended_by=links.amended_by.get(c.id, [])) for c in enriched]
+    for issue in links.issues:
+        issues_by_doc[issue.doc_id].append(issue)
+    issues = [issue for doc_issues in issues_by_doc.values() for issue in doc_issues]
 
     out_dir.mkdir(parents=True, exist_ok=True)
     _write_jsonl(out_dir / "chunks.jsonl", enriched)
+    _write_jsonl(out_dir / "links.jsonl", links.links)
     _write_jsonl(out_dir / "issues.jsonl", issues)
     return enriched, issues

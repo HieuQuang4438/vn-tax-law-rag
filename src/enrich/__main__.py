@@ -1,5 +1,6 @@
 """Enrich the chunked corpus. Run `python -m src.chunking` first, then `python -m src.enrich`."""
 
+import json
 from collections import Counter
 from pathlib import Path
 
@@ -17,6 +18,10 @@ def main() -> None:
     print(f"{len(chunks)} chunks -> {ENRICHED_DIR}")
     undated = sum(chunk.effective_date is None for chunk in chunks)
     print(f"{len(chunks) - undated} chunks with an effective date, {undated} without")
+    links = [json.loads(line) for line in (ENRICHED_DIR / "links.jsonl").read_text(encoding="utf-8").splitlines()]
+    print(f"{len(links)} amendment links: {dict(Counter(link['type'] for link in links))}, "
+          f"{sum(link['in_corpus'] for link in links)} in the corpus; "
+          f"{sum(bool(chunk.amended_by) for chunk in chunks)} chunks with amended_by")
     print(f"{len(issues)} issues: {dict(Counter(issue.kind for issue in issues))}")
     for issue in issues:
         print(f"  {issue.doc_id} Điều {issue.article} {issue.kind}: {issue.detail[:100]}")

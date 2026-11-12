@@ -211,6 +211,13 @@ def test_annexes_and_forms_are_parts_with_no_chunks():
     assert result.amended_by == {}
 
 
+def test_two_targets_of_one_source_in_one_chunk_give_one_entry():
+    result = links_of(vat_law(), amending_law("1. Sửa đổi cụm từ “a” thành “b” tại khoản 1 và khoản 2 Điều 9."))
+
+    assert len(result.links) == 2
+    assert result.amended_by == {f"{VAT_LAW}:D9": [{"type": "amends", "source": "500002:D1"}]}
+
+
 def test_two_amenders_of_one_clause_are_ordered_by_their_effective_date():
     later = amending_law("1. Sửa đổi, bổ sung khoản 2 Điều 5 như sau:", "“2. Mới.”")
     earlier = amending_law("1. Sửa đổi, bổ sung khoản 2 Điều 5 như sau:", "“2. Cũ.”", doc_id="500007",
@@ -370,7 +377,7 @@ def test_build_writes_links_and_amended_by(tmp_path):
     assert [(l["source"], l["target_number"], l["target_article"], l["in_corpus"]) for l in links] == [
         ("500002:D1", VAT_NUMBER, "5", True),
         ("500002:D1", VAT_NUMBER, "9", True),
-        ("500003:D2", "40/2021/TT-BTC", None, False),
+        ("500003:D2:K2", "40/2021/TT-BTC", None, False),  # the article is split at 20 words
     ]
     assert set(links[0]) == {"type", "source", "target_number", "target_doc", "target_article", "target_clause",
                               "target_point", "target_part", "target_chunks", "in_corpus"}
@@ -433,7 +440,8 @@ def test_corpus_in_corpus_links_have_their_inverse_and_others_are_marked(corpus_
         for target in link["target_chunks"]:
             assert {"type": link["type"], "source": link["source"]} in chunks[target]["amended_by"], link
     inverse = sum(len(c["amended_by"]) for c in chunks.values())
-    assert inverse == sum(len(link["target_chunks"]) for link in links)
+    assert inverse == len({(t, l["type"], l["source"]) for l in links for t in l["target_chunks"]})
+    assert all(len(c["amended_by"]) == len({(e["type"], e["source"]) for e in c["amended_by"]}) for c in chunks.values())
 
 
 @pytest.mark.corpus
