@@ -11,3 +11,4 @@ bm25s==0.3.16
 numpy==2.5.4
 torch==2.15.0
 sentence-transformers==6.3.0
+pyyaml==6.0.3

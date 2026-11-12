@@ -1,8 +1,7 @@
 ---
-status: approved
-updated: 2026-11-04
+status: in-review
+updated: 2026-11-12
 owner: HieuQuang4438
-approved-by: peer
 ---
 
 # Acceptance — vn-tax-law-rag
@@ -44,17 +43,22 @@ that baseline, by a recorded decision — never quietly to fit a result.
 | EVAL-003 | Faithfulness | ≥ 0.90 | FR-CORE-010 |
 | EVAL-004 | Not-found accuracy on unanswerable questions | ≥ 0.80 | FR-CORE-012 |
 | EVAL-005 | Retrieval recall@k on follow-up turns of conversations | ≥ 0.70 at k = 8 | FR-CORE-016 |
+| EVAL-006 | Answer correctness on answerable questions | ≥ 0.80 | FR-CORE-010 |
+| EVAL-007 | Context precision@k on answerable questions | ≥ 0.60 at k = 8 | FR-CORE-006, FR-CORE-008 |
+| EVAL-008 | Answer relevancy on answers to answerable questions | reported, no target | FR-CORE-010 |
 
 ## Measurement definitions
 
 **Eval set.** 30–50 Vietnamese questions written by hand, each with the expected answer in a
-sentence and the list of articles (or clauses) that support it. At least 20% are unanswerable
+sentence, the 1–4 key facts that answer must state, and the list of articles (or clauses) that
+support it. An amended provision is listed with the provision that amends it. At least 20% are unanswerable
 from the corpus — outside its scope, or about repealed rules — with an empty expected list.
 Questions mix plain-language wording with explicit references ("Điều 9 Luật 48/2024"), and
 cover every tax type in the corpus. It also holds at least 5 conversations of 2–3 turns whose
 follow-up turns cannot be answered without the earlier ones ("còn hộ kinh doanh thì sao?");
 each follow-up has its own expected articles. The set is versioned; a score is only comparable to
-scores from the same set version.
+scores from the same set version. File format and checks:
+[eval-set.md](../reference/eval-set.md).
 
 **recall@k** — over answerable questions, the share of expected articles that appear among the
 top k retrieved chunks, averaged per question. A clause chunk counts for its parent article.
@@ -71,6 +75,21 @@ reply rather than an answer.
 
 **Follow-up recall@k** — recall@k as above, over follow-up turns only, retrieving with the
 rewritten question.
+
+**Answer correctness** — over answers to answerable questions, the share that state every key
+fact of the expected answer and contradict none. Judged by an LLM against the key facts, with a
+hand-checked sample of at least 20 judgments per run to confirm the judge. Faithfulness alone
+cannot catch an answer that follows the wrong passage faithfully; this does.
+
+**Context precision@k** — over answerable questions, the sum of precision@i over the ranks
+*i* ≤ k whose retrieved chunk belongs to an expected article (a clause chunk counts for its
+parent article), divided by the number of such ranks; 0 when there is none. This is the RAGAS
+formula, computed on ids. A relevant article missing from the expected list counts as noise, so
+the score runs low; such articles are added to the set as a new version, not argued away.
+
+**Answer relevancy** — over answers to answerable questions, not-found replies excluded: the LLM
+writes 3 questions from the answer, and the score is the mean bge-m3 cosine between them and the
+original question (RAGAS). Reported for trend only: the score has no natural threshold.
 
 **Latency** — wall-clock time from receiving a question to the complete answer, per question.
 Reported as median and p95, with the machine it ran on.
