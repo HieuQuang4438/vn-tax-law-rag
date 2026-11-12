@@ -48,7 +48,9 @@ steps can be re-run without touching the site. — FR-CORE-001, NFR-004
 
 The cached page is reduced to what the document itself says: metadata from the page's overview
 table (number, type, issuer, issue date, signer, title) and the text as ordered blocks, in
-`data/processed/`. Site menus, ads and buttons are dropped. Effective dates are not on the free
+`data/processed/`. Site menus, ads and buttons are dropped, and so is what the site writes
+inside the text: its "Bổ sung" labels on amended provisions and its comment blocks between
+provisions (#21). Effective dates are not on the free
 page; they come from the text in step 4. — FR-CORE-001
 
 ### 3. Chunk — built
