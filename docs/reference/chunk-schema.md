@@ -35,15 +35,17 @@ by the enrich step.
 
 ## `data/enriched/chunks.jsonl` — what gets indexed
 
-The approach is the approved comment on #3. Written by `python -m src.enrich`
-from `data/chunks/chunks.jsonl`, `data/chunks/articles.jsonl` and the documents' metadata in
-`data/processed/`. One record per chunk, same order and same ids as `data/chunks/chunks.jsonl`,
-byte-identical across two builds from the same inputs (NFR-005).
+The approach is the approved comments on #3 (header) and #4 (effective date). Written by
+`python -m src.enrich` from `data/chunks/chunks.jsonl`, `data/chunks/articles.jsonl` and the
+documents' metadata in `data/processed/`. One record per chunk, same order and same ids as
+`data/chunks/chunks.jsonl`, byte-identical across two builds from the same inputs (NFR-005).
+Next to it, `data/enriched/issues.jsonl` reports what the enrich step could not settle.
 
 | Field | Type | Example | Meaning |
 |---|---|---|---|
 | every field of `chunks.jsonl` | | | unchanged; `text` is still the chunk's own text, with no header |
 | `header` | string | see below | where the chunk sits, built from metadata only — FR-CORE-003 |
+| `effective_date` | string or null | `2026-01-01` | the date the chunk's provision takes effect, `YYYY-MM-DD`; null only when its document is reported as `no_effective_date` — FR-CORE-004. *Planned, #4* |
 
 **Header form.** Two bracketed groups, separated by one space:
 
@@ -80,6 +82,96 @@ text, so the header changes no split. `python -m src.enrich` prints the largest 
 largest header + text in bge-m3 tokens, against bge-m3's 8,192-token input limit. On the
 corpus (2026-11-12): largest header 234 tokens (`440483:D93:K1`, a long article title), largest
 header + text 3,363 (`404357:D27:K3`).
+
+### Effective date
+
+*Planned, #4.* Read from the document's own text, because the site keeps it behind a paywall.
+Every chunk gets a date of its own document, amending documents included: when amended wording
+takes effect inside the document it amends is #5's concern.
+
+All of it is read from one article, the **effectiveness article**: the last article whose title
+contains `hiệu lực thi hành` or `điều khoản thi hành`, ignoring case. A document with none is
+reported as `no_effective_date`.
+
+**The document's date.** The first line of that article stating
+`<Luật|Nghị định|Thông tư> này có hiệu lực [thi hành] [kể] từ ngày <D>` gives the whole
+document one date — "Luật này có hiệu lực thi hành từ ngày 01 tháng 7 năm 2026". Every chunk
+takes it by default. `<D>` is:
+
+- `<dd> tháng <mm> năm <yyyy>` or `<dd>/<mm>/<yyyy>` — that date;
+- `ký ban hành` or `được thông qua` — the document's `ngay_ban_hanh`.
+
+No such line, or `<D>` in another form: `no_effective_date`, and every chunk of the document
+has `effective_date` null.
+
+**Exception.** Another line of the same article that sets its own date for some provisions *of
+this document*. It needs both:
+
+- `có hiệu lực [thi hành] [kể] từ ngày <D>`;
+- a reference to this document's provisions — `Điều <m>`, `khoản <n> Điều <m>`,
+  `điểm <x> khoản <n> Điều <m>`, or a list `các điều <m>, <m> và <m>` — followed by
+  `[của] <Luật|Nghị định|Thông tư> này`.
+
+Not exceptions: a line about another document, even with a date ("Nghị định số 125/2020/NĐ-CP
+… tiếp tục có hiệu lực thi hành kể từ ngày …"), and a line on a provision ceasing to apply
+(`hết hiệu lực`).
+
+An exception is **whole** or **partial**, depending on whether the line names the provision
+itself or only part of what it says.
+
+- **Whole** — the line names the provision, with nothing narrowing it: "Quy định tại Điều 13…"
+  (108/2025), "Quy định tại các điều 1, 2 và 3 của Luật này…" (09/2026), "… và Điều 17 của Luật
+  này…" (48/2024). All of that provision's text changes date, so every chunk of it takes `<D>`:
+  - `Điều <m>` — every chunk of the article, whether or not it is split;
+  - `khoản <n> Điều <m>` in a split article — that clause's chunk(s), `K<n>` (and `K<n>.2`).
+- **Partial** — `<D>` holds for only part of a chunk's text, so no single date is right for the
+  chunk:
+  1. the line names a subject inside the provision: "Quy định **về mức doanh thu** … tại khoản
+     25 Điều 5" (48/2024; clause 25 also covers assets, national reserve goods, fees and
+     charges), "**việc sử dụng hóa đơn điện tử** của hộ kinh doanh … tại Điều 26" (108/2025;
+     Article 26 covers e-invoices in general);
+  2. the line names a clause of an article that is one chunk: `khoản 3 Điều 10`, with Article
+     10 unsplit, leaves `D10` holding clause 3 and the others;
+  3. the line names a point (`điểm`): a point is always smaller than a chunk, the smallest
+     being a clause.
+
+  The chunks keep the document's date, and the exception is reported as
+  `partial_effective_date` with the line quoted, once per referenced provision. Giving them
+  `<D>` would put a wrong date on the rest of their text; keeping the document's date and
+  reporting it guesses nothing.
+
+One line can hold both kinds. Law 48/2024, Article 18 clause 2: "Quy định về mức doanh thu …
+tại khoản 25 Điều 5 của Luật này và Điều 17 của Luật này có hiệu lực thi hành từ ngày 01 tháng
+01 năm 2026" — clause 25 of Article 5 is partial (`K25` keeps `2025-07-01`, reported); Article
+17 is whole (`2026-01-01`).
+
+Other lines of the article:
+
+- **Application rules** — a line with `áp dụng [kể] từ kỳ tính thuế` or `áp dụng [kể] từ ngày`
+  — set which tax period or case a rule applies to, not when it takes effect. No date changes;
+  each line is reported as `application_period`.
+- **End dates** — a line with `đến hết ngày <D>` — are not modelled (validity status is out of
+  scope); each is reported as `effective_until`.
+
+A date earlier than `ngay_ban_hanh` is kept as written: documents do take effect retroactively
+(Decree 141/2026: 01/01/2026, issued 29/04/2026).
+
+Check case (AC-004): Law 09/2026/QH16, issued 24/04/2026 — `Luật này có hiệu lực thi hành từ
+ngày được thông qua, trừ quy định tại khoản 2` and `Quy định tại các điều 1, 2 và 3 của Luật này
+có hiệu lực thi hành từ ngày 01 tháng 01 năm 2026`: Articles 1–3 carry `2026-01-01`, Articles 4
+and 5 carry `2026-04-24`.
+
+## `data/enriched/issues.jsonl` — what the enrich step could not settle
+
+*Planned, #4.* Same fields as the chunker's `issues.jsonl`, ordered by document id, then by
+position in the effectiveness article.
+
+| `kind` | `article` | Meaning |
+|---|---|---|
+| `no_effective_date` | the effectiveness article, or empty | the document's date could not be read; its chunks have `effective_date` null. This is AC-004's report |
+| `partial_effective_date` | the referenced article | an exception narrower than the chunks it falls in; `detail` quotes the line |
+| `application_period` | the effectiveness article | an application rule; `detail` quotes the line |
+| `effective_until` | the effectiveness article | an end date; `detail` quotes the line |
 
 ## `articles.jsonl` — full articles for context assembly
 
