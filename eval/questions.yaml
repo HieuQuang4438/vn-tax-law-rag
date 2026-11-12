@@ -1,9 +1,8 @@
-# Eval set v1: hand-written questions over the corpus (#7).
-# Format and rules: docs/reference/eval-set.md. Check while writing:
-#   python -m src.eval.check
+# Eval set v1 (#7). Format and rules: docs/reference/eval-set.md. Check: python -m src.eval.check
 #
-# Order of work, against bias: write the question as a user would ask it first,
-# then look up the provisions that answer it.
+# Provenance (eval-set.md, "Provenance"): questions drafted by an LLM session that had not read
+# the corpus text; answers, key facts and provisions filled in by a second session from the
+# corpus; every item reviewed by the owner.
 #
 # Each question (a conversation turn has the same fields, without id):
 #

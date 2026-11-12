@@ -49,7 +49,8 @@ that baseline, by a recorded decision — never quietly to fit a result.
 
 ## Measurement definitions
 
-**Eval set.** 30–50 Vietnamese questions written by hand, each with the expected answer in a
+**Eval set.** 30–50 Vietnamese questions, drafted in two separate LLM sessions (questions before
+reading the corpus, answers after) and reviewed item by item by the owner, each with the expected answer in a
 sentence or a short paragraph, the 1–4 key facts that answer must state, and the list of articles (or clauses) that
 support it. An amended provision is listed with the provision that amends it. At least 20% are unanswerable
 from the corpus — outside its scope, or about repealed rules — with an empty expected list.

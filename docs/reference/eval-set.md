@@ -11,7 +11,8 @@ must contain, and how each metric is scored, is in
 [acceptance.md](../product/acceptance.md#measurement-definitions); this page is the file format
 that carries it. The approach is the approved comment on #7.
 
-The set is written by hand. The checker never changes it: it reads the set and the local corpus
+The set is drafted in two phases and reviewed item by item, as described under *Provenance*
+below. The checker never changes it: it reads the set and the local corpus
 (`data/processed/`, `data/enriched/`) and reports errors and warnings. Errors make it exit with
 code 1; warnings do not.
 
@@ -148,6 +149,30 @@ provision resolved to its article id, together with the file's `sha256` and its 
 raises `EvalSetError`, carrying the checker's errors, when there is any. Every eval result records
 the version and the `sha256`: a score is comparable only with scores from the same version
 (acceptance.md, *Eval set*).
+
+## Provenance
+
+How the set is made, approved on #7, so that its questions are not shaped by the corpus text:
+
+1. **Questions.** A new Claude Code session, not the one that builds the pipeline, writes
+   `question`, `tax_type`, `form`, `unanswerable` and the conversations. It may read only the
+   *Documents* tables in [corpus.md](corpus.md), the tax types and this page: no document text,
+   nothing under `data/`, no source page, no code. `answer` is left as `TODO`. Its output is
+   committed as it is.
+2. **Answers.** Another new session reads the corpus in `data/enriched/` and fills in `answer`,
+   `key_facts` and `provisions` until the checker reports no errors. It does not reword a
+   question; it may move a question between answerable and unanswerable when the corpus
+   decides it, and says so in a YAML comment on that question. The diff against step 1 shows
+   everything it added.
+3. **Review.** The owner reads every item: each answer and figure against its provisions, each
+   unanswerable question against the corpus.
+4. **Cold read**, below.
+
+| Set version | Step 1 | Step 2 | Review |
+|---|---|---|---|
+| 1 | not run yet | not run yet | not done yet |
+
+Each row records the model and the date of each step once it has run.
 
 ## Cold read
 
