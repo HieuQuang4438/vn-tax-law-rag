@@ -35,17 +35,19 @@ by the enrich step.
 
 ## `data/enriched/chunks.jsonl` — what gets indexed
 
-The approach is the approved comments on #3 (header) and #4 (effective date). Written by
-`python -m src.enrich` from `data/chunks/chunks.jsonl`, `data/chunks/articles.jsonl` and the
-documents' metadata in `data/processed/`. One record per chunk, same order and same ids as
-`data/chunks/chunks.jsonl`, byte-identical across two builds from the same inputs (NFR-005).
-Next to it, `data/enriched/issues.jsonl` reports what the enrich step could not settle.
+The approach is the approved comments on #3 (header), #4 (effective date) and #5 (amendment
+links). Written by `python -m src.enrich` from `data/chunks/chunks.jsonl`,
+`data/chunks/articles.jsonl` and the documents' metadata in `data/processed/`. One record per
+chunk, same order and same ids as `data/chunks/chunks.jsonl`, byte-identical across two builds
+from the same inputs (NFR-005). Next to it, `data/enriched/links.jsonl` holds every amendment
+link and `data/enriched/issues.jsonl` reports what the enrich step could not settle.
 
 | Field | Type | Example | Meaning |
 |---|---|---|---|
 | every field of `chunks.jsonl` | | | unchanged; `text` is still the chunk's own text, with no header |
 | `header` | string | see below | where the chunk sits, built from metadata only — FR-CORE-003 |
 | `effective_date` | string or null | `2026-01-01` | the date the chunk's provision takes effect, `YYYY-MM-DD`; null only when its document is reported as `no_effective_date` — FR-CORE-004 |
+| `amended_by` | list | `[{"type": "amends", "source": "421739:D1"}]` | every in-corpus link whose target chunks include this chunk: its `type` and its `source` chunk id, ordered by the source chunk's `effective_date`, then by source id; empty when nothing in the corpus changes the chunk — FR-CORE-005. *Planned, #5* |
 
 **Header form.** Two bracketed groups, separated by one space:
 
@@ -86,8 +88,9 @@ header + text 3,363 (`404357:D27:K3`).
 ### Effective date
 
 Read from the document's own text, because the site keeps it behind a paywall.
-Every chunk gets a date of its own document, amending documents included: when amended wording
-takes effect inside the document it amends is #5's concern.
+Every chunk gets a date of its own document, amending documents included. An amended chunk
+keeps its own date, because its text is still the original wording; the date of the new
+wording is the amending chunk's own, reached through `amended_by` (#5, choice 6).
 
 All of it is read from one article, the **effectiveness article**: the last article whose title
 contains `hiệu lực thi hành` or `điều khoản thi hành`, ignoring case. A document with none is
@@ -163,10 +166,137 @@ ngày được thông qua, trừ quy định tại khoản 2` and `Quy định t
 có hiệu lực thi hành từ ngày 01 tháng 01 năm 2026`: Articles 1–3 carry `2026-01-01`, Articles 4
 and 5 carry `2026-04-24`.
 
+### Amendment links
+
+*Planned, #5.* A **directive** is a provision telling the reader to amend, replace or repeal another one. Each
+directive gives one link per provision it names, from the chunk that holds it (the **source**)
+to the provision named (the **target**); the target's chunks then list the link in
+`amended_by`. Links are read from the amending side only: the amended text does not say it was
+amended. The site's own notes on amended provisions are not read (#5, choice 7; #21).
+
+**Where directives are read.** Two places, and nowhere else:
+
+- every article of an **amending document** — one whose `trich_yeu` starts with
+  `Sửa đổi, bổ sung` (6 in the corpus) — other than its effectiveness article: the article title
+  and each line that starts, after its list marker (`1.`, `a)`), with a **directive verb**;
+- the **effectiveness article** of every document (as defined under *Effective date*): each line
+  that replaces or repeals, in the forms below, and the items of the lists such a line opens.
+
+Text inside a quotation is the new wording, never a directive: lines are skipped while a `“`
+opened on an earlier line is still open (tracked as the chunker does), and text between `“` and
+`”` on a line is dropped before reading. A mention such as "… được sửa đổi, bổ sung bởi Nghị
+định số 18/2021/NĐ-CP" describes another document's history and is never a link.
+
+**Type.** From the directive's verb:
+
+| Verb | `type` |
+|---|---|
+| `Sửa đổi, bổ sung`, `Sửa đổi`, `Bổ sung`, `Sửa đổi cụm từ … thành …`, `Bỏ cụm từ` | `amends` |
+| `Thay thế`, `<kind> này thay thế` | `replaces` |
+| `Bãi bỏ`, `<kind> này bãi bỏ`, `… hết hiệu lực [thi hành]` | `repeals` |
+
+In the effectiveness article, `thay thế` and `bãi bỏ` count only when a document, a provision,
+`quy định tại`, `nội dung tại`, `các quy định` or a closing `:` follows them, and not after
+`được`, `bị` or `hoặc` — so "Trường hợp các văn bản … được sửa đổi, bổ sung hoặc thay thế thì
+thực hiện theo văn bản … thay thế đó" is not a directive. A line with `hết hiệu lực` is cut at
+`;` and each part holding `hết hiệu lực` is a directive whose targets stand before those words.
+
+**Lists.** A replace or repeal line that names no target of its own and ends with `:` ("2. Nghị
+định này thay thế:", "3. Bãi bỏ quy định tại:", "… các Nghị định sau đây hết hiệu lực thi
+hành:") opens a list: each following letter item (`a)`, `b)`, …) up to the next numbered clause
+is a directive of the same type. An item that starts with its own verb ("g) Bỏ cụm từ …") takes
+that verb's type.
+
+**Targets.** Read left to right through the directive, after dropping every parenthesis that
+names a document or starts with `trừ`:
+
+- a **provision** is `[điểm <p>] [khoản <c>] Điều <a>`; a run like `Điều 6, Điều 9 và Điều 15`
+  or `điểm a và điểm c khoản 2; khoản 3 Điều 4` gives one target per provision, each taking the
+  next `khoản` and `Điều` to its right;
+- a **part** is `Chương <n>`, `Phụ lục <n>` or `Mẫu số <code>` (case ignored, written
+  `Mẫu số`); a form followed by its annex (`Mẫu số 14, Phụ lục II`) is one part;
+- a **document** is `<kind> [liên tịch] [số] <number>`, a law named with its number (`Luật Thuế
+  giá trị gia tăng số 13/2008/QH12`), or a law named without one, resolved to the corpus law
+  whose `Luật <trich_yeu>` is that name (`của Luật Thuế giá trị gia tăng` → 48/2024/QH15). A
+  `<kind> này` reference is the document itself and is never a target.
+
+Provisions and parts belong to the first document to their right; with none, to the **inherited
+document**: the one named in the article title, else the first document in the `trich_yeu`
+(Decree 144/2026 → "Nghị định 181/2025/NĐ-CP"). A provision or point that names no article or
+clause takes it from the line that encloses it, then from the article title
+(`1. Sửa đổi, bổ sung một số khoản của Điều 5 như sau:` › `a) Sửa đổi, bổ sung khoản 1` →
+clause 1 of Article 5). A directive whose object is `một số điều|khoản|điểm` only sets this
+context and gives no link of its own.
+
+Which documents in a directive are targets:
+
+- the first document, with whatever provisions or parts belong to it;
+- a later document of the **same kind** placed directly after `và` or `;` with no other document
+  between it and the previous target ("Nghị định số 132/2020/NĐ-CP … và Nghị định số
+  20/2025/NĐ-CP … hết hiệu lực");
+- when the first target has provisions or parts, a later provision group that follows `,` or
+  `và` directly ("…, điểm b khoản 2 Điều 4 và Mẫu số 14, Phụ lục II ban hành kèm theo Nghị định
+  số 26/2023/NĐ-CP");
+- anything else is the description of a target ("Thông tư số 193/2015/TT-BTC … sửa đổi, bổ sung
+  Thông tư số 219/2013/TT-BTC …" replaces 193/2015 only). In a `Thay thế X bằng|thành Y`
+  directive, Y is the replacement, not a target; `[vào] sau <provision>` says where an added
+  provision goes and is not a target.
+
+A directive with a verb but no target it can resolve is reported as `unresolved_link`, with the
+line quoted.
+
+**Target chunks.** A target in the corpus maps to chunks of its document:
+
+| Target | Chunks |
+|---|---|
+| a whole document | every chunk of it |
+| an article | every chunk of the article |
+| a clause or a point | the clause's chunk if the article is split, else the article's chunk |
+| a clause or point the directive adds (`Bổ sung khoản 1b sau khoản 1`) | the chunk of the provision it is placed after; with no `sau`, of the highest existing clause numbered below it (`Bổ sung khoản 15 Điều 4` → clause 14) |
+| a part | none: annexes and forms are not chunked |
+
+A target outside the corpus is kept, named by its number and provision, with `in_corpus`
+false and no chunks (FR-CORE-005).
+
+**Check cases** (AC-005):
+
+- Law 149/2025, Article 1: clause 1 and clause 25 of Article 5, clause 5 of Article 9 of Law
+  48/2024 amended; clause 3 of Article 12 and point c of clause 9 of Article 15 repealed.
+- Law 09/2026, Article 4: "… tại điểm g mục 4 phần I của Biểu thuế tiêu thụ đặc biệt quy định
+  tại khoản 1 Điều 8 của Luật Thuế tiêu thụ đặc biệt" amends clause 1 of Article 8 of Law
+  66/2025. (#5's comment listed this as a target regex could not place; the title does name
+  the clause.)
+- Law 109/2025, Article 29, clause 3: "Luật Thuế thu nhập cá nhân số 04/2007/QH12 đã được sửa
+  đổi, bổ sung … theo … Luật số 48/2024/QH15 … hết hiệu lực" repeals Law 04/2007 only. The laws
+  after `theo` are its history. The site notes it as repealing Article 17 of Law 48/2024, and
+  #5's comment repeated that as an example; the text does not say it. The part after `;` names
+  provisions by subject only and is reported as `unresolved_link`.
+
+The full hand-checked list is `tests/fixtures/amendment_links.csv`: one row per link,
+`target_chunks` filled for in-corpus targets.
+
+## `data/enriched/links.jsonl` — every amendment link
+
+*Planned, #5.* One record per link, ordered by the source chunk's position in `data/chunks/chunks.jsonl`,
+then by the target's position in the directive. Byte-identical across two builds (NFR-005).
+
+| Field | Type | Example | Meaning |
+|---|---|---|---|
+| `type` | string | `amends` | `amends`, `replaces` or `repeals` |
+| `source` | string | `421739:D1` | id of the chunk holding the directive; for a directive in an article title, the article's first chunk |
+| `target_number` | string | `48/2024/QH15` | the target document's number, as written in the corpus (`so_hieu`) or in the directive |
+| `target_doc` | string or null | `379409` | the target document's `doc_id`; null outside the corpus |
+| `target_article` | string or null | `5` | null for a whole document or a part |
+| `target_clause` | string or null | `25` | as written, so an added clause is `1b` |
+| `target_point` | string or null | `c` | as written, e.g. `a.4` |
+| `target_part` | string or null | `Phụ lục I` | a chapter, annex or form; null otherwise |
+| `target_chunks` | list | `["379409:D5:K25"]` | the target's chunks, by the table above; empty outside the corpus and for a part |
+| `in_corpus` | bool | `true` | whether the target document is in the corpus |
+
 ## `data/enriched/issues.jsonl` — what the enrich step could not settle
 
-Same fields as the chunker's `issues.jsonl`, ordered by document id, then by
-position in the effectiveness article.
+Same fields as the chunker's `issues.jsonl`, ordered by document id; within a document, the
+effective-date issues come first, then `unresolved_link`, each in text order.
 
 | `kind` | `article` | Meaning |
 |---|---|---|
@@ -174,6 +304,7 @@ position in the effectiveness article.
 | `partial_effective_date` | the referenced article | an exception narrower than the chunks it falls in; `detail` quotes the line |
 | `application_period` | the effectiveness article | an application rule; `detail` quotes the line |
 | `effective_until` | the effectiveness article | an end date; `detail` quotes the line |
+| `unresolved_link` | the article holding the directive | a directive with no target that could be resolved; `detail` quotes the line. *Planned, #5* |
 
 ## `articles.jsonl` — full articles for context assembly
 

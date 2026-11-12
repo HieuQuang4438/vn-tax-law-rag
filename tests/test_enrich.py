@@ -427,7 +427,8 @@ def test_build_writes_every_chunk_in_chunker_order_with_its_header(tmp_path):
     chunks = read_jsonl(tmp_path / "chunks" / "chunks.jsonl")
 
     assert [c["id"] for c in enriched] == [c["id"] for c in chunks]
-    assert all(e == {**c, "header": e["header"], "effective_date": "2026-07-01"} for e, c in zip(enriched, chunks))
+    assert all(e == {**c, "header": e["header"], "effective_date": "2026-07-01",
+                         "amended_by": []} for e, c in zip(enriched, chunks))
     assert enriched[0]["header"] == f"{CIRCULAR} [Chương I. QUY ĐỊNH CHUNG > Điều 1. Phạm vi điều chỉnh]"
     assert "indexed_text" not in enriched[0]
 
