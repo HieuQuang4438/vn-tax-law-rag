@@ -29,6 +29,10 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   its article, checks the set's shape and warns on amended provisions. New metrics EVAL-006
   answer correctness, EVAL-007 context precision@k, EVAL-008 answer relevancy. FR-CORE-015,
   EVAL-006, EVAL-007, EVAL-008.
+- Eval set v1: 50 questions (39 answerable, 11 unanswerable) across the six tax types and 6
+  conversations, in `eval/questions.yaml`; questions drafted without reading the corpus, answers
+  from the corpus, reviewed by the owner and cold-read (`eval-set.md`, *Provenance*). FR-CORE-015,
+  EVAL-001–EVAL-008.
 
 ### Changed
 

@@ -95,6 +95,10 @@ Written the way a provision is cited, one per line:
 - An amended provision is listed together with the provision that amends it, as approved on #7:
   AC-015 requires the answer to cite the amending text, and recall then checks that it is
   retrieved.
+- A provision is listed when the answer or a key fact states something taken from it, and
+  only then (approved on #7). The chain of laws behind a figure that a decree sets is not
+  listed unless the answer states something from those laws: recall@k divides by the number
+  of expected articles, so a padded list would measure its own length, not retrieval.
 
 ## What the checker reports
 
@@ -172,9 +176,9 @@ How the set is made, approved on #7, so that its questions are not shaped by the
    unanswerable question against the corpus.
 4. **Cold read**, below.
 
-| Set version | Step 1 | Question review | Step 2 | Review |
-|---|---|---|---|---|
-| 1 | Claude Opus 5.5, 2026-11-12; review applied 2026-11-13 | ChatGPT (model not shown in its interface), 2026-11-13; all findings accepted; q41–q45 written by it | Claude Opus 5.5, 2026-11-13 | owner, 2026-11-13: c02.2 (annex gap) and q21, c03.2, c03.3 (amended from outside) kept on purpose; q49 gains a key fact on what the corpus lacks; revenue thresholds left to the cold read |
+| Set version | Step 1 | Question review | Step 2 | Review | Cold read |
+|---|---|---|---|---|---|
+| 1 | Claude Opus 5.5, 2026-11-12; review applied 2026-11-13 | ChatGPT (model not shown in its interface), 2026-11-13; all findings accepted; q41–q45 written by it | Claude Opus 5.5, 2026-11-13 | owner, 2026-11-13: c02.2 (annex gap) and q21, c03.2, c03.3 (amended from outside) kept on purpose; q49 gains a key fact on what the corpus lacks; revenue thresholds left to the cold read | subagent, Claude Opus 5.5, 2026-11-13, read-only, no network: 0 wrong, 13 minor findings, corrected as approved on #7 |
 
 Each row records the model and the date of each step once it has run.
 
