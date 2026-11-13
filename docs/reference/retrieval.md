@@ -1,0 +1,192 @@
+---
+status: draft
+updated: 2026-11-13
+owner: HieuQuang4438
+---
+
+# Retrieval
+
+What `src.retrieval` returns for a question, and how it is found. It reads the indexes in
+`data/index/` ([index.md](index.md)), the enriched chunks ([chunk-schema.md](chunk-schema.md)) and
+the documents' metadata in `data/processed/`. The rules are FR-CORE-007, FR-CORE-008, NFR-002 and
+[ADR-0002](../adr/0002-hybrid-retrieval-without-rerank.md). The approach is the approved comment
+on #8.
+
+Two steps run for every question:
+
+1. **References.** Explicit references to a document or an article ("Điều 9 Luật 48/2024") are
+   found by pattern and resolved from metadata (FR-CORE-007).
+2. **Hybrid search.** The whole question goes to the keyword index and the vector index. Their
+   ranked lists are merged by reciprocal rank fusion (FR-CORE-008).
+
+Resolved articles take the first slots, and the fused list fills the rest, up to k = 8. There
+is no reranker (ADR-0002). Dates and `amended_by` are not used here. Context assembly (#14)
+reads them from the enriched chunks.
+
+## Interface
+
+```python
+from src.retrieval import Retriever
+
+retriever = Retriever.load()                  # bge-m3 from the local cache, once per process
+result = retriever.retrieve("Điều 9 Luật 48/2024 áp dụng cho hộ kinh doanh không?")
+result.hits         # list[Hit], at most k, best first
+result.unresolved   # list[Unresolved], in question order
+```
+
+| Name | What it is |
+|---|---|
+| `Retriever(index_dir, enriched_dir, processed_dir, embedder)` | Reads both indexes, the chunks and the documents' metadata. The embedder embeds the question, as at build time. |
+| `Retriever.load(data_dir=Path("data"), embedder=None)` | The same, from `data_dir/index`, `data_dir/enriched` and `data_dir/processed`. With no embedder, bge-m3 is loaded offline by `src.index.load_embedder`. |
+| `Retriever.retrieve(question, k=TOP_K)` | A `Retrieval` for one question. |
+| `Retrieval` | `hits: list[Hit]`, `unresolved: list[Unresolved]`. |
+| `Hit` | `chunk_id: str`, `found_by: tuple[str, ...]`, `score: float`. |
+| `Unresolved` | `text: str`, the reference as written in the question; `reason: str`, one of the reasons below. |
+| `find_references(question)` | The `Reference`s in the question, in order, before any corpus lookup. |
+| `Reference` | `text`, `kind`, `number`, `article`, `clause`, as described under *References*. |
+| `rrf(lists, constant=RRF_K)` | Reciprocal rank fusion of ranked lists of chunk ids, as described under *Fusion*. |
+| `IndexNotReadyError` | Raised by the constructor when the index cannot be used, as described under *Loading*. |
+| `TOP_K`, `RRF_K`, `CANDIDATES` | 8, 60, 50. |
+
+`found_by` lists every way the chunk was found, in this order: `reference` (it fills a reference
+slot), `keyword` (it is in the keyword list), `vector` (it is in the vector list), `document` (it
+is in the document list). `score` is the chunk's fused score. A reference slot whose chunk is in
+no list has score 0.
+
+## Loading
+
+The constructor checks that the index fits what it is asked to search. It raises
+`IndexNotReadyError`, with a message naming the problem and `python -m src.index`, when:
+
+- `index_dir/manifest.json` is missing, which means the build is missing or did not finish;
+- the manifest's `chunks_sha256` is not the `sha256` of `enriched_dir/chunks.jsonl`, which means
+  the index is older than the chunks;
+- the manifest's `model` or `revision` differs from the embedder's, which means the question
+  would be embedded by another model than the chunks.
+
+The model is loaded once, by `Retriever.load`, and every `retrieve` call reuses it. Nothing goes
+to the network: the model comes from the local cache, as at build time ([index.md](index.md)),
+and both indexes are local.
+
+## References
+
+`find_references` reads the question in Unicode NFC, ignoring case, and finds two kinds of
+reference: documents and articles.
+
+**Documents.**
+
+| Written | Example | Resolves to |
+|---|---|---|
+| a full number | `48/2024/QH15`, `252/2026/NĐ-CP` | the document with that `so_hieu` |
+| a kind word, optionally `số`, then a number | `Luật 48/2024`, `Luật số 48/2024`, `Nghị định 68/2026`, `NĐ 68/2026`, `Thông tư số 89/2026/TT-BTC`, `TT 89/2026` | the document whose `so_hieu` is that number, or starts with it followed by `/` |
+| the name of a base law | `Luật Thuế GTGT`, `Luật Quản lý thuế` | that law, from the alias list below |
+
+- The kind words are `Luật`, `Nghị định` and `NĐ`, and `Thông tư` and `TT`. A kind word must
+  match the document's `loai_van_ban`: `Luật` a Luật, `Nghị định`/`NĐ` a Nghị định,
+  `Thông tư`/`TT` a Thông tư.
+- A number with no kind word and no suffix (`68/2026`) is not a reference. It may be a month
+  ("tháng 12/2025"). A number that is part of a longer one (`12/2025` in `15/12/2025`) is not a
+  reference either.
+- A base-law name followed by `số <number>` is one reference, by that number.
+
+The alias list, fixed. Every name may be written with or without `Thuế` after `Luật`, and in
+either case:
+
+| Name | Law |
+|---|---|
+| `Luật Thuế giá trị gia tăng`, `Luật Thuế GTGT` | 48/2024/QH15 |
+| `Luật Thuế thu nhập cá nhân`, `Luật Thuế TNCN` | 109/2025/QH15 |
+| `Luật Thuế thu nhập doanh nghiệp`, `Luật Thuế TNDN` | 67/2025/QH15 |
+| `Luật Thuế tiêu thụ đặc biệt`, `Luật Thuế TTĐB` | 66/2025/QH15 |
+| `Luật Quản lý thuế` | 108/2025/QH15 |
+
+A name resolves to the base law, never to a law that amends it. A law name not in the list is
+not a reference, and the question still goes to hybrid search.
+
+**Articles.** `Điều <n>`, `khoản <m> Điều <n>` or `Điều <n> khoản <m>`, where a number may carry
+a letter (`Điều 5a`, `khoản 1a`). A point in front (`điểm a khoản 2 Điều 9`) is read as its
+clause. An article is bound to one document:
+
+1. the document reference right after it, optionally after `,`, `của`, `tại` or `thuộc`
+   ("Điều 9 Luật 48/2024", "khoản 2 Điều 9 của Nghị định 68/2026");
+2. otherwise, the document reference right before it, optionally after `,`
+   ("Nghị định 68/2026, Điều 5");
+3. otherwise, the only document the question names ("Theo Nghị định 68/2026 thì … quy định tại
+   Điều 5 là gì?");
+4. otherwise, none. The article is reported `no_document`. Carrying a document over from an
+   earlier turn is #19's work.
+
+A document with no article bound to it is a document reference on its own.
+
+A `Reference` holds the reference as written: `text` is the span of the question it covers,
+`kind` is `Luật`, `Nghị định`, `Thông tư` or None, `number` is the number as written (the law's
+`so_hieu` for a name), and `article` and `clause` are the numbers as written, or None.
+
+**Resolution.** Against the corpus, compared without regard to case:
+
+| Case | Outcome |
+|---|---|
+| the number matches no document | unresolved, `unknown_document` |
+| a partial number matches more than one document | unresolved, `ambiguous` |
+| the kind word contradicts the document's type ("Thông tư 68/2026", a decree) | unresolved, `kind_mismatch` |
+| the article is not in the document | unresolved, `no_article` |
+| an article bound to no document | unresolved, `no_document` |
+| a document with no article | resolved to the document: a document list, below |
+| an article | resolved to the article: a reference slot, below |
+
+A clause missing from a split article resolves as if no clause were named. An unresolved
+reference changes nothing else: the question is searched as if it were not there.
+
+## Hybrid search
+
+Three ranked lists of chunk ids, each at most `CANDIDATES` (50) long:
+
+- **Keyword list.** The question's tokens, by `src.index.tokenize`, scored by the BM25 index.
+  Tokens not in the vocabulary are dropped. Chunks scoring 0 are not in the list. Equal scores
+  keep `chunks.jsonl` order. The full `so_hieu` of each document referenced without an article
+  is added to the tokens: a user writes `68/2026`, the index holds the token `68/2026/nđ-cp`.
+- **Vector list.** The question embedded by the same model as the chunks, matched by cosine
+  distance in the Chroma collection.
+- **Document list.** Only when the question references a document without an article. Every
+  chunk of the documents so referenced, ranked by `rrf` of their keyword rank and vector rank
+  among those chunks alone. Chunks from other documents can still win over them, so a wrong
+  document in the question does not hide the right answer.
+
+**Fusion.** `rrf(lists)` scores each chunk as the sum, over the lists that hold it, of
+1 / (`RRF_K` + rank), rank counted from 1. It returns `(chunk_id, score)` pairs, best first. Ties
+keep the order in which chunks first appear when the lists are read rank by rank: rank 1 of
+every list in turn, then rank 2, and so on. The lists are passed in the order keyword, vector,
+document. All lists weigh the same. `RRF_K` 60, `CANDIDATES` 50 and the equal weights are
+starting values, changed only through a recorded experiment (#8).
+
+## The k hits
+
+1. **Reference slots.** One per resolved article reference, in question order. Its chunk is:
+   - for a named clause of a split article, that clause's chunk;
+   - for an article that is not split, the article chunk, whether or not a clause is named;
+   - for a split article with no clause named, its chunk ranked best in the fused list, or its
+     first chunk in `chunks.jsonl` if none of its chunks is in the fused list.
+
+   A chunk already in a slot does not take a second one. Context assembly (#14) adds the whole
+   parent article, so one slot brings in the article.
+2. **Fused hits.** The fused list, in order, skipping chunks already in a slot, until there are
+   k hits.
+
+When more than k articles are referenced, the first k take the slots. The same question against
+the same index always gives the same result.
+
+## Acceptance
+
+**AC-007.** For each eval-set question and conversation turn with `form: reference`, every
+article it names is among the parents of its hits. This is the article the question names,
+which is not always the expected provision: some questions name the wrong one on purpose. The
+corpus test checks it two ways:
+
+- independently of the resolver: when the text holds exactly one corpus document number and
+  some `Điều <n>` that exists in that document, that article is among the hits' parents;
+- through the resolver: on an answerable question or turn, every reference is resolved, or is
+  reported `unknown_document` because it names a document outside the corpus.
+
+**AC-012.** The median `retrieve` time over every question and conversation turn of the eval
+set is under 2 s on the dev laptop, with the model loaded beforehand and no network. The test
+prints the median and the 95th percentile, and both are recorded here with the machine.
