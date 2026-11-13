@@ -726,6 +726,7 @@ questions:
       - "không lập hóa đơn và không kê khai thuế khi bán hàng là hành vi trốn thuế"
       - "phạt từ 01 đến 03 lần số thuế trốn"
       - "mức phạt trốn thuế không phân biệt tổ chức và cá nhân"
+      - "nói rõ mức phạt khi chỉ vi phạm thủ tục hóa đơn (vẫn kê khai đủ) không có trong các văn bản"  # review: scores saying what is missing (FR-CORE-012)
     provisions:
       - 108/2025/QH15 Điều 45 khoản 4
       - 108/2025/QH15 Điều 44 khoản 3
@@ -880,14 +881,16 @@ conversations:
           - 141/2026/NĐ-CP Điều 1
           - 48/2024/QH15 Điều 12
           - 149/2025/QH15 Điều 1
+      # review: the food-and-drink group is in Annex I of Circular 69/2025, which is not indexed
+      # (corpus.md, "Annexes are not indexed"); kept on purpose as a test of that gap.
       - question: Nếu chuyển sang bán đồ ăn uống thì tỷ lệ có khác không?
         tax_type: household
         form: plain
         answer: >
           Với doanh thu 800 triệu đồng/năm thì không khác: vẫn không chịu thuế GTGT, bất kể ngành nghề. Chỉ khi doanh
           thu trên 01 tỷ đồng, tỷ lệ mới theo nhóm hoạt động: phân phối hàng hóa 1%; sản xuất, vận tải, dịch vụ có
-          gắn với hàng hóa 3%; dịch vụ 5%; hoạt động khác 2%. Nhóm cụ thể của dịch vụ ăn uống nằm ở Phụ lục I Thông
-          tư 69/2025/TT-BTC, không có trong văn bản của bộ dữ liệu.
+          gắn với hàng hóa 3%; dịch vụ 5%; hoạt động khác 2%. Nhóm cụ thể của dịch vụ ăn uống được quy định tại
+          Phụ lục I Thông tư 69/2025/TT-BTC; nội dung phụ lục không có trong phần văn bản tra cứu được.
         key_facts:
           - "doanh thu năm từ 01 tỷ đồng trở xuống: không chịu thuế GTGT ở mọi ngành nghề"
           - "sản xuất, vận tải, dịch vụ có gắn với hàng hóa: 3%"

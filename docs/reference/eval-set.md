@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-12
+updated: 2026-11-13
 owner: HieuQuang4438
 ---
 
@@ -174,7 +174,7 @@ How the set is made, approved on #7, so that its questions are not shaped by the
 
 | Set version | Step 1 | Question review | Step 2 | Review |
 |---|---|---|---|---|
-| 1 | Claude Opus 5.5, 2026-11-12; review applied 2026-11-13 | ChatGPT (model not shown in its interface), 2026-11-13; all findings accepted; q41–q45 written by it | Claude Opus 5.5, 2026-11-13 | not done yet |
+| 1 | Claude Opus 5.5, 2026-11-12; review applied 2026-11-13 | ChatGPT (model not shown in its interface), 2026-11-13; all findings accepted; q41–q45 written by it | Claude Opus 5.5, 2026-11-13 | owner, 2026-11-13: c02.2 (annex gap) and q21, c03.2, c03.3 (amended from outside) kept on purpose; q49 gains a key fact on what the corpus lacks; revenue thresholds left to the cold read |
 
 Each row records the model and the date of each step once it has run.
 

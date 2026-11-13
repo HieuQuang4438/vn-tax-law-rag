@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-12
+updated: 2026-11-13
 owner: HieuQuang4438
 ---
 
@@ -171,3 +171,12 @@ The site's notes name 19 such changes (as of 2026-11-12); they are listed here, 
 
 Adding these documents to the corpus would let the links be read; that is a corpus change, not
 part of FR-CORE-005.
+
+## Annexes are not indexed
+
+Annexes and forms are parsed into `data/processed/` but never chunked
+([chunk-schema.md](chunk-schema.md), ADR-0001), so what only an annex says cannot be retrieved.
+Some of it answers everyday questions. Known case: Annex I of Circular 69/2025/TT-BTC (404453)
+lists which activities fall into each VAT percentage group for household businesses (1%, 2%,
+3%, 5%); Article 5 only refers to it. Eval set turn c02.2 keeps a question about it on purpose,
+to measure this gap (#7).
