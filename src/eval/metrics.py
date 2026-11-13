@@ -40,5 +40,7 @@ def bootstrap_interval(values: list[float], resamples: int = BOOTSTRAP_RESAMPLES
 
 def paired_bootstrap_interval(old: list[float], new: list[float], resamples: int = BOOTSTRAP_RESAMPLES,
                               seed: int = BOOTSTRAP_SEED, level: float = BOOTSTRAP_LEVEL) -> tuple[float, float]:
-    """Bootstrap interval of the mean per-item difference new - old (#10). Interface stub."""
-    return (0.0, 0.0)
+    """Bootstrap interval of the mean per-item difference new - old, item by item (#10)."""
+    if len(old) != len(new):
+        raise ValueError(f"paired values differ in length: {len(old)} and {len(new)}")
+    return bootstrap_interval([n - o for o, n in zip(old, new)], resamples, seed, level)

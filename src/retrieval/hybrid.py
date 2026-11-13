@@ -15,7 +15,7 @@ import numpy as np
 from chromadb.api.client import SharedSystemClient
 from chromadb.config import Settings
 
-from src.index import Embedder, load_embedder, tokenize
+from src.index import TOKENIZERS, Embedder, get_tokenizer, load_embedder
 from src.index.builder import COLLECTION
 from src.retrieval.references import Reference, find_references
 
@@ -91,6 +91,14 @@ class Retriever:
         if (manifest.get("model"), manifest.get("revision")) != (embedder.model, embedder.revision):
             raise _not_ready(f"the index was built with {manifest.get('model')}@{manifest.get('revision')}, "
                              f"not {embedder.model}@{embedder.revision}")
+        tokenizer = manifest.get("bm25_tokenizer")
+        if tokenizer not in TOKENIZERS:
+            raise _not_ready(f"the index was built with an unknown BM25 tokenizer {tokenizer!r}")
+        try:
+            self._tokenize = get_tokenizer(tokenizer)
+        except ImportError as error:
+            raise _not_ready(f"the {tokenizer} tokenizer is not installed ({error}); install "
+                             "requirements-experiments.txt or rebuild with the syllable tokenizer") from error
         self._embedder = embedder
 
         rows = [json.loads(line) for line in raw.decode("utf-8").splitlines()]
@@ -139,8 +147,9 @@ class Retriever:
     @classmethod
     def load(cls, data_dir: Path = Path("data"), embedder: Embedder | None = None,
              index_dir: Path | None = None) -> "Retriever":
-        """Both indexes under `data_dir`; bge-m3 from the local cache unless an embedder is given."""
-        return cls(data_dir / "index", data_dir / "enriched", data_dir / "processed", embedder or load_embedder())
+        """Both indexes under `data_dir`, or in `index_dir`; bge-m3 from the local cache unless given."""
+        return cls(index_dir or data_dir / "index", data_dir / "enriched", data_dir / "processed",
+                   embedder or load_embedder())
 
     # --- references
 
@@ -201,7 +210,7 @@ class Retriever:
             elif resolved not in documents:
                 documents.append(resolved)
 
-        tokens = tokenize(question) + [t for d in documents for t in tokenize(d.number)]
+        tokens = self._tokenize(question) + [t for d in documents for t in self._tokenize(d.number)]
         keyword_rows = self._keyword_ranking(tokens)
         vector_rows = self._vector_ranking(question)
         keyword = [self._ids[r] for r in keyword_rows[:CANDIDATES]]

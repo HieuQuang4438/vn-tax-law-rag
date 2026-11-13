@@ -311,7 +311,7 @@ def test_configuration_records_commit_set_index_pipeline_and_machine(tmp_path):
     assert at(config, "index") == {k: MANIFEST[k] for k in ("model", "revision", "chunks_sha256", "chunk_count", "bm25_tokenizer")}
     assert at(config, "pipeline") == FakePipeline.config
     assert at(config, "bootstrap") == {"resamples": 1000, "seed": 0, "level": 0.95}
-    assert sorted(at(config, "versions")) == ["bm25s", "chromadb", "numpy", "pyvi", "python", "sentence-transformers",
+    assert sorted(at(config, "versions")) == ["bm25s", "chromadb", "numpy", "python", "pyvi", "sentence-transformers",
                                               "torch", "underthesea"]
     assert sorted(at(config, "machine")) == ["cpu", "cpu_count", "os", "ram_gb"]
 

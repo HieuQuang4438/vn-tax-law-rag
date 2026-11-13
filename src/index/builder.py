@@ -23,7 +23,7 @@ from chromadb.api.client import SharedSystemClient
 from chromadb.config import Settings
 
 from src.chunking.tokens import EMBEDDING_MODEL
-from src.index.tokenizers import tokenize
+from src.index.tokenizers import get_tokenizer
 
 EMBEDDING_REVISION = "5617a9f61b028005a4858fdac845db406aefb181"  # pinned on #6
 EMBEDDING_INPUT_LIMIT = 8192  # bge-m3 maximum input, in tokens; the largest indexed text is 3,363
@@ -153,7 +153,7 @@ def _write_chroma(path: Path, rows: list[dict], vectors: list[np.ndarray]) -> No
         _release_chroma()
 
 
-def _write_bm25(path: Path, rows: list[dict], texts: list[str]) -> None:
+def _write_bm25(path: Path, rows: list[dict], texts: list[str], tokenize) -> None:
     tokens = [tokenize(t) for t in texts]
     # bm25s numbers its own vocabulary in set order, which changes with PYTHONHASHSEED
     vocab = {token: i for i, token in enumerate(sorted({t for doc in tokens for t in doc}))}
@@ -166,7 +166,12 @@ def _write_bm25(path: Path, rows: list[dict], texts: list[str]) -> None:
 
 def build(enriched_dir: Path, index_dir: Path, embedder: Embedder, tokenizer: str = "syllable",
           cache_dir: Path | None = None) -> dict:
-    """Write both indexes, the vector cache and the manifest; return the manifest."""
+    """Write both indexes, the vector cache and the manifest; return the manifest.
+
+    `tokenizer` names the BM25 tokenizer (#10); `cache_dir` holds the vector cache, by default
+    `index_dir/embeddings`, so a variant index can share the main one's vectors.
+    """
+    tokenize = get_tokenizer(tokenizer)  # an unknown name stops here, before anything is written
     started = time.perf_counter()
     raw = (enriched_dir / "chunks.jsonl").read_bytes()
     rows = [json.loads(line) for line in raw.decode("utf-8").splitlines()]
@@ -176,10 +181,13 @@ def build(enriched_dir: Path, index_dir: Path, embedder: Embedder, tokenizer: st
     manifest_path = index_dir / "manifest.json"
     manifest_path.unlink(missing_ok=True)  # written last: no manifest means no complete index
 
-    cache = _VectorCache(index_dir / "embeddings" / f"{embedder.model.replace('/', '--')}@{embedder.revision}")
+    cache_root = cache_dir if cache_dir is not None else index_dir / "embeddings"
+    cache = _VectorCache(cache_root / f"{embedder.model.replace('/', '--')}@{embedder.revision}")
     vectors, embedded = _embed(texts, embedder, cache)
     _write_chroma(index_dir / "chroma", rows, vectors)
-    _write_bm25(index_dir / "bm25", rows, texts)
+    bm25_started = time.perf_counter()
+    _write_bm25(index_dir / "bm25", rows, texts, tokenize)
+    bm25_seconds = round(time.perf_counter() - bm25_started, 1)
 
     manifest = {
         "model": embedder.model,
@@ -187,10 +195,11 @@ def build(enriched_dir: Path, index_dir: Path, embedder: Embedder, tokenizer: st
         "dimension": len(vectors[0]) if vectors else 0,
         "chunks_sha256": hashlib.sha256(raw).hexdigest(),
         "chunk_count": len(rows),
-        "bm25_tokenizer": BM25_TOKENIZER,
+        "bm25_tokenizer": tokenizer,
+        "bm25_seconds": bm25_seconds,
         "embedded": embedded,
         "seconds": round(time.perf_counter() - started, 1),
-        "versions": {name: version(name) for name in VERSIONED},
+        "versions": {name: version(name) for name in VERSIONED + (() if tokenizer == "syllable" else (tokenizer,))},
     }
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n")
     return manifest

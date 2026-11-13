@@ -24,6 +24,7 @@ from src.eval.metrics import (
     BOOTSTRAP_SEED,
     bootstrap_interval,
     context_precision_at_k,
+    paired_bootstrap_interval,
     recall_at_k,
 )
 from src.retrieval import TOP_K, Hit, Unresolved
@@ -44,7 +45,7 @@ NAMES = {
 NOT_RUN = "no generation stage"
 NFR006 = {"median_s": 10, "p95_s": 20}
 NFR007 = {"average_usd": 0.01}
-VERSIONED = ("bm25s", "chromadb", "numpy", "sentence-transformers", "torch")
+VERSIONED = ("bm25s", "chromadb", "numpy", "pyvi", "sentence-transformers", "torch", "underthesea")
 INDEX_FIELDS = ("model", "revision", "chunks_sha256", "chunk_count", "bm25_tokenizer")
 
 
@@ -290,6 +291,24 @@ def summary(results: dict, path: Path) -> str:
     return "\n".join(lines)
 
 
+def _standalone(item: dict) -> bool:
+    return item["kind"] == "question"
+
+
+def _follow_up(item: dict) -> bool:
+    return item["kind"] == "turn" and (item.get("turn") or 0) > 1
+
+
+PAIRED = {"EVAL-001": (_standalone, "recall"), "EVAL-005": (_follow_up, "recall"),
+          "EVAL-007": (_standalone, "context_precision")}
+
+
+def _paired(old_items: list[dict], new_items: list[dict], selects, key: str) -> list[tuple[float, float]]:
+    """(old, new) values of the items scored in both runs, in the new run's order."""
+    before = {i["id"]: i[key] for i in old_items if selects(i) and i[key] is not None}
+    return [(before[i["id"]], i[key]) for i in new_items if selects(i) and i[key] is not None and i["id"] in before]
+
+
 def compare(old: dict, new: dict) -> str:
     """Score changes and recall drops; raises ValueError when the eval sets differ."""
     if old["configuration"]["eval_set"]["sha256"] != new["configuration"]["eval_set"]["sha256"]:
@@ -298,7 +317,13 @@ def compare(old: dict, new: dict) -> str:
     for eval_id, entry in new["scores"].items():
         before = old["scores"].get(eval_id, {}).get("value")
         if before is not None and entry["value"] is not None:
-            lines.append(f"  {eval_id}  {before:.3f} -> {entry['value']:.3f}  ({entry['value'] - before:+.3f})")
+            line = f"  {eval_id}  {before:.3f} -> {entry['value']:.3f}  ({entry['value'] - before:+.3f})"
+            if eval_id in PAIRED:
+                pairs = _paired(old["items"], new["items"], *PAIRED[eval_id])
+                if pairs:
+                    low, high = paired_bootstrap_interval([o for o, _ in pairs], [n for _, n in pairs])
+                    line += f"  paired [{low:+.3f}, {high:+.3f}]"
+            lines.append(line)
     previous = {i["id"]: i["recall"] for i in old["items"]}
     drops = [f"  {i['id']}  recall {previous[i['id']]:.3f} -> {i['recall']:.3f}" for i in new["items"]
              if i["recall"] is not None and previous.get(i["id"]) is not None and i["recall"] < previous[i["id"]]]
@@ -318,11 +343,12 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None) -> int
     parser = argparse.ArgumentParser(prog="python -m src.eval.run", description="Score the eval set.")
     parser.add_argument("--set", default="eval/questions.yaml", help="the eval set")
     parser.add_argument("--data", default="data", help="folder holding processed/, enriched/ and index/")
-    parser.add_argument("--index", help="the index folder; default <data>/index")  # stub: not used yet
+    parser.add_argument("--index", help="the index folder; default <data>/index")
     parser.add_argument("--out", default="eval/results", help="where the results file is written")
     parser.add_argument("--compare", help="an earlier results file to compare with")
     args = parser.parse_args(argv)
     set_path, data, out = Path(args.set), Path(args.data), Path(args.out)
+    index_dir = Path(args.index) if args.index else data / "index"
 
     started_at = datetime.now().astimezone().isoformat(timespec="seconds")
     started = time.perf_counter()
@@ -330,9 +356,9 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None) -> int
     if pipeline is None:
         from src.retrieval import Retriever
 
-        pipeline = RetrievalPipeline(Retriever.load(data))
+        pipeline = RetrievalPipeline(Retriever.load(data, index_dir=index_dir))
     scored = evaluate(eval_set, pipeline, _parents(data / "enriched"))
-    config = configuration(eval_set, set_path, data / "index", pipeline.config)
+    config = configuration(eval_set, set_path, index_dir, pipeline.config)
     command = " ".join(["python -m src.eval.run", *(argv if argv is not None else [])])
     results = {"format": FORMAT,
                "run": {"started": started_at, "command": command, "seconds": round(time.perf_counter() - started, 1)},

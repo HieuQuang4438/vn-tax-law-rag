@@ -44,6 +44,11 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   seeded bootstrap interval, records the answer metrics as not run, latency per stage and
   cost, and writes a results file with the commit and the configuration to `eval/results/`;
   `--compare` shows what changed since an earlier run. FR-CORE-015, AC-011, AC-016.
+- BM25 tokenizer as a build option: `python -m src.index --tokenizer {syllable,underthesea,pyvi}
+  --out <folder>` builds a variant index from the shared vector cache, and the retriever
+  tokenizes questions like the index; `python -m src.eval.run --index` scores a variant, and
+  `--compare` reports a paired bootstrap interval of each retrieval change. The segmenters are in
+  `requirements-experiments.txt`. ADR-0002, #10.
 
 ### Changed
 

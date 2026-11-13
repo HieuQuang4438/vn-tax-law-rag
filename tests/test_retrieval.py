@@ -451,10 +451,11 @@ def test_load_reads_the_index_folder_it_is_given(data_dir, tmp_path):
     pytest.importorskip("pyvi")
     variant = tmp_path / "variant"
     build(data_dir / "enriched", variant, TopicEmbedder(), tokenizer="pyvi", cache_dir=data_dir / "index" / "embeddings")
-    result = Retriever.load(data_dir, embedder=TopicEmbedder(), index_dir=variant).retrieve("kinh doanh")
-    assert any("keyword" in h.found_by for h in result.hits)
-    default = Retriever.load(data_dir, embedder=TopicEmbedder()).retrieve("kinh doanh")
-    assert not any("keyword" in h.found_by for h in default.hits)
+    # "kinh" alone is a token of the syllable index only; pyvi indexes "kinh_doanh"
+    result = Retriever.load(data_dir, embedder=TopicEmbedder(), index_dir=variant).retrieve("kinh")
+    assert not any("keyword" in h.found_by for h in result.hits)
+    default = Retriever.load(data_dir, embedder=TopicEmbedder()).retrieve("kinh")
+    assert any("keyword" in h.found_by for h in default.hits)
 
 
 # --- The real model, corpus and eval set (AC-007, AC-012) ---------------------------------------
