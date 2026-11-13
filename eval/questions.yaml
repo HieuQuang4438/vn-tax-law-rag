@@ -38,12 +38,12 @@ questions:
     form: plain
     answer: TODO
   - id: q02
-    question: Lương tháng 25 triệu, có một con nhỏ đang đi học, thì mỗi tháng tôi bị trừ thuế thu nhập khoảng bao nhiêu?
+    question: Lương gross của tôi 25 triệu một tháng, đóng bảo hiểm bắt buộc trên đủ mức lương đó, có một con nhỏ đang đi học, thì mỗi tháng tôi bị trừ thuế thu nhập khoảng bao nhiêu?
     tax_type: pit
     form: plain
     answer: TODO
   - id: q03
-    question: Công ty nộp tờ khai thuế GTGT quý trễ 10 ngày, tiền thuế cũng nộp trễ theo, thì tiền chậm nộp tính thế nào?
+    question: Công ty nộp tiền thuế GTGT quý trễ 10 ngày thì tiền chậm nộp tính thế nào?
     tax_type: administration
     form: plain
     answer: TODO
@@ -62,12 +62,6 @@ questions:
     tax_type: sct
     form: plain
     answer: TODO
-  - id: q07
-    question: Mua ô tô mới thì lệ phí trước bạ phải đóng bao nhiêu phần trăm giá xe?
-    tax_type: sct
-    form: plain
-    answer: TODO
-    unanswerable: out_of_scope
   - id: q08
     question: Em làm freelance thiết kế, nhận tiền từ khách nước ngoài qua PayPal, vậy em có phải tự khai thuế không hay khỏi?
     tax_type: pit
@@ -75,7 +69,7 @@ questions:
     answer: TODO
   - id: q09
     question: Tôi cho thuê căn hộ 15 triệu một tháng, có phải nộp thuế không và nộp bao nhiêu phần trăm?
-    tax_type: household
+    tax_type: pit
     form: plain
     answer: TODO
   - id: q10
@@ -83,8 +77,8 @@ questions:
     tax_type: administration
     form: reference
     answer: TODO
-  - id: q11
-    question: Hộ kinh doanh nộp thuế khoán thì mỗi năm chi cục thuế thông báo mức khoán vào lúc nào, nếu thấy mức khoán cao quá thì khiếu nại ra sao?
+  - id: q11  # repealed is unverified: step 2 confirms it against the corpus or moves the question
+    question: Hộ kinh doanh nộp thuế khoán thì mỗi năm chi cục thuế thông báo mức khoán vào lúc nào?
     tax_type: household
     form: plain
     answer: TODO
@@ -104,12 +98,6 @@ questions:
     tax_type: pit
     form: plain
     answer: TODO
-  - id: q15
-    question: Làm freelancer không có công ty đóng bảo hiểm thì tự đóng bảo hiểm xã hội tự nguyện mức thấp nhất là bao nhiêu?
-    tax_type: pit
-    form: plain
-    answer: TODO
-    unanswerable: out_of_scope
   - id: q16
     question: Điều 8 Luật 66/2025 quy định thuế suất tiêu thụ đặc biệt đối với bia tăng theo lộ trình thế nào?
     tax_type: sct
@@ -125,19 +113,13 @@ questions:
     tax_type: administration
     form: plain
     answer: TODO
-  - id: q19
-    question: Nhập khẩu linh kiện điện tử từ Trung Quốc về lắp ráp thì thuế suất thuế nhập khẩu là bao nhiêu?
-    tax_type: administration
-    form: plain
-    answer: TODO
-    unanswerable: out_of_scope
   - id: q20
     question: Doanh nghiệp xuất khẩu hàng hóa muốn được áp thuế suất GTGT 0% thì cần đáp ứng những điều kiện gì?
     tax_type: vat
     form: plain
     answer: TODO
   - id: q21
-    question: Công ty mới thành lập trong khu công nghiệp thì có được miễn, giảm thuế thu nhập doanh nghiệp không, được mấy năm?
+    question: Công ty mới thành lập để sản xuất linh kiện điện tử trong khu công nghiệp thì có được miễn, giảm thuế thu nhập doanh nghiệp không, được mấy năm?
     tax_type: cit
     form: plain
     answer: TODO
@@ -146,7 +128,7 @@ questions:
     tax_type: pit
     form: reference
     answer: TODO
-  - id: q23
+  - id: q23  # repealed is unverified: step 2 confirms it against the corpus or moves the question
     question: Công ty muốn đặt in hóa đơn giấy thì phải gửi thông báo phát hành hóa đơn cho cơ quan thuế trước bao nhiêu ngày?
     tax_type: administration
     form: plain
@@ -157,18 +139,6 @@ questions:
     tax_type: sct
     form: plain
     answer: TODO
-  - id: q25
-    question: Muốn đăng ký hộ kinh doanh mới thì nộp hồ sơ ở đâu, mất mấy ngày thì có giấy chứng nhận?
-    tax_type: household
-    form: plain
-    answer: TODO
-    unanswerable: out_of_scope
-  - id: q26
-    question: Hộ kinh doanh mới mở tiệm tạp hóa thì phải đóng lệ phí môn bài bao nhiêu một năm?
-    tax_type: household
-    form: plain
-    answer: TODO
-    unanswerable: out_of_scope
   - id: q27
     question: Bán cổ phiếu trên sàn chứng khoán thì có phải chịu thuế giá trị gia tăng không?
     tax_type: vat
@@ -184,12 +154,6 @@ questions:
     tax_type: cit
     form: reference
     answer: TODO
-  - id: q30
-    question: Thuế bảo vệ môi trường đối với xăng hiện nay là bao nhiêu đồng một lít?
-    tax_type: sct
-    form: plain
-    answer: TODO
-    unanswerable: out_of_scope
   - id: q31
     question: Theo Nghị định 253/2026, tiền công ty hỗ trợ ăn trưa cho nhân viên có bị tính vào thu nhập chịu thuế không?
     tax_type: pit
@@ -197,11 +161,11 @@ questions:
     answer: TODO
   - id: q32
     question: Công ty con vay tiền của công ty mẹ ở nước ngoài thì chi phí lãi vay có bị giới hạn khi tính thuế không?
-    tax_type: administration
+    tax_type: cit
     form: plain
     answer: TODO
-  - id: q33
-    question: Doanh nghiệp vẫn phải nộp tờ khai thuế thu nhập doanh nghiệp tạm tính hằng quý đúng không, hạn nộp là ngày nào?
+  - id: q33  # repealed is unverified: step 2 confirms it against the corpus or moves the question
+    question: Doanh nghiệp vẫn phải nộp tờ khai thuế thu nhập doanh nghiệp tạm tính hằng quý đúng không?
     tax_type: cit
     form: plain
     answer: TODO
@@ -216,33 +180,122 @@ questions:
     tax_type: household
     form: reference
     answer: TODO
-  - id: q36
-    question: Công ty khai thác đá xây dựng phải nộp thuế tài nguyên theo thuế suất bao nhiêu?
-    tax_type: cit
-    form: plain
-    answer: TODO
-    unanswerable: out_of_scope
   - id: q37
     question: Sau khi có Luật 149/2025, doanh nghiệp bán nông sản chưa qua chế biến cho doanh nghiệp khác có phải tính thuế GTGT không?
     tax_type: vat
     form: reference
     answer: TODO
   - id: q38
-    question: Hộ kinh doanh có doanh thu trên 1 tỷ một năm thì tính thuế theo cách nào, có phải giữ sổ sách như doanh nghiệp không?
+    question: Hộ kinh doanh có doanh thu trên 1 tỷ một năm thì tính thuế theo cách nào?
     tax_type: household
     form: plain
     answer: TODO
-  - id: q39
-    question: Tôi muốn tặng căn nhà đang cho thuê cho con, phí công chứng hợp đồng tặng cho tính theo mức nào?
-    tax_type: pit
-    form: plain
-    answer: TODO
-    unanswerable: out_of_scope
   - id: q40
     question: Năm ngoái công ty lỗ 500 triệu, năm nay có lãi thì được trừ khoản lỗ đó không, chuyển lỗ tối đa mấy năm?
     tax_type: cit
     form: plain
     answer: TODO
+  - id: q41
+    question: Cuối năm tôi có thu nhập từ hai công ty khác nhau, vậy có phải tự quyết toán thuế TNCN không?
+    tax_type: pit
+    form: plain
+    answer: TODO
+  - id: q42
+    question: Công ty mua máy móc thiết bị để sản xuất thì chi phí khấu hao được tính vào chi phí được trừ như thế nào?
+    tax_type: cit
+    form: plain
+    answer: TODO
+  - id: q43
+    question: Hộ kinh doanh của tôi có cần lưu sổ sách ghi chép doanh thu và chi phí không, hay chỉ cần giữ hóa đơn?
+    tax_type: household
+    form: plain
+    answer: TODO
+  - id: q44
+    question: Công ty nộp thừa tiền thuế GTGT thì có được bù trừ sang kỳ sau không hay phải làm thủ tục hoàn thuế?
+    tax_type: vat
+    form: plain
+    answer: TODO
+  - id: q45
+    question: Nếu doanh nghiệp khai sai tờ khai thuế nhưng chưa bị cơ quan thuế phát hiện thì có được tự khai bổ sung không?
+    tax_type: administration
+    form: plain
+    answer: TODO
+  - id: q46
+    question: Năm 2025 ô tô sản xuất, lắp ráp trong nước được gia hạn nộp thuế tiêu thụ đặc biệt đến khi nào?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+  - id: q47
+    question: Tôi là người Hàn Quốc làm việc ở Việt Nam, theo hiệp định tránh đánh thuế hai lần giữa Việt Nam và Hàn Quốc thì tiền lương của tôi có được miễn thuế ở Việt Nam không?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+  - id: q48
+    question: Doanh nghiệp nhập khẩu bị hải quan phạt vì khai sai mã HS dẫn đến thiếu thuế thì mức phạt tiền là bao nhiêu?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+  - id: q49
+    question: Hộ kinh doanh bị cơ quan thuế phát hiện bán hàng không xuất hóa đơn thì bị phạt bao nhiêu tiền?
+    tax_type: household
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+  - id: q50
+    question: Hộ kinh doanh ở Lào Cai mua hàng của cư dân biên giới Trung Quốc qua cửa khẩu thì được miễn thuế trong định mức bao nhiêu một ngày?
+    tax_type: household
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+  - id: q51
+    question: Tiền thuế tiêu thụ đặc biệt thu được thì địa phương được giữ lại bao nhiêu phần trăm, còn lại nộp về trung ương?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+  - id: q52
+    question: Tập đoàn mẹ ở Nhật có doanh thu hợp nhất trên 750 triệu euro, vậy công ty con ở Việt Nam có phải nộp thuế bổ sung theo quy định thuế tối thiểu toàn cầu không?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+  - id: q53
+    question: Tôi có một căn hộ cho thuê ở Melbourne, bên Úc đánh thuế thu nhập từ tiền cho thuê nhà bao nhiêu phần trăm?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+  - id: q54  # repealed is unverified: step 2 confirms it against the corpus or moves the question
+    question: Nếu thấy mức thuế khoán chi cục thuế áp cho tiệm mình cao quá thì khiếu nại thế nào?
+    tax_type: household
+    form: plain
+    answer: TODO
+    unanswerable: repealed
+  - id: q55
+    question: Thuế thu nhập doanh nghiệp tạm nộp theo quý thì hạn nộp tiền là ngày nào?
+    tax_type: cit
+    form: plain
+    answer: TODO
+  - id: q56
+    question: Hộ kinh doanh doanh thu trên 1 tỷ một năm thì có phải giữ sổ sách kế toán như doanh nghiệp không?
+    tax_type: household
+    form: plain
+    answer: TODO
+  - id: q57
+    question: Kế toán hạch toán tiền thuế GTGT đầu vào được khấu trừ thì ghi Nợ tài khoản nào, Có tài khoản nào?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+  - id: q58
+    question: Năm 2025 cả nước thu được tổng cộng bao nhiêu tiền thuế giá trị gia tăng?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
 
 conversations:
   - id: c01
@@ -275,11 +328,11 @@ conversations:
         tax_type: cit
         form: reference
         answer: TODO
-      - question: Còn dự án đầu tư vào địa bàn kinh tế - xã hội đặc biệt khó khăn thì sao?
+      - question: Còn dự án đầu tư vào địa bàn kinh tế - xã hội đặc biệt khó khăn thì được áp thuế suất ưu đãi bao nhiêu?
         tax_type: cit
         form: plain
         answer: TODO
-      - question: Mức ưu đãi đó được áp dụng trong bao nhiêu năm?
+      - question: Thuế suất ưu đãi đó được áp dụng trong bao nhiêu năm?
         tax_type: cit
         form: plain
         answer: TODO
@@ -317,7 +370,7 @@ conversations:
         tax_type: sct
         form: plain
         answer: TODO
-      - question: Còn thuế GTGT thì sao?
+      - question: Còn thuế GTGT khi bán cho đại lý thì sao?
         tax_type: vat
         form: plain
         answer: TODO
