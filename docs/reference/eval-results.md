@@ -177,3 +177,24 @@ prints `different eval sets: scores are not comparable` and exits with 2. Otherw
 
 - per EVAL id with a value in both runs: old, new and the change, to 3 decimals;
 - every item whose recall dropped: its id, old and new recall.
+
+## Baseline
+
+The first clean run, recorded on #9: `eval/results/2026-11-13-1d257ea.json`. Eval set v1, commit
+`1d257ea`, retrieval only with each turn as written, k = 8, RRF 60, 50 candidates, bge-m3
+`5617a9f6`, syllable BM25, on the dev laptop (i7-10610U, 16 GB RAM, CPU only).
+
+| Metric | Value | n | 95% interval | Target |
+|---|---|---|---|---|
+| EVAL-001 recall@8 | 0.633 | 39 | 0.539–0.727 | ≥ 0.80, not met |
+| EVAL-005 recall@8, follow-up turns, no rewrite | 0.575 | 10 | 0.333–0.817 | ≥ 0.70, not met |
+| EVAL-007 context precision@8 | 0.676 | 39 | 0.571–0.773 | ≥ 0.60, met |
+
+- Recall is 0.771 on `reference` questions and 0.572 on `plain` ones.
+- Retrieval latency is 0.35 s median and 0.69 s p95.
+- 48 of the 111 expected articles are missed: 9 of the 15 amending articles and 39 of the 96
+  base articles. Of the missed ones, 18 rank 9–20 and 16 rank 21–50 when 50 hits are
+  retrieved; 14 are not among them.
+
+EVAL-001's target was confirmed at 0.80 after this baseline, approved on #9. It is not revised
+again; the gap is the work of the retrieval issues.
