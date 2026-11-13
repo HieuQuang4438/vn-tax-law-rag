@@ -426,6 +426,37 @@ def test_an_embedder_of_another_revision_stops_loading(data_dir):
         Retriever.load(data_dir, embedder=TopicEmbedder(revision="0" * 40))
 
 
+def test_an_unknown_tokenizer_in_the_manifest_stops_loading(data_dir):
+    path = data_dir / "index" / "manifest.json"
+    written = json.loads(path.read_text(encoding="utf-8"))
+    path.write_text(json.dumps({**written, "bm25_tokenizer": "nltk"}), encoding="utf-8")
+    with pytest.raises(IndexNotReadyError, match="python -m src.index"):
+        Retriever.load(data_dir, embedder=TopicEmbedder())
+
+
+# --- Tokenizer variants (#10) -------------------------------------------------------------------
+
+def test_the_question_is_tokenized_like_the_index(tmp_path, connections):
+    pytest.importorskip("pyvi")
+    data = tmp_path / "data"
+    write_corpus(data)
+    build(data / "enriched", data / "index", TopicEmbedder(), tokenizer="pyvi")
+    vocabulary = json.loads((data / "index" / "bm25" / "vocab.index.json").read_text(encoding="utf-8"))
+    assert "kinh_doanh" in vocabulary and "kinh" not in vocabulary and "doanh" not in vocabulary
+    result = Retriever.load(data, embedder=TopicEmbedder()).retrieve("kinh doanh")
+    assert any("keyword" in h.found_by for h in result.hits)
+
+
+def test_load_reads_the_index_folder_it_is_given(data_dir, tmp_path):
+    pytest.importorskip("pyvi")
+    variant = tmp_path / "variant"
+    build(data_dir / "enriched", variant, TopicEmbedder(), tokenizer="pyvi", cache_dir=data_dir / "index" / "embeddings")
+    result = Retriever.load(data_dir, embedder=TopicEmbedder(), index_dir=variant).retrieve("kinh doanh")
+    assert any("keyword" in h.found_by for h in result.hits)
+    default = Retriever.load(data_dir, embedder=TopicEmbedder()).retrieve("kinh doanh")
+    assert not any("keyword" in h.found_by for h in default.hits)
+
+
 # --- The real model, corpus and eval set (AC-007, AC-012) ---------------------------------------
 
 DATA_DIR = ROOT / "data"

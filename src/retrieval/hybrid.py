@@ -137,7 +137,8 @@ class Retriever:
         return np.asarray([found[chunk_id] for chunk_id in self._ids], dtype=np.float32)
 
     @classmethod
-    def load(cls, data_dir: Path = Path("data"), embedder: Embedder | None = None) -> "Retriever":
+    def load(cls, data_dir: Path = Path("data"), embedder: Embedder | None = None,
+             index_dir: Path | None = None) -> "Retriever":
         """Both indexes under `data_dir`; bge-m3 from the local cache unless an embedder is given."""
         return cls(data_dir / "index", data_dir / "enriched", data_dir / "processed", embedder or load_embedder())
 

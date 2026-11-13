@@ -8,7 +8,7 @@ ENRICHED_DIR = Path("data/enriched")
 INDEX_DIR = Path("data/index")
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     manifest = build(ENRICHED_DIR, INDEX_DIR, load_embedder())
     print(f"{manifest['chunk_count']} chunks -> {INDEX_DIR} (vector + BM25)")
     print(f"{manifest['embedded']} texts embedded, the rest from the cache; {manifest['seconds']} s")

@@ -6,8 +6,8 @@ from src.index.builder import (
     ModelNotCachedError,
     build,
     load_embedder,
-    tokenize,
 )
+from src.index.tokenizers import TOKENIZERS, get_tokenizer, tokenize
 
 __all__ = [
     "BM25_TOKENIZER",
@@ -15,7 +15,9 @@ __all__ = [
     "EMBEDDING_REVISION",
     "Embedder",
     "ModelNotCachedError",
+    "TOKENIZERS",
     "build",
+    "get_tokenizer",
     "load_embedder",
     "tokenize",
 ]

@@ -37,7 +37,7 @@ result.unresolved   # list[Unresolved], in question order
 | Name | What it is |
 |---|---|
 | `Retriever(index_dir, enriched_dir, processed_dir, embedder)` | Reads both indexes, the chunks and the documents' metadata. The embedder embeds the question, as at build time. |
-| `Retriever.load(data_dir=Path("data"), embedder=None)` | The same, from `data_dir/index`, `data_dir/enriched` and `data_dir/processed`. With no embedder, bge-m3 is loaded offline by `src.index.load_embedder`. |
+| `Retriever.load(data_dir=Path("data"), embedder=None, index_dir=None)` | The same, from `data_dir/enriched`, `data_dir/processed` and `index_dir`, which is `data_dir/index` when not given. With no embedder, bge-m3 is loaded offline by `src.index.load_embedder`. |
 | `Retriever.retrieve(question, k=TOP_K)` | A `Retrieval` for one question. |
 | `Retrieval` | `hits: list[Hit]`, `unresolved: list[Unresolved]`. |
 | `Hit` | `chunk_id: str`, `found_by: tuple[str, ...]`, `score: float`. |
@@ -62,7 +62,8 @@ The constructor checks that the index fits what it is asked to search. It raises
 - the manifest's `chunks_sha256` is not the `sha256` of `enriched_dir/chunks.jsonl`, which means
   the index is older than the chunks;
 - the manifest's `model` or `revision` differs from the embedder's, which means the question
-  would be embedded by another model than the chunks.
+  would be embedded by another model than the chunks;
+- the manifest's `bm25_tokenizer` is not one of `syllable`, `underthesea`, `pyvi`.
 
 The model is loaded once, by `Retriever.load`, and every `retrieve` call reuses it. Nothing goes
 to the network: the model comes from the local cache, as at build time ([index.md](index.md)),
@@ -141,7 +142,8 @@ reference changes nothing else: the question is searched as if it were not there
 
 Three ranked lists of chunk ids, each at most `CANDIDATES` (50) long:
 
-- **Keyword list.** The question's tokens, by `src.index.tokenize`, scored by the BM25 index.
+- **Keyword list.** The question's tokens, by the tokenizer the index was built with
+  (`bm25_tokenizer` in its manifest, [index.md](index.md)), scored by the BM25 index.
   Tokens not in the vocabulary are dropped. Chunks scoring 0 are not in the list. Equal scores
   keep `chunks.jsonl` order. The full `so_hieu` of each document referenced without an article
   is added to the tokens: a user writes `68/2026`, the index holds the token `68/2026/nđ-cp`.

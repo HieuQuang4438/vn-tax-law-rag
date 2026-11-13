@@ -25,6 +25,7 @@ python -m src.eval.run --compare eval/results/<file>    # also prints what chang
 |---|---|---|
 | `--set` | `eval/questions.yaml` | the eval set |
 | `--data` | `data` | the folder holding `processed/`, `enriched/` and `index/` |
+| `--index` | `<data>/index` | the index folder, for a variant built with `python -m src.index --out` |
 | `--out` | `eval/results` | where the results file is written |
 | `--compare` | none | an earlier results file to compare with |
 
@@ -115,10 +116,10 @@ The file holds ids and numbers only: no question text, no answer text and no cor
 | `dirty` | true when tracked files differ from `HEAD` (`git diff HEAD`); untracked files do not count |
 | `diff_sha256` | `sha256` of the output of `git diff HEAD` when dirty, else null |
 | `eval_set` | `path`, `version`, `sha256` of the set file |
-| `index` | from `data/index/manifest.json`: `model`, `revision`, `chunks_sha256`, `chunk_count`, `bm25_tokenizer` |
+| `index` | from the index folder's `manifest.json`: `model`, `revision`, `chunks_sha256`, `chunk_count`, `bm25_tokenizer` |
 | `pipeline` | `stages` (`["retrieval"]`), `rewrite` (`none`), `top_k`, `rrf_k`, `candidates` |
 | `bootstrap` | `resamples` 1000, `seed` 0, `level` 0.95 |
-| `versions` | `python` and the installed `bm25s`, `chromadb`, `numpy`, `sentence-transformers`, `torch` |
+| `versions` | `python` and the installed `bm25s`, `chromadb`, `numpy`, `pyvi`, `sentence-transformers`, `torch`, `underthesea`; null for one not installed |
 | `machine` | `os` (`platform.platform()`), `cpu` (`platform.processor()`), `cpu_count`, `ram_gb` (null when it cannot be read) |
 
 **`scores`**, one entry per EVAL id, EVAL-001 to EVAL-008:
@@ -175,7 +176,11 @@ Printed after the file is written:
 `--compare <file>` reads an earlier results file. If its eval set `sha256` differs, the command
 prints `different eval sets: scores are not comparable` and exits with 2. Otherwise it prints:
 
-- per EVAL id with a value in both runs: old, new and the change, to 3 decimals;
+- per EVAL id with a value in both runs: old, new and the change, to 3 decimals; for
+  EVAL-001, EVAL-005 and EVAL-007 also `paired [low, high]`, the paired 95% bootstrap interval
+  of the change (approved on #10). Over the items scored in both runs, the per-item differences
+  new − old are resampled as under *Interval*, with the same seed: the two runs score the same
+  items, so this interval is far narrower than the two runs' own intervals side by side;
 - every item whose recall dropped: its id, old and new recall.
 
 ## Baseline

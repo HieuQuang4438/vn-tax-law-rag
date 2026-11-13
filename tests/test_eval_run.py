@@ -22,7 +22,7 @@ import pytest
 import yaml
 
 from src.eval.dataset import TAX_TYPES, Conversation, EvalSet, Item, Provision
-from src.eval.metrics import bootstrap_interval, context_precision_at_k, recall_at_k
+from src.eval.metrics import bootstrap_interval, context_precision_at_k, paired_bootstrap_interval, recall_at_k
 from src.eval.run import TARGETS, Outcome, compare, configuration, evaluate, main, summary, write_results
 from src.retrieval import Hit, Unresolved
 
@@ -87,6 +87,15 @@ def test_bootstrap_interval_follows_the_specified_draw():
     expected = (float(np.percentile(means, 2.5)), float(np.percentile(means, 97.5)))
     assert bootstrap_interval(values) == pytest.approx(expected)
     assert bootstrap_interval(values) == bootstrap_interval(values)
+
+
+def test_paired_interval_is_the_bootstrap_of_the_per_item_differences():
+    old, new = [1.0, 0.5, 0.0, 1.0, 0.5], [1.0, 1.0, 0.5, 1.0, 0.0]
+    expected = bootstrap_interval([n - o for o, n in zip(old, new)])
+    assert paired_bootstrap_interval(old, new) == pytest.approx(expected)
+    assert paired_bootstrap_interval(old, old) == pytest.approx((0.0, 0.0))
+    with pytest.raises(ValueError):
+        paired_bootstrap_interval([1.0], [1.0, 0.0])
 
 
 def test_bootstrap_interval_of_equal_values_is_that_value():
@@ -302,7 +311,8 @@ def test_configuration_records_commit_set_index_pipeline_and_machine(tmp_path):
     assert at(config, "index") == {k: MANIFEST[k] for k in ("model", "revision", "chunks_sha256", "chunk_count", "bm25_tokenizer")}
     assert at(config, "pipeline") == FakePipeline.config
     assert at(config, "bootstrap") == {"resamples": 1000, "seed": 0, "level": 0.95}
-    assert sorted(at(config, "versions")) == ["bm25s", "chromadb", "numpy", "python", "sentence-transformers", "torch"]
+    assert sorted(at(config, "versions")) == ["bm25s", "chromadb", "numpy", "pyvi", "python", "sentence-transformers",
+                                              "torch", "underthesea"]
     assert sorted(at(config, "machine")) == ["cpu", "cpu_count", "os", "ram_gb"]
 
 
@@ -352,6 +362,18 @@ def test_compare_prints_score_changes_and_recall_drops(connections):
     drop = next((l for l in text.splitlines() if "q01" in l), "")
     assert "1.000" in drop and "0.500" in drop
     assert "q02" not in text
+
+
+def test_compare_prints_the_paired_interval_of_each_retrieval_change(connections):
+    old = full_results(evaluate(small_set(), FakePipeline(), PARENTS))
+    hits = dict(HITS)
+    hits[QUESTIONS[0].question] = ["379409:D5:K1"]
+    new = full_results(evaluate(small_set(), FakePipeline(hits), PARENTS))
+    low, high = paired_bootstrap_interval([1.0, 1.0, 0.5], [0.5, 1.0, 0.5])
+    line = next((l for l in compare(old, new).splitlines() if "EVAL-001" in l), "")
+    assert f"paired [{low:+.3f}, {high:+.3f}]" in line
+    for eval_id in ("EVAL-005", "EVAL-007"):
+        assert "paired [" in next((l for l in compare(old, new).splitlines() if eval_id in l), "")
 
 
 def test_compare_refuses_runs_on_different_eval_sets(results):
@@ -432,6 +454,17 @@ def test_the_command_compares_with_an_earlier_run(command, capsys):
     assert main(argv + ["--compare", str(files[0])], pipeline=FakePipeline(default=["379409:D9"])) == 0
     assert "EVAL-001" in capsys.readouterr().out
     assert len(list(out.glob("*.json"))) == 2
+
+
+def test_the_command_reads_the_index_folder_it_is_given(command, tmp_path):
+    argv, out, _ = command
+    variant = tmp_path / "variant"
+    variant.mkdir()
+    (variant / "manifest.json").write_text(json.dumps({**MANIFEST, "bm25_tokenizer": "pyvi"}), encoding="utf-8")
+    assert main(argv + ["--index", str(variant)], pipeline=FakePipeline(default=["379409:D9"])) == 0
+    files = sorted(out.glob("*.json")) if out.is_dir() else []
+    assert len(files) == 1
+    assert at(json.loads(files[0].read_text(encoding="utf-8")), "configuration", "index", "bm25_tokenizer") == "pyvi"
 
 
 def test_the_command_exits_2_when_comparing_different_eval_sets(command, tmp_path, capsys):

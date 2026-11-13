@@ -23,6 +23,7 @@ from chromadb.api.client import SharedSystemClient
 from chromadb.config import Settings
 
 from src.chunking.tokens import EMBEDDING_MODEL
+from src.index.tokenizers import tokenize
 
 EMBEDDING_REVISION = "5617a9f61b028005a4858fdac845db406aefb181"  # pinned on #6
 EMBEDDING_INPUT_LIMIT = 8192  # bge-m3 maximum input, in tokens; the largest indexed text is 3,363
@@ -44,20 +45,6 @@ class Embedder(Protocol):
 
 class ModelNotCachedError(RuntimeError):
     """The pinned model revision is not in the local Hugging Face cache."""
-
-
-def tokenize(text: str) -> list[str]:
-    """The `syllable` tokens of a chunk or a question."""
-    tokens = []
-    for word in unicodedata.normalize("NFC", text).lower().split():
-        start, end = 0, len(word)
-        while start < end and not word[start].isalnum():
-            start += 1
-        while end > start and not word[end - 1].isalnum():
-            end -= 1
-        if start < end:
-            tokens.append(word[start:end])
-    return tokens
 
 
 class _BgeM3:
@@ -177,7 +164,8 @@ def _write_bm25(path: Path, rows: list[dict], texts: list[str]) -> None:
     (path / "ids.json").write_text(json.dumps([row["id"] for row in rows]), encoding="utf-8", newline="\n")
 
 
-def build(enriched_dir: Path, index_dir: Path, embedder: Embedder) -> dict:
+def build(enriched_dir: Path, index_dir: Path, embedder: Embedder, tokenizer: str = "syllable",
+          cache_dir: Path | None = None) -> dict:
     """Write both indexes, the vector cache and the manifest; return the manifest."""
     started = time.perf_counter()
     raw = (enriched_dir / "chunks.jsonl").read_bytes()

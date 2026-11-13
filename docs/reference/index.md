@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-12
+updated: 2026-11-13
 owner: HieuQuang4438
 ---
 
@@ -75,13 +75,25 @@ estimated about 95 minutes for 1,824 chunks.
 
 ## Keyword index — `bm25/`
 
-- **Tokens.** `syllable`, the default until #10 decides: Unicode NFC, lowercase, split on
-  whitespace, then strip from both ends of each token every character that is neither a letter
-  nor a digit (`str.isalnum`); empty tokens are dropped. No stopword list. Diacritics stay, one-
-  letter syllables stay, and a document number stays whole. Questions are tokenized by the same
-  function.
+- **Tokens.** One of three tokenizers, chosen at build time with `--tokenizer` and recorded
+  in the manifest as `bm25_tokenizer`; questions are tokenized by the same one (approved on
+  #10). `syllable` is the default until #10 decides.
+  - `syllable`: Unicode NFC, lowercase, split on whitespace, then strip from both ends of each
+    token every character that is neither a letter nor a digit (`str.isalnum`); empty tokens
+    are dropped. No stopword list. Diacritics stay, one-letter syllables stay, and a document
+    number stays whole.
+  - `underthesea` and `pyvi`: word tokens from that Vietnamese word segmenter
+    (`underthesea.word_tokenize`, `pyvi.ViTokenizer.tokenize`). The text is put in NFC and
+    split on whitespace. A piece that holds a `/` once stripped as above, such as a document
+    number or a date, is **protected**: it becomes one token exactly as `syllable` makes it,
+    because both segmenters split `48/2024/QH15` into pieces. Each run of pieces between
+    protected ones is joined with spaces and given to the segmenter, in its original case.
+    Each word it returns is lowercased, its syllables joined with `_` (`kinh_doanh`), and
+    stripped at both ends as above; empty words are dropped. Tokens keep the order of the
+    text. Neither segmenter makes a network request; both are imported only when used and are
+    pinned in `requirements-experiments.txt`.
 
-  | Text | Tokens |
+  | Text | `syllable` tokens |
   |---|---|
   | `Luật số 48/2024/QH15,` | `luật` `số` `48/2024/qh15` |
   | `khoản 25 Điều 5.` | `khoản` `25` `điều` `5` |
@@ -113,10 +125,29 @@ Written last: a build that stops early leaves no manifest, so a manifest means a
 | `dimension` | `1024` | vector length |
 | `chunks_sha256` | `9c1e…` | `sha256` of the bytes of `data/enriched/chunks.jsonl` |
 | `chunk_count` | `1923` | records indexed, in each index |
-| `bm25_tokenizer` | `syllable` | the token rule above |
+| `bm25_tokenizer` | `syllable` | the tokenizer above: `syllable`, `underthesea` or `pyvi` |
+| `bm25_seconds` | `3.2` | wall time to tokenize the corpus and write the keyword index |
 | `embedded` | `0` | indexed texts embedded by this build; the rest came from the cache |
 | `seconds` | `41.7` | wall time of the whole build |
-| `versions` | `{"bm25s": "0.3.16", …}` | installed versions of `bm25s`, `chromadb`, `sentence-transformers` and `torch` |
+| `versions` | `{"bm25s": "0.3.16", …}` | installed versions of `bm25s`, `chromadb`, `sentence-transformers` and `torch`, and of the segmenter when `bm25_tokenizer` is one |
+
+## Variants of the index
+
+For an experiment, `python -m src.index` can write elsewhere:
+
+```bash
+python -m src.index --tokenizer pyvi --out data/index-pyvi
+```
+
+| Option | Default | Meaning |
+|---|---|---|
+| `--tokenizer` | `syllable` | the BM25 tokenizer, as above |
+| `--out` | `data/index` | the index folder: `manifest.json`, `chroma/`, `bm25/` |
+
+The vector cache stays in `data/index/embeddings/` whatever `--out` is, so a variant embeds
+nothing new. `build(enriched_dir, index_dir, embedder, tokenizer="syllable", cache_dir=None)`
+takes the same choices; with no `cache_dir`, the cache is `index_dir/embeddings`. An unknown
+tokenizer stops the build with `ValueError` before anything is written.
 
 ## Rebuilding from the cached pages
 

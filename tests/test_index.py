@@ -341,6 +341,7 @@ def test_manifest_records_what_the_index_was_built_from(built):
     assert written["bm25_tokenizer"] == BM25_TOKENIZER == "syllable"
     assert written["embedded"] == len(rows)
     assert isinstance(written["seconds"], (int, float)) and written["seconds"] >= 0
+    assert isinstance(written.get("bm25_seconds"), (int, float)) and written["bm25_seconds"] >= 0
     assert set(written["versions"]) == {"bm25s", "chromadb", "sentence-transformers", "torch"}
 
 
@@ -351,6 +352,56 @@ def test_a_build_that_stops_early_leaves_no_manifest(built):
     with pytest.raises(RuntimeError, match="embedding stopped"):
         build(enriched, index, FakeEmbedder(fail=True))
     assert not (index / "manifest.json").exists()
+
+
+# --- Tokenizer variants (#10) -----------------------------------------------------------------
+
+
+def vocabulary(index: Path) -> set[str]:
+    return set(json.loads(bm25_file(index, "vocab.index.json").read_text(encoding="utf-8")))
+
+
+@pytest.mark.parametrize("tokenizer", ["underthesea", "pyvi"])
+def test_a_word_tokenizer_builds_a_keyword_index_of_words(tmp_path, connections, tokenizer):
+    pytest.importorskip(tokenizer)
+    enriched, index = tmp_path / "enriched", tmp_path / "index"
+    write_chunks(enriched)
+    result = build(enriched, index, FakeEmbedder(), tokenizer=tokenizer)
+    assert result.get("bm25_tokenizer") == manifest(index).get("bm25_tokenizer") == tokenizer
+    assert {"kinh_doanh", "48/2024/qh15"} <= vocabulary(index)
+    assert tokenizer in result.get("versions", {})
+    assert connections == []
+
+
+def test_an_unknown_tokenizer_stops_the_build_before_writing(tmp_path, connections):
+    enriched, index = tmp_path / "enriched", tmp_path / "index"
+    write_chunks(enriched)
+    with pytest.raises(ValueError, match="nltk"):
+        build(enriched, index, FakeEmbedder(), tokenizer="nltk")
+    assert not index.exists() or not any(index.iterdir())
+
+
+def test_a_variant_reads_the_vector_cache_it_is_given(built, tmp_path):
+    _, enriched, index, _, _ = built
+    embedder = FakeEmbedder()
+    result = build(enriched, tmp_path / "variant", embedder, cache_dir=index / "embeddings")
+    assert (result["embedded"], embedder.calls) == (0, [])
+    assert not (tmp_path / "variant" / "embeddings").exists()
+
+
+def test_the_command_builds_a_variant_into_another_folder(built, tmp_path, monkeypatch):
+    import src.index.__main__ as command
+
+    _, enriched, index, _, _ = built
+    monkeypatch.setattr(command, "ENRICHED_DIR", enriched)
+    monkeypatch.setattr(command, "INDEX_DIR", index)
+    monkeypatch.setattr(command, "load_embedder", lambda: FakeEmbedder())
+    before = manifest(index)
+    command.main(["--tokenizer", "syllable", "--out", str(tmp_path / "variant")])
+    assert (tmp_path / "variant" / "manifest.json").is_file()
+    variant = manifest(tmp_path / "variant")
+    assert (variant["bm25_tokenizer"], variant["embedded"]) == ("syllable", 0)
+    assert manifest(index) == before  # the default index is left as it was
 
 
 # --- Model loading --------------------------------------------------------------------------
