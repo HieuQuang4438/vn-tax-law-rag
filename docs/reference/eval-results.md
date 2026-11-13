@@ -163,8 +163,9 @@ The file holds ids and numbers only: no question text, no answer text and no cor
 Printed after the file is written:
 
 - the file's path, and `DIRTY: uncommitted changes, not a baseline` when dirty;
-- one line per EVAL id: the id, its value to 3 decimals with `n` and its interval, its target,
-  and `PASS` or `FAIL`; `not run (no generation stage)` instead for those not run;
+- one line per EVAL id: the id and its name, its value to 3 decimals with `n` and its
+  interval, its target, and `PASS` or `FAIL`; `not run (no generation stage)` instead for those
+  not run;
 - the breakdown;
 - latency: median and p95 with the scope, against NFR-006;
 - cost: the average per item with the note, against NFR-007.

@@ -182,12 +182,17 @@ Each citation id becomes document, article and clause with a link to the source 
 note that this is information, not advice. A citation id that was not in the context is
 flagged rather than shown as a source. — FR-CORE-011, FR-CORE-013
 
-## Measuring it — planned
+## Measuring it — built for retrieval
 
 A hand-written eval set of 30–50 questions, some unanswerable and some multi-turn, each with
 its expected answer, key facts and supporting articles, is run through the whole pipeline by
-one command. It records retrieval recall and context precision, answer correctness, citation
-correctness, faithfulness, answer relevancy, not-found accuracy, latency and cost. Definitions
-and targets are in [acceptance.md](acceptance.md). The set lives in `eval/questions.yaml`;
-`python -m src.eval.check` checks it against the corpus while it is written
-([eval-set.md](../reference/eval-set.md)). — FR-CORE-015
+one command, `python -m src.eval.run`. It records retrieval recall and context precision,
+answer correctness, citation correctness, faithfulness, answer relevancy, not-found accuracy,
+latency and cost. Definitions and targets are in [acceptance.md](acceptance.md). The set lives
+in `eval/questions.yaml`; `python -m src.eval.check` checks it against the corpus while it is
+written ([eval-set.md](../reference/eval-set.md)).
+
+Today the pipeline stops at retrieval, so the run scores recall and context precision and
+records the answer metrics as not run. Each run writes a results file to `eval/results/`, with
+the commit and the configuration, and can be compared with an earlier one
+([eval-results.md](../reference/eval-results.md)). — FR-CORE-015

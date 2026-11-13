@@ -69,8 +69,9 @@ All project documents: [docs/README.md](docs/README.md).
    Built: `src.retrieval`, 0.45 s per question (median) on CPU.
 4. **Answer** — an LLM answers only from the retrieved articles and cites them. *Not built yet.*
 5. **Evaluate** — a hand-written question set with expected answers, key facts and articles,
-   scored on retrieval and on the answers. The set's format and its checker
-   (`python -m src.eval.check`) are built; the questions and the scoring are *not yet.*
+   scored on retrieval and on the answers. The set (v1, 50 questions and 6 conversations), its
+   checker (`python -m src.eval.check`) and the runner (`python -m src.eval.run`) are built; the
+   runner scores retrieval today, and the answers once generation exists.
 
 ## Data
 
@@ -111,6 +112,13 @@ python -m src.enrich                 # data/chunks/ -> data/enriched/: header, e
 python -m src.index                  # data/enriched/ -> data/index/: bge-m3 + Chroma and BM25, offline
 ```
 
+Score the eval set against the built index:
+
+```bash
+python -m src.eval.check             # check eval/questions.yaml against the corpus
+python -m src.eval.run               # score it; writes eval/results/<date>-<commit>.json
+```
+
 ## Tests
 
 ```bash
@@ -128,4 +136,4 @@ Early. The crawler fetches all 30 listed documents; every one has an unbroken ru
 from Điều 1 to its last article. Chunking (744 articles, 1,923 chunks), the context header,
 each chunk's effective date, the amendment links between documents (175) and both indexes
 over the chunks (vector and BM25), reference lookup and hybrid retrieval, and eval set v1 are
-built; the agent and the eval runner do not exist yet.
+built, with the eval runner scoring retrieval; the agent does not exist yet.

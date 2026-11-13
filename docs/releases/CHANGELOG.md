@@ -39,6 +39,11 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   without an article lifts its chunks, and an unresolved reference is reported with its reason.
   Median 0.45 s per question on the dev laptop. FR-CORE-007, FR-CORE-008, NFR-002, AC-007,
   AC-012, ADR-0002.
+- Eval runner: `python -m src.eval.run` sends every eval question and turn through the
+  pipeline, scores recall@8 (EVAL-001, EVAL-005) and context precision@8 (EVAL-007) with a
+  seeded bootstrap interval, records the answer metrics as not run, latency per stage and
+  cost, and writes a results file with the commit and the configuration to `eval/results/`;
+  `--compare` shows what changed since an earlier run. FR-CORE-015, AC-011, AC-016.
 
 ### Changed
 
