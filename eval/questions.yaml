@@ -36,265 +36,785 @@ questions:
     question: Mình bán quần áo online trên TikTok Shop, doanh thu tầm 400 triệu một năm thì có phải đóng thuế không?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Với doanh thu khoảng 400 triệu đồng/năm (từ 01 tỷ đồng trở xuống), bạn không chịu thuế GTGT và
+      không phải nộp thuế TNCN; chỉ thông báo doanh thu thực tế của năm với cơ quan thuế chậm nhất
+      ngày 31/01 năm sau. Nếu sàn có chức năng đặt hàng và thanh toán thì sàn khấu trừ, nộp thay thuế
+      trên từng giao dịch; khi doanh thu thực tế cả năm từ 01 tỷ đồng trở xuống, số thuế đã bị khấu trừ
+      là tiền nộp thừa, được bù trừ hoặc hoàn trả.
+    key_facts:
+      - "doanh thu năm từ 01 tỷ đồng trở xuống: không chịu thuế GTGT, không phải nộp thuế TNCN"
+      - "thông báo doanh thu thực tế chậm nhất ngày 31 tháng 01 năm sau"
+      - "sàn có chức năng đặt hàng và thanh toán khấu trừ, khai thay, nộp thay thuế trên từng giao dịch"
+      - "số thuế đã bị khấu trừ khi doanh thu năm từ 01 tỷ đồng trở xuống được bù trừ hoặc hoàn trả"
+    provisions:
+      - 68/2026/NĐ-CP Điều 3
+      - 68/2026/NĐ-CP Điều 4 khoản 1
+      - 68/2026/NĐ-CP Điều 8 khoản 1
+      - 68/2026/NĐ-CP Điều 11
+      - 68/2026/NĐ-CP Điều 12
+      - 141/2026/NĐ-CP Điều 1
   - id: q02
     question: Lương gross của tôi 25 triệu một tháng, đóng bảo hiểm bắt buộc trên đủ mức lương đó, có một con nhỏ đang đi học, thì mỗi tháng tôi bị trừ thuế thu nhập khoảng bao nhiêu?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: >
+      Nếu là cá nhân cư trú và đã đăng ký con (dưới 18 tuổi) là người phụ thuộc, thu nhập tính thuế
+      mỗi tháng = 25 triệu − các khoản bảo hiểm bắt buộc − 15,5 triệu (bản thân) − 6,2 triệu (con) =
+      3,3 triệu đồng trừ số bảo hiểm bắt buộc. Phần này dưới 10 triệu đồng nên chịu thuế suất 5% (bậc 1),
+      tức số thuế mỗi tháng bằng 5% × (3,3 triệu − bảo hiểm bắt buộc), dưới 165.000 đồng. Tỷ lệ đóng bảo
+      hiểm bắt buộc không có trong các văn bản này nên không tính ra con số chính xác.
+    key_facts:
+      - "giảm trừ bản thân 15,5 triệu đồng/tháng"
+      - "giảm trừ người phụ thuộc 6,2 triệu đồng/tháng"
+      - "bậc 1: thu nhập tính thuế đến 10 triệu đồng/tháng, thuế suất 5%"
+      - "thuế mỗi tháng bằng 5% × (3,3 triệu đồng − bảo hiểm bắt buộc), dưới 165.000 đồng"
+    provisions:
+      - 109/2025/QH15 Điều 8
+      - 109/2025/QH15 Điều 9
+      - 109/2025/QH15 Điều 10
+      - 253/2026/NĐ-CP Điều 46
+      - 253/2026/NĐ-CP Điều 47
   - id: q03
     question: Công ty nộp tiền thuế GTGT quý trễ 10 ngày thì tiền chậm nộp tính thế nào?
     tax_type: administration
     form: plain
-    answer: TODO
-  - id: q04
+    answer: >
+      Tiền chậm nộp bằng 0,03%/ngày tính trên số tiền thuế nộp chậm. Thời hạn nộp thuế GTGT khai theo
+      quý là ngày cuối cùng của tháng đầu của quý tiếp theo; số ngày chậm tính liên tục từ ngày tiếp theo
+      ngày hết hạn đến ngày liền kề trước ngày nộp tiền. Chậm 10 ngày thì tiền chậm nộp = số thuế chậm
+      nộp × 0,03% × 10 = 0,3% số thuế.
+    key_facts:
+      - "mức tiền chậm nộp 0,03%/ngày trên số tiền thuế chậm nộp"
+      - "hạn nộp thuế khai theo quý: ngày cuối cùng của tháng đầu của quý tiếp theo"
+      - "tính từ ngày tiếp theo ngày hết hạn đến ngày liền kề trước ngày nộp"
+      - "chậm 10 ngày: 0,3% số thuế chậm nộp"
+    provisions:
+      - 108/2025/QH15 Điều 14 khoản 1
+      - 108/2025/QH15 Điều 16 khoản 1
+      - 108/2025/QH15 Điều 16 khoản 2
+      - 252/2026/NĐ-CP Điều 10 khoản 3
+      - 252/2026/NĐ-CP Điều 26 khoản 1
+  - id: q04  # phase 2: Law 90/2025 amends point a cl 1 Art 9 (0% exports) from outside the corpus; the answer uses cl 2 (5%) only, which that amendment does not touch
     question: Điều 9 Luật 48/2024 quy định những hàng hóa, dịch vụ nào được áp thuế suất 5%?
     tax_type: vat
     form: reference
-    answer: TODO
+    answer: >
+      Thuế suất 5% (khoản 2 Điều 9) áp dụng cho: nước sạch phục vụ sản xuất và sinh hoạt (trừ nước
+      đóng chai, đóng bình, nước giải khát); phân bón, quặng sản xuất phân bón, thuốc bảo vệ thực vật,
+      chất kích thích tăng trưởng vật nuôi; dịch vụ đào đắp, nạo vét kênh mương phục vụ nông nghiệp, chăm
+      sóc cây trồng, sơ chế, bảo quản nông sản; sản phẩm trồng trọt, chăn nuôi, thủy sản chưa chế biến (trừ
+      gỗ, măng và trừ trường hợp không chịu thuế); mủ cao su sơ chế, lưới, dây giềng, sợi đan lưới; sản
+      phẩm thủ công từ nguyên liệu nông nghiệp, xơ bông, giấy in báo; tàu khai thác thủy sản, máy móc
+      chuyên dùng cho nông nghiệp; thiết bị y tế, thuốc phòng, chữa bệnh, dược chất, dược liệu; thiết bị
+      giảng dạy, học tập; nghệ thuật biểu diễn truyền thống, dân gian; đồ chơi trẻ em, sách các loại;
+      dịch vụ khoa học, công nghệ; bán, cho thuê, cho thuê mua nhà ở xã hội.
+    key_facts:
+      - "nước sạch phục vụ sản xuất và sinh hoạt, không gồm nước đóng chai, đóng bình"
+      - "phân bón, thuốc bảo vệ thực vật"
+      - "thiết bị y tế, thuốc phòng bệnh, chữa bệnh"
+      - "đồ chơi trẻ em, sách; nhà ở xã hội"
+    provisions:
+      - 48/2024/QH15 Điều 9 khoản 2
   - id: q05
     question: Công ty nhỏ, doanh thu năm chưa tới 3 tỷ, thì thuế suất thu nhập doanh nghiệp là bao nhiêu?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Tùy tổng doanh thu năm trước liền kề: nếu từ 01 tỷ đồng trở xuống thì thu nhập được miễn thuế TNDN
+      (không áp dụng cho công ty con, công ty có quan hệ liên kết mà bên liên kết không đáp ứng điều kiện
+      miễn); nếu trên 01 tỷ đến không quá 03 tỷ đồng thì thuế suất 15%.
+    key_facts:
+      - "tổng doanh thu năm từ 01 tỷ đồng trở xuống: miễn thuế TNDN"
+      - "tổng doanh thu năm không quá 03 tỷ đồng: thuế suất 15%"
+      - "doanh thu làm căn cứ là của kỳ tính thuế năm trước liền kề"
+      - "miễn thuế không áp dụng cho công ty con, công ty liên kết có bên liên kết không đủ điều kiện miễn"
+    provisions:
+      - 67/2025/QH15 Điều 10 khoản 2
+      - 09/2026/QH16 Điều 3
+      - 141/2026/NĐ-CP Điều 2
   - id: q06
     question: Nước ngọt có đường có bị đánh thuế tiêu thụ đặc biệt không, nếu có thì từ khi nào?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: >
+      Có. Nước giải khát theo TCVN có hàm lượng đường trên 5g/100ml thuộc đối tượng chịu thuế tiêu thụ
+      đặc biệt, với thuế suất 8% từ ngày 01/01/2027 và 10% từ ngày 01/01/2028.
+    key_facts:
+      - "nước giải khát có hàm lượng đường trên 5g/100ml chịu thuế TTĐB"
+      - "thuế suất 8% từ 01/01/2027"
+      - "thuế suất 10% từ 01/01/2028"
+    provisions:
+      - 66/2025/QH15 Điều 2 khoản 1
+      - 66/2025/QH15 Điều 8 khoản 1
+      - 09/2026/QH16 Điều 4
   - id: q08
     question: Em làm freelance thiết kế, nhận tiền từ khách nước ngoài qua PayPal, vậy em có phải tự khai thuế không hay khỏi?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: >
+      Tùy em có đăng ký kinh doanh hay không. Nếu không đăng ký kinh doanh, tiền thù lao cung cấp dịch
+      vụ là thu nhập từ tiền lương, tiền công; khách là tổ chức nước ngoài không đăng ký thuế tại Việt Nam
+      nên không ai khấu trừ thay, em phải tự kê khai, nộp thuế. Nếu em là cá nhân kinh doanh (cư trú) thì
+      tính thuế theo thu nhập kinh doanh: doanh thu năm từ 01 tỷ đồng trở xuống không phải nộp thuế TNCN.
+    key_facts:
+      - "không đăng ký kinh doanh: tiền thù lao cung cấp dịch vụ là thu nhập từ tiền lương, tiền công"
+      - "thu nhập do tổ chức nước ngoài không đăng ký thuế tại Việt Nam chi trả: cá nhân tự kê khai, nộp thuế"
+      - "cá nhân kinh doanh có doanh thu năm từ 01 tỷ đồng trở xuống không phải nộp thuế TNCN"
+    provisions:
+      - 253/2026/NĐ-CP Điều 8 khoản 2
+      - 253/2026/NĐ-CP Điều 67 khoản 5
+      - 68/2026/NĐ-CP Điều 4 khoản 1
+      - 141/2026/NĐ-CP Điều 1
   - id: q09
     question: Tôi cho thuê căn hộ 15 triệu một tháng, có phải nộp thuế không và nộp bao nhiêu phần trăm?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: >
+      Cho thuê 15 triệu/tháng tức 180 triệu đồng/năm, từ 01 tỷ đồng trở xuống nên không chịu thuế GTGT
+      và không phải nộp thuế TNCN. Chỉ khi doanh thu cho thuê năm trên 01 tỷ đồng mới phải nộp thuế TNCN
+      bằng 5% trên phần doanh thu vượt mức này.
+    key_facts:
+      - "doanh thu năm 180 triệu đồng"
+      - "doanh thu năm từ 01 tỷ đồng trở xuống: không chịu thuế GTGT, không phải nộp thuế TNCN"
+      - "trên ngưỡng: thuế TNCN 5% trên phần doanh thu vượt ngưỡng"
+    provisions:
+      - 68/2026/NĐ-CP Điều 3
+      - 68/2026/NĐ-CP Điều 4 khoản 1
+      - 141/2026/NĐ-CP Điều 1
+      - 109/2025/QH15 Điều 7
+      - 09/2026/QH16 Điều 1
   - id: q10
     question: Theo Luật Quản lý thuế 108/2025, doanh nghiệp được gia hạn nộp thuế trong những trường hợp nào?
     tax_type: administration
     form: reference
-    answer: TODO
-  - id: q11  # repealed is unverified: step 2 confirms it against the corpus or moves the question
+    answer: >
+      Người nộp thuế được gia hạn nộp thuế khi: bị thiệt hại vật chất ảnh hưởng trực tiếp đến sản xuất,
+      kinh doanh do bất khả kháng (gia hạn 02 năm kể từ ngày xảy ra sự kiện); phải ngừng hoạt động do di
+      dời cơ sở theo yêu cầu của cơ quan nhà nước (gia hạn 01 năm kể từ ngày ngừng hoạt động); và gia hạn
+      trong trường hợp đặc biệt do Chính phủ quy định. Trong thời gian gia hạn không phải nộp tiền chậm nộp
+      trên số thuế được gia hạn.
+    key_facts:
+      - "thiệt hại do bất khả kháng: gia hạn 02 năm kể từ ngày xảy ra sự kiện"
+      - "ngừng hoạt động do di dời theo yêu cầu cơ quan nhà nước: gia hạn 01 năm"
+      - "gia hạn trong trường hợp đặc biệt do Chính phủ quy định"
+      - "không tính tiền chậm nộp trong thời gian gia hạn"
+    provisions:
+      - 108/2025/QH15 Điều 14 khoản 7
+      - 252/2026/NĐ-CP Điều 25 khoản 3
+      - 252/2026/NĐ-CP Điều 25 khoản 4
+  - id: q11  # phase 2: repealed confirmed. Law 149/2025/QH15 Art 1 cl 3 repeals cl 3 Art 12 of Law 48/2024 (lump-sum VAT); Decree 68/2026 Art 17 cl 5 moves lump-sum households to self-declaration from 01/01/2026; Law 108/2025 Art 52 cl 3 ends Art 51 of Law 38/2019 from 01/01/2026
     question: Hộ kinh doanh nộp thuế khoán thì mỗi năm chi cục thuế thông báo mức khoán vào lúc nào?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Phương pháp khoán thuế không còn áp dụng: từ ngày 01/01/2026 hộ kinh doanh chuyển sang tự kê khai
+      thuế hoặc thông báo doanh thu thực tế với cơ quan thuế, nên không còn việc cơ quan thuế thông báo
+      mức khoán hằng năm.
     unanswerable: repealed
-  - id: q12
+  - id: q12  # phase 2: 181/2025 Art 26 cl 2 point g is amended by 144/2026/NĐ-CP Art 4 (instalment purchases); not listed because the answer does not rely on point g
     question: Mua hàng hóa giá trên 5 triệu mà trả bằng tiền mặt thì có được khấu trừ thuế GTGT đầu vào không?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: >
+      Không. Hàng hóa, dịch vụ mua vào từ 05 triệu đồng trở lên (giá đã có thuế GTGT) phải có chứng từ
+      thanh toán không dùng tiền mặt mới được khấu trừ thuế GTGT đầu vào; trả bằng tiền mặt (kể cả nộp
+      tiền mặt vào tài khoản bên bán) thì không được khấu trừ. Mua của cùng một người bán nhiều lần trong
+      một ngày, mỗi lần dưới 05 triệu nhưng tổng từ 05 triệu đồng trở lên, cũng phải thanh toán không dùng
+      tiền mặt.
+    key_facts:
+      - "từ 05 triệu đồng trở lên (đã gồm thuế GTGT) phải có chứng từ thanh toán không dùng tiền mặt"
+      - "nộp tiền mặt vào tài khoản bên bán không được coi là thanh toán không dùng tiền mặt"
+      - "mua nhiều lần trong cùng một ngày tổng từ 05 triệu đồng trở lên cũng phải thanh toán không dùng tiền mặt"
+    provisions:
+      - 48/2024/QH15 Điều 14 khoản 2
+      - 181/2025/NĐ-CP Điều 26
   - id: q13
     question: Theo Điều 9 Luật 67/2025, những khoản chi nào doanh nghiệp không được tính vào chi phí được trừ?
     tax_type: cit
     form: reference
-    answer: TODO
+    answer: >
+      Khoản 2 Điều 9 liệt kê các khoản chi không được trừ, gồm: khoản chi không đáp ứng đủ điều kiện ở
+      khoản 1 (thực tế phát sinh, liên quan đến sản xuất kinh doanh, có đủ hóa đơn, chứng từ thanh toán
+      không dùng tiền mặt); tiền phạt vi phạm hành chính; khoản chi được bù đắp bằng nguồn khác; phần chi
+      vượt mức Chính phủ quy định (lãi vay giao dịch liên kết, chi phúc lợi, bảo hiểm hưu trí, nhân thọ…);
+      trích lập dự phòng, khấu hao, trích trước sai hoặc vượt mức; tiền lương của chủ doanh nghiệp tư nhân,
+      chủ công ty TNHH một thành viên do cá nhân làm chủ, lương hạch toán nhưng không thực chi; lãi vay
+      tương ứng vốn điều lệ còn thiếu hoặc vượt mức Bộ luật Dân sự; thuế GTGT đầu vào đã khấu trừ, thuế TNDN,
+      tiền chậm nộp; khoản tài trợ ngoài các khoản được phép; chi đầu tư xây dựng cơ bản trong giai đoạn đầu
+      tư; và các khoản chi khác.
+    key_facts:
+      - "khoản tiền phạt do vi phạm hành chính"
+      - "khấu hao tài sản cố định không đúng hoặc vượt mức quy định"
+      - "lãi vay của đối tượng không phải tổ chức tín dụng vượt mức Bộ luật Dân sự; lãi vay tương ứng vốn điều lệ còn thiếu"
+      - "tiền lương của chủ doanh nghiệp tư nhân, chủ công ty TNHH một thành viên do cá nhân làm chủ"
+    provisions:
+      - 67/2025/QH15 Điều 9 khoản 2
   - id: q14
     question: Tôi là người Hàn Quốc, công ty cử sang Việt Nam làm việc khoảng 4 tháng, thu nhập ở đây bị tính thuế như thế nào?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: >
+      Tùy bạn là cá nhân cư trú hay không. Có mặt khoảng 4 tháng (dưới 183 ngày) và không có nơi ở thường
+      xuyên tại Việt Nam thì là cá nhân không cư trú: thuế TNCN bằng 20% trên tổng tiền lương, tiền công
+      nhận được do làm việc tại Việt Nam, không được giảm trừ gia cảnh, tổ chức trả thu nhập khấu trừ trước
+      khi trả. Nếu có nơi ở thường xuyên (thường trú, hoặc nhà thuê để ở với hợp đồng thuê từ 183 ngày trở
+      lên trong năm) thì là cá nhân cư trú và tính thuế theo biểu lũy tiến từng phần như người cư trú.
+    key_facts:
+      - "cá nhân cư trú: có mặt từ 183 ngày trở lên hoặc có nơi ở thường xuyên tại Việt Nam"
+      - "cá nhân không cư trú: thuế suất 20% trên tiền lương, tiền công làm việc tại Việt Nam"
+      - "thời gian làm việc dưới 183 ngày theo hợp đồng: tổ chức trả thu nhập khấu trừ theo mức của cá nhân không cư trú"
+      - "cá nhân cư trú: tính theo biểu thuế lũy tiến từng phần"
+    provisions:
+      - 109/2025/QH15 Điều 2
+      - 109/2025/QH15 Điều 21
+      - 253/2026/NĐ-CP Điều 4
+      - 253/2026/NĐ-CP Điều 64
+      - 253/2026/NĐ-CP Điều 50 khoản 3
   - id: q16
     question: Điều 8 Luật 66/2025 quy định thuế suất tiêu thụ đặc biệt đối với bia tăng theo lộ trình thế nào?
     tax_type: sct
     form: reference
-    answer: TODO
+    answer: >
+      Thuế suất TTĐB đối với bia tăng mỗi năm 5 điểm phần trăm: 65% từ 01/01/2026, 70% từ 01/01/2027,
+      75% từ 01/01/2028, 80% từ 01/01/2029, 85% từ 01/01/2030 và 90% từ 01/01/2031.
+    key_facts:
+      - "65% từ 01/01/2026"
+      - "70% từ 01/01/2027"
+      - "90% từ 01/01/2031"
+      - "tăng 5 điểm phần trăm mỗi năm"
+    provisions:
+      - 66/2025/QH15 Điều 8 khoản 1
+      - 09/2026/QH16 Điều 4
   - id: q17
     question: Nghị định 68/2026 bắt buộc những hộ kinh doanh nào phải dùng hóa đơn điện tử khởi tạo từ máy tính tiền?
     tax_type: household
     form: reference
-    answer: TODO
+    answer: >
+      Nghị định 68/2026 (khoản 5 Điều 8, đã sửa bởi Nghị định 141/2026) không bắt buộc riêng hóa đơn
+      khởi tạo từ máy tính tiền: hộ kinh doanh, cá nhân kinh doanh có doanh thu năm trên 01 tỷ đồng phải
+      áp dụng hóa đơn điện tử có mã của cơ quan thuế hoặc hóa đơn điện tử khởi tạo từ máy tính tiền có kết
+      nối dữ liệu với cơ quan thuế. Hộ mới ra kinh doanh hoặc năm trước chưa trên 01 tỷ nhưng trong năm có
+      doanh thu trên 01 tỷ đồng cũng phải áp dụng và đăng ký trong 30 ngày kể từ ngày cuối cùng của kỳ tính
+      thuế có doanh thu lũy kế trên 01 tỷ đồng. Hộ có doanh thu từ 01 tỷ đồng trở xuống được tự nguyện đăng
+      ký sử dụng.
+    key_facts:
+      - "doanh thu năm trên 01 tỷ đồng: bắt buộc hóa đơn điện tử có mã hoặc khởi tạo từ máy tính tiền"
+      - "đăng ký trong 30 ngày kể từ ngày cuối cùng của kỳ tính thuế có doanh thu lũy kế trên 01 tỷ đồng"
+      - "doanh thu năm từ 01 tỷ đồng trở xuống: tự nguyện đăng ký"
+    provisions:
+      - 68/2026/NĐ-CP Điều 8 khoản 5
+      - 141/2026/NĐ-CP Điều 1
   - id: q18
     question: Tôi là người nước ngoài mới sang Việt Nam làm việc theo hợp đồng 2 năm, tôi có cần đăng ký mã số thuế không, hay công ty làm giúp?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Có, người có thu nhập chịu thuế phải có mã số thuế, nhưng công ty có thể làm thay: nếu bạn chưa đăng
+      ký thuế, tổ chức chi trả thu nhập có trách nhiệm đăng ký thuế lần đầu thay cho bạn chậm nhất là ngày
+      cuối cùng của thời hạn nộp hồ sơ khai thuế TNCN của kỳ đầu tiên chi trả thu nhập; đăng ký thay cho
+      người phụ thuộc chậm nhất ngày 31/12 của năm tính thuế.
+    key_facts:
+      - "tổ chức chi trả thu nhập đăng ký thuế lần đầu thay cho cá nhân chưa đăng ký thuế"
+      - "hạn: ngày cuối cùng của thời hạn nộp hồ sơ khai thuế TNCN của kỳ đầu tiên chi trả thu nhập"
+      - "đăng ký thay cho người phụ thuộc chậm nhất ngày 31 tháng 12 của năm tính thuế"
+    provisions:
+      - 108/2025/QH15 Điều 10 khoản 3
+      - 252/2026/NĐ-CP Điều 6 khoản 3
   - id: q20
     question: Doanh nghiệp xuất khẩu hàng hóa muốn được áp thuế suất GTGT 0% thì cần đáp ứng những điều kiện gì?
     tax_type: vat
     form: plain
-    answer: TODO
-  - id: q21
+    answer: >
+      Hàng hóa xuất khẩu được áp thuế suất 0% phải có: hợp đồng bán, gia công hàng hóa xuất khẩu (hoặc
+      hợp đồng ủy thác xuất khẩu); chứng từ thanh toán không dùng tiền mặt; tờ khai hải quan theo quy định.
+      Để khấu trừ thuế GTGT đầu vào còn cần hóa đơn bán hàng, phiếu đóng gói, vận đơn, chứng từ bảo hiểm
+      (nếu có).
+    key_facts:
+      - "hợp đồng bán, gia công hàng hóa xuất khẩu hoặc hợp đồng ủy thác xuất khẩu"
+      - "chứng từ thanh toán không dùng tiền mặt"
+      - "tờ khai hải quan"
+    provisions:
+      - 181/2025/NĐ-CP Điều 18
+      - 48/2024/QH15 Điều 14 khoản 2
+  - id: q21  # phase 2: Arts 12, 13, 14 of 67/2025 have outside-corpus amendments (Law 133/2025 Art 25 cl 7; Law 141/2025; Law 143/2025). They touch points a, e, h of Art 12 cl 2, Art 13 cl 1a, 4d, 7 and Art 14 cl 1 point a and cl 4; the 10%/15-year rate (Art 13 cl 1) is untouched, but the 4-year/9-year exemption (Art 14 cl 1 point a) and its start year (cl 4) may differ in the law in force; owner to verify
     question: Công ty mới thành lập để sản xuất linh kiện điện tử trong khu công nghiệp thì có được miễn, giảm thuế thu nhập doanh nghiệp không, được mấy năm?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Khu công nghiệp không phải địa bàn ưu đãi thuế TNDN; ưu đãi phụ thuộc ngành nghề. Nếu dự án đầu tư
+      mới sản xuất thiết bị điện tử theo pháp luật về công nghiệp công nghệ số, hoặc sản xuất sản phẩm công
+      nghiệp hỗ trợ ưu tiên đáp ứng tiêu chí của Luật, thì được thuế suất 10% trong 15 năm, miễn thuế tối đa
+      04 năm và giảm 50% số thuế phải nộp tối đa 09 năm tiếp theo, tính từ năm đầu tiên có thu nhập chịu
+      thuế từ dự án. Nếu không thuộc ngành nghề hay địa bàn ưu đãi thì không được miễn, giảm.
+    key_facts:
+      - "khu công nghiệp không thuộc địa bàn ưu đãi thuế TNDN"
+      - "thuế suất 10% trong 15 năm"
+      - "miễn thuế tối đa 04 năm, giảm 50% tối đa 09 năm tiếp theo"
+      - "thời gian miễn, giảm tính từ năm đầu tiên có thu nhập chịu thuế từ dự án"
+    provisions:
+      - 67/2025/QH15 Điều 12
+      - 67/2025/QH15 Điều 13
+      - 67/2025/QH15 Điều 14
   - id: q22
     question: Biểu thuế lũy tiến từng phần theo Luật 109/2025 có mấy bậc, bậc cao nhất là bao nhiêu phần trăm?
     tax_type: pit
     form: reference
-    answer: TODO
-  - id: q23  # repealed is unverified: step 2 confirms it against the corpus or moves the question
+    answer: >
+      Biểu thuế lũy tiến từng phần có 5 bậc; bậc cao nhất là 35%, áp dụng cho phần thu nhập tính thuế
+      trên 1.200 triệu đồng/năm (trên 100 triệu đồng/tháng).
+    key_facts:
+      - "5 bậc"
+      - "bậc cao nhất 35%"
+      - "trên 1.200 triệu đồng/năm (trên 100 triệu đồng/tháng)"
+    provisions:
+      - 109/2025/QH15 Điều 9
+  - id: q23  # phase 2: repealed confirmed. Decree 254/2026/NĐ-CP Art 44 cl 3: invoices printed to order by the tax authority lose validity when the decree takes effect; Art 6 makes e-invoices the rule. No paper-invoice issuance notice remains in the corpus
     question: Công ty muốn đặt in hóa đơn giấy thì phải gửi thông báo phát hành hóa đơn cho cơ quan thuế trước bao nhiêu ngày?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Quy định đặt in hóa đơn giấy và thông báo phát hành hóa đơn không còn áp dụng: doanh nghiệp phải dùng
+      hóa đơn điện tử, và hóa đơn đặt in của cơ quan thuế đã hết giá trị sử dụng từ ngày Nghị định
+      254/2026/NĐ-CP có hiệu lực.
     unanswerable: repealed
   - id: q24
     question: Nhập khẩu ô tô 7 chỗ về bán thì giá tính thuế tiêu thụ đặc biệt được xác định thế nào?
     tax_type: sct
     form: plain
-    answer: TODO
-  - id: q27
+    answer: >
+      Ở khâu nhập khẩu, giá tính thuế TTĐB là trị giá tính thuế nhập khẩu cộng thuế nhập khẩu (và thuế nhập
+      khẩu bổ sung nếu có), không gồm số thuế nhập khẩu được miễn, giảm. Khi bán ra trong nước, giá tính
+      thuế = (giá bán chưa có thuế GTGT − thuế bảo vệ môi trường nếu có) / (1 + thuế suất TTĐB), và được khấu
+      trừ số thuế TTĐB đã nộp ở khâu nhập khẩu tương ứng với số xe bán ra. Nếu bán cho doanh nghiệp thương
+      mại có quan hệ liên kết, giá bán làm căn cứ không được thấp hơn 7% so với giá bình quân của các doanh
+      nghiệp thương mại mua trực tiếp.
+    key_facts:
+      - "khâu nhập khẩu: trị giá tính thuế nhập khẩu + thuế nhập khẩu (+ thuế nhập khẩu bổ sung)"
+      - "khâu bán ra: giá bán chưa có thuế GTGT chia (1 + thuế suất TTĐB)"
+      - "được khấu trừ số thuế TTĐB đã nộp ở khâu nhập khẩu"
+      - "bán cho doanh nghiệp thương mại liên kết: không thấp hơn 7% so với giá bình quân"
+    provisions:
+      - 66/2025/QH15 Điều 6 khoản 1
+      - 66/2025/QH15 Điều 9 khoản 3
+      - 360/2025/NĐ-CP Điều 5 khoản 1
+      - 360/2025/NĐ-CP Điều 8 khoản 4
+  - id: q27  # phase 2: 181/2025 Art 4 cl 4 is amended by 144/2026/NĐ-CP Art 1 only in point đ (debt sales); not listed because the answer relies on point d (securities transfers)
     question: Bán cổ phiếu trên sàn chứng khoán thì có phải chịu thuế giá trị gia tăng không?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: >
+      Không. Chuyển nhượng chứng khoán, bao gồm chuyển nhượng qua hệ thống giao dịch của Sở giao dịch chứng
+      khoán, thuộc chuyển nhượng vốn, là đối tượng không chịu thuế GTGT.
+    key_facts:
+      - "chuyển nhượng chứng khoán thuộc đối tượng không chịu thuế GTGT"
+      - "bao gồm chuyển nhượng qua hệ thống giao dịch của Sở giao dịch chứng khoán"
+    provisions:
+      - 48/2024/QH15 Điều 5 khoản 9
+      - 181/2025/NĐ-CP Điều 4 khoản 4
+      - 77/2025/TT-BTC Điều 4
   - id: q28
     question: Theo Nghị định 254/2026, thời điểm lập hóa đơn điện tử khi bán hàng là lúc giao hàng hay lúc nhận tiền?
     tax_type: administration
     form: reference
-    answer: TODO
-  - id: q29
+    answer: >
+      Lúc giao hàng: thời điểm lập hóa đơn khi bán hàng hóa là thời điểm chuyển giao quyền sở hữu hoặc quyền
+      sử dụng hàng hóa cho người mua, không phân biệt đã thu được tiền hay chưa.
+    key_facts:
+      - "thời điểm chuyển giao quyền sở hữu hoặc quyền sử dụng hàng hóa cho người mua"
+      - "không phân biệt đã thu được tiền hay chưa"
+    provisions:
+      - 254/2026/NĐ-CP Điều 9 khoản 1
+  - id: q29  # phase 2: Thông tư 20/2026 named in the question has no provision on salary costs (it covers dossiers for points b and c of Art 9 cl 1 of the CIT Law); the answer is in 320/2025/NĐ-CP Điều 10 khoản 8 and 67/2025/QH15 Điều 9 khoản 2
     question: Thông tư 20/2026 yêu cầu khoản chi tiền lương cho người lao động phải đáp ứng điều kiện gì mới được trừ khi tính thuế TNDN?
     tax_type: cit
     form: reference
-    answer: TODO
+    answer: >
+      Thông tư 20/2026 không quy định riêng về tiền lương; điều kiện nằm ở Luật 67/2025 và Nghị định
+      320/2025. Tiền lương, tiền công, tiền thưởng được trừ khi thực tế chi trả, có chứng từ thanh toán, và
+      điều kiện, mức được hưởng được ghi cụ thể tại hợp đồng lao động, thỏa ước lao động tập thể, quy chế tài
+      chính hoặc quy chế thưởng. Không được trừ: lương đã hạch toán nhưng không chi hoặc không có chứng từ;
+      lương hết hạn nộp hồ sơ quyết toán năm mà chưa chi (trừ khi có quỹ lương dự phòng); lương của chủ doanh
+      nghiệp tư nhân, chủ công ty TNHH một thành viên do một cá nhân làm chủ.
+    key_facts:
+      - "điều kiện và mức được hưởng ghi tại hợp đồng lao động, thỏa ước lao động tập thể, quy chế tài chính hoặc quy chế thưởng"
+      - "thực tế chi trả và có chứng từ thanh toán"
+      - "chưa chi khi hết thời hạn nộp hồ sơ quyết toán năm thì không được trừ, trừ trường hợp có quỹ lương dự phòng"
+      - "không trừ lương của chủ doanh nghiệp tư nhân, chủ công ty TNHH một thành viên do cá nhân làm chủ"
+    provisions:
+      - 320/2025/NĐ-CP Điều 10 khoản 8
+      - 67/2025/QH15 Điều 9 khoản 2
   - id: q31
     question: Theo Nghị định 253/2026, tiền công ty hỗ trợ ăn trưa cho nhân viên có bị tính vào thu nhập chịu thuế không?
     tax_type: pit
     form: reference
-    answer: TODO
+    answer: >
+      Tiền ăn giữa ca, ăn trưa người sử dụng lao động chi bằng tiền chỉ tính vào thu nhập chịu thuế phần
+      vượt quá 1,2 triệu đồng/người/tháng. Nếu công ty tự tổ chức bữa ăn (nấu ăn, mua suất ăn, cấp phiếu ăn)
+      thì không tính vào thu nhập chịu thuế.
+    key_facts:
+      - "phần vượt 1,2 triệu đồng/người/tháng tính vào thu nhập chịu thuế"
+      - "công ty tự tổ chức bữa ăn (nấu ăn, mua suất ăn, cấp phiếu ăn) thì không tính"
+    provisions:
+      - 253/2026/NĐ-CP Điều 8 khoản 2
   - id: q32
     question: Công ty con vay tiền của công ty mẹ ở nước ngoài thì chi phí lãi vay có bị giới hạn khi tính thuế không?
     tax_type: cit
     form: plain
-    answer: TODO
-  - id: q33  # repealed is unverified: step 2 confirms it against the corpus or moves the question
+    answer: >
+      Có. Công ty mẹ nắm giữ từ 25% vốn trở lên là bên liên kết, nên tổng chi phí lãi vay (sau khi trừ lãi
+      tiền gửi và lãi cho vay) được trừ không vượt quá 30% của tổng lợi nhuận thuần từ hoạt động kinh doanh
+      cộng chi phí lãi vay (sau khi trừ lãi tiền gửi, lãi cho vay) cộng chi phí khấu hao trong kỳ. Phần lãi
+      vay không được trừ được chuyển sang kỳ sau, tối đa 05 năm liên tục.
+    key_facts:
+      - "bên nắm giữ trực tiếp hoặc gián tiếp ít nhất 25% vốn là bên liên kết"
+      - "chi phí lãi vay được trừ không vượt quá 30% của lợi nhuận thuần + chi phí lãi vay + chi phí khấu hao"
+      - "phần không được trừ được chuyển sang kỳ sau, không quá 05 năm"
+    provisions:
+      - 255/2026/NĐ-CP Điều 5 khoản 2
+      - 255/2026/NĐ-CP Điều 16 khoản 3
+      - 67/2025/QH15 Điều 9 khoản 2
+  - id: q33  # phase 2: answered by 89/2026/TT-BTC Art 21 cl 1 and 3 and 252/2026/NĐ-CP Art 24: CIT is paid provisionally by quarter and settled yearly, with no quarterly provisional return; moved to answerable
     question: Doanh nghiệp vẫn phải nộp tờ khai thuế thu nhập doanh nghiệp tạm tính hằng quý đúng không?
     tax_type: cit
     form: plain
-    answer: TODO
-    unanswerable: repealed
+    answer: >
+      Không có tờ khai tạm tính quý: thuế TNDN là loại thuế tạm nộp theo quý và quyết toán năm. Doanh
+      nghiệp tự xác định số thuế tạm nộp quý (căn cứ báo cáo tài chính quý hoặc kết quả kinh doanh quý) và nộp
+      tiền chậm nhất ngày cuối cùng của tháng đầu quý tiếp theo; tổng số đã tạm nộp của 04 quý không được thấp
+      hơn 80% số thuế phải nộp theo quyết toán năm, nếu thiếu thì tính tiền chậm nộp trên phần thiếu.
+    key_facts:
+      - "thuế TNDN tạm nộp theo quý và quyết toán năm"
+      - "hạn tạm nộp: ngày cuối cùng của tháng đầu quý tiếp theo"
+      - "tổng tạm nộp 04 quý không thấp hơn 80% số thuế quyết toán năm"
+    provisions:
+      - 89/2026/TT-BTC Điều 21 khoản 1
+      - 89/2026/TT-BTC Điều 21 khoản 3
+      - 252/2026/NĐ-CP Điều 24
   - id: q34
     question: Theo Nghị định 360/2025, nhà máy bia mua nguyên liệu đã chịu thuế tiêu thụ đặc biệt thì có được khấu trừ số thuế đó không?
     tax_type: sct
     form: reference
-    answer: TODO
-  - id: q35
+    answer: >
+      Có. Nhà máy sản xuất hàng hóa chịu thuế TTĐB từ nguyên liệu đã nộp thuế TTĐB (nhập khẩu hoặc mua trực
+      tiếp của nhà sản xuất trong nước) được khấu trừ số thuế đã nộp, tương ứng với lượng nguyên liệu dùng
+      để sản xuất hàng bán ra, khi có chứng từ hợp pháp: chứng từ nộp thuế ở khâu nhập khẩu, hoặc với nguyên
+      liệu mua trong nước là hợp đồng mua của nhà sản xuất, chứng từ thanh toán không dùng tiền mặt và hóa
+      đơn GTGT. Phần không được khấu trừ được tính vào chi phí khi tính thuế TNDN.
+    key_facts:
+      - "được khấu trừ số thuế TTĐB đã nộp của nguyên liệu tương ứng với hàng bán ra"
+      - "nguyên liệu nhập khẩu: chứng từ nộp thuế TTĐB ở khâu nhập khẩu"
+      - "nguyên liệu mua trong nước: hợp đồng mua của nhà sản xuất, chứng từ thanh toán không dùng tiền mặt, hóa đơn GTGT"
+      - "số thuế không được khấu trừ được tính vào chi phí tính thuế TNDN"
+    provisions:
+      - 66/2025/QH15 Điều 9 khoản 2
+      - 360/2025/NĐ-CP Điều 8 khoản 2
+      - 360/2025/NĐ-CP Điều 8 khoản 5
+      - 360/2025/NĐ-CP Điều 8 khoản 6
+  - id: q35  # phase 2: Thông tư 18/2026 named in the question sets the forms only (Art 4); the monthly/quarterly period is in 68/2026/NĐ-CP Điều 10, threshold raised by 141/2026/NĐ-CP Điều 1
     question: Thông tư 18/2026 quy định hộ kinh doanh khai thuế theo tháng hay theo quý?
     tax_type: household
     form: reference
-    answer: TODO
+    answer: >
+      Thông tư 18/2026 chỉ quy định mẫu hồ sơ; kỳ khai do Nghị định 68/2026 quy định. Hộ kinh doanh có
+      doanh thu năm từ 01 tỷ đồng trở xuống không khai thuế mà thông báo doanh thu thực tế một lần trong năm.
+      Hộ có doanh thu trên 01 tỷ đồng khai, nộp thuế GTGT theo quý nếu doanh thu năm từ 50 tỷ đồng trở xuống,
+      theo tháng nếu trên 50 tỷ đồng; thuế TNCN khai cùng kỳ trên cùng hồ sơ khai thuế GTGT.
+    key_facts:
+      - "doanh thu năm từ 50 tỷ đồng trở xuống: khai theo quý"
+      - "doanh thu năm trên 50 tỷ đồng: khai theo tháng"
+      - "doanh thu năm từ 01 tỷ đồng trở xuống: chỉ thông báo doanh thu"
+    provisions:
+      - 68/2026/NĐ-CP Điều 10
+      - 68/2026/NĐ-CP Điều 8 khoản 1
+      - 141/2026/NĐ-CP Điều 1
+      - 18/2026/TT-BTC Điều 4 khoản 1
   - id: q37
     question: Sau khi có Luật 149/2025, doanh nghiệp bán nông sản chưa qua chế biến cho doanh nghiệp khác có phải tính thuế GTGT không?
     tax_type: vat
     form: reference
-    answer: TODO
+    answer: >
+      Doanh nghiệp tự sản xuất, đánh bắt bán ra thì sản phẩm chưa chế biến (hoặc chỉ qua sơ chế thông thường)
+      là đối tượng không chịu thuế GTGT. Doanh nghiệp mua sản phẩm đó rồi bán cho doanh nghiệp, hợp tác xã
+      khác thì không phải kê khai, tính nộp thuế GTGT nhưng được khấu trừ thuế GTGT đầu vào. Nếu bán cho hộ,
+      cá nhân kinh doanh hoặc đối tượng khác thì doanh nghiệp nộp theo phương pháp khấu trừ tính thuế suất 5%.
+    key_facts:
+      - "tự sản xuất, đánh bắt bán ra: không chịu thuế GTGT"
+      - "mua về bán cho doanh nghiệp, hợp tác xã khác: không phải kê khai, tính nộp thuế GTGT"
+      - "vẫn được khấu trừ thuế GTGT đầu vào"
+      - "bán cho hộ, cá nhân kinh doanh và đối tượng khác: thuế suất 5%"
+    provisions:
+      - 48/2024/QH15 Điều 5 khoản 1
+      - 149/2025/QH15 Điều 1
+      - 359/2025/NĐ-CP Điều 1
   - id: q38
     question: Hộ kinh doanh có doanh thu trên 1 tỷ một năm thì tính thuế theo cách nào?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Thuế GTGT tính trực tiếp bằng tỷ lệ % nhân doanh thu. Thuế TNCN: nếu doanh thu năm trên 01 tỷ đến 03
+      tỷ đồng, hộ được chọn tính bằng thuế suất nhân phần doanh thu vượt 01 tỷ (phân phối hàng hóa 0,5%;
+      dịch vụ 2%; sản xuất, vận tải 1,5%…) hoặc bằng (doanh thu − chi phí) × 15%; nếu trên 03 tỷ đồng thì bắt
+      buộc tính theo thu nhập tính thuế × 17% (đến 50 tỷ) hoặc 20% (trên 50 tỷ). Phương pháp theo thu nhập
+      đã chọn phải giữ ổn định 02 năm liên tục.
+    key_facts:
+      - "thuế GTGT: tỷ lệ % nhân doanh thu"
+      - "trên 01 tỷ đến 03 tỷ đồng: chọn thuế suất × phần doanh thu vượt 01 tỷ, hoặc thu nhập tính thuế × 15%"
+      - "trên 03 tỷ đến 50 tỷ đồng: thu nhập tính thuế × 17%; trên 50 tỷ đồng: 20%"
+      - "ổn định phương pháp tính theo thu nhập 02 năm liên tục"
+    provisions:
+      - 68/2026/NĐ-CP Điều 3
+      - 68/2026/NĐ-CP Điều 4 khoản 5
+      - 141/2026/NĐ-CP Điều 1
+      - 109/2025/QH15 Điều 7
+      - 09/2026/QH16 Điều 1
   - id: q40
     question: Năm ngoái công ty lỗ 500 triệu, năm nay có lãi thì được trừ khoản lỗ đó không, chuyển lỗ tối đa mấy năm?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Được. Doanh nghiệp có lỗ được chuyển toàn bộ và liên tục số lỗ vào thu nhập chịu thuế các năm sau,
+      thời gian chuyển lỗ không quá 05 năm liên tục kể từ năm tiếp theo năm phát sinh lỗ; quá 05 năm thì phần
+      lỗ chưa chuyển hết không được chuyển tiếp. Trong năm, lỗ được tạm chuyển vào thu nhập các quý khi xác
+      định số thuế tạm nộp và chuyển chính thức khi quyết toán năm.
+    key_facts:
+      - "được chuyển lỗ vào thu nhập chịu thuế năm sau"
+      - "tối đa 05 năm liên tục kể từ năm tiếp theo năm phát sinh lỗ"
+      - "chuyển toàn bộ và liên tục"
+    provisions:
+      - 67/2025/QH15 Điều 16 khoản 1
+      - 320/2025/NĐ-CP Điều 7 khoản 2
   - id: q41
     question: Cuối năm tôi có thu nhập từ hai công ty khác nhau, vậy có phải tự quyết toán thuế TNCN không?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: >
+      Thường là có: cá nhân cư trú có thu nhập từ tiền lương, tiền công phải quyết toán năm. Không phải quyết
+      toán nếu số thuế phải nộp nhỏ hơn số đã nộp mà không đề nghị hoàn hay bù trừ; phần thu nhập ở nơi thứ hai
+      bình quân tháng không quá 15 triệu đồng đã bị khấu trừ 10% thì không phải quyết toán phần đó, và khi đó
+      có thể ủy quyền cho công ty chính (hợp đồng từ 03 tháng, đang làm việc) quyết toán thay. Nếu tự quyết
+      toán thì hạn nộp hồ sơ là ngày cuối cùng của tháng thứ 04 kể từ khi kết thúc năm.
+    key_facts:
+      - "thu nhập nơi khác bình quân tháng không quá 15 triệu đồng đã khấu trừ 10%: không phải quyết toán phần này"
+      - "được ủy quyền cho tổ chức chi trả (hợp đồng từ 03 tháng, đang làm việc) quyết toán thay"
+      - "số thuế phải nộp nhỏ hơn số đã nộp và không đề nghị hoàn: không phải quyết toán"
+      - "tự quyết toán: hạn ngày cuối cùng của tháng thứ 04 kể từ ngày kết thúc năm dương lịch"
+    provisions:
+      - 253/2026/NĐ-CP Điều 51 khoản 1
+      - 253/2026/NĐ-CP Điều 51 khoản 2
+      - 252/2026/NĐ-CP Điều 10 khoản 5
   - id: q42
     question: Công ty mua máy móc thiết bị để sản xuất thì chi phí khấu hao được tính vào chi phí được trừ như thế nào?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Chi phí khấu hao máy móc, thiết bị được trừ khi trích theo quy định của Bộ trưởng Bộ Tài chính về chế
+      độ quản lý, sử dụng và trích khấu hao tài sản cố định (kể cả khấu hao nhanh nếu kinh doanh có lãi). Không
+      được trừ khấu hao của tài sản không dùng cho sản xuất kinh doanh, không có giấy tờ chứng minh quyền sở
+      hữu (trừ thuê tài chính), không được theo dõi, hạch toán trong sổ kế toán, phần trích vượt mức hoặc tài
+      sản đã khấu hao hết giá trị.
+    key_facts:
+      - "trích khấu hao theo quy định của Bộ trưởng Bộ Tài chính, kể cả khấu hao nhanh nếu kinh doanh có lãi"
+      - "tài sản phải dùng cho sản xuất, kinh doanh và có giấy tờ chứng minh quyền sở hữu"
+      - "tài sản phải được quản lý, theo dõi, hạch toán trong sổ kế toán"
+      - "không trừ phần vượt mức hoặc tài sản đã khấu hao hết giá trị"
+    provisions:
+      - 67/2025/QH15 Điều 9 khoản 2
+      - 320/2025/NĐ-CP Điều 10 khoản 6
   - id: q43
     question: Hộ kinh doanh của tôi có cần lưu sổ sách ghi chép doanh thu và chi phí không, hay chỉ cần giữ hóa đơn?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Không chỉ giữ hóa đơn: hộ kinh doanh có trách nhiệm sử dụng sổ kế toán theo pháp luật kế toán và hướng
+      dẫn của Bộ trưởng Bộ Tài chính, sử dụng hóa đơn theo quy định, và phải cung cấp sổ kế toán, hóa đơn,
+      phần mềm quản lý bán hàng khi cơ quan thuế kiểm tra. Nếu tính thuế TNCN theo thu nhập, chi phí chỉ được
+      trừ khi có đủ hóa đơn, chứng từ.
+    key_facts:
+      - "sử dụng sổ kế toán theo pháp luật kế toán và hướng dẫn của Bộ trưởng Bộ Tài chính"
+      - "cung cấp sổ kế toán, hóa đơn, phần mềm quản lý bán hàng khi cơ quan thuế kiểm tra"
+      - "chi phí được trừ phải có đủ hóa đơn, chứng từ"
+    provisions:
+      - 68/2026/NĐ-CP Điều 13 khoản 5
+      - 68/2026/NĐ-CP Điều 13 khoản 6
+      - 68/2026/NĐ-CP Điều 6 khoản 1
   - id: q44
     question: Công ty nộp thừa tiền thuế GTGT thì có được bù trừ sang kỳ sau không hay phải làm thủ tục hoàn thuế?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: >
+      Được bù trừ hoặc hoàn. Số thuế nộp thừa được bù trừ với số thuế phải nộp (cùng hoặc khác loại thuế),
+      do Hệ thống thông tin quản lý thuế tự động thực hiện hoặc theo đề nghị của doanh nghiệp, hoặc được hoàn
+      trả khi doanh nghiệp không còn nợ thuế. Không hoàn trả nếu doanh nghiệp từ chối nhận lại hoặc quá 10 năm
+      kể từ ngày nộp mà không bù trừ, không đề nghị hoàn.
+    key_facts:
+      - "được bù trừ với số thuế phải nộp hoặc hoàn trả khi không còn nợ thuế"
+      - "bù trừ tự động qua Hệ thống thông tin quản lý thuế hoặc theo đề nghị"
+      - "không hoàn trả nếu quá 10 năm kể từ ngày nộp mà không bù trừ, không đề nghị hoàn"
+    provisions:
+      - 108/2025/QH15 Điều 15 khoản 2
+      - 108/2025/QH15 Điều 15 khoản 4
+      - 89/2026/TT-BTC Điều 42
   - id: q45
     question: Nếu doanh nghiệp khai sai tờ khai thuế nhưng chưa bị cơ quan thuế phát hiện thì có được tự khai bổ sung không?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Được. Doanh nghiệp được khai bổ sung trong 05 năm kể từ ngày hết hạn nộp hồ sơ khai thuế của kỳ có sai,
+      sót, nếu trước khi cơ quan thuế, cơ quan có thẩm quyền công bố quyết định thanh tra, kiểm tra. Nếu khai
+      bổ sung làm tăng số thuế phải nộp thì phải nộp đủ tiền thuế và tiền chậm nộp (0,03%/ngày), nhưng không bị
+      xử phạt nếu đã khai bổ sung và nộp đủ trước khi cơ quan thuế công bố quyết định kiểm tra hoặc phát hiện.
+    key_facts:
+      - "khai bổ sung trong 05 năm kể từ ngày hết hạn nộp hồ sơ của kỳ có sai, sót"
+      - "trước khi công bố quyết định thanh tra, kiểm tra"
+      - "khai bổ sung tăng số thuế: nộp tiền chậm nộp 0,03%/ngày"
+      - "không bị xử phạt nếu nộp đủ trước khi cơ quan thuế công bố quyết định kiểm tra"
+    provisions:
+      - 108/2025/QH15 Điều 12 khoản 5
+      - 108/2025/QH15 Điều 16 khoản 1
+      - 108/2025/QH15 Điều 44 khoản 2
+      - 252/2026/NĐ-CP Điều 12 khoản 1
   - id: q46
     question: Năm 2025 ô tô sản xuất, lắp ráp trong nước được gia hạn nộp thuế tiêu thụ đặc biệt đến khi nào?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: >
+      Các văn bản trong bộ dữ liệu không quy định việc gia hạn nộp thuế tiêu thụ đặc biệt đối với ô tô sản
+      xuất, lắp ráp trong nước năm 2025; nội dung này thuộc nghị định riêng của Chính phủ về gia hạn nộp thuế.
     unanswerable: out_of_scope
   - id: q47
     question: Tôi là người Hàn Quốc làm việc ở Việt Nam, theo hiệp định tránh đánh thuế hai lần giữa Việt Nam và Hàn Quốc thì tiền lương của tôi có được miễn thuế ở Việt Nam không?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: >
+      Các văn bản trong bộ dữ liệu không chứa nội dung Hiệp định tránh đánh thuế hai lần giữa Việt Nam và Hàn
+      Quốc, nên không xác định được tiền lương có được miễn thuế theo hiệp định hay không; cần tra cứu chính
+      văn bản hiệp định đó.
     unanswerable: out_of_scope
-  - id: q48
+  - id: q48  # phase 2: answered by 108/2025/QH15 Art 44 cl 2-3 and Art 45 cl 3-4 (fines for misdeclaring imports that cause a tax shortfall); moved to answerable
     question: Doanh nghiệp nhập khẩu bị hải quan phạt vì khai sai mã HS dẫn đến thiếu thuế thì mức phạt tiền là bao nhiêu?
     tax_type: administration
     form: plain
-    answer: TODO
-    unanswerable: out_of_scope
-  - id: q49
+    answer: >
+      Khai sai dẫn đến thiếu thuế đối với hàng nhập khẩu bị phạt theo tỷ lệ trên số thuế khai thiếu: 20% nếu
+      hải quan phát hiện khi làm thủ tục hoặc khi kiểm tra sau thông quan mà doanh nghiệp tự nguyện nộp đủ số
+      thuế; 10% nếu doanh nghiệp tự phát hiện và khai bổ sung sau khi hải quan thông báo kiểm tra trực tiếp hồ
+      sơ, hoặc sau 60 ngày kể từ ngày thông quan nhưng trước quyết định kiểm tra sau thông quan. Nếu không tự
+      nguyện nộp đủ số thuế thì bị coi là trốn thuế, phạt từ 01 đến 03 lần số thuế trốn. Không bị phạt nếu
+      khai bổ sung trước khi hải quan thông báo kiểm tra trực tiếp hồ sơ, hoặc trong 60 ngày kể từ ngày thông
+      quan và trước quyết định kiểm tra.
+    key_facts:
+      - "hải quan phát hiện, doanh nghiệp tự nguyện nộp đủ thuế: phạt 20% số thuế khai thiếu"
+      - "tự khai bổ sung sau thông báo kiểm tra hồ sơ hoặc sau 60 ngày kể từ thông quan: phạt 10%"
+      - "không tự nguyện nộp đủ thuế: trốn thuế, phạt 01 đến 03 lần số thuế trốn"
+      - "khai bổ sung trong 60 ngày kể từ thông quan, trước quyết định kiểm tra: không bị phạt"
+    provisions:
+      - 108/2025/QH15 Điều 44 khoản 2
+      - 108/2025/QH15 Điều 44 khoản 3
+      - 108/2025/QH15 Điều 45 khoản 3
+      - 108/2025/QH15 Điều 45 khoản 4
+  - id: q49  # phase 2: answered in part by 108/2025/QH15 Art 45 cl 4 point c and Art 44 cl 3: not issuing an invoice and not declaring is tax evasion, 1-3 times the tax evaded; the fine for a procedural invoice breach alone is not in the corpus; moved to answerable
     question: Hộ kinh doanh bị cơ quan thuế phát hiện bán hàng không xuất hóa đơn thì bị phạt bao nhiêu tiền?
     tax_type: household
     form: plain
-    answer: TODO
-    unanswerable: out_of_scope
+    answer: >
+      Nếu bán hàng không lập hóa đơn và không kê khai thuế thì là hành vi trốn thuế, bị phạt từ 01 đến 03 lần
+      số thuế trốn (mức phạt không phân biệt tổ chức hay cá nhân), ngoài việc nộp đủ số thuế. Nếu chỉ không lập
+      hóa đơn nhưng vẫn kê khai đủ doanh thu thì là vi phạm thủ tục hóa đơn; mức phạt tiền cụ thể cho hành vi
+      này không có trong các văn bản của bộ dữ liệu.
+    key_facts:
+      - "không lập hóa đơn và không kê khai thuế khi bán hàng là hành vi trốn thuế"
+      - "phạt từ 01 đến 03 lần số thuế trốn"
+      - "mức phạt trốn thuế không phân biệt tổ chức và cá nhân"
+    provisions:
+      - 108/2025/QH15 Điều 45 khoản 4
+      - 108/2025/QH15 Điều 44 khoản 3
+      - 108/2025/QH15 Điều 44 khoản 4
   - id: q50
     question: Hộ kinh doanh ở Lào Cai mua hàng của cư dân biên giới Trung Quốc qua cửa khẩu thì được miễn thuế trong định mức bao nhiêu một ngày?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Các văn bản trong bộ dữ liệu không quy định định mức miễn thuế cho hàng hóa mua bán, trao đổi của cư dân
+      biên giới; định mức này thuộc pháp luật về thuế xuất khẩu, thuế nhập khẩu.
     unanswerable: out_of_scope
   - id: q51
     question: Tiền thuế tiêu thụ đặc biệt thu được thì địa phương được giữ lại bao nhiêu phần trăm, còn lại nộp về trung ương?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: >
+      Các văn bản trong bộ dữ liệu không quy định tỷ lệ phân chia tiền thuế tiêu thụ đặc biệt giữa ngân sách
+      địa phương và trung ương; nội dung này thuộc pháp luật về ngân sách nhà nước.
     unanswerable: out_of_scope
   - id: q52
     question: Tập đoàn mẹ ở Nhật có doanh thu hợp nhất trên 750 triệu euro, vậy công ty con ở Việt Nam có phải nộp thuế bổ sung theo quy định thuế tối thiểu toàn cầu không?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Các văn bản trong bộ dữ liệu không quy định nghĩa vụ nộp thuế thu nhập doanh nghiệp bổ sung theo quy
+      định thuế tối thiểu toàn cầu; nội dung này thuộc Nghị quyết 107/2023/QH15 và các văn bản hướng dẫn, không
+      có trong bộ dữ liệu.
     unanswerable: out_of_scope
   - id: q53
     question: Tôi có một căn hộ cho thuê ở Melbourne, bên Úc đánh thuế thu nhập từ tiền cho thuê nhà bao nhiêu phần trăm?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: >
+      Các văn bản trong bộ dữ liệu chỉ gồm luật thuế Việt Nam, không có quy định về thuế thu nhập từ cho thuê
+      nhà của Úc.
     unanswerable: out_of_scope
-  - id: q54  # repealed is unverified: step 2 confirms it against the corpus or moves the question
+  - id: q54  # phase 2: repealed confirmed, as q11: the lump-sum method ended on 01/01/2026 (Decree 68/2026 Art 17 cl 5; Law 149/2025 Art 1 cl 3)
     question: Nếu thấy mức thuế khoán chi cục thuế áp cho tiệm mình cao quá thì khiếu nại thế nào?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Phương pháp khoán thuế không còn áp dụng từ ngày 01/01/2026: hộ kinh doanh tự kê khai hoặc thông báo
+      doanh thu, nên không còn mức thuế khoán do cơ quan thuế ấn định để khiếu nại.
     unanswerable: repealed
   - id: q55
     question: Thuế thu nhập doanh nghiệp tạm nộp theo quý thì hạn nộp tiền là ngày nào?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Thuế TNDN tạm nộp theo quý phải nộp chậm nhất là ngày cuối cùng của tháng đầu của quý tiếp theo quý phát
+      sinh nghĩa vụ thuế.
+    key_facts:
+      - "ngày cuối cùng của tháng đầu của quý tiếp theo"
+    provisions:
+      - 252/2026/NĐ-CP Điều 24
   - id: q56
     question: Hộ kinh doanh doanh thu trên 1 tỷ một năm thì có phải giữ sổ sách kế toán như doanh nghiệp không?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Các văn bản không yêu cầu hộ kinh doanh áp dụng chế độ kế toán như doanh nghiệp. Hộ kinh doanh, ở mọi mức
+      doanh thu, phải sử dụng sổ kế toán theo pháp luật kế toán và hướng dẫn của Bộ trưởng Bộ Tài chính; chế độ
+      kế toán áp dụng cho hộ kinh doanh do Bộ trưởng Bộ Tài chính quy định. Với doanh thu trên 01 tỷ đồng, hộ
+      còn phải dùng hóa đơn điện tử.
+    key_facts:
+      - "sử dụng sổ kế toán theo pháp luật kế toán và hướng dẫn của Bộ trưởng Bộ Tài chính"
+      - "chế độ kế toán của hộ kinh doanh do Bộ trưởng Bộ Tài chính quy định"
+      - "doanh thu năm trên 01 tỷ đồng phải dùng hóa đơn điện tử"
+    provisions:
+      - 68/2026/NĐ-CP Điều 13 khoản 5
+      - 108/2025/QH15 Điều 13
+      - 68/2026/NĐ-CP Điều 8 khoản 5
+      - 141/2026/NĐ-CP Điều 1
   - id: q57
     question: Kế toán hạch toán tiền thuế GTGT đầu vào được khấu trừ thì ghi Nợ tài khoản nào, Có tài khoản nào?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: >
+      Các văn bản trong bộ dữ liệu là văn bản về thuế, không quy định cách hạch toán kế toán (tài khoản ghi Nợ,
+      ghi Có); nội dung này thuộc chế độ kế toán doanh nghiệp do Bộ Tài chính ban hành.
     unanswerable: out_of_scope
   - id: q58
     question: Năm 2025 cả nước thu được tổng cộng bao nhiêu tiền thuế giá trị gia tăng?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: >
+      Các văn bản trong bộ dữ liệu là văn bản pháp luật, không có số liệu thống kê thu ngân sách; số thu thuế
+      GTGT năm 2025 cần tra cứu báo cáo thu ngân sách nhà nước.
     unanswerable: out_of_scope
 
 conversations:
@@ -303,74 +823,252 @@ conversations:
       - question: Công ty trả lương cho nhân viên thì phải khấu trừ thuế thu nhập cá nhân hằng tháng phải không?
         tax_type: pit
         form: plain
-        answer: TODO
+        answer: >
+          Đúng. Với người lao động ký hợp đồng từ 03 tháng trở lên, công ty khấu trừ thuế TNCN khi trả thu nhập,
+          căn cứ thu nhập tính thuế tháng và biểu thuế lũy tiến từng phần.
+        key_facts:
+          - "hợp đồng lao động từ 03 tháng trở lên: khấu trừ theo biểu thuế lũy tiến từng phần"
+          - "căn cứ thu nhập tính thuế tháng"
+        provisions:
+          - 253/2026/NĐ-CP Điều 50 khoản 1
+          - 253/2026/NĐ-CP Điều 50 khoản 2
       - question: Còn trả cho cộng tác viên làm thời vụ, không ký hợp đồng lao động thì khấu trừ bao nhiêu?
         tax_type: pit
         form: plain
-        answer: TODO
+        answer: >
+          Trả cho cá nhân cư trú không ký hợp đồng (hoặc hợp đồng dưới 03 tháng) từ 05 triệu đồng/lần trở lên thì
+          khấu trừ 10% trên thu nhập trước khi trả; dưới 05 triệu đồng/lần thì chỉ khấu trừ 10% khi cá nhân yêu
+          cầu. Nếu cá nhân chỉ có thu nhập này và ước tính chưa đến mức chịu thuế sau giảm trừ gia cảnh thì làm cam
+          kết để công ty tạm thời không khấu trừ.
+        key_facts:
+          - "từ 05 triệu đồng/lần trở lên: khấu trừ 10%"
+          - "dưới 05 triệu đồng/lần: khấu trừ 10% khi cá nhân yêu cầu"
+          - "cá nhân chưa đến mức chịu thuế làm cam kết để tạm không khấu trừ"
+        provisions:
+          - 253/2026/NĐ-CP Điều 50 khoản 2
       - question: Nếu công ty quên không khấu trừ khoản đó thì bị xử lý thế nào?
         tax_type: administration
         form: plain
-        answer: TODO
+        answer: >
+          Tổ chức có trách nhiệm khấu trừ mà nộp không đầy đủ, không đúng thời hạn thì phải nộp tiền chậm nộp
+          thay cho người nộp thuế, mức 0,03%/ngày trên số tiền chậm nộp. Cá nhân nhận thu nhập chưa bị khấu trừ thì
+          phải tự kê khai, nộp thuế.
+        key_facts:
+          - "tổ chức khấu trừ nộp thiếu, chậm phải nộp tiền chậm nộp thay người nộp thuế"
+          - "tiền chậm nộp 0,03%/ngày"
+          - "cá nhân chưa bị khấu trừ phải tự kê khai, nộp thuế"
+        provisions:
+          - 108/2025/QH15 Điều 16 khoản 1
+          - 108/2025/QH15 Điều 16 khoản 2
+          - 253/2026/NĐ-CP Điều 67 khoản 5
   - id: c02
     turns:
       - question: Hộ kinh doanh bán tạp hóa doanh thu khoảng 800 triệu một năm thì nộp thuế GTGT theo tỷ lệ bao nhiêu?
         tax_type: household
         form: plain
-        answer: TODO
+        answer: >
+          Doanh thu 800 triệu đồng/năm (từ 01 tỷ đồng trở xuống) thì hộ kinh doanh không chịu thuế GTGT, chỉ thông
+          báo doanh thu thực tế với cơ quan thuế chậm nhất ngày 31/01 năm sau. Nếu doanh thu năm trên 01 tỷ đồng,
+          hoạt động phân phối, cung cấp hàng hóa như bán tạp hóa tính thuế GTGT theo tỷ lệ 1% trên doanh thu.
+        key_facts:
+          - "doanh thu năm từ 01 tỷ đồng trở xuống: không chịu thuế GTGT"
+          - "thông báo doanh thu thực tế chậm nhất ngày 31 tháng 01 năm sau"
+          - "trên 01 tỷ đồng: phân phối, cung cấp hàng hóa 1%"
+        provisions:
+          - 68/2026/NĐ-CP Điều 3
+          - 68/2026/NĐ-CP Điều 8 khoản 1
+          - 141/2026/NĐ-CP Điều 1
+          - 48/2024/QH15 Điều 12
+          - 149/2025/QH15 Điều 1
       - question: Nếu chuyển sang bán đồ ăn uống thì tỷ lệ có khác không?
         tax_type: household
         form: plain
-        answer: TODO
+        answer: >
+          Với doanh thu 800 triệu đồng/năm thì không khác: vẫn không chịu thuế GTGT, bất kể ngành nghề. Chỉ khi doanh
+          thu trên 01 tỷ đồng, tỷ lệ mới theo nhóm hoạt động: phân phối hàng hóa 1%; sản xuất, vận tải, dịch vụ có
+          gắn với hàng hóa 3%; dịch vụ 5%; hoạt động khác 2%. Nhóm cụ thể của dịch vụ ăn uống nằm ở Phụ lục I Thông
+          tư 69/2025/TT-BTC, không có trong văn bản của bộ dữ liệu.
+        key_facts:
+          - "doanh thu năm từ 01 tỷ đồng trở xuống: không chịu thuế GTGT ở mọi ngành nghề"
+          - "sản xuất, vận tải, dịch vụ có gắn với hàng hóa: 3%"
+          - "dịch vụ: 5%"
+          - "hoạt động kinh doanh khác: 2%"
+        provisions:
+          - 68/2026/NĐ-CP Điều 3
+          - 141/2026/NĐ-CP Điều 1
+          - 48/2024/QH15 Điều 12
+          - 149/2025/QH15 Điều 1
+          - 69/2025/TT-BTC Điều 5
   - id: c03
     turns:
       - question: Điều 10 Luật 67/2025 quy định thuế suất thuế thu nhập doanh nghiệp phổ thông là bao nhiêu?
         tax_type: cit
         form: reference
-        answer: TODO
+        answer: >
+          Thuế suất thuế TNDN phổ thông là 20%, trừ doanh nghiệp có tổng doanh thu năm không quá 03 tỷ đồng (15%),
+          từ trên 03 tỷ đến không quá 50 tỷ đồng (17%) và các trường hợp riêng hoặc được ưu đãi.
+        key_facts:
+          - "thuế suất phổ thông 20%"
+          - "doanh thu năm không quá 03 tỷ đồng: 15%"
+          - "trên 03 tỷ đến không quá 50 tỷ đồng: 17%"
+        provisions:
+          - 67/2025/QH15 Điều 10
+      # phase 2: Arts 12 and 13 of 67/2025 have outside-corpus amendments (Law 133/2025 Art 25 cl 7: Art 12 cl 2 points a, e; Art 13 cl 1a, 4d, 7); the 10% rate in Art 13 cl 1 and the area in Art 12 cl 3 are not among them
       - question: Còn dự án đầu tư vào địa bàn kinh tế - xã hội đặc biệt khó khăn thì được áp thuế suất ưu đãi bao nhiêu?
         tax_type: cit
         form: plain
-        answer: TODO
+        answer: >
+          Thu nhập từ dự án đầu tư mới tại địa bàn có điều kiện kinh tế - xã hội đặc biệt khó khăn được áp dụng
+          thuế suất ưu đãi 10%.
+        key_facts:
+          - "thuế suất ưu đãi 10%"
+          - "áp dụng cho dự án đầu tư mới tại địa bàn đặc biệt khó khăn"
+        provisions:
+          - 67/2025/QH15 Điều 13 khoản 1
+          - 67/2025/QH15 Điều 12 khoản 3
+      # phase 2: Art 13 of 67/2025 has outside-corpus amendments, including cl 7 (start of the incentive period, Law 133/2025 Art 25 cl 7); the 15 years (cl 1) is untouched, the start year may differ in the law in force; owner to verify
       - question: Thuế suất ưu đãi đó được áp dụng trong bao nhiêu năm?
         tax_type: cit
         form: plain
-        answer: TODO
+        answer: >
+          Thuế suất 10% được áp dụng trong 15 năm, tính từ năm đầu tiên dự án đầu tư mới có doanh thu.
+        key_facts:
+          - "15 năm"
+          - "tính từ năm đầu tiên dự án đầu tư mới có doanh thu"
+        provisions:
+          - 67/2025/QH15 Điều 13
   - id: c04
     turns:
+      # phase 2: 48/2024 Art 15 cl 9 is listed with 149/2025 Art 1, which repeals its point c; the answer uses points a and b
       - question: Doanh nghiệp xuất khẩu được hoàn thuế giá trị gia tăng trong trường hợp nào?
         tax_type: vat
         form: plain
-        answer: TODO
+        answer: >
+          Doanh nghiệp trong tháng, quý có hàng hóa, dịch vụ xuất khẩu, nếu số thuế GTGT đầu vào chưa được khấu trừ
+          hết từ 300 triệu đồng trở lên thì được hoàn theo tháng, quý; không áp dụng với hàng nhập khẩu rồi xuất
+          khẩu sang nước khác. Số thuế được hoàn không vượt quá 10% doanh thu hàng xuất khẩu của kỳ hoàn thuế, phần
+          vượt được khấu trừ sang kỳ sau. Doanh nghiệp phải nộp thuế theo phương pháp khấu trừ.
+        key_facts:
+          - "thuế GTGT đầu vào chưa khấu trừ hết từ 300 triệu đồng trở lên"
+          - "không vượt quá 10% doanh thu hàng hóa, dịch vụ xuất khẩu của kỳ hoàn thuế"
+          - "không hoàn với hàng nhập khẩu sau đó xuất khẩu sang nước khác"
+          - "phải là cơ sở kinh doanh nộp thuế theo phương pháp khấu trừ"
+        provisions:
+          - 48/2024/QH15 Điều 15 khoản 1
+          - 48/2024/QH15 Điều 15 khoản 9
+          - 149/2025/QH15 Điều 1
+          - 181/2025/NĐ-CP Điều 29
       - question: Hồ sơ đề nghị hoàn nộp ở đâu và bao lâu thì được giải quyết?
         tax_type: administration
         form: plain
-        answer: TODO
+        answer: >
+          Hồ sơ hoàn thuế GTGT nộp cho cơ quan thuế quản lý trực tiếp (riêng dự án đầu tư là nơi nhận hồ sơ khai
+          thuế của dự án). Cơ quan thuế thông báo tiếp nhận trong 03 ngày làm việc. Hồ sơ hoàn trước được giải
+          quyết chậm nhất 06 ngày làm việc kể từ ngày thông báo tiếp nhận; hồ sơ kiểm tra trước hoàn thuế chậm nhất
+          10 ngày làm việc kể từ ngày có kết luận hoặc quyết định xử lý sau kiểm tra tại trụ sở.
+        key_facts:
+          - "nộp tại cơ quan thuế quản lý trực tiếp"
+          - "thông báo tiếp nhận trong 03 ngày làm việc"
+          - "hoàn trước: chậm nhất 06 ngày làm việc kể từ thông báo tiếp nhận"
+          - "kiểm tra trước hoàn: chậm nhất 10 ngày làm việc kể từ kết luận kiểm tra"
+        provisions:
+          - 89/2026/TT-BTC Điều 45 khoản 2
+          - 252/2026/NĐ-CP Điều 31 khoản 1
+          - 252/2026/NĐ-CP Điều 31 khoản 2
+          - 108/2025/QH15 Điều 18
   - id: c05
     turns:
       - question: Tôi là người nước ngoài, hết hợp đồng về nước giữa năm thì có phải quyết toán thuế thu nhập cá nhân trước khi đi không?
         tax_type: pit
         form: plain
-        answer: TODO
+        answer: >
+          Nếu bạn là cá nhân cư trú thì phải quyết toán thuế với cơ quan thuế trước khi xuất cảnh, hoặc ủy quyền
+          cho tổ chức, cá nhân khác quyết toán thay. Nếu là cá nhân không cư trú thì thuế 20% được khấu trừ theo
+          từng lần trả thu nhập (kỳ tính thuế theo từng lần phát sinh), không có quyết toán năm.
+        key_facts:
+          - "cá nhân cư trú người nước ngoài kết thúc hợp đồng phải quyết toán trước khi xuất cảnh"
+          - "được ủy quyền cho tổ chức, cá nhân khác quyết toán"
+          - "cá nhân không cư trú: kỳ tính thuế theo từng lần phát sinh, thuế suất 20%"
+        provisions:
+          - 253/2026/NĐ-CP Điều 50 khoản 3
+          - 253/2026/NĐ-CP Điều 66 khoản 2
+          - 253/2026/NĐ-CP Điều 64 khoản 1
       - question: Hạn chót nộp hồ sơ đó là khi nào?
         tax_type: administration
         form: plain
-        answer: TODO
+        answer: >
+          Hồ sơ quyết toán phải nộp trước khi xuất cảnh, nhưng không quá 45 ngày kể từ ngày kết thúc hợp đồng lao
+          động.
+        key_facts:
+          - "trước khi xuất cảnh"
+          - "không quá 45 ngày kể từ ngày kết thúc hợp đồng lao động"
+        provisions:
+          - 252/2026/NĐ-CP Điều 10 khoản 5
       - question: Nếu nộp trễ thì có bị phạt không?
         tax_type: administration
         form: plain
-        answer: TODO
+        answer: >
+          Có thể. Nếu quyết toán chậm mà có số thuế được hoàn thì không bị xử phạt. Nếu nộp tiền thuế trễ thì phải
+          nộp tiền chậm nộp 0,03%/ngày. Nộp hồ sơ sau 90 ngày kể từ hết hạn mà dẫn đến thiếu thuế là hành vi trốn
+          thuế (phạt 01 đến 03 lần số thuế trốn), trừ khi đã nộp đủ thuế và tiền chậm nộp trước khi cơ quan thuế
+          công bố quyết định kiểm tra hoặc lập biên bản, khi đó chỉ bị phạt về thủ tục. Mức phạt tiền cụ thể cho vi
+          phạm thủ tục không có trong các văn bản của bộ dữ liệu.
+        key_facts:
+          - "quyết toán chậm mà có số thuế được hoàn: không bị xử phạt"
+          - "tiền chậm nộp 0,03%/ngày trên số thuế nộp chậm"
+          - "nộp hồ sơ sau 90 ngày dẫn đến thiếu thuế: trốn thuế, phạt 01 đến 03 lần số thuế trốn"
+          - "đã nộp đủ thuế và tiền chậm nộp trước khi cơ quan thuế công bố quyết định kiểm tra: chỉ phạt thủ tục"
+        provisions:
+          - 108/2025/QH15 Điều 44 khoản 2
+          - 108/2025/QH15 Điều 44 khoản 3
+          - 108/2025/QH15 Điều 45 khoản 4
+          - 108/2025/QH15 Điều 16 khoản 2
   - id: c06
     turns:
       - question: Nhập khẩu rượu vang về bán thì thuế tiêu thụ đặc biệt tính trên giá nào?
         tax_type: sct
         form: plain
-        answer: TODO
+        answer: >
+          Ở khâu nhập khẩu, giá tính thuế TTĐB là trị giá tính thuế nhập khẩu cộng thuế nhập khẩu (và thuế nhập
+          khẩu bổ sung nếu có), không gồm số thuế nhập khẩu được miễn, giảm. Khi bán ra trong nước, giá tính thuế
+          là giá bán chưa có thuế GTGT (trừ thuế bảo vệ môi trường nếu có) chia cho (1 + thuế suất TTĐB).
+        key_facts:
+          - "khâu nhập khẩu: trị giá tính thuế nhập khẩu + thuế nhập khẩu (+ thuế nhập khẩu bổ sung)"
+          - "không gồm thuế nhập khẩu được miễn, giảm"
+          - "khâu bán ra: giá bán chưa có thuế GTGT chia (1 + thuế suất TTĐB)"
+        provisions:
+          - 66/2025/QH15 Điều 6 khoản 1
+          - 360/2025/NĐ-CP Điều 5 khoản 1
       - question: Khi bán lại cho đại lý trong nước thì có phải nộp thuế tiêu thụ đặc biệt lần nữa không?
         tax_type: sct
         form: plain
-        answer: TODO
+        answer: >
+          Doanh nghiệp nhập khẩu tính thuế TTĐB trên giá bán ra trong nước nhưng được khấu trừ số thuế TTĐB đã nộp ở
+          khâu nhập khẩu tương ứng với số hàng bán ra, tối đa bằng số thuế tính ở khâu bán ra, nên không chịu thuế
+          hai lần. Đại lý không phải người nộp thuế TTĐB khi bán lại. Nếu bán qua đại lý bán đúng giá hưởng hoa
+          hồng, giá làm căn cứ tính thuế là giá do doanh nghiệp nhập khẩu quy định, chưa trừ hoa hồng.
+        key_facts:
+          - "được khấu trừ số thuế TTĐB đã nộp ở khâu nhập khẩu khi tính thuế ở khâu bán ra"
+          - "khấu trừ tối đa bằng số thuế TTĐB tính ở khâu bán ra trong nước"
+          - "người nộp thuế TTĐB là tổ chức, cá nhân sản xuất, gia công, nhập khẩu"
+          - "đại lý bán đúng giá hưởng hoa hồng: giá tính theo giá do bên nhập khẩu quy định, chưa trừ hoa hồng"
+        provisions:
+          - 66/2025/QH15 Điều 4
+          - 66/2025/QH15 Điều 9 khoản 3
+          - 360/2025/NĐ-CP Điều 8 khoản 4
+          - 360/2025/NĐ-CP Điều 5 khoản 1
+      # phase 2: Law 90/2025 amends point a cl 1 Art 9 of 48/2024 from outside the corpus; the answer uses cl 3 (10%), which that amendment does not touch
       - question: Còn thuế GTGT khi bán cho đại lý thì sao?
         tax_type: vat
         form: plain
-        answer: TODO
+        answer: >
+          Khi bán cho đại lý, doanh nghiệp tính thuế GTGT thuế suất 10% trên giá bán đã có thuế TTĐB nhưng chưa có
+          thuế GTGT, và được khấu trừ thuế GTGT đầu vào đã nộp ở khâu nhập khẩu.
+        key_facts:
+          - "thuế suất GTGT 10%"
+          - "giá tính thuế GTGT là giá bán đã có thuế TTĐB, chưa có thuế GTGT"
+          - "được khấu trừ thuế GTGT đã nộp ở khâu nhập khẩu"
+        provisions:
+          - 48/2024/QH15 Điều 7 khoản 1
+          - 48/2024/QH15 Điều 9 khoản 3
+          - 48/2024/QH15 Điều 11 khoản 1
