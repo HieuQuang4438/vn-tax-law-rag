@@ -48,7 +48,8 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   --out <folder>` builds a variant index from the shared vector cache, and the retriever
   tokenizes questions like the index; `python -m src.eval.run --index` scores a variant, and
   `--compare` reports a paired bootstrap interval of each retrieval change. The segmenters are in
-  `requirements-experiments.txt`. ADR-0002, #10.
+  `requirements-experiments.txt`. Measured on eval set v1, neither segmenter beats syllable
+  tokens on recall@8 (paired intervals include 0), so `syllable` stays. ADR-0002, #10.
 
 ### Changed
 

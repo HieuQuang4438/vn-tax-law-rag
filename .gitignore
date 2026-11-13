@@ -28,8 +28,9 @@ data/raw/
 data/processed/
 data/chunks/
 data/enriched/
-# Built from data/enriched/ by python -m src.index.
+# Built from data/enriched/ by python -m src.index; variants from --out (#10).
 data/index/
+data/index-*/
 
 # OS and editor
 .DS_Store
