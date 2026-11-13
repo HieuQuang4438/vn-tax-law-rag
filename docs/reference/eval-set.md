@@ -63,9 +63,9 @@ The figures in this example show the shape only; they are not checked answers.
 
 | Field | Required | Value |
 |---|---|---|
-| `id` | questions only | unique across the file; a turn's id is `<conversation id>.<n>`, from 1 |
+| `id` | questions only | unique across the file, and never reused: a removed question leaves its id unused, a new one takes the id after the highest ever used; a turn's id is `<conversation id>.<n>`, from 1 |
 | `question` | yes | the question as a user would ask it |
-| `tax_type` | yes | `administration`, `vat`, `pit`, `cit`, `sct` or `household` |
+| `tax_type` | yes | `administration`, `vat`, `pit`, `cit`, `sct` or `household`: the tax the question is actually about, for an unanswerable question too, so a question about another levy or fee has no tag and is not in the set (approved on #7) |
 | `form` | yes | `plain` for plain language, `reference` when the question names a provision or a document number ("Điều 9 Luật 48/2024") |
 | `answer` | yes | the expected answer, in a sentence or a short paragraph (approved on #7); for an unanswerable question, what the not-found reply should say. A paragraph is written as a YAML block (`answer: >` followed by indented lines). What EVAL-006 scores is `key_facts`, not this wording |
 | `key_facts` | answerable only | 1–4 short facts that can each be checked: a figure, a rate, a condition, a deadline. An answer is correct when it states every one and contradicts none (EVAL-006) |
@@ -159,6 +159,10 @@ How the set is made, approved on #7, so that its questions are not shaped by the
    *Documents* tables in [corpus.md](corpus.md), the tax types and this page: no document text,
    nothing under `data/`, no source page, no code. `answer` is left as `TODO`. Its output is
    committed as it is.
+   **Question review.** Another model reviews the questions, given only the set file,
+   `corpus.md` and this page. The owner chooses which findings to accept, and the step 1
+   session applies them under the same reading limits. Questions the reviewer wrote are named
+   in the table below.
 2. **Answers.** Another new session reads the corpus in `data/enriched/` and fills in `answer`,
    `key_facts` and `provisions` until the checker reports no errors. It does not reword a
    question; it may move a question between answerable and unanswerable when the corpus
@@ -168,9 +172,9 @@ How the set is made, approved on #7, so that its questions are not shaped by the
    unanswerable question against the corpus.
 4. **Cold read**, below.
 
-| Set version | Step 1 | Step 2 | Review |
-|---|---|---|---|
-| 1 | Claude Opus 5.5, 2026-11-12 | not run yet | not done yet |
+| Set version | Step 1 | Question review | Step 2 | Review |
+|---|---|---|---|---|
+| 1 | Claude Opus 5.5, 2026-11-12; review applied 2026-11-13 | ChatGPT (model not shown in its interface), 2026-11-13; all findings accepted; q41–q45 written by it | not run yet | not done yet |
 
 Each row records the model and the date of each step once it has run.
 
