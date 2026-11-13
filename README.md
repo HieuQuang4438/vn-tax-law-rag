@@ -44,11 +44,11 @@ flowchart LR
         aug -.-> llm[LLM answers from<br/>context only]
         llm -.-> out[Answer with citations,<br/>or not found]
     end
-    vec -.-> hyb
-    kw -.-> hyb
+    vec --> hyb
+    kw --> hyb
 
     classDef planned stroke-dasharray: 5 5
-    class q,rw,ref,hyb,aug,llm,out planned
+    class q,rw,aug,llm,out planned
 ```
 
 Why it is built this way: chunking in [ADR-0001](docs/adr/0001-chunk-by-legal-structure.md),
@@ -65,8 +65,8 @@ All project documents: [docs/README.md](docs/README.md).
    so each retrieved unit is something a citation can point to; each chunk then gets a context
    header naming its document, chapter, article and clause.
 3. **Retrieve** — hybrid keyword + embedding search, because users ask both in prose and by
-   document number. Both indexes are built (`python -m src.index`); searching them is
-   *not built yet.*
+   document number, and explicit references ("Điều 9 Luật 48/2024") are looked up directly.
+   Built: `src.retrieval`, 0.45 s per question (median) on CPU.
 4. **Answer** — an LLM answers only from the retrieved articles and cites them. *Not built yet.*
 5. **Evaluate** — a hand-written question set with expected answers, key facts and articles,
    scored on retrieval and on the answers. The set's format and its checker
@@ -127,5 +127,5 @@ bm25s. LLM not chosen yet.
 Early. The crawler fetches all 30 listed documents; every one has an unbroken run of articles
 from Điều 1 to its last article. Chunking (744 articles, 1,923 chunks), the context header,
 each chunk's effective date, the amendment links between documents (175) and both indexes
-over the chunks (vector and BM25) are built; retrieval, the agent and evaluation do not exist
-yet.
+over the chunks (vector and BM25), reference lookup and hybrid retrieval, and eval set v1 are
+built; the agent and the eval runner do not exist yet.

@@ -113,7 +113,7 @@ local cache, with no network request. Format in [index.md](../reference/index.md
 ## Online: from a question to a cited answer
 
 Runs per question. The three letters of RAG map onto it as: retrieve (steps 1–3),
-augment (step 4), generate (steps 5–6). All steps are planned.
+augment (step 4), generate (steps 5–6). Steps 2 and 3 are built; the others are planned.
 
 ```mermaid
 flowchart LR
@@ -134,7 +134,7 @@ flowchart LR
     ans --> hist
 
     classDef planned stroke-dasharray: 5 5
-    class s1,s2,s3,s4,s5,s6 planned
+    class s1,s4,s5,s6 planned
 ```
 
 ### 1. Follow-up rewrite — planned
@@ -144,17 +144,22 @@ topic of its own, so before retrieval it is turned into a standalone question us
 turns. Whether an LLM does the rewrite, or the earlier question is simply added to the search,
 is decided by measurement. — FR-CORE-016
 
-### 2. Reference lookup — planned
+### 2. Reference lookup — built
 
-A question that names a provision — "Điều 9 Luật 48/2024" — is caught by a pattern and that
-article is fetched straight from chunk metadata. Keyword search is poor at this: "Điều 9"
-occurs in hundreds of chunks. — FR-CORE-007
+A question that names a provision — "Điều 9 Luật 48/2024", "khoản 2 Điều 9 Luật Thuế GTGT" —
+is caught by a pattern and that article is fetched straight from chunk metadata; it takes the
+first of the 8 slots. Keyword search is poor at this: "Điều 9" occurs in hundreds of chunks. A
+document named without an article ("Nghị định 68/2026 quy định gì …") lifts that document's
+chunks in the ranking without hiding the others. A reference to a document outside the corpus
+is reported, so the answer can say so. Forms and rules in
+[retrieval.md](../reference/retrieval.md). — FR-CORE-007
 
-### 3. Hybrid retrieval — planned
+### 3. Hybrid retrieval — built
 
 The question goes to both indexes. Their result lists are merged by rank — reciprocal rank
 fusion — because their raw scores are on different scales, and the top 8 are kept. There is no
-reranker in the first version: a cross-encoder took about 20 s per question on CPU.
+reranker in the first version: a cross-encoder took about 20 s per question on CPU. Retrieval
+takes 0.45 s per question (median) on the dev laptop, most of it embedding the question.
 — FR-CORE-008, [ADR-0002](../adr/0002-hybrid-retrieval-without-rerank.md)
 
 ### 4. Context assembly — planned

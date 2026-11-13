@@ -127,7 +127,7 @@ A `Reference` holds the reference as written: `text` is the span of the question
 | Case | Outcome |
 |---|---|
 | the number matches no document | unresolved, `unknown_document` |
-| a partial number matches more than one document | unresolved, `ambiguous` |
+| a partial number matches more than one document of the kind written (of any kind, when no kind word is written) | unresolved, `ambiguous` |
 | the kind word contradicts the document's type ("Thông tư 68/2026", a decree) | unresolved, `kind_mismatch` |
 | the article is not in the document | unresolved, `no_article` |
 | an article bound to no document | unresolved, `no_document` |
@@ -145,8 +145,11 @@ Three ranked lists of chunk ids, each at most `CANDIDATES` (50) long:
   Tokens not in the vocabulary are dropped. Chunks scoring 0 are not in the list. Equal scores
   keep `chunks.jsonl` order. The full `so_hieu` of each document referenced without an article
   is added to the tokens: a user writes `68/2026`, the index holds the token `68/2026/nđ-cp`.
-- **Vector list.** The question embedded by the same model as the chunks, matched by cosine
-  distance in the Chroma collection.
+- **Vector list.** The question embedded by the same model as the chunks, compared by cosine
+  similarity with every chunk's vector. The vectors are read from the Chroma collection once,
+  at load, and the comparison is exact over all chunks rather than through Chroma's approximate
+  search: at 1,923 chunks it takes under a millisecond, equal scores keep `chunks.jsonl` order,
+  and the Chroma files are not held open while the retriever lives.
 - **Document list.** Only when the question references a document without an article. Every
   chunk of the documents so referenced, ranked by `rrf` of their keyword rank and vector rank
   among those chunks alone. Chunks from other documents can still win over them, so a wrong
@@ -190,3 +193,14 @@ corpus test checks it two ways:
 **AC-012.** The median `retrieve` time over every question and conversation turn of the eval
 set is under 2 s on the dev laptop, with the model loaded beforehand and no network. The test
 prints the median and the 95th percentile, and both are recorded here with the machine.
+
+## Measured
+
+On the dev laptop (i7-10610U, 16 GB RAM, CPU only; torch 2.15.0+cpu, sentence-transformers
+6.3.0), eval set v1, the index of 1,923 chunks, the code that closes #8, 2026-11-13:
+
+- **AC-012.** 66 questions and turns, one warm-up call not timed: median 0.448 s, 95th
+  percentile 0.775 s. Nearly all of it is embedding the question.
+- **AC-007.** 13 items have `form: reference`. 4 name an article of a corpus document by number,
+  and all 4 articles are retrieved. The other 9 name a document without an article and get a
+  document list. No reference in an answerable item is unresolved.

@@ -33,6 +33,12 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   conversations, in `eval/questions.yaml`; questions drafted without reading the corpus, answers
   from the corpus, reviewed by the owner and cold-read (`eval-set.md`, *Provenance*). FR-CORE-015,
   EVAL-001–EVAL-008.
+- Reference lookup and hybrid retrieval: `src.retrieval` finds explicit references (document
+  numbers, base-law names, article and clause) and gives each named article the first slots,
+  then fills the top 8 by reciprocal rank fusion of BM25 and bge-m3 results; a document named
+  without an article lifts its chunks, and an unresolved reference is reported with its reason.
+  Median 0.45 s per question on the dev laptop. FR-CORE-007, FR-CORE-008, NFR-002, AC-007,
+  AC-012, ADR-0002.
 
 ### Changed
 
