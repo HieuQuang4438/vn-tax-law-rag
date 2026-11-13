@@ -170,7 +170,7 @@ How the set is made, approved on #7, so that its questions are not shaped by the
 
 | Set version | Step 1 | Step 2 | Review |
 |---|---|---|---|
-| 1 | not run yet | not run yet | not done yet |
+| 1 | Claude Opus 5.5, 2026-11-12 | not run yet | not done yet |
 
 Each row records the model and the date of each step once it has run.
 

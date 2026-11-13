@@ -31,16 +31,293 @@
 version: 1
 as_of: 2026-11-04  # the corpus crawl date: answers follow the corpus text as of then
 
-questions: []
+questions:
+  - id: q01
+    question: Mình bán quần áo online trên TikTok Shop, doanh thu tầm 400 triệu một năm thì có phải đóng thuế không?
+    tax_type: household
+    form: plain
+    answer: TODO
+  - id: q02
+    question: Lương tháng 25 triệu, có một con nhỏ đang đi học, thì mỗi tháng tôi bị trừ thuế thu nhập khoảng bao nhiêu?
+    tax_type: pit
+    form: plain
+    answer: TODO
+  - id: q03
+    question: Công ty nộp tờ khai thuế GTGT quý trễ 10 ngày, tiền thuế cũng nộp trễ theo, thì tiền chậm nộp tính thế nào?
+    tax_type: administration
+    form: plain
+    answer: TODO
+  - id: q04
+    question: Điều 9 Luật 48/2024 quy định những hàng hóa, dịch vụ nào được áp thuế suất 5%?
+    tax_type: vat
+    form: reference
+    answer: TODO
+  - id: q05
+    question: Công ty nhỏ, doanh thu năm chưa tới 3 tỷ, thì thuế suất thu nhập doanh nghiệp là bao nhiêu?
+    tax_type: cit
+    form: plain
+    answer: TODO
+  - id: q06
+    question: Nước ngọt có đường có bị đánh thuế tiêu thụ đặc biệt không, nếu có thì từ khi nào?
+    tax_type: sct
+    form: plain
+    answer: TODO
+  - id: q07
+    question: Mua ô tô mới thì lệ phí trước bạ phải đóng bao nhiêu phần trăm giá xe?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+  - id: q08
+    question: Em làm freelance thiết kế, nhận tiền từ khách nước ngoài qua PayPal, vậy em có phải tự khai thuế không hay khỏi?
+    tax_type: pit
+    form: plain
+    answer: TODO
+  - id: q09
+    question: Tôi cho thuê căn hộ 15 triệu một tháng, có phải nộp thuế không và nộp bao nhiêu phần trăm?
+    tax_type: household
+    form: plain
+    answer: TODO
+  - id: q10
+    question: Theo Luật Quản lý thuế 108/2025, doanh nghiệp được gia hạn nộp thuế trong những trường hợp nào?
+    tax_type: administration
+    form: reference
+    answer: TODO
+  - id: q11
+    question: Hộ kinh doanh nộp thuế khoán thì mỗi năm chi cục thuế thông báo mức khoán vào lúc nào, nếu thấy mức khoán cao quá thì khiếu nại ra sao?
+    tax_type: household
+    form: plain
+    answer: TODO
+    unanswerable: repealed
+  - id: q12
+    question: Mua hàng hóa giá trên 5 triệu mà trả bằng tiền mặt thì có được khấu trừ thuế GTGT đầu vào không?
+    tax_type: vat
+    form: plain
+    answer: TODO
+  - id: q13
+    question: Theo Điều 9 Luật 67/2025, những khoản chi nào doanh nghiệp không được tính vào chi phí được trừ?
+    tax_type: cit
+    form: reference
+    answer: TODO
+  - id: q14
+    question: Tôi là người Hàn Quốc, công ty cử sang Việt Nam làm việc khoảng 4 tháng, thu nhập ở đây bị tính thuế như thế nào?
+    tax_type: pit
+    form: plain
+    answer: TODO
+  - id: q15
+    question: Làm freelancer không có công ty đóng bảo hiểm thì tự đóng bảo hiểm xã hội tự nguyện mức thấp nhất là bao nhiêu?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+  - id: q16
+    question: Điều 8 Luật 66/2025 quy định thuế suất tiêu thụ đặc biệt đối với bia tăng theo lộ trình thế nào?
+    tax_type: sct
+    form: reference
+    answer: TODO
+  - id: q17
+    question: Nghị định 68/2026 bắt buộc những hộ kinh doanh nào phải dùng hóa đơn điện tử khởi tạo từ máy tính tiền?
+    tax_type: household
+    form: reference
+    answer: TODO
+  - id: q18
+    question: Tôi là người nước ngoài mới sang Việt Nam làm việc theo hợp đồng 2 năm, tôi có cần đăng ký mã số thuế không, hay công ty làm giúp?
+    tax_type: administration
+    form: plain
+    answer: TODO
+  - id: q19
+    question: Nhập khẩu linh kiện điện tử từ Trung Quốc về lắp ráp thì thuế suất thuế nhập khẩu là bao nhiêu?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+  - id: q20
+    question: Doanh nghiệp xuất khẩu hàng hóa muốn được áp thuế suất GTGT 0% thì cần đáp ứng những điều kiện gì?
+    tax_type: vat
+    form: plain
+    answer: TODO
+  - id: q21
+    question: Công ty mới thành lập trong khu công nghiệp thì có được miễn, giảm thuế thu nhập doanh nghiệp không, được mấy năm?
+    tax_type: cit
+    form: plain
+    answer: TODO
+  - id: q22
+    question: Biểu thuế lũy tiến từng phần theo Luật 109/2025 có mấy bậc, bậc cao nhất là bao nhiêu phần trăm?
+    tax_type: pit
+    form: reference
+    answer: TODO
+  - id: q23
+    question: Công ty muốn đặt in hóa đơn giấy thì phải gửi thông báo phát hành hóa đơn cho cơ quan thuế trước bao nhiêu ngày?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    unanswerable: repealed
+  - id: q24
+    question: Nhập khẩu ô tô 7 chỗ về bán thì giá tính thuế tiêu thụ đặc biệt được xác định thế nào?
+    tax_type: sct
+    form: plain
+    answer: TODO
+  - id: q25
+    question: Muốn đăng ký hộ kinh doanh mới thì nộp hồ sơ ở đâu, mất mấy ngày thì có giấy chứng nhận?
+    tax_type: household
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+  - id: q26
+    question: Hộ kinh doanh mới mở tiệm tạp hóa thì phải đóng lệ phí môn bài bao nhiêu một năm?
+    tax_type: household
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+  - id: q27
+    question: Bán cổ phiếu trên sàn chứng khoán thì có phải chịu thuế giá trị gia tăng không?
+    tax_type: vat
+    form: plain
+    answer: TODO
+  - id: q28
+    question: Theo Nghị định 254/2026, thời điểm lập hóa đơn điện tử khi bán hàng là lúc giao hàng hay lúc nhận tiền?
+    tax_type: administration
+    form: reference
+    answer: TODO
+  - id: q29
+    question: Thông tư 20/2026 yêu cầu khoản chi tiền lương cho người lao động phải đáp ứng điều kiện gì mới được trừ khi tính thuế TNDN?
+    tax_type: cit
+    form: reference
+    answer: TODO
+  - id: q30
+    question: Thuế bảo vệ môi trường đối với xăng hiện nay là bao nhiêu đồng một lít?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+  - id: q31
+    question: Theo Nghị định 253/2026, tiền công ty hỗ trợ ăn trưa cho nhân viên có bị tính vào thu nhập chịu thuế không?
+    tax_type: pit
+    form: reference
+    answer: TODO
+  - id: q32
+    question: Công ty con vay tiền của công ty mẹ ở nước ngoài thì chi phí lãi vay có bị giới hạn khi tính thuế không?
+    tax_type: administration
+    form: plain
+    answer: TODO
+  - id: q33
+    question: Doanh nghiệp vẫn phải nộp tờ khai thuế thu nhập doanh nghiệp tạm tính hằng quý đúng không, hạn nộp là ngày nào?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    unanswerable: repealed
+  - id: q34
+    question: Theo Nghị định 360/2025, nhà máy bia mua nguyên liệu đã chịu thuế tiêu thụ đặc biệt thì có được khấu trừ số thuế đó không?
+    tax_type: sct
+    form: reference
+    answer: TODO
+  - id: q35
+    question: Thông tư 18/2026 quy định hộ kinh doanh khai thuế theo tháng hay theo quý?
+    tax_type: household
+    form: reference
+    answer: TODO
+  - id: q36
+    question: Công ty khai thác đá xây dựng phải nộp thuế tài nguyên theo thuế suất bao nhiêu?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+  - id: q37
+    question: Sau khi có Luật 149/2025, doanh nghiệp bán nông sản chưa qua chế biến cho doanh nghiệp khác có phải tính thuế GTGT không?
+    tax_type: vat
+    form: reference
+    answer: TODO
+  - id: q38
+    question: Hộ kinh doanh có doanh thu trên 1 tỷ một năm thì tính thuế theo cách nào, có phải giữ sổ sách như doanh nghiệp không?
+    tax_type: household
+    form: plain
+    answer: TODO
+  - id: q39
+    question: Tôi muốn tặng căn nhà đang cho thuê cho con, phí công chứng hợp đồng tặng cho tính theo mức nào?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+  - id: q40
+    question: Năm ngoái công ty lỗ 500 triệu, năm nay có lãi thì được trừ khoản lỗ đó không, chuyển lỗ tối đa mấy năm?
+    tax_type: cit
+    form: plain
+    answer: TODO
 
-conversations: []
-# - id: c01
-#   turns:
-#     - question: ...
-#       tax_type: pit
-#       form: plain
-#       answer: ...
-#       key_facts: [...]
-#       provisions: [...]
-#     - question: Còn hộ kinh doanh thì sao?
-#       ...
+conversations:
+  - id: c01
+    turns:
+      - question: Công ty trả lương cho nhân viên thì phải khấu trừ thuế thu nhập cá nhân hằng tháng phải không?
+        tax_type: pit
+        form: plain
+        answer: TODO
+      - question: Còn trả cho cộng tác viên làm thời vụ, không ký hợp đồng lao động thì khấu trừ bao nhiêu?
+        tax_type: pit
+        form: plain
+        answer: TODO
+      - question: Nếu công ty quên không khấu trừ khoản đó thì bị xử lý thế nào?
+        tax_type: administration
+        form: plain
+        answer: TODO
+  - id: c02
+    turns:
+      - question: Hộ kinh doanh bán tạp hóa doanh thu khoảng 800 triệu một năm thì nộp thuế GTGT theo tỷ lệ bao nhiêu?
+        tax_type: household
+        form: plain
+        answer: TODO
+      - question: Nếu chuyển sang bán đồ ăn uống thì tỷ lệ có khác không?
+        tax_type: household
+        form: plain
+        answer: TODO
+  - id: c03
+    turns:
+      - question: Điều 10 Luật 67/2025 quy định thuế suất thuế thu nhập doanh nghiệp phổ thông là bao nhiêu?
+        tax_type: cit
+        form: reference
+        answer: TODO
+      - question: Còn dự án đầu tư vào địa bàn kinh tế - xã hội đặc biệt khó khăn thì sao?
+        tax_type: cit
+        form: plain
+        answer: TODO
+      - question: Mức ưu đãi đó được áp dụng trong bao nhiêu năm?
+        tax_type: cit
+        form: plain
+        answer: TODO
+  - id: c04
+    turns:
+      - question: Doanh nghiệp xuất khẩu được hoàn thuế giá trị gia tăng trong trường hợp nào?
+        tax_type: vat
+        form: plain
+        answer: TODO
+      - question: Hồ sơ đề nghị hoàn nộp ở đâu và bao lâu thì được giải quyết?
+        tax_type: administration
+        form: plain
+        answer: TODO
+  - id: c05
+    turns:
+      - question: Tôi là người nước ngoài, hết hợp đồng về nước giữa năm thì có phải quyết toán thuế thu nhập cá nhân trước khi đi không?
+        tax_type: pit
+        form: plain
+        answer: TODO
+      - question: Hạn chót nộp hồ sơ đó là khi nào?
+        tax_type: administration
+        form: plain
+        answer: TODO
+      - question: Nếu nộp trễ thì có bị phạt không?
+        tax_type: administration
+        form: plain
+        answer: TODO
+  - id: c06
+    turns:
+      - question: Nhập khẩu rượu vang về bán thì thuế tiêu thụ đặc biệt tính trên giá nào?
+        tax_type: sct
+        form: plain
+        answer: TODO
+      - question: Khi bán lại cho đại lý trong nước thì có phải nộp thuế tiêu thụ đặc biệt lần nữa không?
+        tax_type: sct
+        form: plain
+        answer: TODO
+      - question: Còn thuế GTGT thì sao?
+        tax_type: vat
+        form: plain
+        answer: TODO
