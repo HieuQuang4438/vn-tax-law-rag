@@ -47,6 +47,16 @@ class Retrieval:
     unresolved: list[Unresolved] = field(default_factory=list)
 
 
+@dataclass
+class Rankings:
+    """The orders `retrieve` cuts from, uncut (#24)."""
+
+    keyword: list[str] = field(default_factory=list)  # every chunk scoring above 0, best first
+    vector: list[str] = field(default_factory=list)  # every chunk, best first
+    final: list[str] = field(default_factory=list)  # every reference slot, then the fused list
+    unresolved: list[Unresolved] = field(default_factory=list)
+
+
 def rrf(lists: list[list[str]], constant: int = RRF_K) -> list[tuple[str, float]]:
     """Fused (chunk_id, score) pairs, best first; ties keep first appearance, read rank by rank."""
     scores: dict[str, float] = {}
@@ -210,6 +220,10 @@ class Retriever:
         [vector] = self._embedder.embed([question])
         similarity = self._vectors @ np.asarray(vector, dtype=np.float32)
         return [int(r) for r in np.argsort(-similarity, kind="stable")]
+
+    def rankings(self, question: str) -> Rankings:  # stub (#24)
+        """The orders `retrieve` cuts from, uncut: its hits are always the first k of `final`."""
+        return Rankings()
 
     def retrieve(self, question: str, k: int = TOP_K) -> Retrieval:
         articles: list[_Article] = []

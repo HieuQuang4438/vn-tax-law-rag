@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-14
+updated: 2026-11-15
 owner: HieuQuang4438
 ---
 
@@ -95,6 +95,10 @@ Results files are committed (approved on #9), so every quoted number has a file 
 run with `dirty: true` is not a baseline and is not committed.
 
 The file holds ids and numbers only: no question text, no answer text and no corpus text.
+
+`python -m src.eval.diagnose` writes its own files, in another format, to
+`eval/results/diagnostics/`, named and committed by the same rules
+([retrieval.md](retrieval.md#cut-diagnosis), approved on #24).
 
 ```json
 {

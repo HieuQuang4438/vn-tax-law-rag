@@ -614,3 +614,59 @@ def test_a_missing_manifest_stops_loading_before_any_model_loads(data_dir, monke
     with pytest.raises(IndexNotReadyError, match="python -m src.index"):
         Retriever.load(data_dir)
     assert calls == []
+
+
+# --- Rankings, uncut (#24) -----------------------------------------------------------------------
+
+RANKING_QUESTIONS = [
+    "Hộ kinh doanh khai thuế theo quý hay theo năm?",
+    "Điều 10 Luật 48/2024 về hoàn thuế dự án đầu tư",
+    "Nghị định 68/2026 quy định gì về khai thuế?",
+    "Điều 9 Luật 48/2024, Điều 4 Nghị định 68/2026 và Điều 1 Thông tư 90/2026?",
+]
+
+
+@pytest.mark.parametrize("question", RANKING_QUESTIONS)
+def test_the_hits_are_the_first_k_of_the_final_ranking(retriever, question):
+    final = retriever.rankings(question).final
+    assert final
+    for k in (1, 2, 3, TOP_K, 50):
+        assert ids(retriever.retrieve(question, k=k)) == final[:k], k
+
+
+def test_the_final_ranking_starts_with_every_slot_even_beyond_k(retriever):
+    rankings = retriever.rankings("Điều 9 Luật 48/2024, Điều 4 Nghị định 68/2026 và Điều 1 Thông tư 90/2026?")
+    assert rankings.final[:3] == ["379409:D9", "427630:D4", "439827:D1"]
+
+
+def test_the_vector_ranking_holds_every_chunk_once_best_first(retriever):
+    vector = retriever.rankings("mã số thuế").vector
+    assert sorted(vector) == sorted(chunk_id for chunk_id, _, _ in CHUNKS)
+    assert set(vector[:2]) == {"439827:D5:K1", "439827:D5:K2"}
+
+
+def test_the_keyword_ranking_holds_only_chunks_scoring_above_zero(retriever):
+    keyword = retriever.rankings("mã số thuế").keyword
+    assert keyword and len(keyword) == len(set(keyword))
+    assert set(keyword[:2]) == {"439827:D5:K1", "439827:D5:K2"}
+    assert retriever.rankings("xyzabc qwerty").keyword == []
+
+
+@pytest.mark.parametrize("question", [RANKING_QUESTIONS[0], RANKING_QUESTIONS[2]])
+def test_the_lists_are_the_first_candidates_of_each_ranking(retriever, monkeypatch, question):
+    monkeypatch.setattr(hybrid, "CANDIDATES", 3)
+    rankings = retriever.rankings(question)
+    hits = retriever.retrieve(question, k=len(CHUNKS)).hits
+    assert {h.chunk_id for h in hits if "keyword" in h.found_by} == set(rankings.keyword[:3])
+    assert {h.chunk_id for h in hits if "vector" in h.found_by} == set(rankings.vector[:3])
+
+
+def test_rankings_report_unresolved_references_as_retrieve_does(retriever):
+    question = "Điều 99 Luật 48/2024 và Nghị định 999/2026 quy định gì?"
+    assert retriever.rankings(question).unresolved == retriever.retrieve(question).unresolved
+    assert retriever.rankings(question).unresolved
+
+
+def test_rankings_make_no_network_request(retriever, connections):
+    assert retriever.rankings("Điều 9 Luật 48/2024 thuế suất").final
+    assert connections == []

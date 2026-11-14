@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-14
+updated: 2026-11-15
 owner: HieuQuang4438
 ---
 
@@ -39,6 +39,8 @@ result.unresolved   # list[Unresolved], in question order
 | `Retriever(index_dir, enriched_dir, processed_dir, embedder)` | Reads both indexes, the chunks and the documents' metadata. The embedder embeds the question, as at build time. |
 | `Retriever.load(data_dir=Path("data"), embedder=None, index_dir=None, enriched_dir=None)` | The same, from `enriched_dir`, `data_dir/processed` and `index_dir`, which are `data_dir/enriched` and `data_dir/index` when not given. With no embedder, the model and input limit the index's manifest names are loaded offline by `src.index.load_embedder` (approved on #11); a manifest without `input_limit` gets the model's maximum. |
 | `Retriever.retrieve(question, k=TOP_K)` | A `Retrieval` for one question. |
+| `Retriever.rankings(question)` | A `Rankings` for one question: the orders `retrieve` cuts from, uncut, for *Cut diagnosis* (approved on #24). |
+| `Rankings` | `keyword: list[str]`, every chunk with a BM25 score above 0, best first; `vector: list[str]`, every chunk, best first; `final: list[str]`, every reference slot, then the fused list; `unresolved: list[Unresolved]`, as `retrieve` reports them. Each list is in the order `retrieve` uses. |
 | `Retrieval` | `hits: list[Hit]`, `unresolved: list[Unresolved]`. |
 | `Hit` | `chunk_id: str`, `found_by: tuple[str, ...]`, `score: float`. |
 | `Unresolved` | `text: str`, the reference as written in the question; `reason: str`, one of the reasons below. |
@@ -47,6 +49,12 @@ result.unresolved   # list[Unresolved], in question order
 | `rrf(lists, constant=RRF_K)` | Reciprocal rank fusion of ranked lists of chunk ids, as described under *Fusion*. |
 | `IndexNotReadyError` | Raised by the constructor when the index cannot be used, as described under *Loading*. |
 | `TOP_K`, `RRF_K`, `CANDIDATES` | 8, 60, 50. |
+
+`retrieve(question, k).hits` are always the first k of `rankings(question).final`, for every k
+and every question, including one that names more than k articles: the slots are filled in
+question order, so a smaller cut keeps the first of them. The keyword list is the first
+`CANDIDATES` of `Rankings.keyword`, and the vector list the first `CANDIDATES` of
+`Rankings.vector`.
 
 `found_by` lists every way the chunk was found, in this order: `reference` (it fills a reference
 slot), `keyword` (it is in the keyword list), `vector` (it is in the vector list), `document` (it
@@ -209,3 +217,83 @@ On the dev laptop (i7-10610U, 16 GB RAM, CPU only; torch 2.15.0+cpu, sentence-tr
 - **AC-007.** 13 items have `form: reference`. 4 name an article of a corpus document by number,
   and all 4 articles are retrieved. The other 9 name a document without an article and get a
   document list. No reference in an answerable item is unresolved.
+
+## Cut diagnosis
+
+Of the expected articles missing from the top 8, how many are retrieved but ranked below the
+cut, and how many no list retrieves at all? The question is #24. The approach is the approved
+comment on #24. ADR-0002 reopens the reranker question only if the misses are ranked below the cut.
+
+```bash
+python -m src.eval.diagnose      # eval/questions.yaml, data/, writes to eval/results/diagnostics/
+```
+
+Its options are `--set`, `--data`, `--enriched`, `--index` and `--out`, as for
+`python -m src.eval.run` ([eval-results.md](eval-results.md#running-it)). `--out` defaults to
+`eval/results/diagnostics`.
+
+**What it does.** It loads the eval set and the retriever as the runner does, then calls
+`rankings` once for every standalone question and every conversation turn, in file order, each
+turn as written (`rewrite: none`). `TOP_K` stays 8. The measurement only reads further down
+`final`. Nothing is timed.
+
+**Scored items.** The items EVAL-001 and EVAL-005 score: answerable standalone questions
+(`standalone`), and answerable follow-up turns (`follow_up`). They are reported apart.
+
+**Recall at each cut.** For k = 8, 12, 16, 20, 30 and 50 (`CUTS`), recall@k on the parent
+articles of the first k of `final`, as defined in [acceptance.md](../product/acceptance.md#measurement-definitions),
+with the bootstrap interval of the runner. Recall cannot drop as k grows, since each cut holds
+the smaller ones. recall@8 equals the runner's EVAL-001 and EVAL-005 on the same index.
+
+**Misses.** A miss is an expected article of a scored item that is not among the parents of the
+first 8 of `final`. For each miss:
+
+| Field | Meaning |
+|---|---|
+| `article` | the article id |
+| `final_rank` | the rank, from 1, of its best chunk in `final`; null if no chunk of it is in `final` |
+| `keyword_rank` | the rank of its best chunk in `Rankings.keyword`; null if no chunk of it scores above 0 |
+| `vector_rank` | the rank of its best chunk in `Rankings.vector` |
+| `place` | `below_cut` if `final_rank` is 9 to 50; `beyond_50` if it is above 50; `not_in_pool` if it is null |
+| `lists` | the lists whose first `CANDIDATES` hold a chunk of it, out of `keyword` and `vector`, in that order |
+| `split` | true if the article has more than one chunk |
+
+An item with an unresolved reference keeps its reasons, as in the runner's items, and its misses
+are counted apart as `unresolved`, since such a miss may come from reference lookup rather than
+from the ranking.
+
+**Decision rule** (approved on #24). Over the misses of the standalone questions: if at least
+half are `below_cut`, the verdict is `ranking`, and the next issue tunes the fusion. Otherwise
+it is `retrieval`, and the next issue changes the embedding, BM25 or the chunks. The verdict is
+`borderline` when moving two misses across the line would change it, and is then reported, not
+acted on. With no misses there is no verdict: `result` is null. The follow-up turns are reported
+but do not decide.
+
+**The file.** One JSON file per run, named and never overwritten as the runner's results file
+is ([eval-results.md](eval-results.md#the-results-file)), committed under the same rule. It holds
+ids and numbers only.
+
+```json
+{
+  "format": 1,
+  "run": {"started": "…", "command": "python -m src.eval.diagnose", "seconds": 30.1},
+  "configuration": {…},
+  "recall": {"standalone": {"8": {"value": …, "n": …, "interval": […]}, "12": {…}}, "follow_up": {…}},
+  "misses": {"standalone": {…}, "follow_up": {…}},
+  "verdict": {"result": "ranking", "below_cut": …, "misses": …, "borderline": false},
+  "items": [{…}]
+}
+```
+
+- `configuration` is the runner's, with `pipeline` holding `top_k` 8, `rrf_k`, `candidates`,
+  `rewrite: none`, `depth` 50 and `cuts`.
+- `misses` gives, per group, `articles` (the number of misses), `below_cut`, `beyond_50`,
+  `not_in_pool`, the share `below_cut` / `articles` as `share_below_cut`, `lists` as counts of
+  `both`, `keyword`, `vector` and `neither`, `split` and `unresolved`.
+- `items` holds one entry per scored item, in run order, with `id`, `kind`, `conversation`,
+  `turn`, `expected`, `recall` (per cut), `misses` (the table above) and `unresolved` (reasons only).
+
+**The summary.** Printed after the file is written: the path, and `DIRTY` as the runner prints
+it; recall at each cut per group; the miss counts per group; the verdict.
+
+Not run yet.
