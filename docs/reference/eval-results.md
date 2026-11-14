@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-13
+updated: 2026-11-14
 owner: HieuQuang4438
 ---
 
@@ -25,6 +25,7 @@ python -m src.eval.run --compare eval/results/<file>    # also prints what chang
 |---|---|---|
 | `--set` | `eval/questions.yaml` | the eval set |
 | `--data` | `data` | the folder holding `processed/`, `enriched/` and `index/` |
+| `--enriched` | `<data>/enriched` | the enriched chunks, for a variant chunked another way (#12); it must be the folder the index was built from |
 | `--index` | `<data>/index` | the index folder, for a variant built with `python -m src.index --out` |
 | `--out` | `eval/results` | where the results file is written |
 | `--compare` | none | an earlier results file to compare with |
@@ -116,7 +117,7 @@ The file holds ids and numbers only: no question text, no answer text and no cor
 | `dirty` | true when tracked files differ from `HEAD` (`git diff HEAD`); untracked files do not count |
 | `diff_sha256` | `sha256` of the output of `git diff HEAD` when dirty, else null |
 | `eval_set` | `path`, `version`, `sha256` of the set file |
-| `index` | from the index folder's `manifest.json`: `model`, `revision`, `chunks_sha256`, `chunk_count`, `bm25_tokenizer` |
+| `index` | from the index folder's `manifest.json`: `model`, `revision`, `chunks_sha256`, `chunk_count`, `bm25_tokenizer`, `chunking` (null for a manifest without it) |
 | `pipeline` | `stages` (`["retrieval"]`), `rewrite` (`none`), `top_k`, `rrf_k`, `candidates` |
 | `bootstrap` | `resamples` 1000, `seed` 0, `level` 0.95 |
 | `versions` | `python` and the installed `bm25s`, `chromadb`, `numpy`, `pyvi`, `sentence-transformers`, `torch`, `underthesea`; null for one not installed |

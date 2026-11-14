@@ -17,7 +17,9 @@ INDEX_DIR = Path("data/index")
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="python -m src.index", description="Build both indexes.")
     parser.add_argument("--tokenizer", choices=TOKENIZERS, default="syllable", help="the BM25 tokenizer")
+    parser.add_argument("--enriched", help="the enriched chunks; default data/enriched")  # stub
     parser.add_argument("--out", help="the index folder; default data/index")
+    parser.add_argument("--cache", help="the vector cache; default data/index/embeddings")  # stub
     args = parser.parse_args(argv)
     out = Path(args.out) if args.out else INDEX_DIR
 

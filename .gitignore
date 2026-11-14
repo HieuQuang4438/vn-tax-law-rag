@@ -31,6 +31,8 @@ data/enriched/
 # Built from data/enriched/ by python -m src.index; variants from --out (#10).
 data/index/
 data/index-*/
+# Threshold variants: chunks, enriched chunks and index per threshold (#12).
+data/t*/
 
 # OS and editor
 .DS_Store

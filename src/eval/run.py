@@ -343,6 +343,7 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None) -> int
     parser = argparse.ArgumentParser(prog="python -m src.eval.run", description="Score the eval set.")
     parser.add_argument("--set", default="eval/questions.yaml", help="the eval set")
     parser.add_argument("--data", default="data", help="folder holding processed/, enriched/ and index/")
+    parser.add_argument("--enriched", help="the enriched chunks; default <data>/enriched")  # stub
     parser.add_argument("--index", help="the index folder; default <data>/index")
     parser.add_argument("--out", default="eval/results", help="where the results file is written")
     parser.add_argument("--compare", help="an earlier results file to compare with")

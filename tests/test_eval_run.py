@@ -308,7 +308,8 @@ def test_configuration_records_commit_set_index_pipeline_and_machine(tmp_path):
     assert at(config, "dirty") is dirty
     assert (at(config, "diff_sha256") is None) is (not dirty)
     assert at(config, "eval_set") == {"path": "eval/questions.yaml", "version": 1, "sha256": "a" * 64}
-    assert at(config, "index") == {k: MANIFEST[k] for k in ("model", "revision", "chunks_sha256", "chunk_count", "bm25_tokenizer")}
+    assert at(config, "index") == {**{k: MANIFEST[k] for k in ("model", "revision", "chunks_sha256", "chunk_count",
+                                                                "bm25_tokenizer")}, "chunking": None}
     assert at(config, "pipeline") == FakePipeline.config
     assert at(config, "bootstrap") == {"resamples": 1000, "seed": 0, "level": 0.95}
     assert sorted(at(config, "versions")) == ["bm25s", "chromadb", "numpy", "python", "pyvi", "sentence-transformers",
@@ -497,3 +498,34 @@ def test_ac011_ac016_one_command_scores_the_eval_set(tmp_path, connections, caps
     assert at(written, "cost", "average_usd") == 0.0
     print(capsys.readouterr().out)
     assert connections == []
+
+
+
+# --- Other enriched chunks and the split parameters (#12) -------------------------------------
+
+def test_the_command_reads_the_enriched_folder_it_is_given(command, tmp_path):
+    argv, out, _ = command
+    data = Path(argv[argv.index("--data") + 1])
+    variant = tmp_path / "variant-enriched"
+    (data / "enriched").rename(variant)
+    try:
+        code = main(argv + ["--enriched", str(variant)], pipeline=FakePipeline(default=["379409:D9"]))
+    except FileNotFoundError as error:
+        pytest.fail(f"read the default enriched folder: {error}")
+    assert code == 0
+    assert len(list(out.glob("*.json"))) == 1
+
+
+def test_configuration_records_the_split_from_the_manifest(tmp_path):
+    index = tmp_path / "index"
+    index.mkdir()
+    split = {"max_tokens": 400, "min_intro_tokens": 100}
+    (index / "manifest.json").write_text(json.dumps({**MANIFEST, "chunking": split}), encoding="utf-8")
+    config = configuration(small_set(), Path("eval/questions.yaml"), index, FakePipeline.config, ROOT)
+    assert at(config, "index").get("chunking") == split
+
+
+def test_configuration_records_no_split_for_an_older_manifest(tmp_path):
+    write_manifest(tmp_path / "index")
+    config = configuration(small_set(), Path("eval/questions.yaml"), tmp_path / "index", FakePipeline.config, ROOT)
+    assert "chunking" in at(config, "index") and at(config, "index")["chunking"] is None

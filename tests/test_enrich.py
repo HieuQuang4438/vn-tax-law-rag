@@ -555,3 +555,31 @@ def test_corpus_effective_dates_match_the_hand_checked_table():
             problems.append((doc_id, got, (partial, applications, until, [])))
     assert seen == set(EXPECTED_DATES)
     assert problems == []
+
+
+# --- Split parameters and the command (#12) -------------------------------------------------
+
+
+def test_build_copies_the_split_parameters(tmp_path):
+    built(tmp_path)
+    copied = tmp_path / "enriched" / "params.json"
+    assert copied.is_file(), "params.json not copied"
+    assert copied.read_bytes() == (tmp_path / "chunks" / "params.json").read_bytes()
+
+
+def test_the_command_enriches_the_folders_it_is_given(tmp_path, monkeypatch):
+    import src.enrich.__main__ as command
+
+    built(tmp_path)  # processed/, chunks/ and the expected enriched/
+    write_processed(tmp_path / "default-processed")  # the defaults are moved into tmp_path
+    monkeypatch.setattr(command, "PROCESSED_DIR", tmp_path / "default-processed")
+    monkeypatch.setattr(command, "CHUNKS_DIR", tmp_path / "default-chunks")
+    monkeypatch.setattr(command, "ENRICHED_DIR", tmp_path / "default-enriched")
+    monkeypatch.setattr(command, "bge_m3_token_counter", lambda: words)
+    try:
+        command.main(["--processed", str(tmp_path / "processed"), "--chunks", str(tmp_path / "chunks"),
+                      "--out", str(tmp_path / "variant")])
+    except FileNotFoundError as error:
+        pytest.fail(f"read a default folder: {error}")
+    for name in ["chunks.jsonl", "links.jsonl", "issues.jsonl"]:
+        assert (tmp_path / "variant" / name).read_bytes() == (tmp_path / "enriched" / name).read_bytes()

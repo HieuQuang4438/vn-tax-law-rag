@@ -532,3 +532,21 @@ def test_ac012_median_retrieval_is_under_two_seconds(connections):
     assert empty == 0, f"{empty} questions retrieved nothing"
     assert median < 2.0
     assert connections == []
+
+
+
+# --- Other enriched chunks (#12) --------------------------------------------------------------
+
+def test_load_reads_the_enriched_folder_it_is_given(data_dir, tmp_path):
+    variant_enriched, variant_index = tmp_path / "variant-enriched", tmp_path / "variant-index"
+    variant_enriched.mkdir()
+    lines = (data_dir / "enriched" / "chunks.jsonl").read_text(encoding="utf-8").splitlines(keepends=True)
+    (variant_enriched / "chunks.jsonl").write_text("".join(lines[:-1]), encoding="utf-8", newline="\n")
+    build(variant_enriched, variant_index, TopicEmbedder(), cache_dir=data_dir / "index" / "embeddings")
+    try:
+        retriever = Retriever.load(data_dir, embedder=TopicEmbedder(), index_dir=variant_index,
+                                   enriched_dir=variant_enriched)
+    except IndexNotReadyError as error:
+        pytest.fail(f"read the default enriched folder: {error}")
+    dropped = json.loads(lines[-1])["id"]
+    assert dropped not in ids(retriever.retrieve(json.loads(lines[-1])["text"], k=20))

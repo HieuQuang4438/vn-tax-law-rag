@@ -625,3 +625,43 @@ def test_cached_tokenizer_counts_offline_at_the_pinned_revision(connections):
     count = bge_m3_token_counter()
     assert count("aaaa bbbb cccc") == 8  # measured with bge-m3 at the pinned revision
     assert connections == []
+
+
+# --- Split parameters and the command (#12) -------------------------------------------------
+
+
+def test_build_writes_the_split_parameters_beside_the_chunks(tmp_path):
+    write_processed(tmp_path / "processed")
+    build(tmp_path / "processed", tmp_path / "out", count_tokens=words, max_tokens=400)
+    path = tmp_path / "out" / "params.json"
+    assert path.is_file(), "no params.json beside chunks.jsonl"
+    assert path.read_text(encoding="utf-8") == '{\n  "max_tokens": 400,\n  "min_intro_tokens": 100\n}\n'
+
+
+@pytest.fixture
+def chunk_command(tmp_path, monkeypatch):
+    """The command, its default folders moved into tmp_path: the real data/ is never written."""
+    import src.chunking.__main__ as command
+
+    write_processed(tmp_path / "default-processed")
+    monkeypatch.setattr(command, "PROCESSED_DIR", tmp_path / "default-processed")
+    monkeypatch.setattr(command, "CHUNKS_DIR", tmp_path / "default-chunks")
+    monkeypatch.setattr(command, "bge_m3_token_counter", lambda: words)
+    return command
+
+
+def test_the_command_chunks_the_folders_it_is_given_at_its_threshold(chunk_command, tmp_path):
+    write_processed(tmp_path / "processed")
+    chunk_command.main(["--max-tokens", "5", "--processed", str(tmp_path / "processed"),
+                        "--out", str(tmp_path / "variant")])
+    assert not (tmp_path / "default-chunks").exists(), "wrote to the default folder"
+    assert (tmp_path / "variant" / "chunks.jsonl").is_file()
+    build(tmp_path / "processed", tmp_path / "expected", count_tokens=words, max_tokens=5)
+    for name in ["chunks.jsonl", "articles.jsonl", "params.json"]:
+        assert (tmp_path / "variant" / name).read_bytes() == (tmp_path / "expected" / name).read_bytes()
+
+
+def test_the_command_refuses_a_threshold_below_1(chunk_command, tmp_path):
+    with pytest.raises(SystemExit):
+        chunk_command.main(["--max-tokens", "0"])
+    assert not (tmp_path / "default-chunks").exists()

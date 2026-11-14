@@ -450,3 +450,40 @@ def test_two_builds_of_the_corpus_write_identical_keyword_index_files(tmp_path):
     run_build(ENRICHED_DIR, tmp_path / "one", "1")
     run_build(ENRICHED_DIR, tmp_path / "two", "2")
     assert bm25_bytes(tmp_path / "one") == bm25_bytes(tmp_path / "two")
+
+
+# --- Split parameters and other enriched chunks (#12) ---------------------------------------
+
+PARAMS = '{\n  "max_tokens": 400,\n  "min_intro_tokens": 100\n}\n'
+
+
+def test_the_manifest_records_the_split_the_chunks_were_cut_with(tmp_path, connections):
+    enriched = tmp_path / "enriched"
+    write_chunks(enriched)
+    (enriched / "params.json").write_text(PARAMS, encoding="utf-8")
+    build(enriched, tmp_path / "index", FakeEmbedder())
+    assert manifest(tmp_path / "index").get("chunking") == {"max_tokens": 400, "min_intro_tokens": 100}
+
+
+def test_the_manifest_records_no_split_for_chunks_without_parameters(tmp_path, connections):
+    write_chunks(tmp_path / "enriched")
+    build(tmp_path / "enriched", tmp_path / "index", FakeEmbedder())
+    written = manifest(tmp_path / "index")
+    assert "chunking" in written and written["chunking"] is None
+
+
+def test_the_command_indexes_the_enriched_folder_and_cache_it_is_given(built, tmp_path, monkeypatch):
+    import src.index.__main__ as command
+
+    _, enriched, index, _, _ = built
+    monkeypatch.setattr(command, "ENRICHED_DIR", enriched)
+    monkeypatch.setattr(command, "INDEX_DIR", index)
+    monkeypatch.setattr(command, "load_embedder", lambda: FakeEmbedder())
+    other = tmp_path / "other-enriched"
+    rows = write_chunks(other, RECORDS[:2])
+    before = cache_keys(index)
+    command.main(["--enriched", str(other), "--out", str(tmp_path / "variant"),
+                  "--cache", str(tmp_path / "variant-cache")])
+    assert manifest(tmp_path / "variant")["chunk_count"] == len(rows)
+    assert cache_keys(index) == before, "the default cache was pruned"
+    assert (tmp_path / "variant-cache").is_dir(), "the cache it was given was not used"

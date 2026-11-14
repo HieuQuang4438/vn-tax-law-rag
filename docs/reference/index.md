@@ -133,10 +133,11 @@ Written last: a build that stops early leaves no manifest, so a manifest means a
 | `embedded` | `0` | indexed texts embedded by this build; the rest came from the cache |
 | `seconds` | `41.7` | wall time of the whole build |
 | `versions` | `{"bm25s": "0.3.16", …}` | installed versions of `bm25s`, `chromadb`, `sentence-transformers` and `torch`, and of the segmenter when `bm25_tokenizer` is one |
+| `chunking` | `{"max_tokens": 800, "min_intro_tokens": 100}` | the split the chunks were cut with: the content of `params.json` in the enriched folder ([chunk-schema.md](chunk-schema.md)), or null when it has none (approved on #12) |
 
 ## Variants of the index
 
-For an experiment, `python -m src.index` can write elsewhere:
+For an experiment, `python -m src.index` can read and write elsewhere:
 
 ```bash
 python -m src.index --tokenizer pyvi --out data/index-pyvi
@@ -145,10 +146,14 @@ python -m src.index --tokenizer pyvi --out data/index-pyvi
 | Option | Default | Meaning |
 |---|---|---|
 | `--tokenizer` | `syllable` | the BM25 tokenizer, as above |
+| `--enriched` | `data/enriched` | the enriched chunks to index, for a variant chunked another way (#12) |
 | `--out` | `data/index` | the index folder: `manifest.json`, `chroma/`, `bm25/` |
+| `--cache` | `data/index/embeddings` | the vector cache |
 
-The vector cache stays in `data/index/embeddings/` whatever `--out` is, so a variant embeds
-nothing new. `build(enriched_dir, index_dir, embedder, tokenizer="syllable", cache_dir=None)`
+The vector cache stays in `data/index/embeddings/` whatever `--out` is, unless `--cache` names
+another one, so a tokenizer variant embeds nothing new. A variant with other chunks gets its
+own copy of the cache instead, because a build prunes the cache to its own texts
+([chunk-schema.md](chunk-schema.md), *Threshold experiment*). `build(enriched_dir, index_dir, embedder, tokenizer="syllable", cache_dir=None)`
 takes the same choices; with no `cache_dir`, the cache is `index_dir/embeddings`. An unknown
 tokenizer stops the build with `ValueError` before anything is written.
 

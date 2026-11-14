@@ -1,5 +1,9 @@
-"""Enrich the chunked corpus. Run `python -m src.chunking` first, then `python -m src.enrich`."""
+"""Enrich the chunked corpus. Run `python -m src.chunking` first, then `python -m src.enrich`.
 
+`--processed`, `--chunks` and `--out` build a variant for an experiment (#12).
+"""
+
+import argparse
 import json
 from collections import Counter
 from pathlib import Path
@@ -13,7 +17,12 @@ ENRICHED_DIR = Path("data/enriched")
 EMBEDDING_INPUT_LIMIT = 8192  # bge-m3 maximum input, in tokens
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(prog="python -m src.enrich", description="Enrich the chunked corpus.")
+    parser.add_argument("--processed", help="the parsed documents; default data/processed")  # stub
+    parser.add_argument("--chunks", help="the chunker's output; default data/chunks")  # stub
+    parser.add_argument("--out", help="the output folder; default data/enriched")  # stub
+    parser.parse_args(argv)
     chunks, issues = build(PROCESSED_DIR, CHUNKS_DIR, ENRICHED_DIR)
     print(f"{len(chunks)} chunks -> {ENRICHED_DIR}")
     undated = sum(chunk.effective_date is None for chunk in chunks)

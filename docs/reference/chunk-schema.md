@@ -11,7 +11,7 @@ What `python -m src.chunking` writes to `data/chunks/`, from the parsed document
 [ADR-0001](../adr/0001-chunk-by-legal-structure.md); the approach is the approved comment on #2.
 
 Every file is JSON Lines, UTF-8, `\n` line endings, ordered by document id (numeric) and then by
-position in the document. Nothing in it depends on when it was built: two builds from the same
+position in the document, except `params.json` (below). Nothing in it depends on when it was built: two builds from the same
 `data/processed/` are byte-identical (NFR-005).
 
 ## `chunks.jsonl` — the chunker's chunks
@@ -334,6 +334,68 @@ reports here and on the console.
 | `doc_id`, `article` | where |
 | `kind` | `duplicate_heading` — the same article heading twice in a row; the longer copy is kept · `article_gap` — article numbers not 1, 2, 3, … · `clause_numbering` — a split article's clauses not 1, 2, 3, … · `unbalanced_quotes` — a “ never closed, or opened mid-line and not closed on its line; `article` is where it opened · `mismatched_quotes` — a “ closed with a straight `"` on its line; treated as closed, reported because the source is mistyped · `hidden_heading` — a `Điều N.` line read as quoted, numbered above the last kept article: a quotation probably swallowed the end of the document · `unexpected_last_article` — the last kept article's title has none of `hiệu lực`, `thi hành`, `chuyển tiếp`, `tổ chức thực hiện` · `missing_chapter_title` — the line after a chapter heading is not all caps, so the chapter has no title; `article` is the first article of that chapter, or empty if it has none |
 | `detail` | human-readable specifics |
+
+## `params.json` — the split parameters
+
+The two parameters the chunks were cut with, so that every later stage can say which split it
+was built from (approved on #12): `{"max_tokens": 800, "min_intro_tokens": 100}`, one JSON
+object, keys in that order, `indent=2`, a final `\n`. `build(processed_dir, out_dir,
+count_tokens, max_tokens=MAX_TOKENS)` writes it beside `chunks.jsonl`, so it is byte-identical
+across two builds with the same threshold.
+
+`python -m src.enrich` copies it byte for byte into its own output, `data/enriched/params.json`,
+when the chunk folder holds one, and writes none when it does not. The index records it in its
+manifest as `chunking` ([index.md](index.md)), and every results file carries it from there
+([eval-results.md](eval-results.md)).
+
+## Running the chunk and enrich steps
+
+```bash
+python -m src.chunking      # data/processed/ -> data/chunks/, threshold 800
+python -m src.enrich        # data/processed/ + data/chunks/ -> data/enriched/
+```
+
+| Command | Option | Default | Meaning |
+|---|---|---|---|
+| `python -m src.chunking` | `--max-tokens` | `800` (`MAX_TOKENS`) | the split threshold, an integer of at least 1; a smaller value stops with a usage error before anything is read |
+| | `--processed` | `data/processed` | the parsed documents |
+| | `--out` | `data/chunks` | where `chunks.jsonl`, `articles.jsonl`, `issues.jsonl` and `params.json` are written |
+| `python -m src.enrich` | `--processed` | `data/processed` | the parsed documents |
+| | `--chunks` | `data/chunks` | the chunker's output |
+| | `--out` | `data/enriched` | where the enriched files and the copied `params.json` are written |
+
+With no option, both commands do what they did before #12. The options exist to build a
+variant for an experiment; *Threshold experiment*, below, gives the commands.
+
+## Threshold experiment
+
+Does another clause-split threshold raise recall@8 over 800? Approach approved on #12, with the
+decision rule fixed before the run: a threshold replaces 800 only if the paired 95% bootstrap
+interval of its EVAL-001 change lies entirely above 0 and AC-012 still holds; if several do,
+the one with the largest mean change.
+
+Thresholds: 400, 800, 1600, and 8192 for no split. 8192 is bge-m3's input limit; no article of
+the corpus is over it (the largest is 8,072 tokens), so at 8192 every article is one chunk.
+
+Setup, the same for every run: one commit, eval set v1, bge-m3 `5617a9f6`, `syllable` BM25,
+k = 8 chunks, RRF 60, 50 candidates, `MIN_INTRO_TOKENS` 100, `rewrite: none`, the dev laptop
+(i7-10610U, 16 GB RAM, CPU only). Each variant lives in `data/t<threshold>/`, gitignored
+(`data/t*/`), and has its own copy of the vector cache, seeded from the default one: a
+build prunes its cache to its own texts, so a shared cache would lose 800's vectors.
+
+```bash
+python -m src.chunking --max-tokens 400 --out data/t400/chunks
+python -m src.enrich --chunks data/t400/chunks --out data/t400/enriched
+mkdir -p data/t400/index && cp -r data/index/embeddings data/t400/index/
+python -m src.index --enriched data/t400/enriched --out data/t400/index --cache data/t400/index/embeddings
+python -m src.eval.run --enriched data/t400/enriched --index data/t400/index --compare <the 800 results file>
+```
+
+Reported for each threshold: chunk count, split articles, EVAL-001 with its paired change
+against 800, EVAL-005, EVAL-007, the mean number of distinct articles among the top 8 chunks of
+the scored questions (from `hits` in the results file), the enrich counts (links, undated
+chunks, issues, largest header + text against the 8,192 limit), texts embedded, build time,
+retrieval latency, and the results file.
 
 ## Rules, in the order they apply
 

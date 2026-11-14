@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-13
+updated: 2026-11-14
 owner: HieuQuang4438
 ---
 
@@ -37,7 +37,7 @@ result.unresolved   # list[Unresolved], in question order
 | Name | What it is |
 |---|---|
 | `Retriever(index_dir, enriched_dir, processed_dir, embedder)` | Reads both indexes, the chunks and the documents' metadata. The embedder embeds the question, as at build time. |
-| `Retriever.load(data_dir=Path("data"), embedder=None, index_dir=None)` | The same, from `data_dir/enriched`, `data_dir/processed` and `index_dir`, which is `data_dir/index` when not given. With no embedder, bge-m3 is loaded offline by `src.index.load_embedder`. |
+| `Retriever.load(data_dir=Path("data"), embedder=None, index_dir=None, enriched_dir=None)` | The same, from `enriched_dir`, `data_dir/processed` and `index_dir`, which are `data_dir/enriched` and `data_dir/index` when not given. With no embedder, bge-m3 is loaded offline by `src.index.load_embedder`. |
 | `Retriever.retrieve(question, k=TOP_K)` | A `Retrieval` for one question. |
 | `Retrieval` | `hits: list[Hit]`, `unresolved: list[Unresolved]`. |
 | `Hit` | `chunk_id: str`, `found_by: tuple[str, ...]`, `score: float`. |

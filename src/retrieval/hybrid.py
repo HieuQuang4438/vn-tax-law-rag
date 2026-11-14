@@ -146,7 +146,7 @@ class Retriever:
 
     @classmethod
     def load(cls, data_dir: Path = Path("data"), embedder: Embedder | None = None,
-             index_dir: Path | None = None) -> "Retriever":
+             index_dir: Path | None = None, enriched_dir: Path | None = None) -> "Retriever":
         """Both indexes under `data_dir`, or in `index_dir`; bge-m3 from the local cache unless given."""
         return cls(index_dir or data_dir / "index", data_dir / "enriched", data_dir / "processed",
                    embedder or load_embedder())
