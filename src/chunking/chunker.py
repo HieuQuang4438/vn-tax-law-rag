@@ -329,4 +329,6 @@ def build(
     _write_jsonl(out_dir / "chunks.jsonl", chunks)
     _write_jsonl(out_dir / "articles.jsonl", articles)
     _write_jsonl(out_dir / "issues.jsonl", issues)
+    params = {"max_tokens": max_tokens, "min_intro_tokens": MIN_INTRO_TOKENS}  # what the split used (#12)
+    (out_dir / "params.json").write_text(json.dumps(params, indent=2) + "\n", encoding="utf-8", newline="\n")
     return issues

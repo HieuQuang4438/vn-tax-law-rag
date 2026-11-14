@@ -16,14 +16,19 @@ CHUNKS_DIR = Path("data/chunks")
 
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="python -m src.chunking", description="Chunk the parsed corpus.")
-    parser.add_argument("--max-tokens", type=int, default=MAX_TOKENS, help="the split threshold")  # stub
-    parser.add_argument("--processed", help="the parsed documents; default data/processed")  # stub
-    parser.add_argument("--out", help="the output folder; default data/chunks")  # stub
-    parser.parse_args(argv)
-    issues = build(PROCESSED_DIR, CHUNKS_DIR, bge_m3_token_counter())
-    chunks = (CHUNKS_DIR / "chunks.jsonl").read_text(encoding="utf-8").count("\n")
-    articles = (CHUNKS_DIR / "articles.jsonl").read_text(encoding="utf-8").count("\n")
-    print(f"{articles} articles, {chunks} chunks -> {CHUNKS_DIR}")
+    parser.add_argument("--max-tokens", type=int, default=MAX_TOKENS, help=f"the split threshold; default {MAX_TOKENS}")
+    parser.add_argument("--processed", help="the parsed documents; default data/processed")
+    parser.add_argument("--out", help="the output folder; default data/chunks")
+    args = parser.parse_args(argv)
+    if args.max_tokens < 1:
+        parser.error(f"--max-tokens must be at least 1, not {args.max_tokens}")
+    processed = Path(args.processed) if args.processed else PROCESSED_DIR
+    out = Path(args.out) if args.out else CHUNKS_DIR
+
+    issues = build(processed, out, bge_m3_token_counter(), max_tokens=args.max_tokens)
+    chunks = (out / "chunks.jsonl").read_text(encoding="utf-8").count("\n")
+    articles = (out / "articles.jsonl").read_text(encoding="utf-8").count("\n")
+    print(f"{articles} articles, {chunks} chunks -> {out} (split over {args.max_tokens} tokens)")
     print(f"{len(issues)} issues: {dict(Counter(issue.kind for issue in issues))}")
     for issue in issues:
         print(f"  {issue.doc_id} Điều {issue.article} {issue.kind}: {issue.detail}")

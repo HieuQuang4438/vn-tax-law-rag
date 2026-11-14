@@ -19,15 +19,19 @@ EMBEDDING_INPUT_LIMIT = 8192  # bge-m3 maximum input, in tokens
 
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="python -m src.enrich", description="Enrich the chunked corpus.")
-    parser.add_argument("--processed", help="the parsed documents; default data/processed")  # stub
-    parser.add_argument("--chunks", help="the chunker's output; default data/chunks")  # stub
-    parser.add_argument("--out", help="the output folder; default data/enriched")  # stub
-    parser.parse_args(argv)
-    chunks, issues = build(PROCESSED_DIR, CHUNKS_DIR, ENRICHED_DIR)
-    print(f"{len(chunks)} chunks -> {ENRICHED_DIR}")
+    parser.add_argument("--processed", help="the parsed documents; default data/processed")
+    parser.add_argument("--chunks", help="the chunker's output; default data/chunks")
+    parser.add_argument("--out", help="the output folder; default data/enriched")
+    args = parser.parse_args(argv)
+    processed = Path(args.processed) if args.processed else PROCESSED_DIR
+    chunks_dir = Path(args.chunks) if args.chunks else CHUNKS_DIR
+    out = Path(args.out) if args.out else ENRICHED_DIR
+
+    chunks, issues = build(processed, chunks_dir, out)
+    print(f"{len(chunks)} chunks -> {out}")
     undated = sum(chunk.effective_date is None for chunk in chunks)
     print(f"{len(chunks) - undated} chunks with an effective date, {undated} without")
-    links = [json.loads(line) for line in (ENRICHED_DIR / "links.jsonl").read_text(encoding="utf-8").splitlines()]
+    links = [json.loads(line) for line in (out / "links.jsonl").read_text(encoding="utf-8").splitlines()]
     print(f"{len(links)} amendment links: {dict(Counter(link['type'] for link in links))}, "
           f"{sum(link['in_corpus'] for link in links)} in the corpus; "
           f"{sum(bool(chunk.amended_by) for chunk in chunks)} chunks with amended_by")

@@ -46,7 +46,7 @@ NOT_RUN = "no generation stage"
 NFR006 = {"median_s": 10, "p95_s": 20}
 NFR007 = {"average_usd": 0.01}
 VERSIONED = ("bm25s", "chromadb", "numpy", "pyvi", "sentence-transformers", "torch", "underthesea")
-INDEX_FIELDS = ("model", "revision", "chunks_sha256", "chunk_count", "bm25_tokenizer")
+INDEX_FIELDS = ("model", "revision", "chunks_sha256", "chunk_count", "bm25_tokenizer", "chunking")
 
 
 @dataclass
@@ -343,22 +343,23 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None) -> int
     parser = argparse.ArgumentParser(prog="python -m src.eval.run", description="Score the eval set.")
     parser.add_argument("--set", default="eval/questions.yaml", help="the eval set")
     parser.add_argument("--data", default="data", help="folder holding processed/, enriched/ and index/")
-    parser.add_argument("--enriched", help="the enriched chunks; default <data>/enriched")  # stub
+    parser.add_argument("--enriched", help="the enriched chunks; default <data>/enriched")
     parser.add_argument("--index", help="the index folder; default <data>/index")
     parser.add_argument("--out", default="eval/results", help="where the results file is written")
     parser.add_argument("--compare", help="an earlier results file to compare with")
     args = parser.parse_args(argv)
     set_path, data, out = Path(args.set), Path(args.data), Path(args.out)
     index_dir = Path(args.index) if args.index else data / "index"
+    enriched = Path(args.enriched) if args.enriched else data / "enriched"
 
     started_at = datetime.now().astimezone().isoformat(timespec="seconds")
     started = time.perf_counter()
-    eval_set = load_eval_set(set_path, data / "processed", data / "enriched")
+    eval_set = load_eval_set(set_path, data / "processed", enriched)
     if pipeline is None:
         from src.retrieval import Retriever
 
-        pipeline = RetrievalPipeline(Retriever.load(data, index_dir=index_dir))
-    scored = evaluate(eval_set, pipeline, _parents(data / "enriched"))
+        pipeline = RetrievalPipeline(Retriever.load(data, index_dir=index_dir, enriched_dir=enriched))
+    scored = evaluate(eval_set, pipeline, _parents(enriched))
     config = configuration(eval_set, set_path, index_dir, pipeline.config)
     command = " ".join(["python -m src.eval.run", *(argv if argv is not None else [])])
     results = {"format": FORMAT,

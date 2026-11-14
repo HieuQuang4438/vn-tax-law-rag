@@ -50,6 +50,11 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   `--compare` reports a paired bootstrap interval of each retrieval change. The segmenters are in
   `requirements-experiments.txt`. Measured on eval set v1, neither segmenter beats syllable
   tokens on recall@8 (paired intervals include 0), so `syllable` stays. ADR-0002, #10.
+- Chunk-threshold variants: `python -m src.chunking --max-tokens <n> --out <folder>`,
+  `python -m src.enrich --chunks --out`, `python -m src.index --enriched --cache` and
+  `python -m src.eval.run --enriched` build and score chunks cut at another threshold. The
+  split parameters travel as `params.json` into the index manifest (`chunking`) and every
+  results file. FR-CORE-002, ADR-0001, #12.
 
 ### Changed
 

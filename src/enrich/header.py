@@ -116,4 +116,8 @@ def build(processed_dir: Path, chunks_dir: Path, out_dir: Path) -> tuple[list[En
     _write_jsonl(out_dir / "chunks.jsonl", enriched)
     _write_jsonl(out_dir / "links.jsonl", links.links)
     _write_jsonl(out_dir / "issues.jsonl", issues)
+    params = chunks_dir / "params.json"  # the split the chunks were cut with, carried to the index (#12)
+    (out_dir / "params.json").unlink(missing_ok=True)
+    if params.is_file():
+        (out_dir / "params.json").write_bytes(params.read_bytes())
     return enriched, issues

@@ -161,6 +161,8 @@ def build(enriched_dir: Path, index_dir: Path, embedder: Embedder, tokenizer: st
     tokenize = get_tokenizer(tokenizer)  # an unknown name stops here, before anything is written
     started = time.perf_counter()
     raw = (enriched_dir / "chunks.jsonl").read_bytes()
+    params = enriched_dir / "params.json"
+    chunking = json.loads(params.read_text(encoding="utf-8")) if params.is_file() else None
     rows = [json.loads(line) for line in raw.decode("utf-8").splitlines()]
     texts = [row["header"] + "\n" + row["text"] for row in rows]  # indexed text, specified on #3
 
@@ -187,6 +189,7 @@ def build(enriched_dir: Path, index_dir: Path, embedder: Embedder, tokenizer: st
         "embedded": embedded,
         "seconds": round(time.perf_counter() - started, 1),
         "versions": {name: version(name) for name in VERSIONED + (() if tokenizer == "syllable" else (tokenizer,))},
+        "chunking": chunking,
     }
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n")
     return manifest
