@@ -221,11 +221,25 @@ class Retriever:
         similarity = self._vectors @ np.asarray(vector, dtype=np.float32)
         return [int(r) for r in np.argsort(-similarity, kind="stable")]
 
-    def rankings(self, question: str) -> Rankings:  # stub (#24)
-        """The orders `retrieve` cuts from, uncut: its hits are always the first k of `final`."""
-        return Rankings()
+    def rankings(self, question: str) -> Rankings:
+        """The orders `retrieve` cuts from, uncut: its hits are always the first k of `final` (#24)."""
+        search = self._search(question)
+        return Rankings(keyword=[self._ids[r] for r in search.keyword_rows],
+                        vector=[self._ids[r] for r in search.vector_rows],
+                        final=list(search.final), unresolved=list(search.unresolved))
 
     def retrieve(self, question: str, k: int = TOP_K) -> Retrieval:
+        search = self._search(question)
+        slots = set(search.slots)
+        hits = []
+        for chunk_id in search.final[:k]:
+            ways = (("reference",) if chunk_id in slots else ()) + tuple(
+                way for way in ("keyword", "vector", "document") if chunk_id in search.lists[way])
+            hits.append(Hit(chunk_id, ways, search.score.get(chunk_id, 0.0)))
+        return Retrieval(hits, search.unresolved)
+
+    def _search(self, question: str) -> "_Search":
+        """Everything `retrieve` and `rankings` read, before any cut at k."""
         articles: list[_Article] = []
         documents: list[_Document] = []
         unresolved: list[Unresolved] = []
@@ -251,24 +265,27 @@ class Retriever:
             named = [chunk_id for chunk_id, _ in rrf(within)][:CANDIDATES]
             lists.append(named)
         fused = rrf(lists)
-        score = dict(fused)
 
+        # Every slot, in question order: a cut at k keeps the first k of them, as before #24.
         slots: list[str] = []
         for article in articles:
-            if len(slots) == k:
-                break
             chunk_id = article.chunk_id
             if chunk_id is None:
                 own = set(self._article_chunks[article.article_id])
                 chunk_id = next((c for c, _ in fused if c in own), self._article_chunks[article.article_id][0])
             if chunk_id not in slots:
                 slots.append(chunk_id)
-        chosen = slots + [c for c, _ in fused if c not in slots][:max(k - len(slots), 0)]
+        final = slots + [c for c, _ in fused if c not in slots]
+        return _Search(keyword_rows, vector_rows, slots, final, dict(fused),
+                       {"keyword": set(keyword), "vector": set(vector), "document": set(named)}, unresolved)
 
-        sets = {"keyword": set(keyword), "vector": set(vector), "document": set(named)}
-        hits = []
-        for chunk_id in chosen:
-            ways = (("reference",) if chunk_id in slots else ()) + tuple(
-                way for way in ("keyword", "vector", "document") if chunk_id in sets[way])
-            hits.append(Hit(chunk_id, ways, score.get(chunk_id, 0.0)))
-        return Retrieval(hits, unresolved)
+
+@dataclass(frozen=True)
+class _Search:
+    keyword_rows: list[int]  # every row scoring above 0, best first
+    vector_rows: list[int]  # every row, best first
+    slots: list[str]  # every reference slot, in question order
+    final: list[str]  # the slots, then the fused list
+    score: dict[str, float]  # fused score per chunk
+    lists: dict[str, set[str]]  # the chunks of the keyword, vector and document lists
+    unresolved: list[Unresolved]

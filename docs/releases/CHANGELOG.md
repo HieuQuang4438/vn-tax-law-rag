@@ -62,6 +62,11 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   `truncated`, and the retriever embeds questions with the model the index names. Measured on
   eval set v1, Vietnamese_Embedding raises recall@8 from 0.678 to 0.708, but its paired
   interval includes 0 (+0.030 [−0.035, +0.094]), so bge-m3 stays. ADR-0002, #11.
+- Cut diagnosis: `python -m src.eval.diagnose` scores recall@k at k = 8 to 50 on one uncut
+  ranking per question, and places each expected article missing from the top 8 (below the
+  cut, beyond 50, not in the pool) with its ranks in the full BM25 and vector rankings, writing
+  to `eval/results/diagnostics/`. `Retriever.rankings` returns the uncut orders `retrieve`
+  cuts from. FR-CORE-008, ADR-0002, #24.
 
 ### Changed
 
