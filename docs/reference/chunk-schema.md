@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-12
+updated: 2026-11-14
 owner: HieuQuang4438
 ---
 
@@ -357,3 +357,12 @@ reports here and on the console.
   it is also reported as `clause_numbering`.
 - **Tokens** are counted with the bge-m3 tokenizer, without special tokens, using the
   `tokenizers` library rather than `transformers` (same tokenizer file, no PyTorch).
+  `bge_m3_token_counter(cache_dir=None)` in `src/chunking/tokens.py` reads `tokenizer.json`
+  from the snapshot folder of the pinned revision, `EMBEDDING_REVISION`, the same constant the
+  vector index loads the model at ([index.md](index.md), *Offline*). The folder is resolved
+  with `local_files_only=True` in the local Hugging Face cache (`cache_dir`, or the default
+  cache), so counting tokens makes no network request and never reads the Hub's `main`, which
+  may move to a later revision with a different tokenizer (fixed on #23). If the cache lacks
+  that revision, it stops with `ModelNotCachedError` naming the one-time download command,
+  `hf download BAAI/bge-m3 --revision <EMBEDDING_REVISION>`. `python -m src.chunking`,
+  `python -m src.enrich` and the corpus tests all count through it.

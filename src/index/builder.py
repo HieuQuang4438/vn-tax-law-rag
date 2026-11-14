@@ -22,10 +22,9 @@ from bm25s.tokenization import Tokenized
 from chromadb.api.client import SharedSystemClient
 from chromadb.config import Settings
 
-from src.chunking.tokens import EMBEDDING_MODEL
+from src.chunking.tokens import EMBEDDING_MODEL, EMBEDDING_REVISION, ModelNotCachedError
 from src.index.tokenizers import get_tokenizer
 
-EMBEDDING_REVISION = "5617a9f61b028005a4858fdac845db406aefb181"  # pinned on #6
 EMBEDDING_INPUT_LIMIT = 8192  # bge-m3 maximum input, in tokens; the largest indexed text is 3,363
 BM25_TOKENIZER = "syllable"
 COLLECTION = "chunks"
@@ -41,10 +40,6 @@ class Embedder(Protocol):
     def embed(self, texts: list[str]) -> list[list[float]]:
         """One unit-length vector per text, in order."""
         ...
-
-
-class ModelNotCachedError(RuntimeError):
-    """The pinned model revision is not in the local Hugging Face cache."""
 
 
 class _BgeM3:

@@ -2,15 +2,22 @@
 
 Fixture documents are small excerpts in the shape of `data/processed/<slug>.json`, abridged
 from the corpus (Circular 90/2026, Decree 253/2026, Law 09/2026). Tokens are counted as words
-so the tests need neither the bge-m3 tokenizer nor the network.
+so the tests need neither the bge-m3 tokenizer nor the network. The token counter itself (#23)
+is tested on tiny tokenizers in a fake Hugging Face cache.
 """
 
 import json
+import socket
 from pathlib import Path
 
 import pytest
+from tokenizers import Tokenizer
+from tokenizers.models import WordLevel
+from tokenizers.pre_tokenizers import Whitespace
 
 from src.chunking import MAX_TOKENS, MIN_INTRO_TOKENS, build, chunk_document
+from src.chunking.tokens import EMBEDDING_MODEL, EMBEDDING_REVISION, ModelNotCachedError, bge_m3_token_counter
+from src.index import builder as index_builder
 
 DOC_ID = "439827"
 
@@ -551,3 +558,70 @@ def test_document_without_site_id_in_url_is_rejected():
 
     with pytest.raises(ValueError, match="document id"):
         chunk(doc)
+
+
+# --- The token counter (#23) ----------------------------------------------------------------
+# A fake Hugging Face cache in tmp_path holds two tiny tokenizers: the pinned revision splits on
+# whitespace, the one `main` points to does not. The real bge-m3 is only read by the corpus test.
+
+OTHER_REVISION = "0" * 40
+
+
+@pytest.fixture
+def connections(monkeypatch) -> list:
+    """Every outgoing connection attempt; each one fails."""
+    attempts = []
+
+    def refuse(sock, address):
+        attempts.append(address)
+        raise OSError("network blocked in unit tests")
+
+    monkeypatch.setattr(socket.socket, "connect", refuse)
+    return attempts
+
+
+def fake_tokenizer(split_on_whitespace: bool) -> Tokenizer:
+    tokenizer = Tokenizer(WordLevel({"[UNK]": 0}, unk_token="[UNK]"))
+    if split_on_whitespace:
+        tokenizer.pre_tokenizer = Whitespace()
+    return tokenizer
+
+
+def fake_hub_cache(root: Path, main: str = OTHER_REVISION) -> Path:
+    repo = root / f"models--{EMBEDDING_MODEL.replace('/', '--')}"
+    for revision, splits in [(EMBEDDING_REVISION, True), (OTHER_REVISION, False)]:
+        folder = repo / "snapshots" / revision
+        folder.mkdir(parents=True)
+        fake_tokenizer(splits).save(str(folder / "tokenizer.json"))
+    (repo / "refs").mkdir()
+    (repo / "refs" / "main").write_text(main, encoding="utf-8")
+    return root
+
+
+def test_tokens_are_counted_at_the_pinned_revision_not_main(tmp_path, connections):
+    count = bge_m3_token_counter(cache_dir=fake_hub_cache(tmp_path))
+    assert count("aaaa bbbb cccc") == 3  # the pinned tokenizer; the one on main gives 1
+
+
+def test_counting_tokens_makes_no_network_request(tmp_path, connections):
+    bge_m3_token_counter(cache_dir=fake_hub_cache(tmp_path))("aaaa")
+    assert connections == []
+
+
+def test_a_missing_tokenizer_cache_stops_with_the_download_command_and_no_request(tmp_path, connections):
+    with pytest.raises(ModelNotCachedError) as error:
+        bge_m3_token_counter(cache_dir=tmp_path)
+    assert f"hf download {EMBEDDING_MODEL} --revision {EMBEDDING_REVISION}" in str(error.value)
+    assert connections == []
+
+
+def test_the_index_loads_the_model_at_the_revision_chunking_counts_with():
+    assert index_builder.EMBEDDING_REVISION == EMBEDDING_REVISION
+    assert index_builder.ModelNotCachedError is ModelNotCachedError
+
+
+@pytest.mark.corpus
+def test_cached_tokenizer_counts_offline_at_the_pinned_revision(connections):
+    count = bge_m3_token_counter()
+    assert count("aaaa bbbb cccc") == 8  # measured with bge-m3 at the pinned revision
+    assert connections == []
