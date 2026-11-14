@@ -22,7 +22,7 @@ from bm25s.tokenization import Tokenized
 from chromadb.api.client import SharedSystemClient
 from chromadb.config import Settings
 
-from src.chunking.tokens import EMBEDDING_MODEL, EMBEDDING_REVISION, ModelNotCachedError
+from src.chunking.tokens import EMBEDDING_MODEL, EMBEDDING_REVISION, ModelNotCachedError, pinned_snapshot
 from src.index.tokenizers import get_tokenizer
 
 EMBEDDING_INPUT_LIMIT = 8192  # bge-m3 maximum input, in tokens; the largest indexed text is 3,363
@@ -65,17 +65,9 @@ def load_embedder(cache_dir: Path | None = None) -> Embedder:
     once, at import, and a process that imported it earlier still sends requests.
     """
     os.environ["HF_HUB_OFFLINE"] = "1"
-    from huggingface_hub import snapshot_download
     from sentence_transformers import SentenceTransformer
 
-    try:
-        folder = snapshot_download(EMBEDDING_MODEL, revision=EMBEDDING_REVISION, local_files_only=True,
-                                   cache_dir=str(cache_dir) if cache_dir else None)
-    except OSError as error:
-        raise ModelNotCachedError(
-            f"{EMBEDDING_MODEL} revision {EMBEDDING_REVISION} is not in the local Hugging Face cache; "
-            f"download it once with: hf download {EMBEDDING_MODEL} --revision {EMBEDDING_REVISION}"
-        ) from error
+    folder = str(pinned_snapshot(cache_dir))
     transformer = SentenceTransformer(folder, device="cpu", local_files_only=True)
     transformer.max_seq_length = EMBEDDING_INPUT_LIMIT
     return _BgeM3(transformer)

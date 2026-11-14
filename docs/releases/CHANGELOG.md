@@ -62,3 +62,8 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 - Parsed text no longer carries the site's own words: its "Bổ sung" label on amended
   provisions (12 lines) and its comment blocks between provisions (22 blocks, 3 of them inside
   chunks, e.g. a note on the 2% VAT cut inside the VAT Law's rate clause). FR-CORE-001.
+- The bge-m3 token count that sets chunk splits is read from the pinned revision in the local
+  cache: `python -m src.chunking` and `python -m src.enrich` made 12 connection attempts to
+  the Hugging Face Hub per run and read its `main`, so a later upstream tokenizer could have
+  moved the splits. A missing revision stops with the download command. Chunks unchanged
+  (1,923). NFR-005.

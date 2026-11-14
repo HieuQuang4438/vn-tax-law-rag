@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-13
+updated: 2026-11-14
 owner: HieuQuang4438
 ---
 
@@ -47,6 +47,8 @@ the three holds an id twice.
   `local_files_only=True` and the model is loaded from that folder. Setting `HF_HUB_OFFLINE=1` is
   not enough on its own: `huggingface_hub` reads it once, at import, and in a test run where an
   earlier test had imported it, loading by model name still opened 12 connections to the Hub.
+  The revision is `EMBEDDING_REVISION` in `src/chunking/tokens.py`, the one the chunk splits
+  are counted at ([chunk-schema.md](chunk-schema.md), *Tokens*), so both read the same snapshot.
   If the cache lacks that revision, the build stops with `ModelNotCachedError`, whose message
   names the one-time download command:
   `hf download BAAI/bge-m3 --revision 5617a9f61b028005a4858fdac845db406aefb181`.
