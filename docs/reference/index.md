@@ -247,7 +247,31 @@ Reported for each variant: EVAL-001, EVAL-005 and EVAL-007 with their intervals,
 change against variant 1 (and, for 3, against 2), texts embedded and cut, build time, retrieval
 latency, and the results file.
 
-Not run yet.
+Run on 2026-11-14 at commit `2360e43`, eval set v1 (`d33b390e4894…`). Before the run, the two
+`tokenizer.json` files differed in bytes (Vietnamese_Embedding's is written in a newer format,
+`prepend_scheme` for `add_prefix_space`), but they gave the same token ids for all 1,286 indexed
+texts, and its own tokenizer also puts 12 of them over 2,048.
+
+| Variant | EVAL-001 | Paired change vs 1 | EVAL-005 | EVAL-007 | Distinct articles in top 8 | Texts embedded | Index build | Retrieval median / p95 | Results file |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | 0.678 [0.592, 0.764] | — | 0.575 [0.333, 0.817] | 0.686 [0.590, 0.780] | 6.82 | 0 | 3.9 s | 0.19 / 0.26 s | `2026-11-14-2360e43.json` |
+| 2 | 0.665 [0.569, 0.757] | −0.013 [−0.038, +0.000] | 0.575 [0.333, 0.817] | 0.686 [0.584, 0.781] | 6.82 | 12 | 147 s | 0.18 / 0.28 s | `2026-11-14-2360e43-2.json` |
+| 3 | 0.708 [0.618, 0.797] | +0.030 [−0.035, +0.094] | 0.628 [0.408, 0.850] | 0.726 [0.636, 0.811] | 7.08 | 1,286 | 3,778 s | 0.17 / 0.24 s | `2026-11-14-2360e43-3.json` |
+
+- **Vietnamese_Embedding does not meet the rule**: its paired interval against variant 1
+  includes 0. bge-m3 at 8,192 stays the default, ADR-0002 stands, and `data/` is unchanged.
+- Against variant 1 it raised recall on 7 questions and lowered it on 4; on `plain` questions
+  0.618 to 0.677, on `reference` questions 0.812 to 0.778. It raised 3 follow-up turns and
+  lowered none (EVAL-005 paired [+0.000, +0.127]); context precision EVAL-007 paired
+  [−0.025, +0.113].
+- Against variant 2, the model's effect alone: EVAL-001 +0.043 [−0.031, +0.110], 8 questions
+  up and 4 down. This interval also includes 0.
+- The cut costs little on this set: variant 2 lowered one question and raised none.
+- The means lean towards Vietnamese_Embedding on every recall and precision metric but the
+  `reference` form. With 39 questions the intervals are too wide to tell; a larger eval set
+  could run the comparison again from these two folders' commands.
+- Embedding all 1,286 texts with Vietnamese_Embedding took 63 minutes, under the 1.2–1.6 h
+  estimated. Every variant keeps AC-012.
 
 ## Rebuilding from the cached pages
 

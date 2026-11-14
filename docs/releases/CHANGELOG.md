@@ -59,7 +59,9 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   {BAAI/bge-m3,AITeamVN/Vietnamese_Embedding} --input-limit <n>` builds with either pinned model,
   offline. A text over the limit is cached under a key that carries the limit, so lowering it
   re-embeds only those texts. The manifest and every results file record `input_limit` and
-  `truncated`, and the retriever embeds questions with the model the index names. ADR-0002, #11.
+  `truncated`, and the retriever embeds questions with the model the index names. Measured on
+  eval set v1, Vietnamese_Embedding raises recall@8 from 0.678 to 0.708, but its paired
+  interval includes 0 (+0.030 [−0.035, +0.094]), so bge-m3 stays. ADR-0002, #11.
 
 ### Changed
 
