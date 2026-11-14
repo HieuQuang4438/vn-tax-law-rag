@@ -12,6 +12,64 @@
 
 ---
 
+## Session 4 — 2026-11-14 to 2026-11-15 · Embedding model and the cut diagnosis (#11, #24, #25)
+
+**Done**
+
+- #11: the index builder takes `--model` and `--input-limit` from a table of pinned models
+  (`EMBEDDING_MODELS`: bge-m3 `5617a9f6` at 8,192, `AITeamVN/Vietnamese_Embedding` `dea33aa1` at
+  2,048), offline. A text over the limit is cached under a key that carries the limit. The
+  manifest and every results file record `input_limit` and `truncated`, and `Retriever.load`
+  embeds questions with the model the manifest names.
+- #11: three variants scored at `2360e43` on eval set v1. bge-m3 stays the default. Table in
+  `docs/reference/index.md`, *Embedding experiment*; results files `eval/results/2026-11-14-2360e43*.json`.
+- #24 (opened this session): `Retriever.rankings` returns the uncut BM25, vector and final
+  orders, and `retrieve` takes its hits as the first k of `final`. `python -m src.eval.diagnose`
+  scores recall at k = 8 to 50 and places each article missing from the top 8. It was run at
+  `20e8896`; results are in `docs/reference/retrieval.md`, *Cut diagnosis*, and
+  `eval/results/diagnostics/2026-11-15-20e8896.json`.
+- #25 opened: fusion tuning, milestone v0.2.
+
+**Decided + why**
+
+- e5 was replaced by Vietnamese_Embedding in #11's proposal. e5 reads at most 512 tokens, so
+  most long chunks would have been cut. bge-m3 at 2,048 was added as a control, to separate
+  the model from the cut.
+- bge-m3 stays: Vietnamese_Embedding's paired interval includes 0 (+0.030 [−0.035, +0.094]),
+  by the rule set before the run. Its means were higher on EVAL-001, 005 and 007, and the owner
+  asked whether to keep it anyway. The rule was kept: changing it after the results would void
+  the comparison, and the three metrics share the same 39 questions.
+- The issues for re-measuring embeddings and for eval set v2 were drafted but not created.
+  They wait on what #24 and #25 show is worth optimizing.
+- A reranker is not reopened, although #24 meets ADR-0002's condition (the right article is
+  retrieved but ranked below the cut). A cross-encoder still takes 19–28 s per 20 pairs on the
+  dev laptop.
+- #24's rule: if at least half the standalone misses rank 9 to 50, the verdict is `ranking`.
+  `borderline` means two misses moved across the line would change the verdict; this detail
+  was fixed in the spec, not in the proposal.
+- #25 is to score a small grid of variants declared before the first run, not tune
+  step by step, because 39 questions overfit easily.
+
+**Real state / warnings**
+
+- Verified on 2026-11-15: 389 unit tests pass. The corpus tests for retrieval, the runner and
+  the diagnosis pass, including recall@8 from the diagnosis equal to the runner's EVAL-001 and
+  EVAL-005.
+- Verified, #11: EVAL-001 0.678 (bge-m3@8192), 0.665 (bge-m3@2048), 0.708 (Vietnamese_Embedding).
+  Embedding all 1,286 texts with Vietnamese_Embedding took 63 minutes.
+- Verified, #24: 30 of 43 standalone misses rank 9 to 50, 21 of them at 9 to 20. recall@20 is
+  0.850 and recall@50 0.922. 22 of the 43 are in the top 50 of both lists.
+- Assumed, not measured: fusion tuning can lift the misses at 9 to 20. The 22 found by both lists
+  may not move with `RRF_K` or weights alone.
+- The `retrieve` refactor is meant to change nothing. It is checked by the earlier retrieval tests
+  and by the matching recall@8, not by a byte comparison of hits.
+- Vietnamese_Embedding's `tokenizer.json` differs in bytes from bge-m3's but gives the same ids
+  on all 1,286 texts. The model (about 4.5 GB) sits in the local HF cache. `data/index-bge-2048/`
+  and `data/index-vn-embedding/` sit locally (gitignored).
+- `develop` was 11 commits ahead of `origin` before this block. The push is the owner's.
+
+---
+
 ## Session 3 — 2026-11-14 · Offline token counter and the clause-split threshold (#23, #12)
 
 **Done**
