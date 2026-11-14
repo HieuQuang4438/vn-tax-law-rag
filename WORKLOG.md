@@ -12,6 +12,62 @@
 
 ---
 
+## Session 3 — 2026-11-14 · Offline token counter and the clause-split threshold (#23, #12)
+
+**Done**
+
+- #23 (bug, opened during #12's proposal): the bge-m3 token counter reads `tokenizer.json` from
+  the pinned revision `5617a9f6` in the local cache, through `pinned_snapshot()` in
+  `src/chunking/tokens.py`, which the index builder now shares; a missing revision raises
+  `ModelNotCachedError` with the `hf download` command. Chunks unchanged (1,923). NFR-005.
+- #12: variant commands for a threshold experiment (`python -m src.chunking --max-tokens --out`,
+  `python -m src.enrich --chunks --out`, `python -m src.index --enriched --cache`,
+  `python -m src.eval.run --enriched`). The split parameters travel as `params.json` from
+  chunking through enrich into the index manifest (`chunking`) and every results file.
+- #12: four thresholds scored at ab4a8fa on eval set v1; `MAX_TOKENS` becomes 1,600 (1,286
+  chunks, 98 articles split). Table and caveats in `docs/reference/chunk-schema.md`, *Threshold
+  experiment*; four results files `eval/results/2026-11-14-ab4a8fa*.json`.
+- FR-CORE-002, AC-002, architecture, corpus counts, index, retrieval, README and eval-results
+  updated to 1,600. requirements, acceptance and architecture went to `in-review` and were
+  approved again by the owner.
+- The hand-checked links fixture takes the new chunk ids of 25 of its 175 links. Each change
+  only replaces a clause chunk with its parent article, now whole; this was checked by script.
+  Every other column is unchanged.
+
+**Decided + why**
+
+- The token counter loads the pinned revision offline. Before, it read the Hub's `main` and
+  made 12 connection attempts per run, so a new upstream tokenizer could move the splits (#23).
+- 8192 stands for "no split": no article on the corpus has header + text over 8,148 tokens, so
+  no text is cut at bge-m3's limit (#12, choice 1A).
+- 1,600 replaces 800 by the rule set before the run: only its paired interval of the EVAL-001
+  change lies above 0 (+0.044 [+0.005, +0.091]), and it keeps AC-012. 400 is
+  −0.018 [−0.056, +0.014]; 8192 is +0.032 [−0.044, +0.104] (#12).
+- The split is recorded in `params.json` and carried into the manifest. Otherwise a results file
+  could not tell which threshold built its index (#12, approved mid-work).
+
+**Real state / warnings**
+
+- Verified on 2026-11-14: 343 unit tests pass (run before the closing commit); the corpus tests
+  passed at 1,600 before the three docs' front matter changed.
+- Verified: at 1,600, EVAL-001 0.678 [0.592, 0.764], EVAL-005 0.575, EVAL-007 0.686. Against
+  800, 6 questions rose and 1 fell.
+- The 1,600 margin is thin. The lower end is +0.005, from 3 comparisons against one baseline
+  without correction. Part of the gain may come from k: the top 8 holds 6.82 distinct articles
+  at 1,600 against 6.31 at 800, and the experiment does not separate the two.
+- The default `data/` was rebuilt at 1,600 from the t1600 vector cache, with nothing embedded;
+  its chunks and enriched files match the variant's sha256. Variant folders `data/t400/`,
+  `data/t1600/` and `data/t8192/` sit locally (gitignored), next to `data/index-*/` from #10.
+- Embedding cost on the dev laptop (CPU): about 15 s per new text at 8192, 3,560 s for 238
+  texts.
+- Verified: #23 is closed on GitHub. `develop` is 3 commits ahead of `origin/develop` (#12's
+  tests, implementation and closing commit), so #12 closes on the next push.
+- Settled by the owner: `requirements.txt` and `requirements-experiments.txt` take lower bounds
+  (`>=`) at the versions installed, following `CONVENTIONS.md` §2. Each results file and index
+  manifest still records the versions it ran with.
+
+---
+
 ## Session 2 — 2026-11-04 to 2026-11-13 · From the approved docs to a scored retrieval baseline (#1–#10, #21)
 
 **Done**
