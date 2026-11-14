@@ -31,7 +31,6 @@ from src.chunking.tokens import (
 )
 from src.index.tokenizers import get_tokenizer
 
-EMBEDDING_INPUT_LIMIT = 8192  # bge-m3 maximum input, in tokens; the largest indexed text is 3,363
 BM25_TOKENIZER = "syllable"
 COLLECTION = "chunks"
 EMBED_GROUP = 64  # texts per embedder call; the cache is saved after each, so a stopped build keeps them
@@ -53,12 +52,10 @@ class Embedder(Protocol):
         ...
 
 
-class _BgeM3:
-    model = EMBEDDING_MODEL
-    revision = EMBEDDING_REVISION
-
-    def __init__(self, transformer):
+class _SentenceEmbedder:
+    def __init__(self, transformer, model: str, revision: str, input_limit: int):
         self._transformer = transformer
+        self.model, self.revision, self.input_limit = model, revision, input_limit
         self._done = 0
 
     def embed(self, texts: list[str]) -> list[list[float]]:
@@ -67,22 +64,34 @@ class _BgeM3:
         print(f"  embedded {self._done}", file=sys.stderr, flush=True)
         return vectors.tolist()
 
+    def count_tokens(self, text: str) -> int:
+        return len(self._transformer.tokenizer(text, truncation=False, verbose=False)["input_ids"])
+
 
 def load_embedder(cache_dir: Path | None = None, model: str = EMBEDDING_MODEL,
-                  input_limit: int | None = None) -> Embedder:  # stub: model and input_limit ignored (#11)
-    """bge-m3 at the pinned revision, from the local cache only (approved on #6).
+                  input_limit: int | None = None) -> Embedder:
+    """A model of `EMBEDDING_MODELS` at its pinned revision, from the local cache only (approved on #6).
+
+    `input_limit` defaults to the model's maximum input (#11); a model not in the table or a limit
+    outside 1 to that maximum stops with `ValueError` before anything is loaded.
 
     The snapshot folder is resolved with `local_files_only` and the model is loaded from that
     folder, so no Hub call is made. `HF_HUB_OFFLINE` alone is not enough: huggingface_hub reads it
     once, at import, and a process that imported it earlier still sends requests.
     """
+    if model not in EMBEDDING_MODELS:
+        raise ValueError(f"unknown embedding model {model!r}; known: {', '.join(EMBEDDING_MODELS)}")
+    revision, maximum = EMBEDDING_MODELS[model]
+    limit = maximum if input_limit is None else input_limit
+    if not 1 <= limit <= maximum:
+        raise ValueError(f"input limit {limit} is outside 1 to {maximum}, the maximum of {model}")
     os.environ["HF_HUB_OFFLINE"] = "1"
     from sentence_transformers import SentenceTransformer
 
-    folder = str(pinned_snapshot(cache_dir))
+    folder = str(pinned_snapshot(cache_dir, model))
     transformer = SentenceTransformer(folder, device="cpu", local_files_only=True)
-    transformer.max_seq_length = EMBEDDING_INPUT_LIMIT
-    return _BgeM3(transformer)
+    transformer.max_seq_length = limit
+    return _SentenceEmbedder(transformer, model, revision, limit)
 
 
 def _digest(text: str) -> str:
@@ -108,9 +117,19 @@ class _VectorCache:
         (self.folder / "keys.json").write_text(json.dumps(keys), encoding="utf-8", newline="\n")
 
 
-def _embed(texts: list[str], embedder: Embedder, cache: _VectorCache) -> tuple[list[np.ndarray], int]:
-    """A vector per text, embedding only digests the cache lacks; the cache ends with exactly these texts."""
-    keys = [_digest(t) for t in texts]
+def _keys(texts: list[str], embedder: Embedder) -> tuple[list[str], int]:
+    """The cache key of each text, and how many are over the input limit (approved on #11).
+
+    A text that fits gives the same vector at any limit, so its key is its digest alone; a text over
+    the limit is cut where the limit falls, so its key carries the limit.
+    """
+    limit = embedder.input_limit
+    over = [embedder.count_tokens(t) > limit for t in texts]
+    return [_digest(t) + (f"@{limit}" if cut else "") for t, cut in zip(texts, over)], sum(over)
+
+
+def _embed(texts: list[str], keys: list[str], embedder: Embedder, cache: _VectorCache) -> tuple[list[np.ndarray], int]:
+    """A vector per text, embedding only keys the cache lacks; the cache ends with exactly these keys."""
     vectors = cache.load()
     missing = list({k: t for k, t in zip(keys, texts) if k not in vectors}.items())  # first-appearance order
     for start in range(0, len(missing), EMBED_GROUP):
@@ -184,7 +203,8 @@ def build(enriched_dir: Path, index_dir: Path, embedder: Embedder, tokenizer: st
 
     cache_root = cache_dir if cache_dir is not None else index_dir / "embeddings"
     cache = _VectorCache(cache_root / f"{embedder.model.replace('/', '--')}@{embedder.revision}")
-    vectors, embedded = _embed(texts, embedder, cache)
+    keys, truncated = _keys(texts, embedder)
+    vectors, embedded = _embed(texts, keys, embedder, cache)
     _write_chroma(index_dir / "chroma", rows, vectors)
     bm25_started = time.perf_counter()
     _write_bm25(index_dir / "bm25", rows, texts, tokenize)
@@ -194,6 +214,8 @@ def build(enriched_dir: Path, index_dir: Path, embedder: Embedder, tokenizer: st
         "model": embedder.model,
         "revision": embedder.revision,
         "dimension": len(vectors[0]) if vectors else 0,
+        "input_limit": embedder.input_limit,
+        "truncated": truncated,
         "chunks_sha256": hashlib.sha256(raw).hexdigest(),
         "chunk_count": len(rows),
         "bm25_tokenizer": tokenizer,

@@ -46,7 +46,8 @@ NOT_RUN = "no generation stage"
 NFR006 = {"median_s": 10, "p95_s": 20}
 NFR007 = {"average_usd": 0.01}
 VERSIONED = ("bm25s", "chromadb", "numpy", "pyvi", "sentence-transformers", "torch", "underthesea")
-INDEX_FIELDS = ("model", "revision", "chunks_sha256", "chunk_count", "bm25_tokenizer", "chunking")
+INDEX_FIELDS = ("model", "revision", "chunks_sha256", "chunk_count", "bm25_tokenizer", "chunking", "input_limit",
+                "truncated")
 
 
 @dataclass

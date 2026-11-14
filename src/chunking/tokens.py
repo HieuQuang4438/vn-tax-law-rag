@@ -20,20 +20,23 @@ class ModelNotCachedError(RuntimeError):
     """The pinned model revision is not in the local Hugging Face cache."""
 
 
-def pinned_snapshot(cache_dir: Path | None = None, model: str = EMBEDDING_MODEL) -> Path:  # stub: model ignored
+def pinned_snapshot(cache_dir: Path | None = None, model: str = EMBEDDING_MODEL) -> Path:
     """The snapshot folder of a model of `EMBEDDING_MODELS` at its pinned revision, from the local cache only.
 
     Resolved with `local_files_only`, so no Hub call is made and `main` is never read.
     """
     from huggingface_hub import snapshot_download
 
+    if model not in EMBEDDING_MODELS:
+        raise ValueError(f"unknown embedding model {model!r}; known: {', '.join(EMBEDDING_MODELS)}")
+    revision = EMBEDDING_MODELS[model][0]
     try:
-        return Path(snapshot_download(EMBEDDING_MODEL, revision=EMBEDDING_REVISION, local_files_only=True,
+        return Path(snapshot_download(model, revision=revision, local_files_only=True,
                                       cache_dir=str(cache_dir) if cache_dir else None))
     except OSError as error:
         raise ModelNotCachedError(
-            f"{EMBEDDING_MODEL} revision {EMBEDDING_REVISION} is not in the local Hugging Face cache; "
-            f"download it once with: hf download {EMBEDDING_MODEL} --revision {EMBEDDING_REVISION}"
+            f"{model} revision {revision} is not in the local Hugging Face cache; "
+            f"download it once with: hf download {model} --revision {revision}"
         ) from error
 
 

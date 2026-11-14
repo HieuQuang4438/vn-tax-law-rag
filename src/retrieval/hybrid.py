@@ -15,7 +15,7 @@ import numpy as np
 from chromadb.api.client import SharedSystemClient
 from chromadb.config import Settings
 
-from src.index import TOKENIZERS, Embedder, get_tokenizer, load_embedder
+from src.index import EMBEDDING_MODELS, TOKENIZERS, Embedder, get_tokenizer, load_embedder
 from src.index.builder import COLLECTION
 from src.retrieval.references import Reference, find_references
 
@@ -77,6 +77,18 @@ class _Article:
 
 def _not_ready(problem: str) -> IndexNotReadyError:
     return IndexNotReadyError(f"{problem}; build the index with: python -m src.index")
+
+
+def _manifest_embedder(index_dir: Path) -> Embedder:
+    """The model the index was built with, checked before it is loaded (#11)."""
+    manifest_path = index_dir / "manifest.json"
+    if not manifest_path.is_file():
+        raise _not_ready(f"no {manifest_path}: the index is missing or its build did not finish")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    model = manifest.get("model")
+    if model not in EMBEDDING_MODELS:
+        raise _not_ready(f"the index was built with an unknown embedding model {model!r}")
+    return load_embedder(model=model, input_limit=manifest.get("input_limit"))
 
 
 class Retriever:
@@ -147,10 +159,11 @@ class Retriever:
     @classmethod
     def load(cls, data_dir: Path = Path("data"), embedder: Embedder | None = None,
              index_dir: Path | None = None, enriched_dir: Path | None = None) -> "Retriever":
-        """Both indexes under `data_dir`, or in `index_dir` and `enriched_dir`; bge-m3 from the local cache
-        unless given."""
-        return cls(index_dir or data_dir / "index", enriched_dir or data_dir / "enriched", data_dir / "processed",
-                   embedder or load_embedder())
+        """Both indexes under `data_dir`, or in `index_dir` and `enriched_dir`; unless an embedder is given,
+        the model and input limit the index's manifest names, from the local cache (#11)."""
+        index_dir = index_dir or data_dir / "index"
+        return cls(index_dir, enriched_dir or data_dir / "enriched", data_dir / "processed",
+                   embedder or _manifest_embedder(index_dir))
 
     # --- references
 

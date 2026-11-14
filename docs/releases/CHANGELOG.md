@@ -55,6 +55,11 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   `python -m src.eval.run --enriched` build and score chunks cut at another threshold. The
   split parameters travel as `params.json` into the index manifest (`chunking`) and every
   results file. FR-CORE-002, ADR-0001, #12.
+- Embedding model as a build option: `python -m src.index --model
+  {BAAI/bge-m3,AITeamVN/Vietnamese_Embedding} --input-limit <n>` builds with either pinned model,
+  offline. A text over the limit is cached under a key that carries the limit, so lowering it
+  re-embeds only those texts. The manifest and every results file record `input_limit` and
+  `truncated`, and the retriever embeds questions with the model the index names. ADR-0002, #11.
 
 ### Changed
 
