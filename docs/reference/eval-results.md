@@ -204,3 +204,9 @@ The first clean run, recorded on #9: `eval/results/2026-11-13-1d257ea.json`. Eva
 
 EVAL-001's target was confirmed at 0.80 after this baseline, approved on #9. It is not revised
 again; the gap is the work of the retrieval issues.
+
+Since #12 the chunks are split over 1,600 tokens, not 800. At that threshold, commit `ab4a8fa`,
+otherwise as above: EVAL-001 0.678 [0.592, 0.764], EVAL-005 0.575 [0.333, 0.817], EVAL-007
+0.686 [0.590, 0.780], in `eval/results/2026-11-14-ab4a8fa-3.json`
+([chunk-schema.md](chunk-schema.md), *Threshold experiment*). The table above stays the record
+of the first baseline.

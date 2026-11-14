@@ -127,13 +127,13 @@ Written last: a build that stops early leaves no manifest, so a manifest means a
 | `revision` | `5617a9f6…` | model revision, in full |
 | `dimension` | `1024` | vector length |
 | `chunks_sha256` | `9c1e…` | `sha256` of the bytes of `data/enriched/chunks.jsonl` |
-| `chunk_count` | `1923` | records indexed, in each index |
+| `chunk_count` | `1286` | records indexed, in each index |
 | `bm25_tokenizer` | `syllable` | the tokenizer above: `syllable`, `underthesea` or `pyvi` |
 | `bm25_seconds` | `3.2` | wall time to tokenize the corpus and write the keyword index |
 | `embedded` | `0` | indexed texts embedded by this build; the rest came from the cache |
 | `seconds` | `41.7` | wall time of the whole build |
 | `versions` | `{"bm25s": "0.3.16", …}` | installed versions of `bm25s`, `chromadb`, `sentence-transformers` and `torch`, and of the segmenter when `bm25_tokenizer` is one |
-| `chunking` | `{"max_tokens": 800, "min_intro_tokens": 100}` | the split the chunks were cut with: the content of `params.json` in the enriched folder ([chunk-schema.md](chunk-schema.md)), or null when it has none (approved on #12) |
+| `chunking` | `{"max_tokens": 1600, "min_intro_tokens": 100}` | the split the chunks were cut with: the content of `params.json` in the enriched folder ([chunk-schema.md](chunk-schema.md)), or null when it has none (approved on #12) |
 
 ## Variants of the index
 

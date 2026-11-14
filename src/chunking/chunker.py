@@ -6,7 +6,7 @@ from collections.abc import Callable, Iterator
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-MAX_TOKENS = 800  # ADR-0001 starting value; tuned by #12
+MAX_TOKENS = 1600  # set by #12 from ADR-0001's starting value of 800
 MIN_INTRO_TOKENS = 100  # text before clause 1 longer than this becomes its own chunk
 
 DOC_ID = re.compile(r"-(\d+)-d1\.html$")

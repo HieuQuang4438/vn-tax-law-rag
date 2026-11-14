@@ -70,8 +70,8 @@ def chunk(doc: dict, **kwargs):
 # --- Defaults ------------------------------------------------------------------------------
 
 
-def test_split_threshold_defaults_to_800_tokens():
-    assert MAX_TOKENS == 800
+def test_split_threshold_defaults_to_1600_tokens():
+    assert MAX_TOKENS == 1600  # set by #12, chunk-schema.md *Threshold experiment*
 
 
 def test_intro_chunk_threshold_defaults_to_100_tokens():

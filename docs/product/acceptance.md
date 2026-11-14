@@ -1,6 +1,6 @@
 ---
 status: approved
-updated: 2026-11-13
+updated: 2026-11-14
 owner: HieuQuang4438
 approved-by: peer
 ---
@@ -16,7 +16,7 @@ over the eval set defined below.
 | ID | Criterion | Checks |
 |---|---|---|
 | AC-001 | A crawl of both summary articles yields every listed document exactly once — 30 documents as of 2026-11-04 — each with number, type, issuer and issue date, and every article from Điều 1 to its last with no gap. | FR-CORE-001 |
-| AC-002 | Every chunk carries document, chapter, article, clause and parent ids. No chunk contains appendix-form text, the heading block, the preamble or the signature block. Every article over 800 tokens that has clauses is split into them; no article at or under 800 is split; an article over 800 with no clauses is one chunk. | FR-CORE-002 |
+| AC-002 | Every chunk carries document, chapter, article, clause and parent ids. No chunk contains appendix-form text, the heading block, the preamble or the signature block. Every article over 1,600 tokens that has clauses is split into them; no article at or under 1,600 is split; an article over 1,600 with no clauses is one chunk. | FR-CORE-002 |
 | AC-003 | Every chunk's header names its document number, document title, chapter (where the document has chapters), article, and clause for a clause chunk, in a field separate from its text. The indexed text of a chunk is header + text; the text shown for a citation contains no header. | FR-CORE-003 |
 | AC-004 | Every chunk has an effective date, or its document is listed in a report of documents where none could be read. Check case: in Law 09/2026/QH16, articles 1–3 carry 01/01/2026 and the other articles the adoption date, 24/04/2026. | FR-CORE-004 |
 | AC-005 | On a hand-checked list of the amending, replacing and repealing provisions in the corpus, every one produces its link; every link to an in-corpus target has the matching inverse link; every link to a document outside the corpus is kept and marked out-of-corpus. | FR-CORE-005 |

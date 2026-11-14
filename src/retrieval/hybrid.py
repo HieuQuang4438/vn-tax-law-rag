@@ -129,7 +129,7 @@ class Retriever:
     def _read_vectors(self, path: Path) -> np.ndarray:
         """Every chunk's vector from the Chroma collection, in `chunks.jsonl` order.
 
-        Cosine similarity is then computed exactly over all chunks: at 1,923 chunks this is under a
+        Cosine similarity is then computed exactly over all chunks: at 1,286 chunks this is under a
         millisecond, ties fall in file order, and the Chroma files are not held open.
         """
         client = chromadb.PersistentClient(path=str(path), settings=Settings(anonymized_telemetry=False))

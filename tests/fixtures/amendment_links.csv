@@ -39,7 +39,7 @@ source,type,target_number,target_article,target_clause,target_point,target_part,
 421582:D24,replaces,57/2021/NĐ-CP,,,,,
 421739:D1,amends,48/2024/QH15,5,1,,,379409:D5:K1
 421739:D1,amends,48/2024/QH15,5,25,,,379409:D5:K25
-421739:D1,amends,48/2024/QH15,9,5,,,379409:D9:K5
+421739:D1,amends,48/2024/QH15,9,5,,,379409:D9
 421739:D1,repeals,48/2024/QH15,12,3,,,379409:D12
 421739:D1,repeals,48/2024/QH15,15,9,c,,379409:D15:K9
 422733:D29,repeals,04/2007/QH12,,,,,
@@ -54,26 +54,26 @@ source,type,target_number,target_article,target_clause,target_point,target_part,
 422910:D9,repeals,100/2016/NĐ-CP,2,,,,
 427777:D9,replaces,40/2021/TT-BTC,,,,,
 427777:D9,replaces,100/2021/TT-BTC,,,,,
-428454:D10:K6,replaces,78/2014/TT-BTC,,,,,
-428454:D10:K6,replaces,96/2015/TT-BTC,,,,,
-428454:D10:K7,repeals,103/2014/TT-BTC,1,,,,
-428454:D10:K7,repeals,103/2014/TT-BTC,2,,,,
-428454:D10:K7,repeals,103/2014/TT-BTC,7,,,,
-428454:D10:K7,repeals,103/2014/TT-BTC,10,,,,
-428454:D10:K7,repeals,103/2014/TT-BTC,13,,,,
-428454:D10:K7,repeals,103/2014/TT-BTC,16,,,,
-428454:D10:K7,repeals,119/2014/TT-BTC,6,,,,
-428454:D10:K7,repeals,151/2014/TT-BTC,,,,Chương I,
-428454:D10:K7,repeals,130/2016/TT-BTC,5,,,,
-428454:D10:K7,repeals,25/2018/TT-BTC,3,,,,
-428454:D10:K7,repeals,67/2022/TT-BTC,2,,,,
-428454:D10:K7,repeals,67/2022/TT-BTC,3,5,,,
-428454:D10:K7,repeals,67/2022/TT-BTC,4,,,,
-428454:D10:K7,repeals,67/2022/TT-BTC,5,3,,,
-428454:D10:K7,repeals,83/2016/TT-BTC,4,,,,
-428454:D10:K7,repeals,128/2011/TT-BTC,4,,,,
+428454:D10,replaces,78/2014/TT-BTC,,,,,
+428454:D10,replaces,96/2015/TT-BTC,,,,,
+428454:D10,repeals,103/2014/TT-BTC,1,,,,
+428454:D10,repeals,103/2014/TT-BTC,2,,,,
+428454:D10,repeals,103/2014/TT-BTC,7,,,,
+428454:D10,repeals,103/2014/TT-BTC,10,,,,
+428454:D10,repeals,103/2014/TT-BTC,13,,,,
+428454:D10,repeals,103/2014/TT-BTC,16,,,,
+428454:D10,repeals,119/2014/TT-BTC,6,,,,
+428454:D10,repeals,151/2014/TT-BTC,,,,Chương I,
+428454:D10,repeals,130/2016/TT-BTC,5,,,,
+428454:D10,repeals,25/2018/TT-BTC,3,,,,
+428454:D10,repeals,67/2022/TT-BTC,2,,,,
+428454:D10,repeals,67/2022/TT-BTC,3,5,,,
+428454:D10,repeals,67/2022/TT-BTC,4,,,,
+428454:D10,repeals,67/2022/TT-BTC,5,3,,,
+428454:D10,repeals,83/2016/TT-BTC,4,,,,
+428454:D10,repeals,128/2011/TT-BTC,4,,,,
 433387:D1,amends,68/2026/NĐ-CP,3,,,,427630:D3
-433387:D1,amends,68/2026/NĐ-CP,4,,,,427630:D4:K1;427630:D4:K2;427630:D4:K3;427630:D4:K4;427630:D4:K5
+433387:D1,amends,68/2026/NĐ-CP,4,,,,427630:D4
 433387:D1,amends,68/2026/NĐ-CP,8,1,,,427630:D8:K1
 433387:D1,amends,68/2026/NĐ-CP,9,,,,427630:D9
 433387:D1,amends,68/2026/NĐ-CP,10,,,,427630:D10
@@ -90,7 +90,7 @@ source,type,target_number,target_article,target_clause,target_point,target_part,
 433921:D2,amends,181/2025/NĐ-CP,9,1,b,,404357:D9
 433921:D3,amends,181/2025/NĐ-CP,23,2,a,,404357:D23:K2
 433921:D3,amends,181/2025/NĐ-CP,23,2,c,,404357:D23:K2
-433921:D4,amends,181/2025/NĐ-CP,26,2,g,,404357:D26:K2
+433921:D4,amends,181/2025/NĐ-CP,26,2,g,,404357:D26
 433921:D5,replaces,181/2025/NĐ-CP,,,,Phụ lục I,
 433921:D5,replaces,181/2025/NĐ-CP,,,,Phụ lục II,
 434628:D1,amends,18/2026/TT-BTC,1,,,,427777:D1
@@ -101,7 +101,7 @@ source,type,target_number,target_article,target_clause,target_point,target_part,
 434628:D3,replaces,18/2026/TT-BTC,,,,Mẫu số 02/BK-KTBĐS,
 434729:D1,amends,109/2025/QH15,7,1,,,422733:D7
 434729:D2,amends,48/2024/QH15,5,25,,,379409:D5:K25
-434729:D3,amends,67/2025/QH15,4,14a,,,404386:D4:K14
+434729:D3,amends,67/2025/QH15,4,14a,,,404386:D4
 434729:D4,amends,66/2025/QH15,8,1,,,405694:D8:K1
 439303:D69,replaces,65/2013/NĐ-CP,,,,,
 439303:D69,repeals,91/2014/NĐ-CP,3,,,,
@@ -159,9 +159,9 @@ source,type,target_number,target_article,target_clause,target_point,target_part,
 440483:D99:K4,repeals,40/2025/TT-BTC,7,,,,
 440483:D99:K4,repeals,40/2025/TT-BTC,8,,,,
 440483:D99:K4,repeals,158/2025/TT-BTC,4,,,,422908:D4
-440483:D99:K4,repeals,18/2026/TT-BTC,4,2,a,,427777:D4:K2
-440483:D99:K4,repeals,18/2026/TT-BTC,4,2,c,,427777:D4:K2
-440483:D99:K4,repeals,18/2026/TT-BTC,4,3,,,427777:D4:K3
+440483:D99:K4,repeals,18/2026/TT-BTC,4,2,a,,427777:D4
+440483:D99:K4,repeals,18/2026/TT-BTC,4,2,c,,427777:D4
+440483:D99:K4,repeals,18/2026/TT-BTC,4,3,,,427777:D4
 440483:D99:K4,repeals,328/2016/TT-BTC,7,1,b,,
 440483:D99:K4,repeals,328/2016/TT-BTC,7,1,c,,
 440483:D99:K4,repeals,328/2016/TT-BTC,7,1,d,,

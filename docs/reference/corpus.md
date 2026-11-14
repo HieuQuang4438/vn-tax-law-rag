@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-13
+updated: 2026-11-14
 owner: HieuQuang4438
 ---
 
@@ -33,12 +33,12 @@ prefix of every chunk id. The crawled pages and parsed text stay in `data/`, whi
 | Documents | 7 | 11 | 12 | 30 |
 | of which amending documents | 2 | 3 | 1 | 6 |
 | Articles | 138 | 325 | 281 | 744 |
-| Chunks | 349 | 823 | 751 | 1,923 |
+| Chunks | 215 | 551 | 520 | 1,286 |
 
 - Issue dates run from 26/11/2024 (`48/2024/QH15`) to 01/07/2026 (`94/2026/TT-BTC`).
 - 17 documents have chapters, 6 of them also sections; 13 have neither.
 - 15 documents have an appendix or forms after the body; none of it is chunked.
-- 125 chunks are over 800 tokens: a clause, or an article with no clauses, that is over the
+- 22 chunks are over 1,600 tokens: a clause, or an article with no clauses, that is over the
   limit on its own. The longest is 3,289 tokens.
 
 ## Documents
@@ -136,7 +136,7 @@ and clause level are FR-CORE-005, not built yet.
 
 An amending document is short: 2 to 6 articles, each quoting the new wording of many
 provisions in “ ”. Quoted text is never split into its own chunks, so these documents yield one
-chunk per article, often over 800 tokens.
+chunk per article, often a long one.
 
 ## Known irregularities
 

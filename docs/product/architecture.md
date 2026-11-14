@@ -1,6 +1,6 @@
 ---
 status: approved
-updated: 2026-11-12
+updated: 2026-11-14
 owner: HieuQuang4438
 approved-by: peer
 ---
@@ -56,8 +56,8 @@ page; they come from the text in step 4. — FR-CORE-001
 Each document is cut along its legal structure, because an answer has to cite one provision:
 
 - one article (Điều) per chunk;
-- an article over 800 tokens is split into its clauses (Khoản) — about a third of articles,
-  since articles run from a few lines to 8k tokens;
+- an article over 1,600 tokens is split into its clauses (Khoản) — 98 of 744 articles,
+  since articles run from a few lines to 8k tokens (threshold set by #12);
 - only article text is chunked; the heading block, the preamble ("Căn cứ…"), chapter titles,
   the signature block and appendix forms are not.
 

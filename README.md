@@ -133,7 +133,7 @@ bm25s. LLM not chosen yet.
 ## Status
 
 Early. The crawler fetches all 30 listed documents; every one has an unbroken run of articles
-from Điều 1 to its last article. Chunking (744 articles, 1,923 chunks), the context header,
+from Điều 1 to its last article. Chunking (744 articles, 1,286 chunks), the context header,
 each chunk's effective date, the amendment links between documents (175) and both indexes
 over the chunks (vector and BM25), reference lookup and hybrid retrieval, and eval set v1 are
 built, with the eval runner scoring retrieval; the agent does not exist yet.

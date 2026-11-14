@@ -1,6 +1,6 @@
 ---
 status: approved
-updated: 2026-11-13
+updated: 2026-11-14
 owner: HieuQuang4438
 approved-by: peer
 ---
@@ -36,7 +36,7 @@ Nothing is released yet, so `Since` is `—` everywhere until the first release 
 | ID | Requirement | Since | Until | Status | Note |
 |---|---|---|---|---|---|
 | FR-CORE-001 | Crawl every document listed in the source summary articles — the 2026 tax document list and the personal income tax list — once each; cache each page; extract document metadata and the full text as ordered blocks. | — | — | approved | Built: `scripts/crawl_index.py` |
-| FR-CORE-002 | Split each document into chunks along its legal structure: one article per chunk; an article over 800 tokens is split into its clauses (Khoản); an article over 800 tokens with no clauses stays whole. Only article text is chunked: the heading block, the preamble ("Căn cứ…"), chapter titles, the signature block and appendix forms are not. Every chunk records document, chapter, article, clause and its parent article. | — | — | approved | ADR-0001. 800 is a starting value, set by #12 |
+| FR-CORE-002 | Split each document into chunks along its legal structure: one article per chunk; an article over 1,600 tokens is split into its clauses (Khoản); an article over 1,600 tokens with no clauses stays whole. Only article text is chunked: the heading block, the preamble ("Căn cứ…"), chapter titles, the signature block and appendix forms are not. Every chunk records document, chapter, article, clause and its parent article. | — | — | approved | ADR-0001. 1,600 set by #12 from the starting value 800: [chunk-schema.md](../reference/chunk-schema.md#threshold-experiment) |
 | FR-CORE-003 | Give every chunk a context header naming its document number, document title (trích yếu), chapter, article and — for a clause chunk — clause, stored apart from the chunk text. Header + text is what gets indexed; text alone is what is shown and cited. | — | — | approved | ADR-0001 |
 | FR-CORE-004 | Record the effective date of every chunk, read from its document's own effectiveness article: the document's date by default, and the specific date where that article sets one for particular articles or clauses. | — | — | approved | ADR-0001 |
 | FR-CORE-005 | Record amends / amended-by, replaces and repeals links at article or clause level. A link whose target document is not in the corpus is kept, with the target identified by document number, article and clause, and marked out-of-corpus. | — | — | approved | ADR-0001 |

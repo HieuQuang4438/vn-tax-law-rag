@@ -79,11 +79,11 @@ Examples, from Circular 90/2026/TT-BTC and Law 09/2026/QH16 (no chapters):
 **Indexed text** is `header + "\n" + text`, returned by `src.enrich.indexed_text(chunk)`. It is
 not stored: the indexes call that function, and a citation shows `text` alone.
 
-**Token limit.** The split threshold (`MAX_TOKENS`, 800) counts the chunk text only, not header +
+**Token limit.** The split threshold (`MAX_TOKENS`, 1,600, set by #12) counts the chunk text only, not header +
 text, so the header changes no split. `python -m src.enrich` prints the largest header and the
 largest header + text in bge-m3 tokens, against bge-m3's 8,192-token input limit. On the
-corpus (2026-11-12): largest header 234 tokens (`440483:D93:K1`, a long article title), largest
-header + text 3,363 (`404357:D27:K3`).
+corpus (2026-11-14, threshold 1,600): largest header 234 tokens (`440483:D93:K1`, a long article
+title), largest header + text 3,363 (`404357:D27:K3`).
 
 ### Effective date
 
@@ -279,7 +279,9 @@ false and no chunks (FR-CORE-005).
   provisions by subject only and is reported as `unresolved_link`.
 
 The full hand-checked list is `tests/fixtures/amendment_links.csv`: one row per link,
-`target_chunks` filled for in-corpus targets.
+`target_chunks` filled for in-corpus targets. Its `source` and `target_chunks` are chunk ids, so
+they follow the split threshold; the other columns are the hand-checked directive. At 1,600
+(#12), 25 rows changed, each only by a clause chunk becoming its now-whole article.
 
 ## `data/enriched/links.jsonl` — every amendment link
 
@@ -338,7 +340,7 @@ reports here and on the console.
 ## `params.json` — the split parameters
 
 The two parameters the chunks were cut with, so that every later stage can say which split it
-was built from (approved on #12): `{"max_tokens": 800, "min_intro_tokens": 100}`, one JSON
+was built from (approved on #12): `{"max_tokens": 1600, "min_intro_tokens": 100}`, one JSON
 object, keys in that order, `indent=2`, a final `\n`. `build(processed_dir, out_dir,
 count_tokens, max_tokens=MAX_TOKENS)` writes it beside `chunks.jsonl`, so it is byte-identical
 across two builds with the same threshold.
@@ -351,13 +353,13 @@ manifest as `chunking` ([index.md](index.md)), and every results file carries it
 ## Running the chunk and enrich steps
 
 ```bash
-python -m src.chunking      # data/processed/ -> data/chunks/, threshold 800
+python -m src.chunking      # data/processed/ -> data/chunks/, threshold 1600
 python -m src.enrich        # data/processed/ + data/chunks/ -> data/enriched/
 ```
 
 | Command | Option | Default | Meaning |
 |---|---|---|---|
-| `python -m src.chunking` | `--max-tokens` | `800` (`MAX_TOKENS`) | the split threshold, an integer of at least 1; a smaller value stops with a usage error before anything is read |
+| `python -m src.chunking` | `--max-tokens` | `1600` (`MAX_TOKENS`) | the split threshold, an integer of at least 1; a smaller value stops with a usage error before anything is read |
 | | `--processed` | `data/processed` | the parsed documents |
 | | `--out` | `data/chunks` | where `chunks.jsonl`, `articles.jsonl`, `issues.jsonl` and `params.json` are written |
 | `python -m src.enrich` | `--processed` | `data/processed` | the parsed documents |
@@ -369,7 +371,8 @@ variant for an experiment; *Threshold experiment*, below, gives the commands.
 
 ## Threshold experiment
 
-Does another clause-split threshold raise recall@8 over 800? Approach approved on #12, with the
+Does another clause-split threshold raise recall@8 over 800, the starting value of ADR-0001?
+Approach approved on #12, with the
 decision rule fixed before the run: a threshold replaces 800 only if the paired 95% bootstrap
 interval of its EVAL-001 change lies entirely above 0 and AC-012 still holds; if several do,
 the one with the largest mean change.
@@ -377,7 +380,8 @@ the one with the largest mean change.
 Thresholds: 400, 800, 1600, and 8192 for no split. 8192 is bge-m3's input limit; no article of
 the corpus is over it (the largest is 8,072 tokens), so at 8192 every article is one chunk.
 
-Setup, the same for every run: one commit, eval set v1, bge-m3 `5617a9f6`, `syllable` BM25,
+Setup, the same for every run: commit `ab4a8fa`, eval set v1 (`d33b390e4894…`), bge-m3
+`5617a9f6`, `syllable` BM25,
 k = 8 chunks, RRF 60, 50 candidates, `MIN_INTRO_TOKENS` 100, `rewrite: none`, the dev laptop
 (i7-10610U, 16 GB RAM, CPU only). Each variant lives in `data/t<threshold>/`, gitignored
 (`data/t*/`), and has its own copy of the vector cache, seeded from the default one: a
@@ -397,6 +401,37 @@ the scored questions (from `hits` in the results file), the enrich counts (links
 chunks, issues, largest header + text against the 8,192 limit), texts embedded, build time,
 retrieval latency, and the results file.
 
+Run on 2026-11-14. The 800 row is the default index, rebuilt at the same commit; its build
+embedded nothing, since its vectors were cached.
+
+| Threshold | Chunks | Split articles | EVAL-001 | Paired change vs 800 | EVAL-005 | EVAL-007 | Distinct articles in top 8 | Texts embedded | Index build | Retrieval median / p95 | Results file |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 400 | 2,411 | 390 | 0.615 [0.524, 0.710] | −0.018 [−0.056, +0.014] | 0.590 [0.373, 0.813] | 0.693 [0.587, 0.789] | 6.13 | 640 | 743 s | 0.21 / 0.29 s | `2026-11-14-ab4a8fa-2.json` |
+| 800 | 1,923 | 238 | 0.633 [0.539, 0.727] | — | 0.575 [0.333, 0.817] | 0.676 [0.571, 0.773] | 6.31 | 0 | 2 s | 0.19 / 0.31 s | `2026-11-14-ab4a8fa.json` |
+| **1600** | 1,286 | 98 | **0.678** [0.592, 0.764] | **+0.044 [+0.005, +0.091]** | 0.575 [0.333, 0.817] | 0.686 [0.590, 0.780] | 6.82 | 140 | 994 s | 0.19 / 0.32 s | `2026-11-14-ab4a8fa-3.json` |
+| 8192 | 744 | 0 | 0.666 [0.564, 0.764] | +0.032 [−0.044, +0.104] | 0.600 [0.333, 0.867] | 0.624 [0.520, 0.721] | 8.00 | 238 | 3,560 s | 0.18 / 0.27 s | `2026-11-14-ab4a8fa-4.json` |
+
+- **1600 is the only threshold that meets the rule**, so `MAX_TOKENS` becomes 1,600
+  (FR-CORE-002, AC-002). Against 800 it raised recall on 6 questions and lowered it on 1; on
+  `plain` questions 0.572 to 0.618, on `reference` questions 0.771 to 0.812. No follow-up turn
+  changed (EVAL-005 paired [0, 0]).
+- **The margin is thin.** The interval's lower end is +0.005, and three thresholds were compared
+  with one baseline without correction, so one of them could pass by chance.
+- **Part of the gain may come from k, not from the vectors.** k counts chunks: at 800 the top 8
+  held 6.31 distinct articles on average, at 1600 6.82. Fewer clause chunks of one article
+  leave room for other articles, and this experiment does not separate that from a better
+  representation.
+- 400 lowered recall on 4 questions and raised it on 2. 8192, one chunk per article, raised it
+  on 7 and lowered it on 5; its interval includes 0, and its context precision fell
+  (EVAL-007 −0.052 [−0.124, +0.016]). Its largest header + text is 8,148 tokens, under the
+  8,192 limit, so no text was cut; embedding its 238 new texts took 59 minutes.
+- Enrich at every threshold: 175 amendment links, no chunk without an effective date, 15 enrich
+  issues. Chunks with `amended_by`: 38 at 400, 37 at 800, 32 at 1600, 27 at 8192. The chunker
+  reports 6 issues, 5 at 8192, where no article is split and so no `clause_numbering` can occur.
+- Retrieval latency varies by about 0.2 s between runs on this laptop (*Tokenizer experiment*
+  in [index.md](index.md)), more than between thresholds; every variant keeps AC-012.
+- Each results file records its split in `configuration.index.chunking`.
+
 ## Rules, in the order they apply
 
 - **Article text** starts at the first `Điều N.` heading and ends at the first of: `Nơi nhận:`,
@@ -411,9 +446,9 @@ retrieval latency, and the results file.
   and is reported as `unbalanced_quotes` (decided on #2: such a quote in document 439780 had
   hidden 16 of its 25 articles). A straight `"` closes a `“` opened earlier on the same line
   (reported as `mismatched_quotes`), never one carried over from an earlier line.
-- **Split**: an article whose body is over `MAX_TOKENS` (800) bge-m3 tokens is cut at its
+- **Split**: an article whose body is over `MAX_TOKENS` (1,600) bge-m3 tokens is cut at its
   clause lines (`N. `). An article over the limit with no clause lines stays one chunk, so a
-  chunk can be over 800 tokens. Text before clause 1 becomes a `:K0` chunk when it is over
+  chunk can be over 1,600 tokens. Text before clause 1 becomes a `:K0` chunk when it is over
   `MIN_INTRO_TOKENS` (100); otherwise it is only in the article record.
 - **Repeated clause number** in one article: the second gets `:K<n>.2`, so ids stay unique;
   it is also reported as `clause_numbering`.

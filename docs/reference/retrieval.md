@@ -150,7 +150,7 @@ Three ranked lists of chunk ids, each at most `CANDIDATES` (50) long:
 - **Vector list.** The question embedded by the same model as the chunks, compared by cosine
   similarity with every chunk's vector. The vectors are read from the Chroma collection once,
   at load, and the comparison is exact over all chunks rather than through Chroma's approximate
-  search: at 1,923 chunks it takes under a millisecond, equal scores keep `chunks.jsonl` order,
+  search: at 1,286 chunks it takes under a millisecond, equal scores keep `chunks.jsonl` order,
   and the Chroma files are not held open while the retriever lives.
 - **Document list.** Only when the question references a document without an article. Every
   chunk of the documents so referenced, ranked by `rrf` of their keyword rank and vector rank

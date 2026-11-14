@@ -58,6 +58,11 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 
 ### Changed
 
+- Clause-split threshold 800 to 1,600 tokens: 1,286 chunks instead of 1,923, 98 articles split
+  instead of 238. Measured on eval set v1 against 400, 800 and no split, recall@8 0.633 to
+  0.678, paired change +0.044 [+0.005, +0.091], the only threshold whose interval lies above 0.
+  FR-CORE-002, AC-002, ADR-0001, #12.
+
 ### Deprecated
 
 ### Removed
