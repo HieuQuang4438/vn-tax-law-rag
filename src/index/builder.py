@@ -22,7 +22,13 @@ from bm25s.tokenization import Tokenized
 from chromadb.api.client import SharedSystemClient
 from chromadb.config import Settings
 
-from src.chunking.tokens import EMBEDDING_MODEL, EMBEDDING_REVISION, ModelNotCachedError, pinned_snapshot
+from src.chunking.tokens import (
+    EMBEDDING_MODEL,
+    EMBEDDING_MODELS,
+    EMBEDDING_REVISION,
+    ModelNotCachedError,
+    pinned_snapshot,
+)
 from src.index.tokenizers import get_tokenizer
 
 EMBEDDING_INPUT_LIMIT = 8192  # bge-m3 maximum input, in tokens; the largest indexed text is 3,363
@@ -36,9 +42,14 @@ VERSIONED = ("bm25s", "chromadb", "sentence-transformers", "torch")
 class Embedder(Protocol):
     model: str
     revision: str
+    input_limit: int  # tokens; a longer text is cut when embedded (#11)
 
     def embed(self, texts: list[str]) -> list[list[float]]:
         """One unit-length vector per text, in order."""
+        ...
+
+    def count_tokens(self, text: str) -> int:
+        """The model's token count of `text`, special tokens included, nothing cut (#11)."""
         ...
 
 
@@ -57,7 +68,8 @@ class _BgeM3:
         return vectors.tolist()
 
 
-def load_embedder(cache_dir: Path | None = None) -> Embedder:
+def load_embedder(cache_dir: Path | None = None, model: str = EMBEDDING_MODEL,
+                  input_limit: int | None = None) -> Embedder:  # stub: model and input_limit ignored (#11)
     """bge-m3 at the pinned revision, from the local cache only (approved on #6).
 
     The snapshot folder is resolved with `local_files_only` and the model is loaded from that

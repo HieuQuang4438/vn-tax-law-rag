@@ -28,7 +28,7 @@ reads them from the enriched chunks.
 ```python
 from src.retrieval import Retriever
 
-retriever = Retriever.load()                  # bge-m3 from the local cache, once per process
+retriever = Retriever.load()                  # the index's model from the local cache, once per process
 result = retriever.retrieve("Điều 9 Luật 48/2024 áp dụng cho hộ kinh doanh không?")
 result.hits         # list[Hit], at most k, best first
 result.unresolved   # list[Unresolved], in question order
@@ -37,7 +37,7 @@ result.unresolved   # list[Unresolved], in question order
 | Name | What it is |
 |---|---|
 | `Retriever(index_dir, enriched_dir, processed_dir, embedder)` | Reads both indexes, the chunks and the documents' metadata. The embedder embeds the question, as at build time. |
-| `Retriever.load(data_dir=Path("data"), embedder=None, index_dir=None, enriched_dir=None)` | The same, from `enriched_dir`, `data_dir/processed` and `index_dir`, which are `data_dir/enriched` and `data_dir/index` when not given. With no embedder, bge-m3 is loaded offline by `src.index.load_embedder`. |
+| `Retriever.load(data_dir=Path("data"), embedder=None, index_dir=None, enriched_dir=None)` | The same, from `enriched_dir`, `data_dir/processed` and `index_dir`, which are `data_dir/enriched` and `data_dir/index` when not given. With no embedder, the model and input limit the index's manifest names are loaded offline by `src.index.load_embedder` (approved on #11); a manifest without `input_limit` gets the model's maximum. |
 | `Retriever.retrieve(question, k=TOP_K)` | A `Retrieval` for one question. |
 | `Retrieval` | `hits: list[Hit]`, `unresolved: list[Unresolved]`. |
 | `Hit` | `chunk_id: str`, `found_by: tuple[str, ...]`, `score: float`. |
@@ -64,6 +64,9 @@ The constructor checks that the index fits what it is asked to search. It raises
 - the manifest's `model` or `revision` differs from the embedder's, which means the question
   would be embedded by another model than the chunks;
 - the manifest's `bm25_tokenizer` is not one of `syllable`, `underthesea`, `pyvi`.
+
+`Retriever.load` with no embedder raises the same error, before loading any model, when the
+manifest is missing or its `model` is not in `EMBEDDING_MODELS` ([index.md](index.md)).
 
 The model is loaded once, by `Retriever.load`, and every `retrieve` call reuses it. Nothing goes
 to the network: the model comes from the local cache, as at build time ([index.md](index.md)),

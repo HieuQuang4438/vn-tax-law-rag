@@ -80,15 +80,18 @@ def topic_vector(text: str) -> list[float]:
 
 
 class TopicEmbedder:
-    model = EMBEDDING_MODEL
-
-    def __init__(self, revision: str = EMBEDDING_REVISION):
+    def __init__(self, revision: str = EMBEDDING_REVISION, model: str = EMBEDDING_MODEL, input_limit: int = 8192):
+        self.model = model
         self.revision = revision
+        self.input_limit = input_limit
         self.calls: list[str] = []
 
     def embed(self, texts: list[str]) -> list[list[float]]:
         self.calls.extend(texts)
         return [topic_vector(t) for t in texts]
+
+    def count_tokens(self, text: str) -> int:
+        return len(text.split()) + 2
 
 
 def chunk_record(chunk_id: str, position: str, text: str) -> dict:
@@ -550,3 +553,64 @@ def test_load_reads_the_enriched_folder_it_is_given(data_dir, tmp_path):
         pytest.fail(f"read the default enriched folder: {error}")
     dropped = json.loads(lines[-1])["id"]
     assert dropped not in ids(retriever.retrieve(json.loads(lines[-1])["text"], k=20))
+
+
+# --- The index's model (#11) --------------------------------------------------------------------
+
+VN_MODEL = "AITeamVN/Vietnamese_Embedding"
+VN_REVISION = "dea33aa1ab339f38d66ae0a40e6c40e0a9249568"
+
+
+def set_manifest(data: Path, **fields) -> None:
+    path = data / "index" / "manifest.json"
+    written = json.loads(path.read_text(encoding="utf-8"))
+    path.write_text(json.dumps({**written, **fields}), encoding="utf-8")
+
+
+def recording_loader(monkeypatch) -> list[dict]:
+    calls = []
+
+    def load(**kwargs):
+        calls.append(kwargs)
+        model = kwargs.get("model", EMBEDDING_MODEL)
+        revision = VN_REVISION if model == VN_MODEL else EMBEDDING_REVISION
+        return TopicEmbedder(revision=revision, model=model, input_limit=kwargs.get("input_limit") or 8192)
+
+    monkeypatch.setattr(hybrid, "load_embedder", load)
+    return calls
+
+
+def test_load_embeds_questions_with_the_model_and_limit_the_manifest_names(data_dir, monkeypatch):
+    set_manifest(data_dir, model=VN_MODEL, revision=VN_REVISION, input_limit=2048)
+    calls = recording_loader(monkeypatch)
+    try:
+        Retriever.load(data_dir)
+    except IndexNotReadyError:
+        pass
+    assert calls == [{"model": VN_MODEL, "input_limit": 2048}]
+
+
+def test_load_gives_a_manifest_without_a_limit_the_model_maximum(data_dir, monkeypatch):
+    calls = recording_loader(monkeypatch)
+    set_manifest(data_dir, input_limit=None)
+    try:
+        Retriever.load(data_dir)
+    except IndexNotReadyError:
+        pass
+    assert calls == [{"model": EMBEDDING_MODEL, "input_limit": None}]
+
+
+def test_an_unknown_model_in_the_manifest_stops_loading_before_any_model_loads(data_dir, monkeypatch):
+    set_manifest(data_dir, model="intfloat/multilingual-e5-large")
+    calls = recording_loader(monkeypatch)
+    with pytest.raises(IndexNotReadyError, match="python -m src.index"):
+        Retriever.load(data_dir)
+    assert calls == []
+
+
+def test_a_missing_manifest_stops_loading_before_any_model_loads(data_dir, monkeypatch):
+    (data_dir / "index" / "manifest.json").unlink()
+    calls = recording_loader(monkeypatch)
+    with pytest.raises(IndexNotReadyError, match="python -m src.index"):
+        Retriever.load(data_dir)
+    assert calls == []

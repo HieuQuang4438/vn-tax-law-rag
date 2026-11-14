@@ -21,6 +21,8 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--enriched", help="the enriched chunks; default data/enriched")
     parser.add_argument("--out", help="the index folder; default data/index")
     parser.add_argument("--cache", help="the vector cache; default data/index/embeddings")
+    parser.add_argument("--model", help="the embedding model; default BAAI/bge-m3")  # stub (#11)
+    parser.add_argument("--input-limit", type=int, help="the input limit; default the model's maximum")  # stub
     args = parser.parse_args(argv)
     enriched = Path(args.enriched) if args.enriched else ENRICHED_DIR
     out = Path(args.out) if args.out else INDEX_DIR

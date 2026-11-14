@@ -309,7 +309,8 @@ def test_configuration_records_commit_set_index_pipeline_and_machine(tmp_path):
     assert (at(config, "diff_sha256") is None) is (not dirty)
     assert at(config, "eval_set") == {"path": "eval/questions.yaml", "version": 1, "sha256": "a" * 64}
     assert at(config, "index") == {**{k: MANIFEST[k] for k in ("model", "revision", "chunks_sha256", "chunk_count",
-                                                                "bm25_tokenizer")}, "chunking": None}
+                                                                "bm25_tokenizer")},
+                                   "chunking": None, "input_limit": None, "truncated": None}
     assert at(config, "pipeline") == FakePipeline.config
     assert at(config, "bootstrap") == {"resamples": 1000, "seed": 0, "level": 0.95}
     assert sorted(at(config, "versions")) == ["bm25s", "chromadb", "numpy", "python", "pyvi", "sentence-transformers",
@@ -529,3 +530,12 @@ def test_configuration_records_no_split_for_an_older_manifest(tmp_path):
     write_manifest(tmp_path / "index")
     config = configuration(small_set(), Path("eval/questions.yaml"), tmp_path / "index", FakePipeline.config, ROOT)
     assert "chunking" in at(config, "index") and at(config, "index")["chunking"] is None
+
+
+def test_configuration_records_the_input_limit_and_texts_cut_from_the_manifest(tmp_path):
+    index = tmp_path / "index"
+    index.mkdir()
+    (index / "manifest.json").write_text(json.dumps({**MANIFEST, "input_limit": 2048, "truncated": 12}),
+                                         encoding="utf-8")
+    config = configuration(small_set(), Path("eval/questions.yaml"), index, FakePipeline.config, ROOT)
+    assert (at(config, "index").get("input_limit"), at(config, "index").get("truncated")) == (2048, 12)

@@ -10,14 +10,18 @@ from tokenizers import Tokenizer
 
 EMBEDDING_MODEL = "BAAI/bge-m3"  # ADR-0002; the split threshold is counted in its tokens
 EMBEDDING_REVISION = "5617a9f61b028005a4858fdac845db406aefb181"  # pinned on #6
+EMBEDDING_MODELS = {  # model -> (pinned revision, maximum input in tokens); approved on #11
+    EMBEDDING_MODEL: (EMBEDDING_REVISION, 8192),
+    "AITeamVN/Vietnamese_Embedding": ("dea33aa1ab339f38d66ae0a40e6c40e0a9249568", 2048),
+}
 
 
 class ModelNotCachedError(RuntimeError):
     """The pinned model revision is not in the local Hugging Face cache."""
 
 
-def pinned_snapshot(cache_dir: Path | None = None) -> Path:
-    """The snapshot folder of bge-m3 at the pinned revision, from the local cache only.
+def pinned_snapshot(cache_dir: Path | None = None, model: str = EMBEDDING_MODEL) -> Path:  # stub: model ignored
+    """The snapshot folder of a model of `EMBEDDING_MODELS` at its pinned revision, from the local cache only.
 
     Resolved with `local_files_only`, so no Hub call is made and `main` is never read.
     """

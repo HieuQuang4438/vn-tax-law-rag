@@ -117,7 +117,7 @@ The file holds ids and numbers only: no question text, no answer text and no cor
 | `dirty` | true when tracked files differ from `HEAD` (`git diff HEAD`); untracked files do not count |
 | `diff_sha256` | `sha256` of the output of `git diff HEAD` when dirty, else null |
 | `eval_set` | `path`, `version`, `sha256` of the set file |
-| `index` | from the index folder's `manifest.json`: `model`, `revision`, `chunks_sha256`, `chunk_count`, `bm25_tokenizer`, `chunking` (null for a manifest without it) |
+| `index` | from the index folder's `manifest.json`: `model`, `revision`, `chunks_sha256`, `chunk_count`, `bm25_tokenizer`, `chunking`, `input_limit`, `truncated` (each null for a manifest without it) |
 | `pipeline` | `stages` (`["retrieval"]`), `rewrite` (`none`), `top_k`, `rrf_k`, `candidates` |
 | `bootstrap` | `resamples` 1000, `seed` 0, `level` 0.95 |
 | `versions` | `python` and the installed `bm25s`, `chromadb`, `numpy`, `pyvi`, `sentence-transformers`, `torch`, `underthesea`; null for one not installed |

@@ -27,6 +27,7 @@ from chromadb.config import Settings
 from src.index import (
     BM25_TOKENIZER,
     EMBEDDING_MODEL,
+    EMBEDDING_MODELS,
     EMBEDDING_REVISION,
     ModelNotCachedError,
     build,
@@ -48,10 +49,11 @@ def fake_vector(text: str) -> list[float]:
 
 
 class FakeEmbedder:
-    model = EMBEDDING_MODEL
-
-    def __init__(self, revision: str = EMBEDDING_REVISION, fail: bool = False):
+    def __init__(self, revision: str = EMBEDDING_REVISION, fail: bool = False, model: str = EMBEDDING_MODEL,
+                 input_limit: int = 8192):
+        self.model = model
         self.revision = revision
+        self.input_limit = input_limit
         self.fail = fail
         self.calls: list[str] = []
 
@@ -60,6 +62,9 @@ class FakeEmbedder:
             raise RuntimeError("embedding stopped")
         self.calls.extend(texts)
         return [fake_vector(t) for t in texts]
+
+    def count_tokens(self, text: str) -> int:
+        return len(text.split()) + 2  # a word per token, plus the two special tokens
 
 
 CIRCULAR = "[Thông tư 90/2026/TT-BTC — Quy định về đăng ký thuế]"
@@ -395,7 +400,7 @@ def test_the_command_builds_a_variant_into_another_folder(built, tmp_path, monke
     _, enriched, index, _, _ = built
     monkeypatch.setattr(command, "ENRICHED_DIR", enriched)
     monkeypatch.setattr(command, "INDEX_DIR", index)
-    monkeypatch.setattr(command, "load_embedder", lambda: FakeEmbedder())
+    monkeypatch.setattr(command, "load_embedder", lambda **kwargs: FakeEmbedder())
     before = manifest(index)
     command.main(["--tokenizer", "syllable", "--out", str(tmp_path / "variant")])
     assert (tmp_path / "variant" / "manifest.json").is_file()
@@ -427,6 +432,28 @@ def test_cached_model_loads_offline_at_the_pinned_revision(connections):
     [vector] = embedder.embed(["Thuế giá trị gia tăng"])
     assert len(vector) == 1024
     assert abs(sum(x * x for x in vector) - 1) < 1e-4
+    assert connections == []
+
+
+@pytest.mark.corpus
+def test_vietnamese_embedding_loads_offline_at_its_pinned_revision_and_limit(connections):
+    """Needs `hf download AITeamVN/Vietnamese_Embedding --revision dea33aa1ab339f38d66ae0a40e6c40e0a9249568`."""
+    embedder = load_embedder(model=VN_MODEL)
+    assert (embedder.model, embedder.revision, embedder.input_limit) == (VN_MODEL, VN_REVISION, 2048)
+    [vector] = embedder.embed(["Thuế giá trị gia tăng"])
+    assert len(vector) == 1024
+    assert abs(sum(x * x for x in vector) - 1) < 1e-4
+    assert connections == []
+
+
+@pytest.mark.corpus
+def test_the_token_count_of_the_real_model_includes_the_special_tokens(connections):
+    from src.chunking.tokens import bge_m3_token_counter
+
+    embedder = load_embedder(input_limit=2048)
+    text = "Thuế giá trị gia tăng đối với hộ kinh doanh"
+    assert embedder.input_limit == 2048
+    assert embedder.count_tokens(text) == bge_m3_token_counter()(text) + 2
     assert connections == []
 
 
@@ -478,7 +505,7 @@ def test_the_command_indexes_the_enriched_folder_and_cache_it_is_given(built, tm
     _, enriched, index, _, _ = built
     monkeypatch.setattr(command, "ENRICHED_DIR", enriched)
     monkeypatch.setattr(command, "INDEX_DIR", index)
-    monkeypatch.setattr(command, "load_embedder", lambda: FakeEmbedder())
+    monkeypatch.setattr(command, "load_embedder", lambda **kwargs: FakeEmbedder())
     other = tmp_path / "other-enriched"
     rows = write_chunks(other, RECORDS[:2])
     before = cache_keys(index)
@@ -487,3 +514,106 @@ def test_the_command_indexes_the_enriched_folder_and_cache_it_is_given(built, tm
     assert manifest(tmp_path / "variant")["chunk_count"] == len(rows)
     assert cache_keys(index) == before, "the default cache was pruned"
     assert (tmp_path / "variant-cache").is_dir(), "the cache it was given was not used"
+
+
+# --- Embedding model and input limit (#11) ------------------------------------------------------
+
+VN_MODEL = "AITeamVN/Vietnamese_Embedding"
+VN_REVISION = "dea33aa1ab339f38d66ae0a40e6c40e0a9249568"
+
+
+def raised(call) -> BaseException | None:
+    """The exception `call` raises, or None; so a missing check fails on an assertion."""
+    try:
+        call()
+    except BaseException as error:  # noqa: BLE001 - the test asserts on what was raised
+        return error
+    return None
+
+
+def model_keys(index_dir: Path, model: str, revision: str) -> list[str]:
+    path = index_dir / "embeddings" / f"{model.replace('/', '--')}@{revision}" / "keys.json"
+    assert path.is_file(), f"no vector cache for {model}@{revision}"
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def over_limit(rows: list[dict]) -> tuple[int, list[str]]:
+    """A limit one token under the longest indexed text, and the texts over it."""
+    counts = [FakeEmbedder().count_tokens(indexed(row)) for row in rows]
+    limit = max(counts) - 1
+    return limit, [indexed(row) for row, count in zip(rows, counts) if count > limit]
+
+
+def test_the_manifest_records_the_input_limit_and_no_text_cut(built):
+    _, _, index, _, result = built
+    assert (result.get("input_limit"), result.get("truncated")) == (8192, 0)
+    assert manifest(index).get("input_limit") == 8192
+
+
+def test_a_text_over_the_input_limit_is_keyed_with_the_limit(tmp_path, connections):
+    enriched, index = tmp_path / "enriched", tmp_path / "index"
+    rows = write_chunks(enriched)
+    limit, over = over_limit(rows)
+    build(enriched, index, FakeEmbedder(input_limit=limit))
+    expected = sorted(f"{sha256(indexed(row))}@{limit}" if indexed(row) in over else sha256(indexed(row))
+                      for row in rows)
+    assert cache_keys(index) == expected
+
+
+def test_a_lower_input_limit_embeds_only_the_texts_over_it(built):
+    rows, enriched, index, _, _ = built
+    limit, over = over_limit(rows)
+    embedder = FakeEmbedder(input_limit=limit)
+    result = build(enriched, index, embedder)
+    assert (result.get("embedded"), embedder.calls) == (len(over), over)
+    assert (result.get("input_limit"), result.get("truncated")) == (limit, len(over))
+
+
+def test_another_model_has_its_own_cache_folder_and_embeds_everything(built):
+    rows, enriched, index, _, _ = built
+    embedder = FakeEmbedder(model=VN_MODEL, revision=VN_REVISION, input_limit=2048)
+    result = build(enriched, index, embedder)
+    assert (result.get("embedded"), result.get("model"), result.get("revision")) == (len(rows), VN_MODEL, VN_REVISION)
+    assert model_keys(index, VN_MODEL, VN_REVISION) == sorted(sha256(indexed(row)) for row in rows)
+    assert cache_keys(index) == sorted(sha256(indexed(row)) for row in rows), "bge-m3's cache was touched"
+
+
+def test_an_unknown_model_stops_loading_with_value_error(tmp_path, connections):
+    error = raised(lambda: load_embedder(cache_dir=tmp_path, model="intfloat/multilingual-e5-large"))
+    assert isinstance(error, ValueError), error
+    assert "intfloat/multilingual-e5-large" in str(error)
+    assert connections == []
+
+
+@pytest.mark.parametrize("limit", [0, 8193])
+def test_an_input_limit_outside_the_model_range_stops_loading_with_value_error(tmp_path, connections, limit):
+    error = raised(lambda: load_embedder(cache_dir=tmp_path, input_limit=limit))
+    assert isinstance(error, ValueError), error
+    assert str(limit) in str(error)
+
+
+def test_a_missing_second_model_names_its_own_download_command(tmp_path, connections):
+    error = raised(lambda: load_embedder(cache_dir=tmp_path, model=VN_MODEL))
+    assert isinstance(error, ModelNotCachedError), error
+    assert f"hf download {VN_MODEL} --revision {VN_REVISION}" in str(error)
+    assert connections == []
+
+
+def test_the_pinned_models_are_bge_m3_and_vietnamese_embedding():
+    assert EMBEDDING_MODELS == {EMBEDDING_MODEL: (EMBEDDING_REVISION, 8192), VN_MODEL: (VN_REVISION, 2048)}
+
+
+@pytest.mark.parametrize("argv, expected", [
+    ([], {"model": EMBEDDING_MODEL, "input_limit": None}),
+    (["--model", VN_MODEL, "--input-limit", "2048"], {"model": VN_MODEL, "input_limit": 2048}),
+])
+def test_the_command_loads_the_model_and_limit_it_is_given(built, tmp_path, monkeypatch, argv, expected):
+    import src.index.__main__ as command
+
+    _, enriched, index, _, _ = built
+    calls = []
+    monkeypatch.setattr(command, "ENRICHED_DIR", enriched)
+    monkeypatch.setattr(command, "INDEX_DIR", index)
+    monkeypatch.setattr(command, "load_embedder", lambda **kwargs: calls.append(kwargs) or FakeEmbedder())
+    command.main([*argv, "--out", str(tmp_path / "variant")])
+    assert calls == [expected]

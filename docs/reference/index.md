@@ -9,9 +9,9 @@ owner: HieuQuang4438
 What `python -m src.index` writes to `data/index/`, from the enriched chunks in
 `data/enriched/chunks.jsonl` ([chunk-schema.md](chunk-schema.md)). The rules behind it are
 FR-CORE-006, NFR-001, NFR-005 and [ADR-0002](../adr/0002-hybrid-retrieval-without-rerank.md); the
-approach is the approved comments on #6.
+approach is the approved comments on #6, and on #11 for the choice of embedding model.
 
-Two indexes over the same chunk ids: a vector index (bge-m3 in a local Chroma collection) and a
+Two indexes over the same chunk ids: a vector index (bge-m3 by default, in a local Chroma collection) and a
 keyword index (`bm25s`). Each holds only chunk ids and what it needs to search. Everything else
 about a chunk — header, text, dates, `amended_by` — is read back by id from
 `data/enriched/chunks.jsonl`, which stays the one source of truth.
@@ -38,19 +38,31 @@ the three holds an id twice.
 
 ## Vector index — `chroma/`
 
-- **Model.** `BAAI/bge-m3` through `sentence-transformers`, revision
-  `5617a9f61b028005a4858fdac845db406aefb181`, on CPU (NFR-001). `max_seq_length` 8192, so no
-  chunk is cut: the largest indexed text in the corpus is 3,363 tokens. Vectors are normalized
-  to unit length (1,024 dimensions).
+- **Model.** One of the pinned models below, through `sentence-transformers`, on CPU (NFR-001),
+  chosen with `--model`; `BAAI/bge-m3` by default (approved on #11). The table is
+  `EMBEDDING_MODELS` in `src/chunking/tokens.py`. Vectors are normalized to unit length.
+
+  | Model | Revision | Maximum input, tokens | Dimensions |
+  |---|---|---|---|
+  | `BAAI/bge-m3` | `5617a9f61b028005a4858fdac845db406aefb181` | 8,192 | 1,024 |
+  | `AITeamVN/Vietnamese_Embedding` | `dea33aa1ab339f38d66ae0a40e6c40e0a9249568` | 2,048 | 1,024 |
+
+- **Input limit.** `max_seq_length` is the model's maximum input, unless `--input-limit` sets a
+  lower one. A text over the limit is cut by `sentence-transformers` to that many tokens, special
+  tokens included, and only the cut text is embedded. At bge-m3's 8,192 no chunk is cut: the
+  largest indexed text in the corpus is 3,363 tokens. A model not in the table, or a limit
+  below 1 or above the model's maximum, stops with `ValueError` before anything is loaded or
+  written.
 - **Offline.** The model is loaded from the local Hugging Face cache only, so a build makes no
   network request (approved on #6). The snapshot folder of the pinned revision is resolved with
   `local_files_only=True` and the model is loaded from that folder. Setting `HF_HUB_OFFLINE=1` is
   not enough on its own: `huggingface_hub` reads it once, at import, and in a test run where an
   earlier test had imported it, loading by model name still opened 12 connections to the Hub.
-  The revision is `EMBEDDING_REVISION` in `src/chunking/tokens.py`, the one the chunk splits
-  are counted at ([chunk-schema.md](chunk-schema.md), *Tokens*), so both read the same snapshot.
-  If the cache lacks that revision, the build stops with `ModelNotCachedError`, whose message
-  names the one-time download command:
+  The revision is the model's entry in `EMBEDDING_MODELS`; bge-m3's is `EMBEDDING_REVISION`, the
+  one the chunk splits are counted at ([chunk-schema.md](chunk-schema.md), *Tokens*), so both
+  read the same snapshot. If the cache lacks that revision, loading stops with
+  `ModelNotCachedError`, whose message names the one-time download command:
+  `hf download <model> --revision <revision>`, for example
   `hf download BAAI/bge-m3 --revision 5617a9f61b028005a4858fdac845db406aefb181`.
 - **Collection.** One collection, `chunks`, with cosine distance. One record per chunk:
   `id` = chunk id, the embedding of its indexed text, metadata `{"doc_id": <doc_id>}`. No
@@ -66,13 +78,18 @@ sentence-transformers 6.3.0, batch size 4, the code that closes #6): the first b
 embedded 1,923 texts in 4,912.5 s (82 min); a rebuild with nothing changed took 2.0 s. ADR-0002
 estimated about 95 minutes for 1,824 chunks.
 
-- One folder per model and revision: `embeddings/BAAI--bge-m3@<revision>/`, holding
-  `keys.json` (a JSON list of `sha256` hex digests of the indexed text, sorted ascending) and
-  `vectors.npy` (`float32`, one row per key, same order).
-- A build embeds only the indexed texts whose digest is not in the cache, in the order they first
+- One folder per model and revision, `/` written as `--`: `embeddings/BAAI--bge-m3@<revision>/`,
+  holding `keys.json` (a JSON list of keys, sorted ascending) and `vectors.npy` (`float32`, one
+  row per key, same order).
+- **Key.** The `sha256` hex digest of the indexed text, when the text fits the input limit. A
+  text over the limit has the key `<digest>@<input limit>`, for example `9c1e…@2048`, because
+  its vector depends on where it was cut. A text fits when the model's own tokenizer, special
+  tokens included, gives it no more tokens than the limit. A text that fits gives the same vector
+  at any limit, so changing the limit re-embeds only the texts over it (approved on #11).
+- A build embeds only the indexed texts whose key is not in the cache, in the order they first
   appear in `chunks.jsonl`. An unchanged corpus embeds nothing; one changed chunk embeds one text;
-  a different revision has its own folder and embeds everything.
-- After a build the cache holds exactly the digests of the current indexed texts: vectors of text
+  a different model or revision has its own folder and embeds everything.
+- After a build the cache holds exactly the keys of the current indexed texts: vectors of text
   no longer in the corpus are dropped. Two chunks with the same indexed text share one vector.
 
 ## Keyword index — `bm25/`
@@ -126,6 +143,8 @@ Written last: a build that stops early leaves no manifest, so a manifest means a
 | `model` | `BAAI/bge-m3` | embedding model |
 | `revision` | `5617a9f6…` | model revision, in full |
 | `dimension` | `1024` | vector length |
+| `input_limit` | `8192` | the input limit the texts were embedded with (approved on #11) |
+| `truncated` | `0` | indexed texts over the input limit, so cut when embedded |
 | `chunks_sha256` | `9c1e…` | `sha256` of the bytes of `data/enriched/chunks.jsonl` |
 | `chunk_count` | `1286` | records indexed, in each index |
 | `bm25_tokenizer` | `syllable` | the tokenizer above: `syllable`, `underthesea` or `pyvi` |
@@ -146,6 +165,8 @@ python -m src.index --tokenizer pyvi --out data/index-pyvi
 | Option | Default | Meaning |
 |---|---|---|
 | `--tokenizer` | `syllable` | the BM25 tokenizer, as above |
+| `--model` | `BAAI/bge-m3` | the embedding model, one of `EMBEDDING_MODELS` (#11) |
+| `--input-limit` | the model's maximum | the input limit, from 1 to the model's maximum (#11) |
 | `--enriched` | `data/enriched` | the enriched chunks to index, for a variant chunked another way (#12) |
 | `--out` | `data/index` | the index folder: `manifest.json`, `chroma/`, `bm25/` |
 | `--cache` | `data/index/embeddings` | the vector cache |
@@ -156,6 +177,13 @@ own copy of the cache instead, because a build prunes the cache to its own texts
 ([chunk-schema.md](chunk-schema.md), *Threshold experiment*). `build(enriched_dir, index_dir, embedder, tokenizer="syllable", cache_dir=None)`
 takes the same choices; with no `cache_dir`, the cache is `index_dir/embeddings`. An unknown
 tokenizer stops the build with `ValueError` before anything is written.
+
+The model and the input limit come with the embedder:
+`load_embedder(cache_dir=None, model=EMBEDDING_MODEL, input_limit=None)` loads a model of the
+table offline, with the given limit or, when it is `None`, the model's maximum. An embedder has
+`model`, `revision`, `input_limit`, `embed(texts)`, which returns one unit-length vector per
+text, and `count_tokens(text)`, the model's token count of a text, special tokens included and
+nothing cut, which decides whether a text fits the limit.
 
 ## Tokenizer experiment
 
@@ -182,6 +210,44 @@ from the shared vector cache and scored with `python -m src.eval.run --index`.
 - Retrieval latency varies by about 0.2 s between runs on this laptop, more than between
   tokenizers, so it does not separate them; every variant keeps AC-012.
 - The segmenters stay available, so the experiment can be run again on a later eval set.
+
+## Embedding experiment
+
+Does `AITeamVN/Vietnamese_Embedding`, bge-m3 fine-tuned for Vietnamese retrieval, raise
+recall@8 over bge-m3? Approach approved on #11, which replaces the issue's multilingual-e5: e5
+reads at most 512 tokens, and at the 1,600 threshold many indexed texts are longer.
+Vietnamese_Embedding reads at most 2,048, so the 12 longest of the 1,286 indexed texts are cut
+(counted with bge-m3's tokenizer, special tokens included); a control variant, bge-m3 cut at
+2,048, separates the model's effect from the cut's.
+
+| Variant | Model | Input limit | Folder | Role |
+|---|---|---|---|---|
+| 1 | `BAAI/bge-m3` `5617a9f6` | 8,192 | `data/index/` | baseline, the default index |
+| 2 | `BAAI/bge-m3` `5617a9f6` | 2,048 | `data/index-bge-2048/` | control |
+| 3 | `AITeamVN/Vietnamese_Embedding` `dea33aa1` | 2,048 | `data/index-vn-embedding/` | candidate |
+
+3 against 1 decides; 3 against 2 is the model's effect alone; 2 against 1 is the cost of the cut.
+
+Decision rule, fixed before the run: Vietnamese_Embedding replaces bge-m3 only if the paired 95%
+bootstrap interval of its EVAL-001 change against variant 1 lies entirely above 0 and AC-012
+still holds. Variant 2 is a diagnostic and never a candidate. If variant 3 wins, it becomes the
+default, a new ADR supersedes ADR-0002 for the embedding model, carrying its other decisions
+over unchanged, and `data/` is rebuilt.
+
+Setup, the same for every run: one commit, eval set v1, chunk threshold 1,600 (1,286 chunks),
+`syllable` BM25, k = 8, RRF 60, 50 candidates, `rewrite: none`, the dev laptop (i7-10610U,
+16 GB RAM, CPU only). Variant 1 is the default index, rebuilt from its cache at that commit.
+Variants 2 and 3 are built with `--model`, `--input-limit` and `--out`, each with its own copy of
+the vector cache (`--cache`), since a build prunes its model's cache folder to its own keys, and
+scored with `python -m src.eval.run --index`. Before the run, Vietnamese_Embedding's
+`tokenizer.json` is compared byte for byte with bge-m3's; if they differ, the texts over 2,048
+are counted again with its own tokenizer and reported.
+
+Reported for each variant: EVAL-001, EVAL-005 and EVAL-007 with their intervals, the paired
+change against variant 1 (and, for 3, against 2), texts embedded and cut, build time, retrieval
+latency, and the results file.
+
+Not run yet.
 
 ## Rebuilding from the cached pages
 
