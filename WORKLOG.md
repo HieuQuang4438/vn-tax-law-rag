@@ -12,6 +12,45 @@
 
 ---
 
+## Session 5 — 2026-11-15 · Eval set v2 (#26, #28)
+
+**Done**
+
+- #28 opened: re-check one hit per article on eval set v2, paired against `--no-per-article`.
+- #26: the checker takes its size bounds from the set version (v1: 30–50 questions, ≥ 5
+  conversations; v2: 225–250, 180–200 answerable, ≥ 20 conversations), an optional `added_in`
+  per question and conversation, and reports an `answer` left as `TODO`. Results files carry
+  `added_in` per item and in the breakdown.
+- #26: eval set v2 written by separate sessions under the four-step provenance (questions,
+  ChatGPT question review, answers, owner sample of 49, cold read by 3 subagents over all 226
+  new items: 5 wrong, 23 minor, all applied in `b0cced1`). Provenance row in `eval-set.md`.
+- #26: v2 baseline at `b0cced1`: EVAL-001 0.769 [0.715, 0.813] n=184, EVAL-005 0.494 [0.339,
+  0.644] n=29, EVAL-007 0.678 [0.626, 0.728].
+
+**Decided + why**
+
+- Size bounds keyed by version, not replaced: replacing them would have failed the committed v1
+  file and every eval run during the writing period (Approved comment on #26).
+- Owner sample = the 19 items step 2 flagged + 30 random (5 per tax type, seed 0), so the
+  decisions step 2 made alone are all read.
+- `answer: TODO` became a checker error after q247 passed the checker with it.
+- The baseline ran at `b0cced1`, the last commit that changes the set; the closing commit adds
+  only docs and the results file.
+
+**Real state / warnings**
+
+- Verified: checker 0 errors, 28 known warnings; v1 items byte-identical to before v2; 240
+  questions (184 answerable, 56 unanswerable, 23.3%), 22 conversations; 451 tests pass.
+- Choice 4A aimed at ≥ 50 answerable turns; EVAL-005 has 29, interval width 0.31.
+- The cold read flagged 10 items in the owner's sample, which the owner had read without
+  finding errors. The subagents made 4–19 tool calls each; their depth was not checked.
+- Step 1 and step 2 models not recorded (Claude Code sessions).
+- `acceptance.md` is `in-review` until the owner re-approves; `architecture.md` still says
+  "30–50 questions".
+- 10 reference questions name the wrong document; they score recall 0.600 at the baseline.
+
+---
+
 ## Session 4 — 2026-11-14 to 2026-11-15 · Embedding model and the cut diagnosis (#11, #24, #25)
 
 **Done**
