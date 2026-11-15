@@ -389,3 +389,40 @@ new values. ADR-0002 is edited only if the setting contradicts it; none of the v
 
 **Ceiling.** 13 of the 43 misses are beyond rank 50 or in no list, out of the fusion's reach. A
 perfect order of today's top 50 reaches recall@8 no higher than recall@50, 0.922.
+
+### Result
+
+Run on 2026-11-15 at commit `c22d922`, clean, eval set v1, before `per_article` became the
+default. The index was today's `data/index` (bge-m3@8192, `syllable` BM25, 1,286 chunks), and the
+runs were on the dev laptop (i7-10610U, 16 GB RAM, CPU only). The baseline is
+`eval/results/2026-11-15-c22d922.json`, and V1 to V6 are `-2` to `-7`. The diagnoses have the
+same names under `eval/results/diagnostics/`.
+
+| Variant | EVAL-001 recall@8 | Paired change [95%] | Bonferroni [99.2%] | EVAL-007 paired | Median latency |
+|---|---|---|---|---|---|
+| Baseline | 0.678 [0.592, 0.764] | — | — | — | 0.252 s |
+| **V1 `per_article`** | **0.714** | **+0.036 [+0.006, +0.071]** | [0.000, +0.092] | [−0.002, +0.035] | 0.209 s |
+| V2 `rrf_k` 20 | 0.695 | +0.017 [0.000, +0.043] | [0.000, +0.051] | [−0.001, +0.035] | 0.180 s |
+| V3 `rrf_k` 120 | 0.678 | 0.000 [0.000, 0.000] | [0.000, 0.000] | [−0.007, +0.002] | 0.216 s |
+| V4 `keyword_weight` 2 | 0.694 | +0.017 [−0.026, +0.059] | [−0.045, +0.078] | [−0.043, +0.002] | 0.219 s |
+| V5 `vector_weight` 2 | 0.672 | −0.006 [−0.044, +0.027] | [−0.059, +0.043] | [−0.024, +0.050] | 0.180 s |
+| V6 `candidates` 100 | 0.667 | −0.011 [−0.051, +0.019] | [−0.068, +0.026] | [−0.012, −0.001] | 0.186 s |
+
+- **V1 is the only winner, and it is adopted.** Its paired interval starts at +0.006. It raises
+  recall on 4 questions and lowers it on none. V2 raises it on 2, but its interval starts at
+  exactly 0, so it does not win.
+- **Re-check on eval set v2.** V1's Bonferroni interval starts at exactly 0 (rule 2).
+- **The guard passes.** V1's EVAL-007 interval includes 0, and its median latency is 0.209 s.
+  EVAL-005 goes from 0.575 to 0.600 [0.000, +0.075].
+- **No combined run.** There is one winner, so rule 4 does not apply.
+- **The weights and V6 do not help.** V4 raises recall on 5 questions and lowers it on 2, and
+  V5 raises it on 2 and lowers it on 3; neither interval excludes 0. V6 lowers EVAL-007, with a
+  paired interval entirely below 0.
+- **Where the misses moved (V1).** 39 standalone misses instead of 43: 28 below the cut, 3
+  beyond 50 and 8 not in the pool. recall@20 is 0.870 and recall@50 0.939.
+- **The new default reproduces V1.** At commit `e2051f7`, with no options, EVAL-001 is 0.714
+  [0.634, 0.791], EVAL-005 0.600 and EVAL-007 0.701, with every per-item change 0 against V1
+  (`eval/results/2026-11-15-e2051f7.json`, and its diagnosis).
+
+recall@8 is still below the EVAL-001 target of 0.80. 28 of the remaining misses are ranked 9 to
+50, so the order of the top 50 is still the gap. No fusion knob in the grid closes it.

@@ -229,3 +229,7 @@ otherwise as above: EVAL-001 0.678 [0.592, 0.764], EVAL-005 0.575 [0.333, 0.817]
 0.686 [0.590, 0.780], in `eval/results/2026-11-14-ab4a8fa-3.json`
 ([chunk-schema.md](chunk-schema.md), *Threshold experiment*). The table above stays the record
 of the first baseline.
+
+Since #25 the top 8 holds one hit per article. At commit `e2051f7`, otherwise as at `ab4a8fa`:
+EVAL-001 0.714 [0.634, 0.791], EVAL-005 0.600 [0.333, 0.867], EVAL-007 0.701 [0.607, 0.793], in
+`eval/results/2026-11-15-e2051f7.json` ([retrieval.md](retrieval.md), *Fusion tuning*).
