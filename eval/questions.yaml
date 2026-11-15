@@ -2577,172 +2577,365 @@ questions:
       doanh nghiệp và đại diện bên nhận tài trợ.
     unanswerable: repealed
     added_in: 2
-  - id: q194
+  - id: q194  # step 2: 09/2026/QH16 Điều 4 listed because it amends 66/2025/QH15 Điều 8 khoản 1 (battery-electric car rates only)
     question: Thuốc lá điếu đang chịu thuế tiêu thụ đặc biệt bao nhiêu phần trăm?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: >
+      Thuốc lá điếu chịu thuế suất thuế tiêu thụ đặc biệt 75%. Từ 01/01/2027 còn cộng thêm mức thuế tuyệt đối theo bao.
+    key_facts:
+      - "thuế suất 75%"
+    provisions:
+      - 66/2025/QH15 Điều 8 khoản 1
+      - 09/2026/QH16 Điều 4
     added_in: 2
-  - id: q195
+  - id: q195  # step 2: 09/2026/QH16 Điều 4 listed because it amends 66/2025/QH15 Điều 8 khoản 1 (battery-electric car rates only)
     question: Ngoài thuế theo phần trăm, thuốc lá có bị tính thêm một khoản thuế cố định trên mỗi bao không?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: >
+      Có, từ 01/01/2027. Mức thuế tuyệt đối với thuốc lá điếu là 2.000 đồng/bao từ 01/01/2027, rồi tăng thêm 2.000 đồng mỗi
+      năm: 4.000 đồng (2028), 6.000 đồng (2029), 8.000 đồng (2030), 10.000 đồng/bao từ 01/01/2031. Mức này áp dụng cho bao 20
+      điếu; bao có số điếu khác được quy đổi.
+    key_facts:
+      - "áp dụng từ 01/01/2027"
+      - "2.000 đồng/bao từ 01/01/2027"
+      - "10.000 đồng/bao từ 01/01/2031"
+      - "mức tính cho bao 20 điếu"
+    provisions:
+      - 66/2025/QH15 Điều 8 khoản 1
+      - 09/2026/QH16 Điều 4
+      - 66/2025/QH15 Điều 8 khoản 2
     added_in: 2
-  - id: q196
+  - id: q196  # step 2: 09/2026/QH16 Điều 4 listed because it amends 66/2025/QH15 Điều 8 khoản 1 (battery-electric car rates only)
     question: Rượu dưới 20 độ chịu thuế tiêu thụ đặc biệt bao nhiêu phần trăm?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: >
+      Rượu dưới 20 độ chịu thuế suất 35% từ 01/01/2026, sau đó mỗi năm tăng 5 điểm phần trăm: 40% (2027), 45% (2028), 50%
+      (2029), 55% (2030) và 60% từ 01/01/2031.
+    key_facts:
+      - "35% từ 01/01/2026"
+      - "tăng dần mỗi năm đến 60% từ 01/01/2031"
+    provisions:
+      - 66/2025/QH15 Điều 8 khoản 1
+      - 09/2026/QH16 Điều 4
     added_in: 2
-  - id: q197
+  - id: q197  # step 2: 09/2026/QH16 Điều 4 listed because it amends 66/2025/QH15 Điều 8 khoản 1 (battery-electric car rates only)
     question: Xe máy trên 125 phân khối có phải chịu thuế tiêu thụ đặc biệt không?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: Có. Xe mô tô hai bánh, ba bánh có dung tích xi lanh trên 125 cm3 chịu thuế tiêu thụ đặc biệt với thuế suất 20%.
+    key_facts:
+      - "xe mô tô trên 125 cm3 chịu thuế tiêu thụ đặc biệt"
+      - "thuế suất 20%"
+    provisions:
+      - 66/2025/QH15 Điều 2
+      - 66/2025/QH15 Điều 8 khoản 1
+      - 09/2026/QH16 Điều 4
     added_in: 2
-  - id: q198
+  - id: q198  # step 2: 09/2026/QH16 Điều 4 listed because it amends 66/2025/QH15 Điều 8 khoản 1 (battery-electric car rates only)
     question: Ô tô điện chạy pin có được hưởng thuế tiêu thụ đặc biệt thấp hơn xe chạy xăng không?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: >
+      Có. Ô tô chở người từ 9 chỗ trở xuống chạy bằng pin chịu thuế suất 3% từ 01/01/2026 và 11% từ 01/01/2031. Xe cùng loại
+      chạy xăng chịu 35% đến 150% tùy dung tích xi lanh.
+    key_facts:
+      - "xe điện chạy pin từ 9 chỗ trở xuống 3% từ 01/01/2026"
+      - "tăng lên 11% từ 01/01/2031"
+      - "xe chạy xăng cùng loại 35% đến 150%"
+    provisions:
+      - 66/2025/QH15 Điều 8 khoản 1
+      - 09/2026/QH16 Điều 4
     added_in: 2
-  - id: q199
+  - id: q199  # step 2: 09/2026/QH16 Điều 4 listed because it amends 66/2025/QH15 Điều 8 khoản 1 (battery-electric car rates only)
     question: Xe bán tải cabin kép có phải chịu thuế tiêu thụ đặc biệt không?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: >
+      Có. Xe ô tô pick-up chở hàng cabin kép chịu thuế tiêu thụ đặc biệt. Năm 2026 thuế suất là 15% (dung tích từ 2.500 cm3
+      trở xuống), 20% (trên 2.500 đến 3.000 cm3) và 25% (trên 3.000 cm3); mỗi mức tăng 3 điểm phần trăm mỗi năm đến 2029.
+      Loại chạy bằng pin chịu 2% từ 01/01/2026.
+    key_facts:
+      - "pick-up chở hàng cabin kép chịu thuế tiêu thụ đặc biệt"
+      - "15% với loại từ 2.500 cm3 trở xuống từ 01/01/2026"
+      - "tăng 3 điểm phần trăm mỗi năm đến 2029"
+    provisions:
+      - 66/2025/QH15 Điều 2
+      - 66/2025/QH15 Điều 8 khoản 1
+      - 09/2026/QH16 Điều 4
     added_in: 2
-  - id: q200
+  - id: q200  # step 2: 09/2026/QH16 Điều 4 listed because it amends 66/2025/QH15 Điều 8 khoản 1 (battery-electric car rates only)
     question: Máy điều hòa công suất bao nhiêu BTU trở xuống thì phải chịu thuế tiêu thụ đặc biệt?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: >
+      Không có ngưỡng "trở xuống". Điều hòa chịu thuế tiêu thụ đặc biệt là loại có công suất trên 24.000 BTU đến 90.000 BTU,
+      với thuế suất 10%. Loại từ 24.000 BTU trở xuống không chịu thuế, và loại thiết kế chỉ để lắp trên phương tiện vận tải
+      cũng không chịu thuế.
+    key_facts:
+      - "chịu thuế khi công suất trên 24.000 BTU đến 90.000 BTU"
+      - "thuế suất 10%"
+      - "loại chỉ để lắp trên phương tiện vận tải không chịu thuế"
+    provisions:
+      - 66/2025/QH15 Điều 2
+      - 66/2025/QH15 Điều 8 khoản 1
+      - 09/2026/QH16 Điều 4
     added_in: 2
-  - id: q201
+  - id: q201  # step 2: 09/2026/QH16 Điều 4 listed because it amends 66/2025/QH15 Điều 8 khoản 1 (battery-electric car rates only)
     question: Kinh doanh casino thì chịu thuế tiêu thụ đặc biệt bao nhiêu phần trăm?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: >
+      Kinh doanh ca-si-nô chịu thuế suất 35%. Giá tính thuế là doanh thu trừ số tiền đã trả thưởng cho khách và số tiền đổi
+      trả cho khách không sử dụng hết.
+    key_facts:
+      - "thuế suất 35%"
+      - "giá tính thuế là doanh thu trừ tiền đã trả thưởng"
+    provisions:
+      - 66/2025/QH15 Điều 8 khoản 1
+      - 09/2026/QH16 Điều 4
+      - 66/2025/QH15 Điều 6
     added_in: 2
-  - id: q202
+  - id: q202  # step 2: 09/2026/QH16 Điều 4 listed because it amends 66/2025/QH15 Điều 8 khoản 1 (battery-electric car rates only)
     question: Bán thẻ hội viên sân golf có phải chịu thuế tiêu thụ đặc biệt không?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: >
+      Có. Kinh doanh gôn chịu thuế tiêu thụ đặc biệt, bao gồm bán thẻ hội viên và vé chơi gôn. Thuế suất 20%; giá tính
+      thuế là giá bán thẻ hội viên, vé chơi gôn và các khoản thu khác liên quan đến chơi gôn.
+    key_facts:
+      - "bán thẻ hội viên gôn chịu thuế tiêu thụ đặc biệt"
+      - "thuế suất 20%"
+    provisions:
+      - 66/2025/QH15 Điều 6
+      - 360/2025/NĐ-CP Điều 3
+      - 66/2025/QH15 Điều 8 khoản 1
+      - 09/2026/QH16 Điều 4
     added_in: 2
-  - id: q203
+  - id: q203  # step 2: 09/2026/QH16 Điều 4 listed because it amends 66/2025/QH15 Điều 8 khoản 1 (battery-electric car rates only)
     question: Xăng sinh học E5 chịu thuế tiêu thụ đặc biệt bao nhiêu phần trăm?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: Xăng E5 chịu thuế suất thuế tiêu thụ đặc biệt 8% (xăng thường 10%, xăng E10 7%).
+    key_facts:
+      - "xăng E5 thuế suất 8%"
+    provisions:
+      - 66/2025/QH15 Điều 8 khoản 1
+      - 09/2026/QH16 Điều 4
     added_in: 2
-  - id: q204
+  - id: q204  # step 2: 09/2026/QH16 Điều 4 listed because it amends 66/2025/QH15 Điều 8 khoản 1 (battery-electric car rates only)
     question: Vàng mã, hàng mã đốt cúng có phải chịu thuế tiêu thụ đặc biệt không?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: >
+      Có. Vàng mã, hàng mã chịu thuế tiêu thụ đặc biệt với thuế suất 70%. Hàng mã là đồ chơi trẻ em và đồ dùng dạy học
+      không chịu thuế.
+    key_facts:
+      - "vàng mã, hàng mã chịu thuế tiêu thụ đặc biệt"
+      - "thuế suất 70%"
+      - "trừ hàng mã là đồ chơi trẻ em, đồ dùng dạy học"
+    provisions:
+      - 66/2025/QH15 Điều 2
+      - 66/2025/QH15 Điều 8 khoản 1
+      - 09/2026/QH16 Điều 4
     added_in: 2
   - id: q205
     question: Du thuyền dùng để chở khách du lịch có phải chịu thuế tiêu thụ đặc biệt không?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: >
+      Không. Du thuyền sử dụng cho mục đích kinh doanh vận chuyển hành khách, khách du lịch không thuộc đối tượng chịu thuế
+      tiêu thụ đặc biệt, kể cả khi nhập khẩu, sản xuất để cho thuê đúng mục đích đó. Nếu sau đó thay đổi mục đích sử dụng
+      thì phải kê khai, nộp thuế tiêu thụ đặc biệt.
+    key_facts:
+      - "du thuyền kinh doanh chở khách du lịch không chịu thuế tiêu thụ đặc biệt"
+      - "thay đổi mục đích sử dụng thì phải nộp thuế"
+    provisions:
+      - 66/2025/QH15 Điều 3
+      - 360/2025/NĐ-CP Điều 4 khoản 5
     added_in: 2
-  - id: q206
+  - id: q206  # step 2: 09/2026/QH16 Điều 4 listed because it amends 66/2025/QH15 Điều 8 khoản 1 (battery-electric car rates only)
     question: Mua máy bay riêng để đi lại cá nhân thì có phải chịu thuế tiêu thụ đặc biệt không?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: >
+      Có. Máy bay không dùng cho kinh doanh vận chuyển hoặc các mục đích được loại trừ (an ninh, quốc phòng, cứu thương,
+      cứu hộ...) chịu thuế tiêu thụ đặc biệt với thuế suất 30%.
+    key_facts:
+      - "máy bay dùng cho cá nhân chịu thuế tiêu thụ đặc biệt"
+      - "thuế suất 30%"
+    provisions:
+      - 66/2025/QH15 Điều 2
+      - 66/2025/QH15 Điều 3
+      - 66/2025/QH15 Điều 8 khoản 1
+      - 09/2026/QH16 Điều 4
     added_in: 2
   - id: q207
     question: Nhà máy bia xuất khẩu bia ra nước ngoài thì lô hàng đó có phải nộp thuế tiêu thụ đặc biệt không?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: >
+      Không. Hàng hóa do cơ sở sản xuất trực tiếp xuất khẩu ra nước ngoài, hoặc bán, ủy thác cho tổ chức khác để xuất khẩu,
+      không thuộc đối tượng chịu thuế tiêu thụ đặc biệt.
+    key_facts:
+      - "bia trực tiếp xuất khẩu không chịu thuế tiêu thụ đặc biệt"
+      - "kể cả bán, ủy thác cho tổ chức khác để xuất khẩu"
+    provisions:
+      - 66/2025/QH15 Điều 3
     added_in: 2
   - id: q208
     question: Nhà máy bán rượu qua công ty con chuyên phân phối thì giá tính thuế tiêu thụ đặc biệt có bị xác định lại không?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: >
+      Có. Khi bán cho doanh nghiệp thương mại là công ty con, công ty trong cùng công ty mẹ hoặc có quan hệ liên kết, giá
+      bán làm căn cứ tính thuế tiêu thụ đặc biệt không được thấp hơn tỷ lệ 7% so với giá bình quân của các doanh nghiệp
+      thương mại mua trực tiếp của nhà máy bán ra. Nếu bán qua đơn vị hạch toán phụ thuộc thì giá tính thuế là giá do đơn vị
+      đó bán ra.
+    key_facts:
+      - "không được thấp hơn tỷ lệ 7% so với giá bình quân của doanh nghiệp thương mại bán ra"
+      - "bán qua đơn vị hạch toán phụ thuộc thì tính theo giá đơn vị đó bán ra"
+    provisions:
+      - 66/2025/QH15 Điều 6
+      - 360/2025/NĐ-CP Điều 5 khoản 1
     added_in: 2
   - id: q209
     question: Kho bia bị ngập lụt hư hỏng thì có được giảm thuế tiêu thụ đặc biệt không?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: >
+      Có. Cơ sở sản xuất hàng chịu thuế tiêu thụ đặc biệt gặp khó khăn do thiên tai được giảm thuế. Mức giảm dựa trên tổn
+      thất thực tế nhưng không quá 30% số thuế phải nộp của năm xảy ra thiệt hại và không vượt quá giá trị tài sản bị thiệt
+      hại sau khi được bồi thường.
+    key_facts:
+      - "được giảm thuế khi gặp thiên tai"
+      - "không quá 30% số thuế phải nộp của năm thiệt hại"
+      - "không vượt giá trị tài sản thiệt hại sau bồi thường"
+    provisions:
+      - 66/2025/QH15 Điều 10
     added_in: 2
   - id: q210
     question: Theo Điều 2 Luật 66/2025, những hàng hóa nào phải chịu thuế tiêu thụ đặc biệt?
     tax_type: sct
     form: reference
-    answer: TODO
+    answer: >
+      Hàng hóa chịu thuế tiêu thụ đặc biệt gồm: thuốc lá; rượu; bia; xe có gắn động cơ dưới 24 chỗ; xe mô tô hai bánh, ba
+      bánh trên 125 cm3; máy bay, trực thăng, tàu lượn, du thuyền; xăng các loại; điều hòa trên 24.000 BTU đến 90.000 BTU; bài
+      lá; vàng mã, hàng mã; nước giải khát có hàm lượng đường trên 5g/100mL. Đây là sản phẩm hoàn chỉnh, không gồm linh kiện
+      để lắp ráp.
+    key_facts:
+      - "thuốc lá, rượu, bia, xe dưới 24 chỗ, mô tô trên 125 cm3"
+      - "máy bay, du thuyền, xăng, điều hòa trên 24.000 đến 90.000 BTU"
+      - "bài lá, vàng mã, nước giải khát có đường trên 5g/100mL"
+      - "chỉ sản phẩm hoàn chỉnh, không gồm linh kiện"
+    provisions:
+      - 66/2025/QH15 Điều 2
     added_in: 2
   - id: q211
     question: Điều 3 Luật 66/2025 có miễn thuế tiêu thụ đặc biệt cho xe cứu thương không?
     tax_type: sct
     form: reference
-    answer: TODO
+    answer: >
+      Có, theo nghĩa xe ô tô cứu thương không thuộc đối tượng chịu thuế tiêu thụ đặc biệt (Điều 3 quy định đối tượng không
+      chịu thuế, không phải miễn thuế).
+    key_facts:
+      - "xe ô tô cứu thương không thuộc đối tượng chịu thuế tiêu thụ đặc biệt"
+    provisions:
+      - 66/2025/QH15 Điều 3
     added_in: 2
-  - id: q212
+  - id: q212  # step 2: answered from the corpus; 66/2025/QH15 Điều 2 excludes components, so the deduction the question assumes does not exist
     question: Theo Nghị định 360/2025, nhà máy lắp ráp ô tô được khấu trừ thuế tiêu thụ đặc biệt đã nộp khi nhập khẩu linh kiện như thế nào?
     tax_type: sct
     form: reference
-    answer: TODO
+    answer: >
+      Không có khoản khấu trừ nào cho linh kiện ô tô. Hàng chịu thuế tiêu thụ đặc biệt là sản phẩm hoàn chỉnh, không gồm
+      linh kiện để lắp ráp, nên linh kiện nhập khẩu không phải nộp thuế tiêu thụ đặc biệt. Nghị định 360/2025/NĐ-CP chỉ cho
+      khấu trừ số thuế đã nộp với nguyên liệu chịu thuế tiêu thụ đặc biệt, theo chứng từ nộp thuế ở khâu nhập khẩu.
+    key_facts:
+      - "linh kiện để lắp ráp không chịu thuế tiêu thụ đặc biệt"
+      - "chỉ được khấu trừ thuế đã nộp với nguyên liệu chịu thuế tiêu thụ đặc biệt"
+    provisions:
+      - 66/2025/QH15 Điều 2
+      - 360/2025/NĐ-CP Điều 8
     added_in: 2
-  - id: q213
+  - id: q213  # step 2: the question asks for refund papers; 158/2025/TT-BTC Điều 3 khoản 3 gives the papers that make the goods non-taxable instead
     question: Thông tư 158/2025 hướng dẫn hồ sơ hoàn thuế tiêu thụ đặc biệt cho hàng tạm nhập tái xuất gồm những gì?
     tax_type: sct
     form: reference
-    answer: TODO
+    answer: >
+      Thông tư 158/2025/TT-BTC không quy định hồ sơ hoàn thuế cho hàng tạm nhập tái xuất; hàng tạm nhập, tái xuất trong thời
+      hạn không phải nộp thuế tiêu thụ đặc biệt. Hồ sơ để xác định là hàng không chịu thuế gồm: giấy phép kinh doanh tạm
+      nhập, tái xuất hoặc giấy phép tạm nhập, tái xuất; hợp đồng hoặc văn bản thể hiện mục đích tạm nhập, tái xuất; và thông
+      tin khai trên tờ khai hải quan.
+    key_facts:
+      - "hàng tạm nhập tái xuất trong thời hạn không phải nộp thuế tiêu thụ đặc biệt"
+      - "giấy phép tạm nhập, tái xuất"
+      - "hợp đồng hoặc văn bản thể hiện mục đích tạm nhập, tái xuất"
+    provisions:
+      - 158/2025/TT-BTC Điều 3 khoản 3
+      - 360/2025/NĐ-CP Điều 4 khoản 2
     added_in: 2
   - id: q214
     question: Luật 09/2026/QH16 sửa những điểm nào của Luật Thuế tiêu thụ đặc biệt?
     tax_type: sct
     form: reference
-    answer: TODO
+    answer: >
+      Về thuế tiêu thụ đặc biệt, Luật 09/2026/QH16 chỉ sửa điểm g mục 4 Biểu thuế, áp dụng cho xe dưới 24 chỗ chạy bằng pin.
+      Thuế suất ban đầu giữ nguyên (3%, 2%, 1%, 2% tùy loại xe), nhưng mốc tăng lên 11%, 7%, 4%, 7% được lùi từ 01/3/2027
+      sang 01/01/2031. Các điều khác của Luật 09/2026/QH16 sửa Luật Thuế TNCN, GTGT và TNDN.
+    key_facts:
+      - "chỉ sửa thuế suất xe dưới 24 chỗ chạy bằng pin"
+      - "mốc tăng thuế suất lùi từ 01/3/2027 sang 01/01/2031"
+      - "xe từ 9 chỗ trở xuống 3% rồi 11%"
+    provisions:
+      - 09/2026/QH16 Điều 4
+      - 66/2025/QH15 Điều 8 khoản 1
     added_in: 2
   - id: q215
     question: Thuế tiêu thụ đặc biệt với thuốc lá ở Singapore cao gấp mấy lần Việt Nam?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu chỉ quy định thuế tiêu thụ đặc biệt của Việt Nam, không có thông tin về thuế thuốc lá của Singapore.
     unanswerable: out_of_scope
     added_in: 2
   - id: q216
     question: Năm nay hãng ô tô nào giảm giá bán xe nhờ được giảm thuế tiêu thụ đặc biệt?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu không có thông tin về giá bán xe của các hãng ô tô.
     unanswerable: out_of_scope
     added_in: 2
   - id: q217
     question: Bộ Tài chính có đề xuất đánh thuế tiêu thụ đặc biệt với bánh kẹo, đồ ăn nhanh không?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu không có thông tin về đề xuất chính sách của Bộ Tài chính; bánh kẹo, đồ ăn nhanh không có trong danh sách đối tượng chịu thuế tiêu thụ đặc biệt hiện hành.
     unanswerable: out_of_scope
     added_in: 2
   - id: q218
     question: Mỗi năm nhà nước thu được bao nhiêu tiền thuế tiêu thụ đặc biệt từ bia rượu?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu là văn bản quy phạm pháp luật, không có số liệu thu ngân sách từ thuế tiêu thụ đặc biệt.
     unanswerable: out_of_scope
     added_in: 2
   - id: q219
     question: Tem dán chai rượu nhập khẩu mua ở đâu và giá bao nhiêu một con tem?
     tax_type: sct
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu không quy định về tem rượu nhập khẩu, nơi mua hay giá tem.
     unanswerable: out_of_scope
     added_in: 2
-  - id: q220
+  - id: q220  # step 2: repealed confirmed by 158/2025/TT-BTC Điều 5 khoản 2, which replaces 195/2015/TT-BTC
     question: Theo Thông tư 195/2015, hồ sơ khấu trừ thuế tiêu thụ đặc biệt của nguyên liệu nhập khẩu gồm những gì?
     tax_type: sct
     form: reference
-    answer: TODO
+    answer: >
+      Thông tư 195/2015/TT-BTC đã bị Thông tư 158/2025/TT-BTC thay thế từ 01/01/2026 nên không áp dụng nữa. Hiện nay chứng từ
+      để khấu trừ thuế tiêu thụ đặc biệt của nguyên liệu nhập khẩu là chứng từ nộp thuế tiêu thụ đặc biệt ở khâu nhập khẩu,
+      theo Nghị định 360/2025/NĐ-CP.
     unanswerable: repealed
     added_in: 2
   - id: q221
