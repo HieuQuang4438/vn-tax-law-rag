@@ -1007,6 +1007,180 @@ questions:
     answer: TODO
     unanswerable: repealed
     added_in: 2
+  - id: q221
+    question: Hộ kinh doanh có doanh thu dưới mức phải nộp thuế thì có cần khai báo doanh thu với cơ quan thuế không?
+    tax_type: household
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q222
+    question: Tiệm mới mở từ tháng 7 thì ngưỡng doanh thu không phải nộp thuế tính cho cả năm hay chia theo số tháng?
+    tax_type: household
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q223
+    question: Mình bán hàng qua Facebook, khách chuyển khoản trực tiếp, không qua sàn nào, thì phải tự khai thuế theo kỳ nào?
+    tax_type: household
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q224
+    question: Tiệm cắt tóc gội đầu của hộ kinh doanh nộp thuế thu nhập cá nhân theo tỷ lệ bao nhiêu trên doanh thu?
+    tax_type: household
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q225
+    question: Hộ kinh doanh chạy xe tải chở hàng thuê thì nộp thuế theo tỷ lệ bao nhiêu?
+    tax_type: household
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q226
+    question: Hộ kinh doanh có cửa hàng ở hai tỉnh khác nhau thì doanh thu để xét ngưỡng nộp thuế tính chung hay tính riêng từng nơi?
+    tax_type: household
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q227
+    question: Hộ kinh doanh thuê nhân viên bán hàng thì có phải khấu trừ thuế thu nhập cá nhân của nhân viên không?
+    tax_type: household
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q228
+    question: Hộ kinh doanh nộp thuế theo phương pháp kê khai thì tiền thuê mặt bằng có được trừ khi tính thuế không?
+    tax_type: household
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q229
+    question: Tài xế chạy Grab có phải tự nộp thuế không hay công ty đã khấu trừ thay rồi?
+    tax_type: household
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q230
+    question: Mình bán hàng trên Amazon cho khách nước ngoài thì ai khai và nộp thuế cho khoản doanh thu đó?
+    tax_type: household
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q231
+    question: Hộ kinh doanh tạm nghỉ bán hai tháng thì có phải báo cho cơ quan thuế không?
+    tax_type: household
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q232
+    question: Hộ kinh doanh có được dùng tài khoản ngân hàng cá nhân để nhận tiền bán hàng không?
+    tax_type: household
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q233
+    question: Hộ kinh doanh chuyển địa điểm kinh doanh sang phường khác thì phải làm thủ tục gì với cơ quan thuế?
+    tax_type: household
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q234
+    question: Cơ quan thuế có lấy dữ liệu tài khoản ngân hàng để xác định doanh thu của hộ kinh doanh không?
+    tax_type: household
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q235
+    question: Hộ kinh doanh nộp thuế trễ hạn thì có bị tính tiền chậm nộp không?
+    tax_type: household
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q236
+    question: Quán vừa bán tạp hóa vừa bán cà phê mà không tách được doanh thu từng loại thì áp tỷ lệ thuế nào?
+    tax_type: household
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q237
+    question: Theo Nghị định 68/2026, hộ kinh doanh có doanh thu trên ngưỡng phải thông báo phương pháp tính thuế cho cơ quan thuế khi nào?
+    tax_type: household
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q238
+    question: Nghị định 141/2026 thay đổi gì về ngưỡng doanh thu phải nộp thuế của hộ kinh doanh?
+    tax_type: household
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q239
+    question: Thông tư 18/2026 quy định hộ kinh doanh dùng tờ khai thuế mẫu số mấy?
+    tax_type: household
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q240
+    question: Theo Thông tư 50/2026, hộ kinh doanh được nộp hồ sơ khai thuế qua những kênh nào?
+    tax_type: household
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q241
+    question: Thông tư 18/2026 quy định hộ kinh doanh nộp thừa tiền thuế muốn xin hoàn thì gửi hồ sơ gì?
+    tax_type: household
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q242
+    question: Theo Điều 5 Nghị định 68/2026, những cá nhân kinh doanh nào không phải nộp thuế?
+    tax_type: household
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q243
+    question: Ở Thái Lan người bán hàng rong có phải nộp thuế không?
+    tax_type: household
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q244
+    question: Năm 2025 cả nước có bao nhiêu hộ kinh doanh chuyển lên thành doanh nghiệp?
+    tax_type: household
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q245
+    question: Phần mềm bán hàng KiotViet có tự gửi dữ liệu hóa đơn sang cơ quan thuế không?
+    tax_type: household
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q246
+    question: Bộ Tài chính có dự định nâng ngưỡng doanh thu không phải nộp thuế của hộ kinh doanh lên 1 tỷ không?
+    tax_type: household
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q247
+    question: Lớp tập huấn miễn phí về thuế cho hộ kinh doanh ở Hà Nội tháng tới tổ chức ở đâu?
+    tax_type: household
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q248
+    question: Theo Thông tư 40/2021, hộ kinh doanh có doanh thu từ 100 triệu đồng một năm trở xuống thì không phải nộp thuế, đúng không?
+    tax_type: household
+    form: reference
+    answer: TODO
+    unanswerable: repealed
+    added_in: 2
 conversations:
   - id: c07
     added_in: 2
@@ -1165,5 +1339,38 @@ conversations:
         answer: TODO
       - question: Còn thuế GTGT của phần đồ uống đó thì tính thế nào?
         tax_type: vat
+        form: plain
+        answer: TODO
+  - id: c20
+    added_in: 2
+    turns:
+      - question: Mình bán mỹ phẩm trên Shopee, sàn đã khấu trừ thuế rồi thì cuối năm mình có phải quyết toán gì nữa không?
+        tax_type: household
+        form: plain
+        answer: TODO
+      - question: Nếu mình còn bán thêm ở cửa hàng ngoài sàn thì phần doanh thu đó khai thế nào?
+        tax_type: household
+        form: plain
+        answer: TODO
+  - id: c21
+    added_in: 2
+    turns:
+      - question: Hộ kinh doanh muốn chuyển lên thành công ty thì có phải quyết toán thuế cho thời gian còn làm hộ không?
+        tax_type: household
+        form: plain
+        answer: TODO
+      - question: Sau khi thành công ty rồi thì có được miễn thuế TNDN mấy năm đầu không?
+        tax_type: cit
+        form: plain
+        answer: TODO
+  - id: c22
+    added_in: 2
+    turns:
+      - question: Tôi cho thuê nhà nguyên căn 30 triệu một tháng, khách trả trước cả năm, thì kê khai doanh thu một lần hay chia theo tháng?
+        tax_type: household
+        form: plain
+        answer: TODO
+      - question: Nếu khách chấm dứt hợp đồng sớm và tôi trả lại tiền thì số thuế đã nộp được xử lý thế nào?
+        tax_type: household
         form: plain
         answer: TODO
