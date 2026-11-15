@@ -88,6 +88,9 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   per item and breaks EVAL-001 and EVAL-007 down by it, so items added after a round of tuning
   are scored apart. An `answer` left as `TODO`, the placeholder of the first drafting step, is
   an error on every question and turn. FR-CORE-015, EVAL-001, EVAL-007, #26.
+- Several Google API keys: `src.config` reads `GOOGLE_API_KEY_1`, `GOOGLE_API_KEY_2`, ... up to
+  the first gap into `GOOGLE_API_KEYS`, and fails at startup without `GOOGLE_API_KEY_1`;
+  `GOOGLE_API_KEY` is no longer read. #13.
 
 ### Changed
 
