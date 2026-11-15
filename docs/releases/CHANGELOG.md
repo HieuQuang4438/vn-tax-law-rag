@@ -33,6 +33,11 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   conversations, in `eval/questions.yaml`; questions drafted without reading the corpus, answers
   from the corpus, reviewed by the owner and cold-read (`eval-set.md`, *Provenance*). FR-CORE-015,
   EVAL-001–EVAL-008.
+- Eval set v2: 240 questions (184 answerable, 56 unanswerable) and 22 conversations in
+  `eval/questions.yaml`, v1 unchanged plus 190 questions and 16 conversations marked `added_in: 2`;
+  made by the same steps, the owner reading a sample of 49 and the cold read every new item
+  (`eval-set.md`, *Provenance*). Baseline recall@8 0.769 [0.715, 0.813] (`eval-results.md`,
+  *Baseline*). FR-CORE-015, EVAL-001–EVAL-008, #26.
 - Reference lookup and hybrid retrieval: `src.retrieval` finds explicit references (document
   numbers, base-law names, article and clause) and gives each named article the first slots,
   then fills the top 8 by reciprocal rank fusion of BM25 and bge-m3 results; a document named

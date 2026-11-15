@@ -190,8 +190,15 @@ How the set is made, approved on #7, so that its questions are not shaped by the
 | Set version | Step 1 | Question review | Step 2 | Review | Cold read |
 |---|---|---|---|---|---|
 | 1 | Claude Opus 5.5, 2026-11-12; review applied 2026-11-13 | ChatGPT (model not shown in its interface), 2026-11-13; all findings accepted; q41–q45 written by it | Claude Opus 5.5, 2026-11-13 | owner, 2026-11-13: c02.2 (annex gap) and q21, c03.2, c03.3 (amended from outside) kept on purpose; q49 gains a key fact on what the corpus lacks; revenue thresholds left to the cold read | subagent, Claude Opus 5.5, 2026-11-13, read-only, no network: 0 wrong, 13 minor findings, corrected as approved on #7 |
+| 2 | Claude Code session (model not recorded), 2026-11-15; review applied 2026-11-15 | ChatGPT (model not shown in its interface), 2026-11-15; all 13 findings accepted; q132 replaced by the step 1 session on its suggestion, no question written by it | Claude Code session (model not recorded), 2026-11-15; q66, q89, q121, q154, q183, q184, q237 and c10.2 moved to unanswerable, q246 to answerable | owner, 2026-11-15: a sample of 49 new items (below), no errors found | 3 subagents, Claude Opus 5.5, 2026-11-15, read-only, no network: all 226 new items, 5 wrong, 23 minor findings, all accepted and applied on 2026-11-15; 10 of them on items of the owner's sample (q65, q91, q154, q173, q183, q212, q219, q242, q246, c17.2); q154 moved back to answerable |
 
 Each row records the model and the date of each step once it has run.
+
+The owner's sample of version 2 is the 19 items step 2 flagged plus 30 drawn at random, 5 per
+tax type (seed 0): q61, q65, q66, q72, q74, q79, q84, q88, q89, q91, q97, q120, q121, q122,
+q125, q128, q133, q142, q147, q152, q154, q171, q173, q174, q181, q183, q184, q185, q187, q196,
+q197, q212, q213, q219, q224, q232, q237, q238, q240, q241, q242, q246, q247, c09.2, c10.2,
+c13.2, c17.2, c19.1, c19.2.
 
 **Version 2** (approved on #26) keeps every version 1 item unchanged and adds new ones, each
 with `added_in: 2`, made by the steps above with three changes:
