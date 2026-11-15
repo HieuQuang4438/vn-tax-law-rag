@@ -3607,189 +3607,502 @@ conversations:
       - question: Công ty mình đổi người đại diện theo pháp luật thì có phải báo cho cơ quan thuế không?
         tax_type: administration
         form: plain
-        answer: TODO
+        answer: >
+          Không phải làm thủ tục riêng với cơ quan thuế. Doanh nghiệp đăng ký thuế cùng với đăng ký doanh nghiệp theo cơ chế một
+          cửa liên thông; thông tin thay đổi đăng ký với cơ quan đăng ký kinh doanh được chuyển sang cơ quan thuế. Doanh nghiệp
+          chỉ phải bổ sung thông tin nếu cơ quan thuế thông báo thông tin liên thông chưa đầy đủ.
+        key_facts:
+          - "đăng ký thuế theo cơ chế một cửa liên thông với đăng ký doanh nghiệp"
+          - "không phải làm thủ tục đăng ký thuế trực tiếp với cơ quan thuế"
+          - "bổ sung khi cơ quan thuế thông báo thông tin chưa đầy đủ"
+        provisions:
+          - 108/2025/QH15 Điều 10
+          - 252/2026/NĐ-CP Điều 6 khoản 1
+          - 252/2026/NĐ-CP Điều 7 khoản 1
       - question: Nếu chỉ đổi số điện thoại liên hệ thôi thì sao?
         tax_type: administration
         form: plain
-        answer: TODO
+        answer: >
+          Số điện thoại đăng ký giao dịch thuế điện tử thay đổi thì doanh nghiệp phải cập nhật trong 03 ngày làm việc kể từ ngày
+          thay đổi, theo mẫu số 01/ĐK-TĐT (khi đăng ký qua Hệ thống thông tin quản lý thuế). Nếu có giao dịch điện tử với cơ quan
+          thuế trước thời hạn đó thì phải cập nhật trước khi giao dịch.
+        key_facts:
+          - "cập nhật trong 03 ngày làm việc kể từ ngày thay đổi"
+          - "mẫu số 01/ĐK-TĐT"
+          - "phải cập nhật trước khi giao dịch điện tử nếu giao dịch sớm hơn"
+        provisions:
+          - 89/2026/TT-BTC Điều 13
   - id: c08
     added_in: 2
     turns:
       - question: Doanh nghiệp nợ thuế thì cơ quan thuế có được phong tỏa tài khoản ngân hàng của công ty không?
         tax_type: administration
         form: plain
-        answer: TODO
+        answer: >
+          Được. Phong tỏa tài khoản, trích tiền từ tài khoản là biện pháp cưỡng chế, áp dụng khi doanh nghiệp nợ thuế quá 90 ngày
+          kể từ hết thời hạn nộp, nợ khi hết thời hạn gia hạn, không hoạt động tại địa chỉ đăng ký hoặc phát tán tài sản. Chưa
+          cưỡng chế khi tổng tiền thuế nợ của tổ chức không quá 3.000.000 đồng.
+        key_facts:
+          - "phong tỏa tài khoản là biện pháp cưỡng chế nợ thuế"
+          - "áp dụng khi nợ thuế quá 90 ngày kể từ hết thời hạn nộp"
+          - "chưa cưỡng chế khi nợ của tổ chức không quá 3.000.000 đồng"
+        provisions:
+          - 108/2025/QH15 Điều 48
+          - 108/2025/QH15 Điều 49
+          - 252/2026/NĐ-CP Điều 65
       - question: Trước khi làm vậy họ có phải gửi thông báo cho công ty không?
         tax_type: administration
         form: plain
-        answer: TODO
+        answer: >
+          Quyết định cưỡng chế phải được gửi cho doanh nghiệp bằng phương thức điện tử (hoặc thư bảo đảm, gửi trực tiếp) và đăng
+          trên trang thông tin điện tử ngành thuế ngay trong ngày ban hành. Quyết định có hiệu lực từ ngày ký. Các văn bản không
+          quy định một thông báo riêng phải gửi trước khi ra quyết định.
+        key_facts:
+          - "quyết định cưỡng chế gửi doanh nghiệp ngay trong ngày ban hành"
+          - "có hiệu lực từ ngày ký"
+        provisions:
+          - 108/2025/QH15 Điều 49
+          - 252/2026/NĐ-CP Điều 65
       - question: Nộp đủ tiền rồi thì bao lâu tài khoản được gỡ?
         tax_type: administration
         form: plain
-        answer: TODO
+        answer: >
+          Quyết định cưỡng chế chấm dứt hiệu lực khi tiền thuế nợ đã được nộp đủ. Cơ quan thuế thông báo bằng phương thức điện tử
+          cho ngân hàng về việc đã nộp đủ để dừng trích chuyển, và quyết định chấm dứt cưỡng chế được gửi ngay trong ngày ban
+          hành. Các văn bản không quy định số ngày cụ thể để ban hành quyết định chấm dứt.
+        key_facts:
+          - "quyết định cưỡng chế chấm dứt hiệu lực khi đã nộp đủ tiền"
+          - "cơ quan thuế thông báo điện tử cho ngân hàng để dừng trích chuyển"
+          - "quyết định chấm dứt cưỡng chế gửi ngay trong ngày ban hành"
+        provisions:
+          - 108/2025/QH15 Điều 49
+          - 252/2026/NĐ-CP Điều 65
+          - 252/2026/NĐ-CP Điều 66
   - id: c09
     added_in: 2
     turns:
       - question: Khách hàng chuyển tiền đặt cọc mua hàng thì công ty có phải xuất hóa đơn điện tử ngay lúc nhận cọc không?
         tax_type: administration
         form: plain
-        answer: TODO
+        answer: >
+          Không. Với bán hàng hóa, thời điểm lập hóa đơn là thời điểm chuyển giao quyền sở hữu hoặc quyền sử dụng hàng hóa cho
+          người mua, không phân biệt đã thu tiền hay chưa. Với dịch vụ, thu tiền đặt cọc để bảo đảm thực hiện hợp đồng cũng không
+          phải là thời điểm lập hóa đơn.
+        key_facts:
+          - "lập hóa đơn khi chuyển giao quyền sở hữu hàng hóa"
+          - "nhận tiền đặt cọc không phải là thời điểm lập hóa đơn"
+        provisions:
+          - 254/2026/NĐ-CP Điều 9 khoản 1
+          - 254/2026/NĐ-CP Điều 9 khoản 2
       - question: Vậy số tiền cọc đó có phải kê khai thuế GTGT ở kỳ nhận tiền không?
         tax_type: vat
         form: plain
-        answer: TODO
+        answer: >
+          Không. Thời điểm xác định thuế GTGT với hàng hóa là thời điểm chuyển giao quyền sở hữu hoặc quyền sử dụng hàng hóa cho
+          người mua hoặc thời điểm lập hóa đơn, không phân biệt đã thu tiền hay chưa. Tiền đặt cọc chưa phải kê khai ở kỳ nhận tiền.
+        key_facts:
+          - "thuế GTGT xác định khi chuyển giao quyền sở hữu hoặc lập hóa đơn"
+          - "tiền đặt cọc không kê khai ở kỳ nhận tiền"
+        provisions:
+          - 48/2024/QH15 Điều 8
   - id: c10
     added_in: 2
     turns:
+      # step 2: 149/2025/QH15 Điều 1 listed because it amends 48/2024/QH15 Điều 9
       - question: Công ty mình bán máy cày, máy gặt cho nông dân thì chịu thuế GTGT bao nhiêu?
         tax_type: vat
         form: plain
-        answer: TODO
+        answer: >
+          Máy cày, máy thu hoạch lúa (máy gặt) là máy móc, thiết bị chuyên dùng phục vụ sản xuất nông nghiệp, chịu thuế suất
+          thuế GTGT 5%.
+        key_facts:
+          - "máy cày, máy gặt chịu thuế suất 5%"
+        provisions:
+          - 48/2024/QH15 Điều 9 khoản 2
+          - 149/2025/QH15 Điều 1
+          - 181/2025/NĐ-CP Điều 19
+      # step 2: moved to unanswerable; 181/2025/NĐ-CP Điều 19 khoản 6 lists machines only and the corpus is silent on their parts
       - question: Thế còn linh kiện, phụ tùng thay thế cho mấy máy đó thì sao?
         tax_type: vat
         form: plain
-        answer: TODO
+        answer: >
+          Danh mục máy móc chuyên dùng phục vụ sản xuất nông nghiệp chịu thuế suất 5% chỉ liệt kê các loại máy, không nhắc đến
+          linh kiện, phụ tùng thay thế; các văn bản trong bộ dữ liệu không quy định thuế suất riêng cho phụ tùng của các máy này.
+        unanswerable: out_of_scope
   - id: c11
     added_in: 2
     turns:
       - question: Công ty mua hàng của hộ kinh doanh không có hóa đơn thì có được khấu trừ thuế GTGT đầu vào không?
         tax_type: vat
         form: plain
-        answer: TODO
+        answer: >
+          Không. Muốn khấu trừ thuế GTGT đầu vào phải có hóa đơn GTGT mua hàng hóa, dịch vụ và chứng từ thanh toán không dùng
+          tiền mặt với khoản từ 05 triệu đồng trở lên. Mua của hộ kinh doanh không có hóa đơn GTGT thì không có thuế đầu vào để
+          khấu trừ.
+        key_facts:
+          - "phải có hóa đơn GTGT mới được khấu trừ"
+          - "không có hóa đơn thì không được khấu trừ thuế đầu vào"
+        provisions:
+          - 48/2024/QH15 Điều 14
       - question: Vậy khoản chi đó có được tính vào chi phí khi tính thuế TNDN không?
         tax_type: cit
         form: plain
-        answer: TODO
+        answer: >
+          Có thể. Mua hàng của hộ kinh doanh có doanh thu dưới ngưỡng chịu thuế GTGT thì được tính vào chi phí được trừ khi có
+          chứng từ chi trả tiền cho người bán và Bảng kê thu mua hàng hóa, dịch vụ (Mẫu số 02/TNDN) do người đại diện doanh nghiệp
+          ký. Giá trị mua trong ngày của một hộ từ 05 triệu đồng trở lên phải thanh toán không dùng tiền mặt.
+        key_facts:
+          - "cần chứng từ chi trả tiền và Bảng kê thu mua Mẫu số 02/TNDN"
+          - "áp dụng khi hộ kinh doanh có doanh thu dưới ngưỡng chịu thuế GTGT"
+          - "từ 05 triệu đồng trong ngày phải thanh toán không dùng tiền mặt"
+        provisions:
+          - 320/2025/NĐ-CP Điều 9 khoản 1
+          - 20/2026/TT-BTC Điều 3 khoản 13
   - id: c12
     added_in: 2
     turns:
       - question: Hàng trong kho bị cháy hết thì thuế GTGT đầu vào đã khấu trừ của lô hàng đó có phải điều chỉnh không?
         tax_type: vat
         form: plain
-        answer: TODO
+        answer: >
+          Không phải điều chỉnh giảm. Thuế GTGT đầu vào không được bồi thường của hàng hóa chịu thuế bị tổn thất vẫn được khấu
+          trừ toàn bộ. Doanh nghiệp phải có đủ hồ sơ, tài liệu chứng minh tổn thất không được bồi thường.
+        key_facts:
+          - "thuế đầu vào không được bồi thường của hàng tổn thất vẫn được khấu trừ"
+          - "phải có hồ sơ chứng minh tổn thất không được bồi thường"
+        provisions:
+          - 48/2024/QH15 Điều 14
+          - 181/2025/NĐ-CP Điều 23 khoản 1
       - question: Nếu công ty bảo hiểm bồi thường thì công ty mình có phải xuất hóa đơn cho khoản bồi thường đó không?
         tax_type: vat
         form: plain
-        answer: TODO
+        answer: >
+          Không. Khoản thu bồi thường bằng tiền không liên quan đến bán hàng hóa, cung cấp dịch vụ nên không phải lập hóa đơn và
+          không tính vào giá tính thuế GTGT.
+        key_facts:
+          - "tiền bồi thường không phải lập hóa đơn"
+          - "không tính vào giá tính thuế GTGT"
+        provisions:
+          - 254/2026/NĐ-CP Điều 7
+          - 181/2025/NĐ-CP Điều 14
       - question: Còn phần thiệt hại không được bồi thường thì có được tính vào chi phí được trừ không?
         tax_type: cit
         form: plain
-        answer: TODO
+        answer: >
+          Có. Phần giá trị tổn thất do thiên tai, dịch bệnh và bất khả kháng khác (gồm cả hỏa hoạn) không được bồi thường là chi
+          phí được trừ, bằng tổng giá trị tổn thất trừ phần bảo hiểm hoặc bên khác bồi thường. Hồ sơ gồm biên bản kiểm kê giá trị
+          tài sản, hàng hóa tổn thất, bảng kê xuất nhập tồn hàng tổn thất và hồ sơ bồi thường của bảo hiểm (nếu có).
+        key_facts:
+          - "phần tổn thất do hỏa hoạn không được bồi thường là chi phí được trừ"
+          - "bằng tổng giá trị tổn thất trừ phần được bồi thường"
+          - "cần biên bản kiểm kê giá trị tài sản, hàng hóa tổn thất"
+        provisions:
+          - 67/2025/QH15 Điều 9
+          - 320/2025/NĐ-CP Điều 9 khoản 2
+          - 20/2026/TT-BTC Điều 3 khoản 7
   - id: c13
     added_in: 2
     turns:
       - question: Tôi được công ty cử đi làm ở nước ngoài 6 tháng, lương vẫn trả ở Việt Nam thì có phải nộp thuế thu nhập cá nhân ở Việt Nam không?
         tax_type: pit
         form: plain
-        answer: TODO
+        answer: >
+          Có, nếu bạn vẫn là cá nhân cư trú: có mặt tại Việt Nam từ 183 ngày trở lên trong năm, hoặc có nơi ở thường xuyên tại
+          Việt Nam (nơi đăng ký thường trú hoặc nhà thuê theo hợp đồng có thời hạn). Cá nhân cư trú chịu thuế trên thu nhập phát
+          sinh trong và ngoài Việt Nam, không phân biệt nơi trả.
+        key_facts:
+          - "cá nhân cư trú chịu thuế trên thu nhập trong và ngoài Việt Nam"
+          - "cư trú khi có mặt từ 183 ngày hoặc có nơi ở thường xuyên tại Việt Nam"
+        provisions:
+          - 109/2025/QH15 Điều 2
+          - 253/2026/NĐ-CP Điều 6
       - question: Nếu bên đó cũng đã trừ thuế của tôi rồi thì sao?
         tax_type: pit
         form: plain
-        answer: TODO
+        answer: >
+          Nếu Việt Nam đã ký Hiệp định tránh đánh thuế hai lần với nước đó thì số thuế TNCN đã nộp ở nước ngoài được trừ vào số
+          thuế phải nộp ở Việt Nam theo quy định của Hiệp định.
+        key_facts:
+          - "được trừ thuế đã nộp ở nước ngoài"
+          - "khi có Hiệp định tránh đánh thuế hai lần, theo quy định của Hiệp định"
+        provisions:
+          - 253/2026/NĐ-CP Điều 6
   - id: c14
     added_in: 2
     turns:
       - question: Tôi có thu nhập từ bán hàng đa cấp thì công ty đa cấp có khấu trừ thuế thay tôi không?
         tax_type: pit
         form: plain
-        answer: TODO
+        answer: >
+          Có. Doanh nghiệp bán hàng đa cấp ký hợp đồng đại lý với cá nhân phải khấu trừ thuế TNCN trước khi chi trả, và khai thay,
+          nộp thay thuế cho cá nhân.
+        key_facts:
+          - "doanh nghiệp đa cấp khấu trừ thuế trước khi chi trả"
+          - "khai thay, nộp thay thuế cho cá nhân"
+        provisions:
+          - 253/2026/NĐ-CP Điều 67
+          - 68/2026/NĐ-CP Điều 8 khoản 7
+      # step 2: 09/2026/QH16 Điều 1 listed because it amends 109/2025/QH15 Điều 7 khoản 1
       - question: Mức khấu trừ đó là bao nhiêu phần trăm?
         tax_type: pit
         form: plain
-        answer: TODO
+        answer: >
+          Thuế suất 5% trên doanh thu tính thuế, theo mức áp dụng cho đại lý bán hàng đa cấp tại khoản 3 Điều 7 Luật Thuế TNCN.
+        key_facts:
+          - "thuế suất 5% trên doanh thu tính thuế"
+        provisions:
+          - 253/2026/NĐ-CP Điều 67
+          - 109/2025/QH15 Điều 7
+          - 09/2026/QH16 Điều 1
   - id: c15
     added_in: 2
     turns:
       - question: Tôi nghỉ việc giữa năm, chỉ làm ở công ty cũ 5 tháng, thì có được ủy quyền cho công ty cũ quyết toán thuế không?
         tax_type: pit
         form: plain
-        answer: TODO
+        answer: >
+          Không. Chỉ được ủy quyền cho tổ chức trả thu nhập khi có hợp đồng lao động từ 03 tháng trở lên và thực tế đang làm việc
+          tại đó vào thời điểm quyết toán thuế. Đã nghỉ việc ở công ty cũ thì không ủy quyền cho công ty cũ được, dù không cần
+          làm đủ 12 tháng.
+        key_facts:
+          - "phải đang làm việc tại tổ chức vào thời điểm quyết toán"
+          - "hợp đồng lao động từ 03 tháng trở lên"
+          - "không cần làm đủ 12 tháng"
+        provisions:
+          - 253/2026/NĐ-CP Điều 51
       - question: Còn nếu tôi đã chuyển sang làm ở công ty mới thì ủy quyền cho bên nào?
         tax_type: pit
         form: plain
-        answer: TODO
+        answer: >
+          Ủy quyền cho công ty mới được khi bạn có hợp đồng lao động từ 03 tháng trở lên và đang làm việc ở đó vào thời điểm
+          quyết toán, và chỉ có một nguồn tiền lương tại công ty mới. Thu nhập từ công ty cũ là nguồn thứ hai, nên bạn phải tự
+          quyết toán, trừ khi chuyển từ công ty cũ sang do sáp nhập, hợp nhất, chia, tách, chuyển đổi hoặc hai công ty cùng một
+          hệ thống.
+        key_facts:
+          - "ủy quyền cho công ty mới nếu hợp đồng từ 03 tháng và đang làm việc khi quyết toán"
+          - "có thêm thu nhập từ công ty cũ thì tự quyết toán"
+          - "trừ khi chuyển do sáp nhập, chia tách hoặc cùng hệ thống"
+        provisions:
+          - 253/2026/NĐ-CP Điều 51
       - question: Công ty mà tôi ủy quyền quyết toán thay phải nộp hồ sơ chậm nhất vào ngày nào?
         tax_type: administration
         form: plain
-        answer: TODO
+        answer: >
+          Chậm nhất là ngày cuối cùng của tháng thứ 03 kể từ ngày kết thúc năm dương lịch.
+        key_facts:
+          - "ngày cuối cùng của tháng thứ 03 kể từ khi kết thúc năm dương lịch"
+        provisions:
+          - 252/2026/NĐ-CP Điều 10 khoản 5
   - id: c16
     added_in: 2
     turns:
+      # step 2: 09/2026/QH16 Điều 3 listed because it amends 67/2025/QH15 Điều 4 (adds khoản 14a); the answer uses khoản 7
       - question: Công ty mình góp vốn vào một công ty khác trong nước và được chia lợi nhuận thì khoản đó có phải nộp thuế TNDN không?
         tax_type: cit
         form: plain
-        answer: TODO
+        answer: >
+          Không. Thu nhập được chia từ góp vốn, mua cổ phần, liên doanh, liên kết với doanh nghiệp trong nước sau khi bên kia đã
+          nộp thuế TNDN được miễn thuế, kể cả khi bên nhận vốn đang được ưu đãi thuế.
+        key_facts:
+          - "lợi nhuận được chia từ doanh nghiệp trong nước được miễn thuế TNDN"
+          - "kể cả bên nhận vốn được hưởng ưu đãi thuế"
+        provisions:
+          - 67/2025/QH15 Điều 4
+          - 09/2026/QH16 Điều 3
       - question: Nếu công ty nhận vốn góp là công ty ở nước ngoài thì sao?
         tax_type: cit
         form: plain
-        answer: TODO
+        answer: >
+          Không được miễn như trên. Thu nhập từ đầu tư ở nước ngoài phải kê khai, nộp thuế TNDN tại Việt Nam với thuế suất 20%,
+          không áp ưu đãi. Thuế đã nộp ở nước ngoài được trừ nhưng không vượt số thuế tính theo luật Việt Nam; nếu có Hiệp định
+          tránh đánh thuế hai lần thì làm theo Hiệp định.
+        key_facts:
+          - "thu nhập từ nước ngoài chịu thuế TNDN tại Việt Nam với thuế suất 20%"
+          - "được trừ thuế đã nộp ở nước ngoài, không vượt số thuế theo luật Việt Nam"
+          - "có Hiệp định thì theo Hiệp định"
+        provisions:
+          - 320/2025/NĐ-CP Điều 12 khoản 2
   - id: c17
     added_in: 2
     turns:
       - question: Công ty thuê nhà của cá nhân, hợp đồng ghi công ty nộp thuế thay cho chủ nhà, thì tiền thuế đó có được tính vào chi phí được trừ không?
         tax_type: cit
         form: plain
-        answer: TODO
+        answer: >
+          Có, nếu hợp đồng thuê ghi tiền thuê chưa bao gồm thuế (GTGT, TNCN) và doanh nghiệp phải nộp thay cho cá nhân; khi đó
+          phần thuế nộp thay được tính vào chi phí được trừ nếu có chứng từ nộp thuế.
+        key_facts:
+          - "hợp đồng ghi tiền thuê chưa bao gồm thuế"
+          - "thuế nộp thay được tính vào chi phí được trừ"
+          - "phải có chứng từ nộp thuế"
+        provisions:
+          - 20/2026/TT-BTC Điều 3 khoản 13
       - question: Công ty khai và nộp thay thuế TNCN từ tiền cho thuê nhà của cá nhân theo kỳ nào?
         tax_type: pit
         form: plain
-        answer: TODO
+        answer: >
+          Tổ chức đi thuê khai thay, nộp thay theo kỳ thanh toán tiền thuê bất động sản ghi trong hợp đồng.
+        key_facts:
+          - "khai thay theo kỳ thanh toán tiền thuê"
+        provisions:
+          - 68/2026/NĐ-CP Điều 8 khoản 3
   - id: c18
     added_in: 2
     turns:
       - question: Công ty mình sản xuất nước hoa thì có phải chịu thuế tiêu thụ đặc biệt không?
         tax_type: sct
         form: plain
-        answer: TODO
+        answer: >
+          Không. Nước hoa không có trong danh sách hàng hóa chịu thuế tiêu thụ đặc biệt (thuốc lá, rượu, bia, xe, máy bay, du
+          thuyền, xăng, điều hòa, bài lá, vàng mã, nước giải khát có đường).
+        key_facts:
+          - "nước hoa không chịu thuế tiêu thụ đặc biệt"
+        provisions:
+          - 66/2025/QH15 Điều 2
       - question: Còn nếu chỉ nhập khẩu về để phân phối thì sao?
         tax_type: sct
         form: plain
-        answer: TODO
+        answer: >
+          Cũng không. Người nộp thuế tiêu thụ đặc biệt là người sản xuất hoặc nhập khẩu hàng hóa thuộc đối tượng chịu thuế; nước
+          hoa không thuộc đối tượng chịu thuế nên nhập khẩu về phân phối cũng không phải nộp.
+        key_facts:
+          - "nước hoa nhập khẩu cũng không chịu thuế tiêu thụ đặc biệt"
+        provisions:
+          - 66/2025/QH15 Điều 2
+          - 66/2025/QH15 Điều 4
   - id: c19
     added_in: 2
     turns:
+      # step 2: 09/2026/QH16 Điều 4 listed because it amends 66/2025/QH15 Điều 8 khoản 1 (battery-electric car rates only)
       - question: Quán karaoke phải chịu thuế tiêu thụ đặc biệt bao nhiêu phần trăm?
         tax_type: sct
         form: plain
-        answer: TODO
+        answer: Kinh doanh ka-ra-ô-kê chịu thuế suất thuế tiêu thụ đặc biệt 30%.
+        key_facts:
+          - "thuế suất 30%"
+        provisions:
+          - 66/2025/QH15 Điều 8 khoản 1
+          - 09/2026/QH16 Điều 4
       - question: Giá tính thuế đó có gồm tiền đồ ăn, đồ uống khách gọi trong phòng không?
         tax_type: sct
         form: plain
-        answer: TODO
+        answer: >
+          Có. Giá tính thuế tiêu thụ đặc biệt với kinh doanh ka-ra-ô-kê là doanh thu của hoạt động kinh doanh, bao gồm cả doanh
+          thu dịch vụ ăn uống và các dịch vụ khác đi kèm.
+        key_facts:
+          - "giá tính thuế gồm cả doanh thu ăn uống và dịch vụ đi kèm"
+        provisions:
+          - 66/2025/QH15 Điều 6
       - question: Còn thuế GTGT của phần đồ uống đó thì tính thế nào?
         tax_type: vat
         form: plain
-        answer: TODO
+        answer: >
+          Với hàng hóa, dịch vụ chịu thuế tiêu thụ đặc biệt, giá tính thuế GTGT là giá bán đã có thuế tiêu thụ đặc biệt nhưng
+          chưa có thuế GTGT. Vì doanh thu đồ uống trong phòng nằm trong giá tính thuế tiêu thụ đặc biệt của karaoke, thuế GTGT
+          được tính trên giá đã gồm thuế tiêu thụ đặc biệt.
+        key_facts:
+          - "giá tính thuế GTGT là giá đã có thuế tiêu thụ đặc biệt, chưa có thuế GTGT"
+        provisions:
+          - 48/2024/QH15 Điều 7
+          - 66/2025/QH15 Điều 6
   - id: c20
     added_in: 2
     turns:
+      # step 2: 141/2026/NĐ-CP Điều 1 listed because it amends the 68/2026/NĐ-CP articles cited (500 triệu becomes 01 tỷ)
       - question: Mình bán mỹ phẩm trên Shopee, sàn đã khấu trừ thuế rồi thì cuối năm mình có phải quyết toán gì nữa không?
         tax_type: household
         form: plain
-        answer: TODO
+        answer: >
+          Tùy tổng doanh thu cả năm. Nếu từ 01 tỷ đồng trở xuống thì không phải nộp thuế; hộ thông báo doanh thu thực tế, và số
+          thuế sàn đã khấu trừ được xử lý như tiền nộp thừa (bù trừ hoặc hoàn). Nếu trên 03 tỷ đồng, hoặc trên 01 tỷ đồng và chọn
+          tính thuế TNCN theo thu nhập, thì phải quyết toán thuế TNCN theo năm; số thuế sàn đã khấu trừ được trừ đi.
+        key_facts:
+          - "doanh thu đến 01 tỷ đồng thì thuế đã bị khấu trừ được xử lý nộp thừa"
+          - "trên 03 tỷ đồng thì phải quyết toán thuế TNCN theo năm"
+          - "số thuế sàn đã khấu trừ được trừ khi quyết toán"
+        provisions:
+          - 68/2026/NĐ-CP Điều 11
+          - 68/2026/NĐ-CP Điều 12
+          - 68/2026/NĐ-CP Điều 8 khoản 1
+          - 141/2026/NĐ-CP Điều 1
+      # step 2: 141/2026/NĐ-CP Điều 1 listed because it amends the 68/2026/NĐ-CP articles cited (500 triệu becomes 01 tỷ)
       - question: Nếu mình còn bán thêm ở cửa hàng ngoài sàn thì phần doanh thu đó khai thế nào?
         tax_type: household
         form: plain
-        answer: TODO
+        answer: >
+          Doanh thu bán tại cửa hàng thì bạn tự kê khai, nộp thuế. Để xét ngưỡng 01 tỷ đồng và tính thuế, doanh thu năm gồm cả
+          doanh thu đã được sàn khấu trừ. Trên 01 tỷ đồng thì khai thuế theo quý; nếu tổng doanh thu trên 03 tỷ đồng hoặc chọn
+          tính theo thu nhập thì tổng hợp cả doanh thu sàn và cửa hàng để quyết toán TNCN năm.
+        key_facts:
+          - "doanh thu ngoài sàn tự kê khai, nộp thuế"
+          - "doanh thu năm tính cả phần sàn đã khấu trừ"
+          - "tổng hợp doanh thu sàn và cửa hàng để quyết toán khi trên 03 tỷ đồng"
+        provisions:
+          - 68/2026/NĐ-CP Điều 8 khoản 1
+          - 68/2026/NĐ-CP Điều 11
+          - 68/2026/NĐ-CP Điều 10
+          - 141/2026/NĐ-CP Điều 1
   - id: c21
     added_in: 2
     turns:
       - question: Hộ kinh doanh muốn chuyển lên thành công ty thì có phải quyết toán thuế cho thời gian còn làm hộ không?
         tax_type: household
         form: plain
-        answer: TODO
+        answer: >
+          Các văn bản không quy định thủ tục thuế riêng cho việc hộ chuyển lên công ty. Nếu hộ chấm dứt hoạt động kinh doanh
+          trong năm thì phải thông báo doanh thu thực tế lũy kế từ đầu năm đến thời điểm chấm dứt cùng hồ sơ chấm dứt hoạt động.
+        key_facts:
+          - "thông báo doanh thu thực tế lũy kế từ đầu năm đến khi chấm dứt"
+          - "nộp cùng hồ sơ chấm dứt hoạt động"
+        provisions:
+          - 68/2026/NĐ-CP Điều 8 khoản 6
       - question: Sau khi thành công ty rồi thì có được miễn thuế TNDN mấy năm đầu không?
         tax_type: cit
         form: plain
-        answer: TODO
+        answer: >
+          Có. Doanh nghiệp có doanh thu năm không quá 50 tỷ đồng thành lập mới từ hộ kinh doanh được miễn thuế TNDN 02 năm liên
+          tục kể từ khi có thu nhập chịu thuế. Hộ phải đã đăng ký và hoạt động liên tục ít nhất 12 tháng tính đến ngày được cấp
+          Giấy chứng nhận đăng ký doanh nghiệp lần đầu. Ngoài ra, doanh nghiệp có tổng doanh thu năm từ 01 tỷ đồng trở xuống được
+          miễn thuế TNDN.
+        key_facts:
+          - "miễn thuế TNDN 02 năm kể từ khi có thu nhập chịu thuế"
+          - "hộ hoạt động liên tục ít nhất 12 tháng trước khi lên doanh nghiệp"
+          - "doanh nghiệp doanh thu năm từ 01 tỷ đồng trở xuống được miễn thuế"
+        provisions:
+          - 67/2025/QH15 Điều 15
+          - 320/2025/NĐ-CP Điều 21
+          - 141/2026/NĐ-CP Điều 2
   - id: c22
     added_in: 2
     turns:
+      # step 2: 141/2026/NĐ-CP Điều 1 listed because it amends 68/2026/NĐ-CP Điều 4 (500 triệu becomes 01 tỷ)
       - question: Tôi cho thuê nhà nguyên căn 30 triệu một tháng, khách trả trước cả năm, thì kê khai doanh thu một lần hay chia theo tháng?
         tax_type: household
         form: plain
-        answer: TODO
+        answer: >
+          Doanh thu cho thuê là số tiền bên thuê trả theo kỳ hợp đồng; trả trước cho nhiều năm thì được phân bổ theo số năm hoặc
+          tính một lần. Trả trước một năm thì doanh thu năm là 360 triệu đồng, dưới mức 01 tỷ đồng nên không phải nộp thuế GTGT,
+          TNCN. Cá nhân tự khai được chọn khai hai lần trong năm (hạn 31/7 và 31/01 năm sau) hoặc một lần (hạn 31/01 năm sau).
+        key_facts:
+          - "doanh thu là tiền thuê trả theo kỳ hợp đồng"
+          - "doanh thu năm 360 triệu đồng dưới 01 tỷ đồng nên không phải nộp thuế"
+          - "khai hai lần trong năm hoặc một lần theo năm"
+        provisions:
+          - 68/2026/NĐ-CP Điều 5
+          - 68/2026/NĐ-CP Điều 4
+          - 141/2026/NĐ-CP Điều 1
+          - 68/2026/NĐ-CP Điều 8 khoản 3
+      # step 2: 141/2026/NĐ-CP Điều 1 listed because it amends 68/2026/NĐ-CP Điều 12 (500 triệu becomes 01 tỷ)
       - question: Nếu khách chấm dứt hợp đồng sớm và tôi trả lại tiền thì số thuế đã nộp được xử lý thế nào?
         tax_type: household
         form: plain
-        answer: TODO
+        answer: >
+          Các văn bản không có quy định riêng cho việc trả lại tiền thuê khi chấm dứt hợp đồng sớm. Theo quy định chung, nếu số
+          thuế đã nộp lớn hơn số phải nộp, hoặc doanh thu thực tế cả năm từ 01 tỷ đồng trở xuống, thì số thuế nộp thừa được bù
+          trừ, hoàn trả hoặc hoàn trả kiêm bù trừ theo pháp luật quản lý thuế.
+        key_facts:
+          - "số thuế nộp thừa được bù trừ, hoàn trả"
+          - "doanh thu thực tế cả năm đến 01 tỷ đồng thì thuế đã nộp được xử lý nộp thừa"
+        provisions:
+          - 68/2026/NĐ-CP Điều 12
+          - 141/2026/NĐ-CP Điều 1
