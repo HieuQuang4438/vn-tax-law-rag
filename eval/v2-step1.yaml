@@ -839,6 +839,174 @@ questions:
     answer: TODO
     unanswerable: repealed
     added_in: 2
+  - id: q194
+    question: Thuốc lá điếu đang chịu thuế tiêu thụ đặc biệt bao nhiêu phần trăm?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q195
+    question: Ngoài thuế theo phần trăm, thuốc lá có bị tính thêm một khoản thuế cố định trên mỗi bao không?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q196
+    question: Rượu dưới 20 độ chịu thuế tiêu thụ đặc biệt bao nhiêu phần trăm?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q197
+    question: Xe máy trên 125 phân khối có phải chịu thuế tiêu thụ đặc biệt không?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q198
+    question: Ô tô điện chạy pin có được hưởng thuế tiêu thụ đặc biệt thấp hơn xe chạy xăng không?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q199
+    question: Xe bán tải chở hàng thì thuế tiêu thụ đặc biệt tính thế nào?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q200
+    question: Máy điều hòa công suất bao nhiêu BTU trở xuống thì phải chịu thuế tiêu thụ đặc biệt?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q201
+    question: Kinh doanh casino thì chịu thuế tiêu thụ đặc biệt bao nhiêu phần trăm?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q202
+    question: Bán thẻ hội viên sân golf có phải chịu thuế tiêu thụ đặc biệt không?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q203
+    question: Xăng sinh học E5 chịu thuế tiêu thụ đặc biệt bao nhiêu phần trăm?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q204
+    question: Vàng mã, hàng mã đốt cúng có phải chịu thuế tiêu thụ đặc biệt không?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q205
+    question: Du thuyền dùng để chở khách du lịch có phải chịu thuế tiêu thụ đặc biệt không?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q206
+    question: Mua máy bay riêng để đi lại cá nhân thì có phải chịu thuế tiêu thụ đặc biệt không?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q207
+    question: Nhà máy bia xuất khẩu bia ra nước ngoài thì lô hàng đó có phải nộp thuế tiêu thụ đặc biệt không?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q208
+    question: Nhà máy bán rượu qua công ty con chuyên phân phối thì giá tính thuế tiêu thụ đặc biệt có bị xác định lại không?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q209
+    question: Kho bia bị ngập lụt hư hỏng thì có được giảm thuế tiêu thụ đặc biệt không?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q210
+    question: Theo Điều 2 Luật 66/2025, những hàng hóa nào phải chịu thuế tiêu thụ đặc biệt?
+    tax_type: sct
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q211
+    question: Điều 3 Luật 66/2025 có miễn thuế tiêu thụ đặc biệt cho xe cứu thương không?
+    tax_type: sct
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q212
+    question: Theo Nghị định 360/2025, nhà máy lắp ráp ô tô được khấu trừ thuế tiêu thụ đặc biệt đã nộp khi nhập khẩu linh kiện như thế nào?
+    tax_type: sct
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q213
+    question: Thông tư 158/2025 hướng dẫn hồ sơ hoàn thuế tiêu thụ đặc biệt cho hàng tạm nhập tái xuất gồm những gì?
+    tax_type: sct
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q214
+    question: Luật 09/2026/QH16 sửa những điểm nào của Luật Thuế tiêu thụ đặc biệt?
+    tax_type: sct
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q215
+    question: Thuế tiêu thụ đặc biệt với thuốc lá ở Singapore cao gấp mấy lần Việt Nam?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q216
+    question: Năm nay hãng ô tô nào giảm giá bán xe nhờ được giảm thuế tiêu thụ đặc biệt?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q217
+    question: Bộ Tài chính có đề xuất đánh thuế tiêu thụ đặc biệt với bánh kẹo, đồ ăn nhanh không?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q218
+    question: Mỗi năm nhà nước thu được bao nhiêu tiền thuế tiêu thụ đặc biệt từ bia rượu?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q219
+    question: Tem dán chai rượu nhập khẩu mua ở đâu và giá bao nhiêu một con tem?
+    tax_type: sct
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q220
+    question: Theo Thông tư 195/2015, hồ sơ khấu trừ thuế tiêu thụ đặc biệt của nguyên liệu nhập khẩu gồm những gì?
+    tax_type: sct
+    form: reference
+    answer: TODO
+    unanswerable: repealed
+    added_in: 2
 conversations:
   - id: c07
     added_in: 2
@@ -971,5 +1139,31 @@ conversations:
         answer: TODO
       - question: Công ty khai và nộp thay khoản thuế đó theo kỳ nào?
         tax_type: household
+        form: plain
+        answer: TODO
+  - id: c18
+    added_in: 2
+    turns:
+      - question: Công ty mình sản xuất nước hoa thì có phải chịu thuế tiêu thụ đặc biệt không?
+        tax_type: sct
+        form: plain
+        answer: TODO
+      - question: Còn nếu chỉ nhập khẩu về để phân phối thì sao?
+        tax_type: sct
+        form: plain
+        answer: TODO
+  - id: c19
+    added_in: 2
+    turns:
+      - question: Quán karaoke phải chịu thuế tiêu thụ đặc biệt bao nhiêu phần trăm?
+        tax_type: sct
+        form: plain
+        answer: TODO
+      - question: Giá tính thuế đó có gồm tiền đồ ăn, đồ uống khách gọi trong phòng không?
+        tax_type: sct
+        form: plain
+        answer: TODO
+      - question: Còn thuế GTGT của phần đồ uống đó thì tính thế nào?
+        tax_type: vat
         form: plain
         answer: TODO
