@@ -260,6 +260,211 @@ questions:
     answer: TODO
     unanswerable: repealed
     added_in: 2
+  - id: q101
+    question: Công ty mình bán phần mềm máy tính tự viết thì có phải chịu thuế GTGT không?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q102
+    question: Trung tâm dạy tiếng Anh cho trẻ em thu học phí thì có phải tính thuế GTGT không?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q103
+    question: Công ty cho người dân thuê căn hộ để ở thì tiền thuê có chịu thuế GTGT không?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q104
+    question: Doanh nghiệp bán nhà ở dự án thì khi tính thuế GTGT có được trừ tiền sử dụng đất ra không?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q105
+    question: Hàng tặng kèm theo chương trình khuyến mại đã đăng ký thì có phải tính thuế GTGT không?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q106
+    question: Công ty biếu quà Tết cho khách hàng bằng sản phẩm của mình thì giá tính thuế GTGT lấy theo giá nào?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q107
+    question: Làm thầu xây dựng thì thời điểm phải tính thuế GTGT là lúc nghiệm thu hay lúc nhận tiền?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q108
+    question: Doanh nghiệp mới thành lập muốn tự nguyện áp dụng phương pháp khấu trừ thuế GTGT thì cần điều kiện gì?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q109
+    question: Doanh thu một năm từ bao nhiêu trở lên thì doanh nghiệp bắt buộc phải nộp thuế GTGT theo phương pháp khấu trừ?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q110
+    question: Tiệm kinh doanh mua bán vàng trang sức thì thuế GTGT tính theo cách nào?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q111
+    question: Hóa đơn đầu vào bị bỏ sót, sáu tháng sau mới phát hiện thì còn được kê khai khấu trừ không?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q112
+    question: Máy móc dùng chung cho hàng chịu thuế và hàng không chịu thuế GTGT thì thuế đầu vào được khấu trừ thế nào?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q113
+    question: Công ty mua ô tô 5 chỗ giá 2 tỷ thì thuế GTGT đầu vào được khấu trừ hết hay chỉ một phần?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q114
+    question: Công ty đang xây nhà máy, chưa có doanh thu thì có được hoàn thuế GTGT đầu vào không?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q115
+    question: Bán hàng cho doanh nghiệp trong khu chế xuất thì có được áp thuế suất GTGT 0% không?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q116
+    question: Khách sạn phục vụ khách du lịch nước ngoài thì tiền phòng có được áp thuế suất 0% không?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q117
+    question: Nông dân tự trồng rau rồi mang ra chợ bán thì có phải chịu thuế GTGT không?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q118
+    question: Phòng khám tư nhân thu tiền khám chữa bệnh thì có phải tính thuế GTGT không?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q119
+    question: Phí bảo hiểm nhân thọ khách hàng đóng có chịu thuế GTGT không?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q120
+    question: Theo Điều 5 Luật 48/2024, chuyển giao công nghệ có thuộc diện không chịu thuế GTGT không?
+    tax_type: vat
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q121
+    question: Theo Nghị định 181/2025, thanh toán qua ví điện tử có được coi là thanh toán không dùng tiền mặt để khấu trừ thuế đầu vào không?
+    tax_type: vat
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q122
+    question: Theo Thông tư 69/2025, máy móc nhập khẩu để tạo tài sản cố định mà trong nước chưa sản xuất được thì có phải chịu thuế GTGT không?
+    tax_type: vat
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q123
+    question: Thông tư 77/2025 quy định dịch vụ môi giới chứng khoán có chịu thuế GTGT không?
+    tax_type: vat
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q124
+    question: Nghị định 144/2026 có thay đổi điều kiện hoàn thuế GTGT cho hàng xuất khẩu không?
+    tax_type: vat
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q125
+    question: Điều 14 Luật 48/2024 quy định thuế GTGT đầu vào muốn được khấu trừ thì phải có những điều kiện gì?
+    tax_type: vat
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q126
+    question: Luật 09/2026/QH16 sửa những điểm nào trong Luật Thuế giá trị gia tăng?
+    tax_type: vat
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q127
+    question: Đi du lịch Thái Lan mua hàng thì được hoàn thuế VAT ở sân bay bao nhiêu phần trăm?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q128
+    question: Phần mềm kế toán MISA tự lên tờ khai thuế GTGT bằng cách nào?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q129
+    question: Vì sao Quốc hội lại nâng ngưỡng doanh thu không phải nộp thuế GTGT lên 500 triệu?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q130
+    question: Quầy hoàn thuế GTGT cho khách nước ngoài ở sân bay Tân Sơn Nhất mở cửa từ mấy giờ?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q131
+    question: Năm ngoái doanh nghiệp nào được hoàn thuế GTGT nhiều nhất cả nước?
+    tax_type: vat
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q132
+    question: Theo Thông tư 219/2013, hàng mua vào từ 20 triệu đồng trở lên phải chuyển khoản mới được khấu trừ thuế đầu vào, đúng không?
+    tax_type: vat
+    form: reference
+    answer: TODO
+    unanswerable: repealed
+    added_in: 2
+  - id: q133
+    question: Theo Luật Thuế GTGT số 13/2008/QH12, phân bón có thuộc đối tượng không chịu thuế không?
+    tax_type: vat
+    form: reference
+    answer: TODO
+    unanswerable: repealed
+    added_in: 2
 conversations:
   - id: c07
     added_in: 2
@@ -296,5 +501,42 @@ conversations:
         answer: TODO
       - question: Vậy số tiền cọc đó có phải kê khai thuế GTGT ở kỳ nhận tiền không?
         tax_type: vat
+        form: plain
+        answer: TODO
+  - id: c10
+    added_in: 2
+    turns:
+      - question: Công ty mình bán máy cày, máy gặt cho nông dân thì chịu thuế GTGT bao nhiêu?
+        tax_type: vat
+        form: plain
+        answer: TODO
+      - question: Thế còn linh kiện, phụ tùng thay thế cho mấy máy đó thì sao?
+        tax_type: vat
+        form: plain
+        answer: TODO
+  - id: c11
+    added_in: 2
+    turns:
+      - question: Công ty mua hàng của hộ kinh doanh không có hóa đơn thì có được khấu trừ thuế GTGT đầu vào không?
+        tax_type: vat
+        form: plain
+        answer: TODO
+      - question: Vậy khoản chi đó có được tính vào chi phí khi tính thuế TNDN không?
+        tax_type: cit
+        form: plain
+        answer: TODO
+  - id: c12
+    added_in: 2
+    turns:
+      - question: Hàng trong kho bị cháy hết thì thuế GTGT đầu vào đã khấu trừ của lô hàng đó có phải điều chỉnh không?
+        tax_type: vat
+        form: plain
+        answer: TODO
+      - question: Nếu công ty bảo hiểm bồi thường thì công ty mình có phải xuất hóa đơn cho khoản bồi thường đó không?
+        tax_type: vat
+        form: plain
+        answer: TODO
+      - question: Còn phần thiệt hại không được bồi thường thì có được tính vào chi phí được trừ không?
+        tax_type: cit
         form: plain
         answer: TODO
