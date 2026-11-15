@@ -9,6 +9,7 @@ the network. The corpus test at the end runs the real pipeline over `eval/questi
 `pytest -m corpus`.
 """
 
+import dataclasses
 import hashlib
 import json
 import re
@@ -236,6 +237,20 @@ def test_breakdown_by_form_and_tax_type(results):
     assert at(reference, "n") == 1 and at(reference, "EVAL-001") == pytest.approx(1.0)
     assert sorted(at(results, "breakdown", "tax_type")) == ["pit", "vat"]
     assert at(results, "breakdown", "tax_type", "vat", "n") == 2
+
+
+def test_items_and_breakdown_carry_the_set_version_that_added_them(connections):
+    """#26: items added in a later set version are scored apart in the breakdown."""
+    later = dataclasses.replace(QUESTIONS[2], added_in=2)  # q03: recall 0.5, CP 1
+    eval_set = small_set()
+    eval_set.questions = [QUESTIONS[0], QUESTIONS[1], later, QUESTIONS[3]]
+    results = evaluate(eval_set, FakePipeline(), PARENTS)
+    assert [i.get("added_in") for i in at(results, "items")] == [1, 1, 2, 1, 1, 1, 1]
+    groups = at(results, "breakdown", "added_in")
+    assert sorted(groups) == ["1", "2"]
+    assert at(groups, "1", "n") == 2 and at(groups, "1", "EVAL-001") == pytest.approx(1.0)
+    assert at(groups, "2", "n") == 1 and at(groups, "2", "EVAL-001") == pytest.approx(0.5)
+    assert at(groups, "2", "EVAL-007") == pytest.approx(1.0)
 
 
 def test_one_item_per_question_and_turn_in_run_order(results):

@@ -80,8 +80,8 @@ file, when the two runs used different eval sets.
   ≥ 0.80, EVAL-005 ≥ 0.70, EVAL-006 ≥ 0.80, EVAL-007 ≥ 0.60; EVAL-008 has none. `passes` is
   `value >= target`, and null when there is no value or no target.
 
-**Breakdown.** EVAL-001 and EVAL-007 again, per `form` and per `tax_type`, each group with its
-own n. Only groups with at least one item are written.
+**Breakdown.** EVAL-001 and EVAL-007 again, per `form`, per `tax_type` and per `added_in`
+(the set version that added the question, eval-set.md; #26), each group with its own n. Only groups with at least one item are written.
 
 ## Latency and cost
 
@@ -117,7 +117,7 @@ The file holds ids and numbers only: no question text, no answer text and no cor
   "run": {"started": "2026-11-13T15:04:05+07:00", "command": "python -m src.eval.run", "seconds": 41.3},
   "configuration": {...},
   "scores": {"EVAL-001": {...}, "...": {}},
-  "breakdown": {"form": {...}, "tax_type": {...}},
+  "breakdown": {"form": {...}, "tax_type": {...}, "added_in": {...}},
   "latency": {...},
   "cost": {...},
   "items": [{...}]
@@ -150,7 +150,8 @@ The file holds ids and numbers only: no question text, no answer text and no cor
 | `passes` | true, false or null |
 | `reason` | only when not run: `no generation stage` |
 
-**`breakdown`**: `form` and `tax_type`, each a mapping from the group to
+**`breakdown`**: `form`, `tax_type` and `added_in` (keyed by the version as text, `"1"`, `"2"`),
+each a mapping from the group to
 `{"n": …, "EVAL-001": …, "EVAL-007": …}`.
 
 **`latency`**: `n`, `median_s`, `p95_s`, `stages`, `scope`, and `nfr006`
@@ -166,6 +167,7 @@ The file holds ids and numbers only: no question text, no answer text and no cor
 | `kind` | `question` or `turn` |
 | `conversation`, `turn` | the conversation id and the turn number, or null for a question |
 | `tax_type`, `form` | as in the set |
+| `added_in` | the set version that added the item, as in the set; 1 when the set gives none |
 | `answerable` | false when the set gives `unanswerable` |
 | `expected` | expected article ids, in provision order, once each; empty when unanswerable |
 | `hits` | per hit: `chunk_id`, `article` (its parent), `found_by`, `score` |

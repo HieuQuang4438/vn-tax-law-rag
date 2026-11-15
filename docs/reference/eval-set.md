@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-13
+updated: 2026-11-15
 owner: HieuQuang4438
 ---
 
@@ -11,7 +11,7 @@ must contain, and how each metric is scored, is in
 [acceptance.md](../product/acceptance.md#measurement-definitions); this page is the file format
 that carries it. The approach is the approved comment on #7.
 
-The set is drafted in two phases and reviewed item by item, as described under *Provenance*
+The set is drafted in two phases, reviewed and cold-read, as described under *Provenance*
 below. The checker never changes it: it reads the set and the local corpus
 (`data/processed/`, `data/enriched/`) and reports errors and warnings. Errors make it exit with
 code 1; warnings do not.
@@ -23,7 +23,7 @@ UTF-8 YAML, one file, versioned in git.
 ```yaml
 version: 1                 # raised on every change to the content
 as_of: 2026-11-12          # the date the answers hold for: the corpus crawl date
-questions:                 # 30-50 standalone questions
+questions:                 # size by version: acceptance.md, *Eval set*
   - id: q01
     question: Hộ kinh doanh có doanh thu bao nhiêu thì không phải nộp thuế giá trị gia tăng?
     tax_type: household
@@ -40,6 +40,9 @@ questions:                 # 30-50 standalone questions
     form: plain
     answer: Các văn bản trong bộ dữ liệu không quy định thuế sử dụng đất phi nông nghiệp.
     unanswerable: out_of_scope
+  - id: q51
+    added_in: 2            # the set version that added it; absent means 1
+    ...
 conversations:             # at least 5, separate from the questions above
   - id: c01
     turns:                 # 2-3 turns; each turn has the fields of a question, without id
@@ -71,6 +74,10 @@ The figures in this example show the shape only; they are not checked answers.
 | `key_facts` | answerable only | 1–4 short facts that can each be checked: a figure, a rate, a condition, a deadline. An answer is correct when it states every one and contradicts none (EVAL-006) |
 | `provisions` | answerable only | the provisions that support the answer, at least one, in the form below |
 | `unanswerable` | unanswerable only | `out_of_scope` (the corpus does not cover it) or `repealed` (about a rule no longer in force) |
+| `added_in` | no; questions only | the set version that added the question, a whole number from 1 to `version`; absent means 1. Results are broken down by it, so the items added after a round of tuning can be scored apart (#26) |
+
+A conversation has `id`, `turns` and, optionally, `added_in`, with the same meaning; its turns
+take its `added_in` and do not carry their own.
 
 A question is answerable exactly when it has no `unanswerable` field. Any other field is an
 error, so a typo cannot pass as an empty value.
@@ -122,11 +129,13 @@ line of that question in the file. Messages about the set as a whole have no pre
 | a document number not in the corpus | `unknown document "<number>"` |
 | an article not in that document | `no Điều <article> in <number>` |
 | a clause missing from a split article | `no khoản <clause> in Điều <article> of <number>` |
-| the number of questions | `30 to 50 questions, found <n>` |
+| `added_in` not a whole number from 1 to `version`, on a question or a conversation | `added_in "<value>" is not a set version from 1 to <version>` |
+| the number of questions, by version (acceptance.md, *Eval set*) | `30 to 50 questions, found <n>` for version 1; `225 to 250 questions, found <n>` from version 2 |
+| the number of answerable questions, from version 2 | `180 to 200 answerable questions, found <n>` |
 | unanswerable questions under 20% of the questions | `unanswerable share <x.xx> is below 0.20` |
 | a tax type with no question | `no question with tax_type "<type>"` |
 | a form with no question | `no question with form "<form>"` |
-| fewer than 5 conversations | `at least 5 conversations, found <n>` |
+| fewer conversations than the version needs: 5 for version 1, 20 from version 2 | `at least 5 conversations, found <n>`, `at least 20 conversations, found <n>` |
 | a conversation with fewer than 2 or more than 3 turns | `2 to 3 turns` |
 | `version` not a positive integer, `as_of` not a date | `version`, `as_of` |
 | a field of the wrong type | `"<field>" must be text`, `"<field>" must be a list of text` |
@@ -152,7 +161,8 @@ document id from the first column, and every article number written as `Article 
 provision resolved to its article id, together with the file's `sha256` and its `version`. It
 raises `EvalSetError`, carrying the checker's errors, when there is any. Every eval result records
 the version and the `sha256`: a score is comparable only with scores from the same version
-(acceptance.md, *Eval set*).
+(acceptance.md, *Eval set*). Every question and turn carries its `added_in`, 1 when the file
+gives none.
 
 ## Provenance
 
@@ -181,6 +191,18 @@ How the set is made, approved on #7, so that its questions are not shaped by the
 | 1 | Claude Opus 5.5, 2026-11-12; review applied 2026-11-13 | ChatGPT (model not shown in its interface), 2026-11-13; all findings accepted; q41–q45 written by it | Claude Opus 5.5, 2026-11-13 | owner, 2026-11-13: c02.2 (annex gap) and q21, c03.2, c03.3 (amended from outside) kept on purpose; q49 gains a key fact on what the corpus lacks; revenue thresholds left to the cold read | subagent, Claude Opus 5.5, 2026-11-13, read-only, no network: 0 wrong, 13 minor findings, corrected as approved on #7 |
 
 Each row records the model and the date of each step once it has run.
+
+**Version 2** (approved on #26) keeps every version 1 item unchanged and adds new ones, each
+with `added_in: 2`, made by the steps above with three changes:
+
+- Step 1 may also read the question text of version 1 (`question` only: no answer, key facts,
+  provisions or results), so that it does not repeat a version 1 question. Its prompt sets the
+  mix: at least 25 answerable questions per tax type, about 25% `reference` form, and the
+  sizes in acceptance.md.
+- Steps 1 and 2 each run in one session, writing in batches by tax type; each batch runs the
+  checker and is committed as written.
+- In step 3 the owner reads a sample of the new items, not every one; the cold read covers
+  every new item. The sample is recorded in the table.
 
 ## Cold read
 

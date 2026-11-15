@@ -276,6 +276,95 @@ def test_version_and_date(tmp_path, corpus, field, value):
     assert has(run(tmp_path, corpus, data).errors, field)
 
 
+# --- Version 2: sizes by version and added_in (#26) -------------------------------------------
+
+
+def v2_set(answerable_count: int = 180, unanswerable_count: int = 45, conversation_count: int = 20) -> dict:
+    """A version 2 set: v1's items as added in 1, the rest added in 2."""
+    data = valid_set()  # 24 answerable, 6 unanswerable, 5 conversations, all added in 1
+    data["version"] = 2
+    n = len(data["questions"])
+    new = [answerable(n + i + 1, tax_type=TAX_TYPES[i % len(TAX_TYPES)]) for i in range(answerable_count - 24)]
+    new += [unanswerable(n + len(new) + i + 1) for i in range(unanswerable_count - 6)]
+    for q in new:
+        q["id"] = f"q{int(q['id'][1:]):03d}"
+        q["added_in"] = 2
+    data["questions"] += new
+    data["conversations"] += [{"id": f"c{n:02d}", "added_in": 2, "turns": [turn(), turn()]}
+                              for n in range(6, conversation_count + 1)]
+    return data
+
+
+def test_a_valid_version_2_set_has_no_errors(tmp_path, corpus):
+    report = run(tmp_path, corpus, v2_set())
+    assert report.errors == []
+
+
+@pytest.mark.parametrize("answerable_count, unanswerable_count, message", [
+    (179, 45, "225 to 250 questions, found 224"),
+    (200, 51, "225 to 250 questions, found 251"),
+])
+def test_version_2_needs_225_to_250_questions(tmp_path, corpus, answerable_count, unanswerable_count, message):
+    assert has(run(tmp_path, corpus, v2_set(answerable_count, unanswerable_count)).errors, message)
+
+
+@pytest.mark.parametrize("answerable_count, unanswerable_count, message", [
+    (179, 46, "180 to 200 answerable questions, found 179"),
+    (201, 49, "180 to 200 answerable questions, found 201"),
+])
+def test_version_2_needs_180_to_200_answerable_questions(tmp_path, corpus, answerable_count, unanswerable_count,
+                                                         message):
+    errors = run(tmp_path, corpus, v2_set(answerable_count, unanswerable_count)).errors
+    assert has(errors, message)
+    assert not has(errors, "225 to 250 questions")
+
+
+def test_version_2_needs_20_conversations(tmp_path, corpus):
+    assert has(run(tmp_path, corpus, v2_set(conversation_count=19)).errors, "at least 20 conversations, found 19")
+
+
+def test_the_size_rules_follow_the_version(tmp_path, corpus):
+    small = valid_set()
+    small["version"] = 2
+    errors = run(tmp_path, corpus, small).errors
+    assert has(errors, "225 to 250 questions, found 30")
+    assert has(errors, "at least 20 conversations, found 5")
+    large = v2_set()
+    large["version"] = 1
+    for q in large["questions"]:
+        q.pop("added_in", None)
+    for c in large["conversations"]:
+        c.pop("added_in", None)
+    errors = run(tmp_path, corpus, large).errors
+    assert has(errors, "30 to 50 questions, found 225")
+    assert not has(errors, "answerable questions")
+
+
+def test_added_in_is_loaded_and_defaults_to_1(tmp_path, corpus):
+    assert run(tmp_path, corpus, v2_set()).errors == []
+    loaded = load_eval_set(write(tmp_path, v2_set()), *corpus[:2])
+    by_id = {q.id: q.added_in for q in loaded.questions}
+    assert by_id["q01"] == 1 and by_id["q031"] == 2
+    turns = {c.id: [t.added_in for t in c.turns] for c in loaded.conversations}
+    assert turns["c01"] == [1, 1] and turns["c06"] == [2, 2]
+
+
+@pytest.mark.parametrize("value", [0, 3, "two", True, 1.5])
+@pytest.mark.parametrize("where", ["question", "conversation"])
+def test_added_in_must_be_a_set_version(tmp_path, corpus, value, where):
+    data = v2_set()
+    target = item(data, "q031") if where == "question" else data["conversations"][5]
+    target["added_in"] = value
+    errors = run(tmp_path, corpus, data).errors
+    assert has(errors, "q031" if where == "question" else "c06", f'added_in "{value}" is not a set version from 1 to 2')
+
+
+def test_a_turn_has_no_added_in_of_its_own(tmp_path, corpus):
+    data = v2_set()
+    data["conversations"][5]["turns"][1]["added_in"] = 2
+    assert has(run(tmp_path, corpus, data).errors, "c06.2", 'unknown field "added_in"')
+
+
 # --- Warnings -------------------------------------------------------------------------------
 
 

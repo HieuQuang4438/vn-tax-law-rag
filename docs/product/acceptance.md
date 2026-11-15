@@ -1,8 +1,7 @@
 ---
-status: approved
-updated: 2026-11-14
+status: in-review
+updated: 2026-11-15
 owner: HieuQuang4438
-approved-by: peer
 ---
 
 # Acceptance — vn-tax-law-rag
@@ -50,17 +49,24 @@ that baseline, by a recorded decision — never quietly to fit a result.
 
 ## Measurement definitions
 
-**Eval set.** 30–50 Vietnamese questions, drafted in two separate LLM sessions (questions before
-reading the corpus, answers after) and reviewed item by item by the owner, each with the expected answer in a
+**Eval set.** Vietnamese questions, drafted in two separate LLM sessions (questions before
+reading the corpus, answers after), reviewed by the owner and cold-read, each with the expected answer in a
 sentence or a short paragraph, the 1–4 key facts that answer must state, and the list of articles (or clauses) that
 support it. An amended provision is listed with the provision that amends it. At least 20% are unanswerable
 from the corpus — outside its scope, or about repealed rules — with an empty expected list.
 Questions mix plain-language wording with explicit references ("Điều 9 Luật 48/2024"), and
-cover every tax type in the corpus. It also holds at least 5 conversations of 2–3 turns whose
+cover every tax type in the corpus. It also holds conversations of 2–3 turns whose
 follow-up turns cannot be answered without the earlier ones ("còn hộ kinh doanh thì sao?");
-each follow-up has its own expected articles. The set is versioned; a score is only comparable to
-scores from the same set version. File format and checks:
-[eval-set.md](../reference/eval-set.md).
+each follow-up has its own expected articles. The size depends on the set version:
+
+| Set version | Standalone questions | Of them answerable | Conversations |
+|---|---|---|---|
+| 1 | 30–50 | — | at least 5 |
+| 2 and later | 225–250 | 180–200 | at least 20 |
+
+Version 2 is sized so that a paired recall@8 change of about +0.03 can be told from 0 (#26).
+The set is versioned; a score is only comparable to scores from the same set version. File
+format, checks and how each version was made: [eval-set.md](../reference/eval-set.md).
 
 **recall@k** — over answerable questions, the share of expected articles that appear among the
 top k retrieved chunks, averaged per question. A clause chunk counts for its parent article.

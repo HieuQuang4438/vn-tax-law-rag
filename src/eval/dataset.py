@@ -61,6 +61,7 @@ class Item:
     key_facts: list[str] = field(default_factory=list)
     provisions: list[Provision] = field(default_factory=list)
     unanswerable: str | None = None
+    added_in: int = 1  # the set version that added it (#26); a turn takes its conversation's
 
 
 @dataclass
