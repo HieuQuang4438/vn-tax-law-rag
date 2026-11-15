@@ -1,0 +1,300 @@
+version: 2
+as_of: 2026-11-04
+questions:
+  - id: q59
+    question: Hạn chót nộp tờ khai thuế theo tháng là ngày bao nhiêu của tháng sau?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q60
+    question: Công ty mình mới thành lập năm nay thì khai thuế GTGT theo tháng hay theo quý?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q61
+    question: Doanh nghiệp phải nộp hồ sơ quyết toán thuế năm chậm nhất là bao lâu sau khi kết thúc năm tài chính?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q62
+    question: Công ty chuyển trụ sở sang tỉnh khác thì phải báo thay đổi thông tin đăng ký thuế trong bao nhiêu ngày?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q63
+    question: Bây giờ mã số thuế cá nhân có phải là số căn cước công dân luôn không?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q64
+    question: Doanh nghiệp đang tạm ngừng kinh doanh thì trong thời gian tạm ngừng có phải nộp tờ khai thuế không?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q65
+    question: Theo Thông tư 90/2026, đăng ký người phụ thuộc cho con nhỏ chưa có căn cước thì cần giấy tờ gì?
+    tax_type: administration
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q66
+    question: Công ty giải thể thì thủ tục chấm dứt hiệu lực mã số thuế phải làm trước hay sau khi đóng tài khoản ngân hàng?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q67
+    question: Doanh nghiệp nợ thuế quá 90 ngày thì cơ quan thuế được áp dụng những biện pháp cưỡng chế nào?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q68
+    question: Công ty còn nợ thuế thì giám đốc có bị tạm hoãn xuất cảnh không?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q69
+    question: Tiền thuế nợ trong trường hợp nào thì được xóa nợ?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q70
+    question: Xưởng bị cháy, thiệt hại nặng nên nộp thuế chậm thì có được miễn tiền chậm nộp không?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q71
+    question: Theo Luật Quản lý thuế 108/2025, cơ quan thuế được tự ấn định số thuế phải nộp trong những trường hợp nào?
+    tax_type: administration
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q72
+    question: Theo Nghị định 252/2026, tiền thuế nợ được nộp dần trong tối đa bao nhiêu tháng?
+    tax_type: administration
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q73
+    question: Theo Thông tư 89/2026, hồ sơ đề nghị miễn tiền chậm nộp gồm những giấy tờ gì?
+    tax_type: administration
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q74
+    question: Một cuộc thanh tra thuế tại trụ sở doanh nghiệp kéo dài tối đa bao nhiêu ngày?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q75
+    question: Cơ quan thuế xuống kiểm tra tại trụ sở công ty thì phải báo trước cho công ty bao lâu?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q76
+    question: Trường hợp nào hồ sơ hoàn thuế bị kiểm tra trước rồi mới được hoàn?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q77
+    question: Cơ quan thuế được truy thu số thuế khai thiếu từ mấy năm trước trở lại?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q78
+    question: Công ty đã lập lệnh chuyển tiền thuế đúng hạn nhưng ngân hàng chuyển trễ thì công ty có bị tính tiền chậm nộp không?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q79
+    question: Hóa đơn điện tử đã gửi khách mà ghi sai tên công ty người mua thì sửa bằng cách nào?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q80
+    question: Khách trả lại hàng sau khi đã xuất hóa đơn điện tử thì bên bán phải làm gì với hóa đơn đó?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q81
+    question: Doanh nghiệp nào được dùng hóa đơn điện tử không có mã của cơ quan thuế?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q82
+    question: Theo Nghị định 254/2026, quán ăn bán cho khách lẻ không lấy hóa đơn thì có phải lập hóa đơn không?
+    tax_type: administration
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q83
+    question: Chứng từ khấu trừ thuế thu nhập cá nhân cấp cho nhân viên bây giờ bắt buộc làm bản điện tử hay vẫn in giấy được?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q84
+    question: Thông tư 91/2026 yêu cầu doanh nghiệp lưu trữ hóa đơn điện tử trong bao lâu?
+    tax_type: administration
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q85
+    question: Công ty mẹ nắm bao nhiêu phần trăm vốn của công ty con thì hai bên bị coi là có quan hệ liên kết?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q86
+    question: Doanh nghiệp có giao dịch liên kết nhưng doanh thu nhỏ thì có được miễn lập hồ sơ xác định giá giao dịch liên kết không?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q87
+    question: Theo Nghị định 255/2026, khi cơ quan thuế yêu cầu thì doanh nghiệp có bao nhiêu ngày để nộp hồ sơ xác định giá giao dịch liên kết?
+    tax_type: administration
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q88
+    question: Theo Thông tư 94/2026, doanh nghiệp bị xếp vào nhóm rủi ro cao thì hồ sơ hoàn thuế bị xử lý khác thế nào?
+    tax_type: administration
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q89
+    question: Hàng nhập khẩu có ngân hàng bảo lãnh số thuế thì được nộp thuế chậm nhất bao nhiêu ngày?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q90
+    question: Theo Thông tư 86/2026, doanh nghiệp nhập nguyên liệu về sản xuất hàng xuất khẩu thì khi nào được hoàn thuế nhập khẩu đã nộp?
+    tax_type: administration
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q91
+    question: Hàng nhập khẩu đã thông quan rồi mới phát hiện khai sai thì còn được khai bổ sung trong bao lâu?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q92
+    question: Mình nộp thuế qua app ngân hàng thì ngày nào được tính là ngày đã nộp thuế?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q93
+    question: Theo Luật 108/2025, nhà cung cấp nước ngoài bán dịch vụ cho người Việt Nam mà không có cơ sở thường trú ở Việt Nam thì ai phải khai và nộp thuế?
+    tax_type: administration
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q94
+    question: Kế toán lập hóa đơn điện tử sai thời điểm thì công ty bị phạt bao nhiêu tiền?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q95
+    question: Thi chứng chỉ hành nghề dịch vụ làm thủ tục về thuế gồm mấy môn và điểm đạt là bao nhiêu?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q96
+    question: Chi cục thuế khu vực quản lý quận Bình Thạnh bây giờ đặt trụ sở ở đâu?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q97
+    question: Hiện nay cả nước còn tổng cộng bao nhiêu tiền nợ thuế chưa thu được?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q98
+    question: Phần mềm hỗ trợ kê khai HTKK bản mới nhất là phiên bản nào?
+    tax_type: administration
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q99
+    question: Theo Thông tư 156/2013, hồ sơ khai bổ sung thuế gồm những gì?
+    tax_type: administration
+    form: reference
+    answer: TODO
+    unanswerable: repealed
+    added_in: 2
+  - id: q100
+    question: Theo Thông tư 80/2021, tờ khai thuế GTGT theo phương pháp khấu trừ là mẫu số mấy?
+    tax_type: administration
+    form: reference
+    answer: TODO
+    unanswerable: repealed
+    added_in: 2
+conversations:
+  - id: c07
+    added_in: 2
+    turns:
+      - question: Công ty mình đổi người đại diện theo pháp luật thì có phải báo cho cơ quan thuế không?
+        tax_type: administration
+        form: plain
+        answer: TODO
+      - question: Nếu chỉ đổi số điện thoại liên hệ thôi thì sao?
+        tax_type: administration
+        form: plain
+        answer: TODO
+  - id: c08
+    added_in: 2
+    turns:
+      - question: Doanh nghiệp nợ thuế thì cơ quan thuế có được phong tỏa tài khoản ngân hàng của công ty không?
+        tax_type: administration
+        form: plain
+        answer: TODO
+      - question: Trước khi làm vậy họ có phải gửi thông báo cho công ty không?
+        tax_type: administration
+        form: plain
+        answer: TODO
+      - question: Nộp đủ tiền rồi thì bao lâu tài khoản được gỡ?
+        tax_type: administration
+        form: plain
+        answer: TODO
+  - id: c09
+    added_in: 2
+    turns:
+      - question: Khách hàng chuyển tiền đặt cọc mua hàng thì công ty có phải xuất hóa đơn điện tử ngay lúc nhận cọc không?
+        tax_type: administration
+        form: plain
+        answer: TODO
+      - question: Vậy số tiền cọc đó có phải kê khai thuế GTGT ở kỳ nhận tiền không?
+        tax_type: vat
+        form: plain
+        answer: TODO
