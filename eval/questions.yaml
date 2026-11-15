@@ -1820,193 +1820,375 @@ questions:
     question: Mức giảm trừ gia cảnh cho bản thân người đi làm hiện nay là bao nhiêu một tháng?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: Mức giảm trừ gia cảnh cho bản thân người nộp thuế là 15,5 triệu đồng/tháng (186 triệu đồng/năm).
+    key_facts:
+      - "15,5 triệu đồng/tháng"
+      - "186 triệu đồng/năm"
+    provisions:
+      - 109/2025/QH15 Điều 10
     added_in: 2
   - id: q135
     question: Muốn đăng ký bố mẹ già là người phụ thuộc thì thu nhập của bố mẹ phải dưới mức bao nhiêu?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: >
+      Bố mẹ hết tuổi lao động phải không có thu nhập hoặc có thu nhập bình quân tháng trong năm từ tất cả các nguồn không vượt quá
+      03 triệu đồng. Nếu bố mẹ còn trong độ tuổi lao động thì còn phải không có khả năng lao động.
+    key_facts:
+      - "thu nhập bình quân tháng từ tất cả các nguồn không vượt quá 03 triệu đồng"
+      - "trong độ tuổi lao động thì phải không có khả năng lao động"
+    provisions:
+      - 87/2026/TT-BTC Điều 3
+      - 253/2026/NĐ-CP Điều 47 khoản 3
     added_in: 2
   - id: q136
     question: Con tôi 20 tuổi đang học đại học, không đi làm, thì có được đăng ký người phụ thuộc không?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: >
+      Được. Con đang học đại học, cao đẳng, trung học chuyên nghiệp hoặc học nghề là người phụ thuộc nếu không có thu nhập hoặc có
+      thu nhập bình quân tháng trong năm từ tất cả các nguồn không vượt quá 03 triệu đồng; mức giảm trừ là 6,2 triệu đồng/tháng.
+    key_facts:
+      - "con đang học đại học không có thu nhập được tính là người phụ thuộc"
+      - "thu nhập bình quân tháng không vượt quá 03 triệu đồng"
+      - "giảm trừ 6,2 triệu đồng/tháng cho mỗi người phụ thuộc"
+    provisions:
+      - 253/2026/NĐ-CP Điều 47 khoản 2
+      - 87/2026/TT-BTC Điều 3
+      - 109/2025/QH15 Điều 10
     added_in: 2
   - id: q137
     question: Tiền làm thêm giờ ban đêm có bị tính thuế thu nhập cá nhân không?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: >
+      Không. Tiền lương làm việc ban đêm, làm thêm giờ tại nơi làm việc phù hợp với điều kiện và thời gian theo pháp luật lao động được
+      miễn thuế TNCN. Tổ chức trả thu nhập phải lập bảng kê thời gian và tiền lương làm đêm, làm thêm giờ, hoặc chứng minh qua bảng
+      lương, bảng chấm công, hợp đồng lao động.
+    key_facts:
+      - "tiền lương làm đêm, làm thêm giờ được miễn thuế TNCN"
+      - "phải phù hợp điều kiện và thời gian theo pháp luật lao động"
+      - "tổ chức trả thu nhập lập bảng kê hoặc chứng minh qua bảng lương, bảng chấm công"
+    provisions:
+      - 109/2025/QH15 Điều 4 khoản 8
+      - 253/2026/NĐ-CP Điều 26 khoản 1
     added_in: 2
   - id: q138
     question: Tiền thưởng Tết công ty phát có phải chịu thuế thu nhập cá nhân không?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: Có. Các khoản thưởng bằng tiền hoặc không bằng tiền người sử dụng lao động chi cho người lao động là thu nhập từ tiền lương, tiền công chịu thuế TNCN.
+    key_facts:
+      - "tiền thưởng do người sử dụng lao động chi là thu nhập chịu thuế từ tiền lương, tiền công"
+    provisions:
+      - 253/2026/NĐ-CP Điều 8 khoản 2
     added_in: 2
   - id: q139
     question: Trúng xổ số Vietlott 2 tỷ thì bị trừ bao nhiêu tiền thuế?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: >
+      Với cá nhân cư trú, thuế TNCN từ trúng thưởng bằng 10% trên phần giá trị giải thưởng vượt 20 triệu đồng mỗi lần trúng. Trúng 2
+      tỷ đồng thì thuế là (2.000 − 20) triệu × 10% = 198 triệu đồng.
+    key_facts:
+      - "thuế suất 10%"
+      - "tính trên phần giá trị giải thưởng vượt trên 20 triệu đồng mỗi lần"
+      - "giải 2 tỷ đồng: thuế 198 triệu đồng"
+    provisions:
+      - 109/2025/QH15 Điều 15
     added_in: 2
   - id: q140
     question: Tôi được thừa kế căn nhà của bố mẹ để lại thì có phải nộp thuế thu nhập cá nhân không?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: Không. Thu nhập từ nhận thừa kế bất động sản giữa cha đẻ, mẹ đẻ với con đẻ được miễn thuế TNCN.
+    key_facts:
+      - "nhận thừa kế bất động sản giữa cha mẹ đẻ và con đẻ được miễn thuế TNCN"
+    provisions:
+      - 109/2025/QH15 Điều 4 khoản 1
     added_in: 2
   - id: q141
     question: Anh trai cho em gái một mảnh đất thì em gái có được miễn thuế thu nhập cá nhân không?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: Có. Thu nhập từ nhận quà tặng là bất động sản giữa anh, chị, em ruột với nhau được miễn thuế TNCN.
+    key_facts:
+      - "quà tặng bất động sản giữa anh, chị, em ruột được miễn thuế TNCN"
+    provisions:
+      - 109/2025/QH15 Điều 4 khoản 1
     added_in: 2
   - id: q142
     question: Bán căn nhà duy nhất đang ở thì có được miễn thuế thu nhập cá nhân không?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: >
+      Có, nếu tại thời điểm chuyển nhượng người bán chỉ có duy nhất một nhà ở hoặc quyền sử dụng một thửa đất ở tại Việt Nam và đã có
+      quyền sở hữu, sử dụng tối thiểu 183 ngày. Không áp dụng với nhà ở, công trình hình thành trong tương lai; nhà đồng sở hữu thì chỉ
+      người không có nhà, đất ở nơi khác được miễn.
+    key_facts:
+      - "chỉ có duy nhất một nhà ở, đất ở tại Việt Nam tại thời điểm chuyển nhượng"
+      - "có quyền sở hữu, sử dụng tối thiểu 183 ngày"
+      - "không áp dụng cho nhà ở hình thành trong tương lai"
+    provisions:
+      - 109/2025/QH15 Điều 4 khoản 2
+      - 253/2026/NĐ-CP Điều 19
     added_in: 2
   - id: q143
     question: Tiền lãi gửi tiết kiệm ngân hàng có bị đánh thuế thu nhập cá nhân không?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: Không. Lãi tiền gửi tại tổ chức tín dụng được miễn thuế thu nhập cá nhân.
+    key_facts:
+      - "lãi tiền gửi tại tổ chức tín dụng được miễn thuế TNCN"
+    provisions:
+      - 109/2025/QH15 Điều 4 khoản 6
+      - 253/2026/NĐ-CP Điều 24
     added_in: 2
   - id: q144
     question: Nhận cổ tức bằng tiền mặt thì bị khấu trừ thuế thu nhập cá nhân bao nhiêu phần trăm?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: Thu nhập từ đầu tư vốn, gồm cổ tức, của cá nhân cư trú chịu thuế suất 5% trên từng lần nhận.
+    key_facts:
+      - "thuế suất 5%"
+      - "tính theo từng lần phát sinh"
+    provisions:
+      - 109/2025/QH15 Điều 12
     added_in: 2
   - id: q145
     question: Bán cổ phiếu trên sàn chứng khoán thì nộp thuế thu nhập cá nhân bao nhiêu?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: Thuế TNCN từ chuyển nhượng chứng khoán bằng giá chuyển nhượng nhân 0,1% theo từng lần chuyển nhượng.
+    key_facts:
+      - "0,1% trên giá chuyển nhượng từng lần"
+    provisions:
+      - 109/2025/QH15 Điều 13 khoản 2
     added_in: 2
   - id: q146
     question: Công ty mua bảo hiểm nhân thọ cho nhân viên thì phí bảo hiểm đó có tính vào thu nhập chịu thuế của nhân viên không?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: >
+      Tiền công ty mua bảo hiểm nhân thọ cho nhân viên là thu nhập chịu thuế, nhưng nếu doanh nghiệp bảo hiểm thành lập tại Việt Nam
+      thì chưa tính vào thu nhập khi mua; đến khi đáo hạn, doanh nghiệp bảo hiểm khấu trừ 10% trên tiền phí tích lũy (với phí từ
+      01/01/2026, chỉ trên phần vượt 03 triệu đồng/tháng). Nếu mua của doanh nghiệp bảo hiểm nước ngoài được phép bán tại Việt Nam,
+      công ty khấu trừ 10% trên phần phí vượt 03 triệu đồng/tháng trước khi trả lương.
+    key_facts:
+      - "bảo hiểm của doanh nghiệp thành lập tại Việt Nam: chưa tính thuế khi mua"
+      - "khi đáo hạn: khấu trừ 10% trên tiền phí tích lũy"
+      - "phí từ 01/01/2026: chỉ tính trên phần vượt 03 triệu đồng/tháng"
+      - "doanh nghiệp bảo hiểm nước ngoài: công ty khấu trừ 10% phần phí vượt mức trước khi trả lương"
+    provisions:
+      - 253/2026/NĐ-CP Điều 8 khoản 2
+      - 253/2026/NĐ-CP Điều 50 khoản 3
+      - 253/2026/NĐ-CP Điều 46 khoản 2
     added_in: 2
   - id: q147
     question: Công ty phát tiền đồng phục bằng tiền mặt thì khoản đó có bị tính thuế thu nhập cá nhân không?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: >
+      Phần khoán chi trang phục cao hơn mức được trừ khi tính thuế TNDN thì tính vào thu nhập chịu thuế TNCN. Với doanh nghiệp, chi
+      trang phục bằng tiền được trừ tối đa 05 triệu đồng/người/năm, nên phần tiền đồng phục vượt 05 triệu đồng/người/năm bị tính thuế.
+    key_facts:
+      - "phần khoán chi trang phục vượt mức chi phí được trừ thuế TNDN là thu nhập chịu thuế"
+      - "chi trang phục bằng tiền tối đa 05 triệu đồng/người/năm"
+    provisions:
+      - 253/2026/NĐ-CP Điều 8 khoản 2
+      - 320/2025/NĐ-CP Điều 10 khoản 8
     added_in: 2
   - id: q148
     question: Tiền nhuận bút viết sách có phải nộp thuế thu nhập cá nhân không?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: Có. Tiền nhuận bút theo chế độ nhuận bút là thu nhập từ tiền lương, tiền công chịu thuế TNCN.
+    key_facts:
+      - "tiền nhuận bút là thu nhập từ tiền lương, tiền công chịu thuế"
+    provisions:
+      - 253/2026/NĐ-CP Điều 8 khoản 2
     added_in: 2
   - id: q149
     question: Tự đóng quỹ hưu trí tự nguyện thì được trừ tối đa bao nhiêu khi tính thuế thu nhập?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: >
+      Khoản đóng bảo hiểm hưu trí bổ sung, hưu trí tự nguyện, bảo hiểm nhân thọ được trừ tổng cộng tối đa 03 triệu đồng/tháng cho tất
+      cả các hình thức, gồm cả phần người sử dụng lao động đóng và phần tự đóng; căn cứ là chứng từ nộp tiền do tổ chức bảo hiểm, quỹ
+      hưu trí cấp.
+    key_facts:
+      - "tối đa 03 triệu đồng/tháng"
+      - "tính chung cho hưu trí bổ sung, hưu trí tự nguyện và bảo hiểm nhân thọ"
+      - "gồm cả phần người sử dụng lao động đóng và phần tự đóng"
+    provisions:
+      - 253/2026/NĐ-CP Điều 46 khoản 2
     added_in: 2
   - id: q150
     question: Tôi ủng hộ tiền thông qua một quỹ từ thiện được thành lập và hoạt động hợp pháp thì khoản đóng góp đó có được trừ khi tính thuế TNCN không?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: >
+      Được. Cá nhân cư trú được trừ khoản đóng góp vào quỹ từ thiện, quỹ nhân đạo, quỹ khuyến học vào thu nhập chịu thuế từ tiền lương,
+      tiền công trước khi tính thuế, nếu quỹ được cơ quan nhà nước có thẩm quyền cho phép thành lập hoặc công nhận, hoạt động không vì
+      lợi nhuận, và khoản đóng góp có chứng từ hợp lệ.
+    key_facts:
+      - "đóng góp vào quỹ từ thiện được trừ vào thu nhập từ tiền lương, tiền công"
+      - "quỹ phải được cơ quan nhà nước có thẩm quyền cho phép thành lập hoặc công nhận"
+      - "phải có hóa đơn, chứng từ hợp lệ"
+    provisions:
+      - 109/2025/QH15 Điều 11
     added_in: 2
   - id: q151
     question: Người mắc bệnh hiểm nghèo không đủ tiền nộp thuế thì có được giảm thuế thu nhập cá nhân không?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: >
+      Có. Người nộp thuế gặp khó khăn do bệnh hiểm nghèo ảnh hưởng đến khả năng nộp thuế được xét giảm thuế tương ứng với mức độ thiệt
+      hại nhưng không vượt quá số thuế phải nộp; việc giảm được xét theo năm, cho số thuế của năm mắc bệnh. Bệnh hiểm nghèo xác định
+      theo quy định của Bộ trưởng Bộ Y tế.
+    key_facts:
+      - "được giảm thuế tương ứng mức độ thiệt hại"
+      - "không vượt quá số thuế phải nộp"
+      - "xét giảm theo năm phát sinh"
+    provisions:
+      - 109/2025/QH15 Điều 5 khoản 1
+      - 253/2026/NĐ-CP Điều 40
     added_in: 2
   - id: q152
     question: Theo Luật 109/2025, bán phần vốn góp trong công ty TNHH thì chịu thuế thu nhập cá nhân bao nhiêu?
     tax_type: pit
     form: reference
-    answer: TODO
+    answer: >
+      Chuyển nhượng phần vốn góp chịu thuế 20% trên thu nhập tính thuế (giá chuyển nhượng trừ giá mua và chi phí hợp lý) theo từng lần
+      chuyển nhượng; nếu không xác định được giá mua và chi phí thì nộp 2% trên giá chuyển nhượng.
+    key_facts:
+      - "20% trên giá chuyển nhượng trừ giá mua và chi phí hợp lý"
+      - "không xác định được giá mua: 2% trên giá chuyển nhượng"
+    provisions:
+      - 109/2025/QH15 Điều 13 khoản 1
     added_in: 2
   - id: q153
     question: Theo Nghị định 253/2026, phụ cấp thu hút trả cho người làm việc tại vùng có điều kiện kinh tế - xã hội đặc biệt khó khăn có được miễn thuế TNCN không?
     tax_type: pit
     form: reference
-    answer: TODO
+    answer: Có. Phụ cấp thu hút, phụ cấp khu vực không tính vào thu nhập chịu thuế TNCN, nếu do cơ quan nhà nước có thẩm quyền quy định; phần nhận cao hơn mức quy định phải tính thuế.
+    key_facts:
+      - "phụ cấp thu hút không tính vào thu nhập chịu thuế"
+      - "phần vượt mức quy định của cơ quan nhà nước có thẩm quyền phải tính thuế"
+    provisions:
+      - 253/2026/NĐ-CP Điều 8 khoản 3
     added_in: 2
-  - id: q154
+  - id: q154  # step 2: moved to unanswerable; neither 87/2026/TT-BTC nor 89/2026/TT-BTC names the form in its text (89 Điều 22 khoản 1 refers to Phụ lục I, an annex the corpus does not chunk)
     question: Thông tư 87/2026 quy định cá nhân tự quyết toán thuế thu nhập cá nhân dùng tờ khai mẫu nào?
     tax_type: pit
     form: reference
-    answer: TODO
+    answer: >
+      Thông tư 87/2026 không quy định mẫu tờ khai quyết toán; Thông tư 89/2026 dẫn chiếu hồ sơ quyết toán thuế TNCN tới điểm 7.1 Phụ lục I,
+      nhưng phụ lục không có trong bộ dữ liệu nên không xác định được mẫu số.
+    unanswerable: out_of_scope
     added_in: 2
   - id: q155
     question: Điều 4 Luật 109/2025 quy định những khoản thu nhập nào được miễn thuế?
     tax_type: pit
     form: reference
-    answer: TODO
+    answer: >
+      Điều 4 Luật 109/2025 miễn thuế cho các khoản: chuyển nhượng, thừa kế, quà tặng bất động sản giữa người thân trực hệ và anh chị em
+      ruột; bán nhà ở, đất ở duy nhất; giá trị quyền sử dụng đất được Nhà nước giao; thu nhập trực tiếp sản xuất nông, lâm, ngư nghiệp
+      chưa chế biến, sản xuất muối; chuyển đổi đất nông nghiệp được giao; lãi trái phiếu chính phủ, lãi tiền gửi, lãi bảo hiểm nhân thọ;
+      kiều hối; tiền lương làm đêm, làm thêm giờ, ngày không nghỉ phép; lương hưu; học bổng; tiền bồi thường bảo hiểm, tai nạn lao động;
+      thu nhập từ quỹ từ thiện, viện trợ nước ngoài; lương thuyền viên làm cho hãng tàu nước ngoài; thu nhập từ khoa học, công nghệ, đổi
+      mới sáng tạo, khởi nghiệp sáng tạo; lương chuyên gia dự án ODA; thu nhập sau thuế TNDN của chủ doanh nghiệp tư nhân, công ty TNHH
+      một thành viên, và một số khoản khác.
+    key_facts:
+      - "bất động sản chuyển nhượng, thừa kế, tặng giữa vợ chồng, cha mẹ con, anh chị em ruột"
+      - "nhà ở, đất ở duy nhất"
+      - "lãi tiền gửi tại tổ chức tín dụng, kiều hối"
+      - "tiền lương làm đêm, làm thêm giờ; lương hưu"
+    provisions:
+      - 109/2025/QH15 Điều 4
     added_in: 2
   - id: q156
     question: Luật 09/2026/QH16 sửa gì về thuế thu nhập cá nhân khi bán nhà đất?
     tax_type: pit
     form: reference
-    answer: TODO
+    answer: >
+      Không sửa gì về bán nhà đất. Phần sửa Luật Thuế TNCN của Luật 09/2026/QH16 chỉ là khoản 1 Điều 7: cá nhân cư trú kinh doanh có doanh
+      thu năm từ mức do Chính phủ quy định trở xuống không phải nộp thuế TNCN, áp dụng từ 01/01/2026.
+    key_facts:
+      - "không sửa quy định về chuyển nhượng bất động sản"
+      - "chỉ sửa khoản 1 Điều 7: ngưỡng doanh thu kinh doanh do Chính phủ quy định"
+      - "hiệu lực từ 01/01/2026"
+    provisions:
+      - 09/2026/QH16 Điều 1
+      - 09/2026/QH16 Điều 5
     added_in: 2
   - id: q157
     question: Theo Nghị định 253/2026, tiền thuê nhà công ty trả hộ cho nhân viên được tính vào thu nhập chịu thuế tối đa bao nhiêu?
     tax_type: pit
     form: reference
-    answer: TODO
+    answer: >
+      Tiền thuê nhà, điện, nước và dịch vụ kèm theo do công ty trả thay được tính vào thu nhập chịu thuế theo số thực trả nhưng không vượt
+      quá 15% tổng thu nhập chịu thuế của người lao động phát sinh tại đơn vị (chưa gồm tiền thuê nhà). Nhà ở do công ty xây cho người lao
+      động thì không tính.
+    key_facts:
+      - "tối đa 15% tổng thu nhập chịu thuế phát sinh tại đơn vị, chưa gồm tiền thuê nhà"
+      - "nhà ở do người sử dụng lao động xây cho người lao động không tính vào thu nhập chịu thuế"
+    provisions:
+      - 253/2026/NĐ-CP Điều 8 khoản 2
     added_in: 2
   - id: q158
     question: Du học sinh Việt Nam đi làm thêm ở Mỹ thì bên Mỹ trừ thuế thu nhập bao nhiêu phần trăm?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu chỉ gồm pháp luật thuế Việt Nam, không có quy định về thuế thu nhập tại Mỹ.
     unanswerable: out_of_scope
     added_in: 2
   - id: q159
     question: Chính phủ có kế hoạch nâng mức giảm trừ gia cảnh lên 20 triệu vào năm 2027 không?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu không có thông tin về kế hoạch điều chỉnh mức giảm trừ gia cảnh trong tương lai; mức hiện hành là 15,5 triệu đồng/tháng cho bản thân.
     unanswerable: out_of_scope
     added_in: 2
   - id: q160
     question: Năm ngoái người nộp thuế thu nhập cá nhân nhiều nhất cả nước nộp bao nhiêu tiền?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu là văn bản pháp luật, không có số liệu về người nộp thuế thu nhập cá nhân nhiều nhất.
     unanswerable: out_of_scope
     added_in: 2
   - id: q161
     question: Cơ quan thuế có gửi tin nhắn Zalo nhắc người dân quyết toán thuế thu nhập cá nhân không?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu không có thông tin về việc cơ quan thuế nhắn tin Zalo nhắc quyết toán.
     unanswerable: out_of_scope
     added_in: 2
   - id: q162
     question: Công ty trừ thuế thu nhập cá nhân vào lương của tôi nhưng không nộp cho nhà nước thì tôi kiện ra tòa án cấp nào?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: >
+      Các văn bản trong bộ dữ liệu không quy định thẩm quyền xét xử của tòa án; việc khởi kiện thuộc pháp luật tố tụng, không có trong bộ dữ
+      liệu.
     unanswerable: out_of_scope
     added_in: 2
-  - id: q163
+  - id: q163  # step 2: repealed confirmed: 87/2026/TT-BTC Điều 6 khoản 2 replaces 111/2013/TT-BTC
     question: Theo Thông tư 111/2013, mức giảm trừ cho mỗi người phụ thuộc là 3,6 triệu một tháng đúng không?
     tax_type: pit
     form: reference
-    answer: TODO
+    answer: >
+      Thông tư 111/2013/TT-BTC đã được thay thế bởi Thông tư 87/2026/TT-BTC nên mức 3,6 triệu đồng không còn áp dụng; theo Luật 109/2025, mức
+      giảm trừ cho mỗi người phụ thuộc hiện là 6,2 triệu đồng/tháng.
     unanswerable: repealed
     added_in: 2
-  - id: q164
+  - id: q164  # step 2: repealed confirmed: 109/2025/QH15 Điều 29 ends Law 04/2007/QH12
     question: Theo Luật Thuế thu nhập cá nhân số 04/2007/QH12, bán nhà đất thì nộp thuế 25% trên phần lãi được tính thế nào?
     tax_type: pit
     form: reference
-    answer: TODO
+    answer: >
+      Luật Thuế TNCN số 04/2007/QH12 đã hết hiệu lực, thay bằng Luật 109/2025/QH15. Theo luật hiện hành, thu nhập từ chuyển nhượng bất động
+      sản của cá nhân cư trú chịu thuế 2% trên giá chuyển nhượng, không còn cách tính 25% trên phần lãi.
     unanswerable: repealed
     added_in: 2
   - id: q165
@@ -2398,7 +2580,16 @@ questions:
     question: Hộ kinh doanh thuê nhân viên bán hàng thì có phải khấu trừ thuế thu nhập cá nhân của nhân viên không?
     tax_type: pit
     form: plain
-    answer: TODO
+    answer: >
+      Có. Tổ chức, cá nhân chi trả thu nhập phải khấu trừ thuế TNCN khi trả lương: người ký hợp đồng lao động từ 03 tháng trở lên khấu trừ
+      theo biểu thuế lũy tiến từng phần; không ký hợp đồng hoặc hợp đồng dưới 03 tháng mà trả từ 05 triệu đồng/lần trở lên thì khấu trừ 10%.
+    key_facts:
+      - "người chi trả thu nhập phải khấu trừ thuế TNCN"
+      - "hợp đồng từ 03 tháng trở lên: khấu trừ theo biểu lũy tiến từng phần"
+      - "không hợp đồng hoặc dưới 03 tháng, từ 05 triệu đồng/lần: khấu trừ 10%"
+    provisions:
+      - 253/2026/NĐ-CP Điều 50 khoản 1
+      - 253/2026/NĐ-CP Điều 50 khoản 2
     added_in: 2
   - id: q228
     question: Hộ kinh doanh nộp thuế theo phương pháp kê khai thì tiền thuê mặt bằng có được trừ khi tính thuế không?
