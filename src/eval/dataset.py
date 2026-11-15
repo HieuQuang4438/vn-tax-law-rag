@@ -16,16 +16,17 @@ import yaml
 TAX_TYPES = ("administration", "vat", "pit", "cit", "sct", "household")
 FORMS = ("plain", "reference")
 UNANSWERABLE = ("out_of_scope", "repealed")
-QUESTIONS = (30, 50)
 UNANSWERABLE_SHARE = 0.20
-CONVERSATIONS = 5
 TURNS = (2, 3)
 KEY_FACTS = (1, 4)
 
-ITEM_FIELDS = ("id", "question", "tax_type", "form", "answer", "key_facts", "provisions", "unanswerable")
+ITEM_FIELDS = ("id", "question", "tax_type", "form", "answer", "key_facts", "provisions", "unanswerable",
+               "added_in")
+TURN_FIELDS = ITEM_FIELDS[1:-1]  # a turn has no id and takes its conversation's added_in
 ITEM_REQUIRED = ("question", "tax_type", "form", "answer")
 SET_FIELDS = ("version", "as_of", "questions", "conversations")
 CONVERSATION_FIELDS = ("id", "turns")
+CONVERSATION_OPTIONAL = ("added_in",)
 LINE = "__line__"
 
 PROVISION = re.compile(r"(?P<number>\S+)\s+điều\s+(?P<article>\d+[a-zđ]?)(?:\s+khoản\s+(?P<clause>\d+[a-zđ]?))?",
@@ -33,6 +34,28 @@ PROVISION = re.compile(r"(?P<number>\S+)\s+điều\s+(?P<article>\d+[a-zđ]?)(?:
 NAMES_A_PROVISION = re.compile(r"điều\s+\d|\d+/\d{4}", re.IGNORECASE)
 OUTSIDE_SECTION = "## Amendments from outside the corpus"
 OUTSIDE_ARTICLES = re.compile(r"Articles? (\w+(?: and \w+)*)")
+
+
+@dataclass(frozen=True)
+class Size:
+    """What one set version must hold (acceptance.md, *Eval set*)."""
+
+    questions: tuple[int, int]
+    answerable: tuple[int, int] | None  # None: no rule
+    conversations: int
+
+
+SIZES = {1: Size(questions=(30, 50), answerable=None, conversations=5),
+         2: Size(questions=(225, 250), answerable=(180, 200), conversations=20)}  # #26
+
+
+def size_of(version: int) -> Size:
+    """The size rules of a set version; a later version keeps those of the last one written here."""
+    return SIZES[min(max(version, 1), max(SIZES))]
+
+
+def _is_whole(value) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool)
 
 
 class EvalSetError(ValueError):
@@ -183,6 +206,16 @@ class _Checker:
         self.corpus = corpus
         self.report = Report()
         self.ids: set[str] = set()
+        self.version: int | None = None  # the set's version once read, for added_in
+
+    def added_in(self, raw: dict, say) -> int:
+        if "added_in" not in raw:
+            return 1
+        value = raw["added_in"]
+        if _is_whole(value) and 1 <= value and (self.version is None or value <= self.version):
+            return value  # with no valid version, that error is reported once, on the version
+        say(f'added_in "{value}" is not a set version from 1 to {self.version or "the version"}')
+        return 1
 
     def error(self, message: str, line: int | None = None, item_id: str | None = None) -> None:
         self.report.errors.append(f"line {line}: {item_id}: {message}" if line else message)
@@ -190,7 +223,7 @@ class _Checker:
     def warn(self, message: str, line: int, item_id: str) -> None:
         self.report.warnings.append(f"line {line}: {item_id}: {message}")
 
-    def item(self, raw, item_id: str | None, is_turn: bool) -> Item | None:
+    def item(self, raw, item_id: str | None, is_turn: bool, added_in: int = 1) -> Item | None:
         if not isinstance(raw, dict):
             self.error(f"{'a turn' if is_turn else 'a question'} must be a mapping of fields")
             return None
@@ -198,7 +231,7 @@ class _Checker:
         fields = [f for f in raw if f != LINE]
         item_id = item_id if is_turn else str(raw.get("id"))
         say = lambda message: self.error(message, line, item_id)  # noqa: E731
-        allowed = ITEM_FIELDS[1:] if is_turn else ITEM_FIELDS
+        allowed = TURN_FIELDS if is_turn else ITEM_FIELDS
         for name in (ITEM_REQUIRED if is_turn else ("id", *ITEM_REQUIRED)):
             if name not in raw:
                 say(f'missing field "{name}"')
@@ -242,9 +275,11 @@ class _Checker:
             except ValueError as problem:
                 say(str(problem))
         self.warnings(raw, resolved, line, item_id)
+        if not is_turn:
+            added_in = self.added_in(raw, say)
         return Item(id=item_id, line=line, question=raw.get("question", ""), tax_type=raw.get("tax_type", ""),
                     form=raw.get("form", ""), answer=raw.get("answer", ""), key_facts=list(key_facts),
-                    provisions=resolved, unanswerable=unanswerable)
+                    provisions=resolved, unanswerable=unanswerable, added_in=added_in)
 
     def warnings(self, raw: dict, provisions: list[Provision], line: int, item_id: str) -> None:
         listed = {p.article for p in provisions}
@@ -269,8 +304,9 @@ class _Checker:
             if name not in raw:
                 say(f'missing field "{name}"')
         for name in raw:
-            if name not in (*CONVERSATION_FIELDS, LINE):
+            if name not in (*CONVERSATION_FIELDS, *CONVERSATION_OPTIONAL, LINE):
                 say(f'unknown field "{name}"')
+        added_in = self.added_in(raw, say)
         if "id" in raw:
             if conversation_id in self.ids:
                 say(f'duplicate id "{conversation_id}"')
@@ -278,7 +314,8 @@ class _Checker:
         turns = raw.get("turns") if isinstance(raw.get("turns"), list) else []
         if not TURNS[0] <= len(turns) <= TURNS[1]:
             say(f"{TURNS[0]} to {TURNS[1]} turns, found {len(turns)}")
-        items = [self.item(turn, f"{conversation_id}.{n}", is_turn=True) for n, turn in enumerate(turns, 1)]
+        items = [self.item(turn, f"{conversation_id}.{n}", is_turn=True, added_in=added_in)
+                 for n, turn in enumerate(turns, 1)]
         return Conversation(conversation_id, line, [i for i in items if i])
 
     def whole(self, raw) -> EvalSet:
@@ -291,21 +328,28 @@ class _Checker:
         for name in raw:
             if name not in (*SET_FIELDS, LINE):
                 self.error(f'unknown field "{name}"')
+        version, as_of = raw.get("version"), raw.get("as_of")
+        valid_version = _is_whole(version) and version >= 1
+        if "version" in raw and not valid_version:
+            self.error(f'version must be a positive integer, found "{version}"')
+        self.version = version if valid_version else None
         questions_raw = raw.get("questions") if isinstance(raw.get("questions"), list) else []
         conversations_raw = raw.get("conversations") if isinstance(raw.get("conversations"), list) else []
         questions = [q for q in (self.item(r, None, is_turn=False) for r in questions_raw) if q]
         conversations = [c for c in (self.conversation(r) for r in conversations_raw) if c]
 
-        version, as_of = raw.get("version"), raw.get("as_of")
-        if "version" in raw and not (isinstance(version, int) and not isinstance(version, bool) and version >= 1):
-            self.error(f'version must be a positive integer, found "{version}"')
         if "as_of" in raw and not isinstance(as_of, date):
             self.error(f'as_of must be a date (YYYY-MM-DD), found "{as_of}"')
+        size = size_of(self.version or 1)
         count = len(questions_raw)
-        if not QUESTIONS[0] <= count <= QUESTIONS[1]:
-            self.error(f"{QUESTIONS[0]} to {QUESTIONS[1]} questions, found {count}")
+        if not size.questions[0] <= count <= size.questions[1]:
+            self.error(f"{size.questions[0]} to {size.questions[1]} questions, found {count}")
+        unanswerable = sum(isinstance(r, dict) and "unanswerable" in r for r in questions_raw)
+        if size.answerable and not size.answerable[0] <= count - unanswerable <= size.answerable[1]:
+            self.error(f"{size.answerable[0]} to {size.answerable[1]} answerable questions, "
+                       f"found {count - unanswerable}")
         if count:
-            share = sum(isinstance(r, dict) and "unanswerable" in r for r in questions_raw) / count
+            share = unanswerable / count
             if round(share, 2) < UNANSWERABLE_SHARE:
                 self.error(f"unanswerable share {share:.2f} is below {UNANSWERABLE_SHARE:.2f}")
         present = [r for r in questions_raw if isinstance(r, dict)]
@@ -315,8 +359,8 @@ class _Checker:
         for form in FORMS:
             if not any(r.get("form") == form for r in present):
                 self.error(f'no question with form "{form}"')
-        if len(conversations_raw) < CONVERSATIONS:
-            self.error(f"at least {CONVERSATIONS} conversations, found {len(conversations_raw)}")
+        if len(conversations_raw) < size.conversations:
+            self.error(f"at least {size.conversations} conversations, found {len(conversations_raw)}")
         return EvalSet(version=version if isinstance(version, int) else 0,
                        as_of=as_of if isinstance(as_of, date) else None, sha256="",
                        questions=questions, conversations=conversations)

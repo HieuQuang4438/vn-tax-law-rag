@@ -114,6 +114,7 @@ def _item(item: Item, kind: str, conversation: str | None, turn: int | None, out
         "turn": turn,
         "tax_type": item.tax_type,
         "form": item.form,
+        "added_in": item.added_in,
         "answerable": item.unanswerable is None,
         "expected": expected,
         "hits": [{"chunk_id": hit.chunk_id, "article": article, "found_by": list(hit.found_by), "score": hit.score}
@@ -130,7 +131,7 @@ def _item(item: Item, kind: str, conversation: str | None, turn: int | None, out
 def _breakdown(standalone: list[dict], key: str) -> dict:
     groups: dict[str, list[dict]] = {}
     for entry in standalone:
-        groups.setdefault(entry[key], []).append(entry)
+        groups.setdefault(str(entry[key]), []).append(entry)
     return {group: {"n": len(entries),
                     "EVAL-001": _mean([e["recall"] for e in entries]),
                     "EVAL-007": _mean([e["context_precision"] for e in entries])}
@@ -173,7 +174,7 @@ def evaluate(eval_set: EvalSet, pipeline: Pipeline, parents: dict[str, str], k: 
     }
     return {
         "scores": scores,
-        "breakdown": {"form": _breakdown(standalone, "form"), "tax_type": _breakdown(standalone, "tax_type")},
+        "breakdown": {key: _breakdown(standalone, key) for key in ("form", "tax_type", "added_in")},
         "latency": latency,
         "cost": cost,
         "items": items,

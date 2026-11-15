@@ -76,6 +76,12 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   `per_article`, a chunk whose article already has a chunk above it is skipped, so the top 8
   holds 8 articles. `--compare --comparisons n` also prints a Bonferroni interval of each paired
   change. With `per_article` off, the results are those before #25. FR-CORE-008, ADR-0002, #25.
+- Eval set sizes by version and `added_in`: `python -m src.eval.check` keeps 30–50 questions and
+  at least 5 conversations for version 1, and from version 2 asks for 225–250 questions, 180–200
+  of them answerable, and at least 20 conversations. A question or a conversation may carry
+  `added_in`, the set version that added it (1 when absent), and every results file records it
+  per item and breaks EVAL-001 and EVAL-007 down by it, so items added after a round of tuning
+  are scored apart. FR-CORE-015, EVAL-001, EVAL-007, #26.
 
 ### Changed
 
