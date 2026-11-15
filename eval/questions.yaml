@@ -909,20 +909,23 @@ questions:
     provisions:
       - 252/2026/NĐ-CP Điều 7 khoản 1
     added_in: 2
-  - id: q65  # step 2: Thông tư 90/2026 named in the question covers tax registration, not the dependant dossier; the documents are listed in 87/2026/TT-BTC Điều 4
+  - id: q65  # cold read: 90/2026/TT-BTC Điều 21 khoản 1 sets the registration form (20-ĐKT, or 41/UQ-ĐKT through the income payer); the documents that identify the dependant are listed in 87/2026/TT-BTC Điều 4
     question: Theo Thông tư 90/2026, đăng ký người phụ thuộc cho con nhỏ chưa có căn cước thì cần giấy tờ gì?
     tax_type: administration
     form: reference
     answer: >
-      Hồ sơ xác định người phụ thuộc là con đẻ gồm bản chụp Giấy khai sinh của con (hoặc bản chụp quyết định
-      nhận cha, mẹ, con hoặc văn bản của cơ quan có thẩm quyền xác nhận quan hệ cha mẹ con); bản chụp thẻ Căn cước
+      Theo Thông tư 90/2026, hồ sơ đăng ký thuế cho người phụ thuộc là tờ khai mẫu số 20-ĐKT (hoặc văn bản ủy quyền mẫu
+      số 41/UQ-ĐKT nếu đăng ký qua cơ quan chi trả thu nhập) kèm các giấy tờ xác định người phụ thuộc. Với con đẻ, giấy tờ
+      đó gồm bản chụp Giấy khai sinh của con (hoặc bản chụp quyết định nhận cha, mẹ, con hoặc văn bản của cơ quan có thẩm quyền xác nhận quan hệ cha mẹ con); bản chụp thẻ Căn cước
       của con chỉ phải nộp khi con đã được cấp Căn cước. Con nuôi cần thêm quyết định công nhận việc nuôi con nuôi;
       con riêng của vợ, chồng cần thêm giấy chứng nhận kết hôn.
     key_facts:
       - "con đẻ: bản chụp Giấy khai sinh của con"
       - "bản chụp thẻ Căn cước chỉ khi con đã được cấp Căn cước"
       - "con nuôi: thêm quyết định công nhận việc nuôi con nuôi"
+      - "tờ khai đăng ký người phụ thuộc mẫu số 20-ĐKT, hoặc 41/UQ-ĐKT qua cơ quan chi trả thu nhập"
     provisions:
+      - 90/2026/TT-BTC Điều 21 khoản 1
       - 87/2026/TT-BTC Điều 4
     added_in: 2
   - id: q66  # step 2: moved to unanswerable; the corpus lists what must be done before a tax code ends (invoices, returns, payments, refunds) but says nothing on closing bank accounts or its order
@@ -992,17 +995,21 @@ questions:
     tax_type: administration
     form: plain
     answer: >
-      Có. Hỏa hoạn gây thiệt hại vật chất là trường hợp bất khả kháng, người nộp thuế được miễn tiền chậm nộp. Hồ sơ
+      Có. Hỏa hoạn gây thiệt hại vật chất là trường hợp bất khả kháng, người nộp thuế được miễn tiền chậm nộp. Số được miễn
+      là tiền chậm nộp còn nợ tại thời điểm xảy ra hỏa hoạn và không vượt quá giá trị vật chất bị thiệt hại sau khi trừ các
+      khoản được bồi thường, bảo hiểm. Hồ sơ
       gồm văn bản đề nghị theo mẫu 01/MTCN, tài liệu của cơ quan có thẩm quyền xác nhận thời gian, địa điểm xảy ra
       hỏa hoạn, và văn bản xác định giá trị thiệt hại của cơ quan tài chính hoặc giám định độc lập.
     key_facts:
       - "hỏa hoạn gây thiệt hại vật chất là trường hợp bất khả kháng"
       - "được miễn tiền chậm nộp"
       - "cần xác nhận của cơ quan có thẩm quyền về hỏa hoạn và văn bản xác định giá trị thiệt hại"
+      - "số được miễn không vượt quá giá trị thiệt hại sau khi trừ bồi thường, bảo hiểm"
     provisions:
-      - 108/2025/QH15 Điều 4
+      - 108/2025/QH15 Điều 4 khoản 21
       - 108/2025/QH15 Điều 16 khoản 5
       - 89/2026/TT-BTC Điều 41 khoản 2
+      - 89/2026/TT-BTC Điều 41 khoản 3
     added_in: 2
   - id: q71
     question: Theo Luật Quản lý thuế 108/2025, cơ quan thuế được tự ấn định số thuế phải nộp trong những trường hợp nào?
@@ -1184,12 +1191,15 @@ questions:
     tax_type: administration
     form: reference
     answer: >
-      Có. Khi bán hàng hóa, dịch vụ, người bán phải lập hóa đơn điện tử giao cho người mua, trừ các trường hợp không phải
-      dùng hóa đơn theo Điều 7, và quán ăn không thuộc các trường hợp đó. Kinh doanh ăn uống bán trực tiếp cho người
-      tiêu dùng sử dụng hóa đơn điện tử từ máy tính tiền.
+      Tùy người bán. Khi bán hàng hóa, dịch vụ, người bán phải lập hóa đơn điện tử giao cho người mua, trừ các trường hợp
+      không phải dùng hóa đơn theo Điều 7, và quán ăn không thuộc các trường hợp đó; kinh doanh ăn uống bán trực tiếp cho
+      người tiêu dùng sử dụng hóa đơn điện tử từ máy tính tiền. Nhưng nếu quán ăn là hộ kinh doanh, cá nhân kinh doanh thì
+      chỉ bắt buộc dùng hóa đơn điện tử khi doanh thu năm trên 01 tỷ đồng; từ 01 tỷ đồng trở xuống thì không bắt buộc, có
+      nhu cầu thì đăng ký sử dụng.
     key_facts:
       - "bán hàng hóa, dịch vụ phải lập hóa đơn điện tử giao cho người mua"
       - "ăn uống bán trực tiếp cho người tiêu dùng dùng hóa đơn điện tử từ máy tính tiền"
+      - "hộ, cá nhân kinh doanh chỉ bắt buộc dùng hóa đơn điện tử khi doanh thu năm trên 01 tỷ đồng"
     provisions:
       - 254/2026/NĐ-CP Điều 4 khoản 1
       - 254/2026/NĐ-CP Điều 6 khoản 1
@@ -1318,6 +1328,7 @@ questions:
       - "sau 60 ngày, trước quyết định kiểm tra sau thông quan: phạt 10% số thuế khai thiếu"
       - "vẫn phải nộp đủ tiền thuế và tiền chậm nộp"
     provisions:
+      - 86/2026/TT-BTC Điều 3 khoản 1
       - 108/2025/QH15 Điều 44 khoản 2
       - 108/2025/QH15 Điều 44 khoản 3
       - 108/2025/QH15 Điều 45 khoản 3
@@ -1338,15 +1349,18 @@ questions:
     form: reference
     answer: >
       Theo Luật 108/2025, tổ chức nước ngoài kinh doanh trên nền tảng thương mại điện tử, nền tảng số và các dịch vụ
-      khác trực tiếp hoặc ủy quyền khai, nộp thuế tại Việt Nam, trừ trường hợp thuộc diện khấu trừ, nộp thay. Doanh
-      nghiệp Việt Nam nộp thuế GTGT theo phương pháp khấu trừ khi mua dịch vụ của nhà cung cấp nước ngoài phải khấu
-      trừ, nộp thay thuế GTGT và thuế TNDN của nhà cung cấp đó; số thuế đã được khấu trừ, nộp thay thì nhà cung cấp
-      không phải nộp nữa.
+      khác trực tiếp hoặc ủy quyền khai, nộp thuế tại Việt Nam, trừ trường hợp thuộc diện khấu trừ, nộp thay. Theo Luật
+      Thuế GTGT, tổ chức, cá nhân kinh doanh tại Việt Nam mua dịch vụ của tổ chức nước ngoài không có cơ sở thường trú
+      tại Việt Nam là người nộp thuế GTGT. Khi mua trên nền tảng thương mại điện tử, doanh nghiệp Việt Nam nộp thuế GTGT
+      theo phương pháp khấu trừ phải khấu trừ, nộp thay thuế GTGT và thuế TNDN của nhà cung cấp đó; số thuế đã được khấu
+      trừ, nộp thay thì nhà cung cấp không phải nộp nữa.
     key_facts:
       - "nhà cung cấp nước ngoài trực tiếp hoặc ủy quyền khai, nộp thuế tại Việt Nam"
-      - "doanh nghiệp Việt Nam nộp GTGT theo phương pháp khấu trừ phải khấu trừ, nộp thay thuế GTGT và TNDN"
+      - "bên mua kinh doanh tại Việt Nam là người nộp thuế GTGT với dịch vụ của tổ chức nước ngoài không có cơ sở thường trú"
+      - "mua trên nền tảng thương mại điện tử: doanh nghiệp nộp GTGT theo phương pháp khấu trừ phải khấu trừ, nộp thay thuế GTGT và TNDN"
       - "số thuế đã được khấu trừ, nộp thay thì người nộp thuế không phải nộp"
     provisions:
+      - 48/2024/QH15 Điều 4 khoản 3
       - 108/2025/QH15 Điều 12 khoản 2
       - 108/2025/QH15 Điều 12 khoản 3
       - 252/2026/NĐ-CP Điều 43 khoản 3
@@ -1390,14 +1404,15 @@ questions:
     answer: Các văn bản trong bộ dữ liệu không có thông tin về phiên bản phần mềm hỗ trợ kê khai HTKK.
     unanswerable: out_of_scope
     added_in: 2
-  - id: q99
+  - id: q99  # cold read: kept as repealed, but the corpus does not say 156/2013/TT-BTC lapsed as a whole (69/2025/TT-BTC Điều 10 khoản 3 repeals only parts); the current rule is 108/2025/QH15 Điều 12 khoản 5
     question: Theo Thông tư 156/2013, hồ sơ khai bổ sung thuế gồm những gì?
     tax_type: administration
     form: reference
     answer: >
-      Thông tư 156/2013/TT-BTC không còn hiệu lực nên không áp dụng. Việc khai bổ sung hiện theo Luật Quản lý thuế
-      108/2025/QH15 và Nghị định 252/2026/NĐ-CP: được khai bổ sung trong 05 năm kể từ hạn nộp hồ sơ của kỳ có sai sót,
-      trước khi có quyết định thanh tra, kiểm tra.
+      Thông tư 156/2013/TT-BTC không phải căn cứ hiện hành cho việc khai bổ sung: quy định này nay theo Luật Quản lý thuế
+      108/2025/QH15 và Nghị định 252/2026/NĐ-CP, được khai bổ sung trong 05 năm kể từ hạn nộp hồ sơ của kỳ có sai sót,
+      trước khi có quyết định thanh tra, kiểm tra. Bộ dữ liệu không chứa Thông tư 156/2013 nên không nêu được hồ sơ theo
+      thông tư đó.
     unanswerable: repealed
     added_in: 2
   - id: q100  # step 2: repealed confirmed by 89/2026/TT-BTC Điều 99 khoản 3, which repeals 80/2021/TT-BTC
@@ -1503,11 +1518,13 @@ questions:
       Doanh nghiệp phải thực hiện đầy đủ chế độ kế toán, hóa đơn, chứng từ. Doanh nghiệp mới thành lập được đăng ký tự nguyện
       áp dụng phương pháp khấu trừ khi: được thành lập từ dự án đầu tư của cơ sở đang nộp thuế theo phương pháp khấu trừ; hoặc
       có dự án đầu tư được cấp có thẩm quyền phê duyệt; hoặc có phương án đầu tư được người có thẩm quyền của doanh nghiệp
-      quyết định phê duyệt.
+      quyết định phê duyệt; hoặc có đầu tư, mua sắm, nhận góp vốn bằng tài sản cố định, máy móc, thiết bị, công cụ, dụng cụ,
+      hoặc có hợp đồng thuê địa điểm kinh doanh.
     key_facts:
       - "thực hiện đầy đủ chế độ kế toán, hóa đơn, chứng từ"
       - "thành lập từ dự án đầu tư của cơ sở đang nộp thuế theo phương pháp khấu trừ"
       - "có dự án đầu tư được cấp có thẩm quyền phê duyệt hoặc phương án đầu tư được doanh nghiệp phê duyệt"
+      - "có đầu tư, mua sắm, nhận góp vốn bằng tài sản cố định, máy móc, công cụ hoặc có hợp đồng thuê địa điểm kinh doanh"
     provisions:
       - 181/2025/NĐ-CP Điều 21
     added_in: 2
@@ -1716,12 +1733,14 @@ questions:
       Không. Nghị định 144/2026 (hiệu lực từ 20/6/2026) không sửa các quy định về hoàn thuế hàng xuất khẩu; nó sửa Điều 4 (đối
       tượng không chịu thuế: bảo hiểm, bán nợ, tài nguyên khoáng sản xuất khẩu), điểm b khoản 1 Điều 9, khoản 2 Điều 23 (doanh
       thu dùng để phân bổ thuế đầu vào được khấu trừ), điểm g khoản 2 Điều 26 (mua trả chậm, trả góp) và thay Phụ lục I, II của
-      Nghị định 181/2025.
+      Nghị định 181/2025. Tuy vậy, khoản 14 Điều 4 và Phụ lục I, II mới xác định sản phẩm tài nguyên, khoáng sản xuất khẩu
+      không chịu thuế; sản phẩm này không được áp dụng thuế suất 0% nên không được hoàn thuế như hàng xuất khẩu, vì vậy nghị
+      định gián tiếp thay đổi phạm vi hàng xuất khẩu được hoàn.
     key_facts:
-      - "không sửa quy định về hoàn thuế hàng xuất khẩu"
+      - "không sửa các điều về hoàn thuế hàng xuất khẩu"
+      - "gián tiếp thay đổi phạm vi được hoàn qua danh mục tài nguyên, khoáng sản xuất khẩu không chịu thuế"
       - "sửa khoản 2 Điều 23 về doanh thu để phân bổ thuế đầu vào"
       - "sửa điểm g khoản 2 Điều 26 về mua trả chậm, trả góp"
-      - "hiệu lực từ ngày 20/6/2026"
     provisions:
       - 144/2026/NĐ-CP Điều 1
       - 144/2026/NĐ-CP Điều 2
@@ -1729,6 +1748,7 @@ questions:
       - 144/2026/NĐ-CP Điều 4
       - 144/2026/NĐ-CP Điều 5
       - 144/2026/NĐ-CP Điều 6
+      - 181/2025/NĐ-CP Điều 17 khoản 4
     added_in: 2
   - id: q125
     question: Điều 14 Luật 48/2024 quy định thuế GTGT đầu vào muốn được khấu trừ thì phải có những điều kiện gì?
@@ -1953,6 +1973,7 @@ questions:
       - "thuế suất 5%"
       - "tính theo từng lần phát sinh"
     provisions:
+      - 109/2025/QH15 Điều 3
       - 109/2025/QH15 Điều 12
     added_in: 2
   - id: q145
@@ -2078,14 +2099,20 @@ questions:
     provisions:
       - 253/2026/NĐ-CP Điều 8 khoản 3
     added_in: 2
-  - id: q154  # step 2: moved to unanswerable; neither 87/2026/TT-BTC nor 89/2026/TT-BTC names the form in its text (89 Điều 22 khoản 1 refers to Phụ lục I, an annex the corpus does not chunk)
+  - id: q154  # cold read: moved to answerable; 89/2026/TT-BTC Điều 68 names the Tờ khai quyết toán thuế TNCN mẫu số 02/QTT-TNCN Phụ lục I
     question: Thông tư 87/2026 quy định cá nhân tự quyết toán thuế thu nhập cá nhân dùng tờ khai mẫu nào?
     tax_type: pit
     form: reference
     answer: >
-      Thông tư 87/2026 không quy định mẫu tờ khai quyết toán; Thông tư 89/2026 dẫn chiếu hồ sơ quyết toán thuế TNCN tới điểm 7.1 Phụ lục I,
-      nhưng phụ lục không có trong bộ dữ liệu nên không xác định được mẫu số.
-    unanswerable: out_of_scope
+      Thông tư 87/2026 không quy định mẫu tờ khai quyết toán. Mẫu nằm ở Thông tư 89/2026/TT-BTC: tờ khai quyết toán thuế
+      thu nhập cá nhân theo mẫu số 02/QTT-TNCN Phụ lục I, và hồ sơ khai quyết toán thuế TNCN theo điểm 7.1 Phụ lục I của
+      thông tư này.
+    key_facts:
+      - "Thông tư 87/2026 không quy định mẫu tờ khai"
+      - "tờ khai quyết toán thuế TNCN mẫu số 02/QTT-TNCN Phụ lục I Thông tư 89/2026"
+    provisions:
+      - 89/2026/TT-BTC Điều 68
+      - 89/2026/TT-BTC Điều 22 khoản 1
     added_in: 2
   - id: q155
     question: Điều 4 Luật 109/2025 quy định những khoản thu nhập nào được miễn thuế?
@@ -2212,8 +2239,7 @@ questions:
     form: plain
     answer: >
       Được. Doanh nghiệp có hoạt động sản xuất, kinh doanh bị lỗ được bù trừ số lỗ vào thu nhập chịu thuế của các hoạt động
-      có thu nhập do doanh nghiệp tự lựa chọn, kể cả thu nhập từ chuyển nhượng bất động sản; phần còn lại áp thuế suất của
-      hoạt động còn thu nhập. Chiều ngược lại bị hạn chế: lỗ từ chuyển nhượng bất động sản không được bù trừ với thu nhập
+      có thu nhập do doanh nghiệp tự lựa chọn; phần còn lại áp thuế suất của hoạt động còn thu nhập. Chiều ngược lại bị hạn chế: lỗ từ chuyển nhượng bất động sản không được bù trừ với thu nhập
       của hoạt động sản xuất, kinh doanh đang được hưởng ưu đãi thuế.
     key_facts:
       - "lỗ sản xuất, kinh doanh được bù trừ vào thu nhập của hoạt động có thu nhập do doanh nghiệp tự chọn"
@@ -2232,7 +2258,7 @@ questions:
       doanh, có đủ hóa đơn, chứng từ và thanh toán không dùng tiền mặt khi từ 05 triệu đồng trở lên. Không được trừ khi quảng
       cáo sản phẩm bị cấm quảng cáo, hoặc sản phẩm phải đăng ký quảng cáo mà doanh nghiệp không đăng ký.
     key_facts:
-      - "không có mức khống chế tỷ lệ tối đa cho chi quảng cáo, tiếp thị"
+      - "chi quảng cáo, tiếp thị được trừ nếu thực tế phát sinh, liên quan đến sản xuất, kinh doanh"
       - "không được trừ khi quảng cáo sản phẩm bị cấm quảng cáo hoặc không đăng ký quảng cáo theo quy định"
       - "phải có hóa đơn, chứng từ; từ 05 triệu đồng phải thanh toán không dùng tiền mặt"
     provisions:
@@ -2317,7 +2343,7 @@ questions:
       - 09/2026/QH16 Điều 3
       - 320/2025/NĐ-CP Điều 4 khoản 1
     added_in: 2
-  - id: q173
+  - id: q173  # cold read: kept on purpose; 67/2025/QH15 Điều 12 khoản 2 and Điều 13 are amended from outside the corpus (Law 133/2025/QH15), like the v1 items kept for this reason
     question: Doanh nghiệp công nghệ cao được hưởng thuế suất TNDN ưu đãi bao nhiêu?
     tax_type: cit
     form: plain
@@ -2472,14 +2498,14 @@ questions:
     provisions:
       - 320/2025/NĐ-CP Điều 9 khoản 1
     added_in: 2
-  - id: q183  # step 2: moved to unanswerable; 20/2026/TT-BTC has no rule on this, and 320/2025/NĐ-CP only lists the income (Điều 3 khoản 3 điểm c) without a method to compute it
+  - id: q183  # cold read: stays unanswerable because 20/2026/TT-BTC named in the question has no rule on this; 320/2025/NĐ-CP Điều 15 khoản 1 and Điều 16 give the method for a project tied to land
     question: Thông tư 20/2026 hướng dẫn xác định thu nhập chịu thuế khi chuyển nhượng dự án đầu tư như thế nào?
     tax_type: cit
     form: reference
     answer: >
-      Thông tư 20/2026/TT-BTC không hướng dẫn cách xác định thu nhập chịu thuế khi chuyển nhượng dự án đầu tư. Các văn bản
-      trong bộ dữ liệu chỉ xếp khoản này vào thu nhập khác, không cho hưởng ưu đãi thuế và không cho bù trừ lỗ với thu nhập
-      đang được ưu đãi, chứ không quy định công thức tính.
+      Thông tư 20/2026/TT-BTC không hướng dẫn cách xác định thu nhập chịu thuế khi chuyển nhượng dự án đầu tư. Nghị định
+      320/2025/NĐ-CP chỉ quy định cho dự án gắn với chuyển nhượng quyền sử dụng đất, quyền thuê đất: khoản này tính là thu
+      nhập từ chuyển nhượng bất động sản, bằng doanh thu trừ chi phí được trừ, thuế suất 20%.
     unanswerable: out_of_scope
     added_in: 2
   - id: q184  # step 2: moved to unanswerable; the corpus gives startups only PIT exemptions (109/2025/QH15 Điều 4 khoản 19), no CIT exemption
@@ -2562,7 +2588,8 @@ questions:
     tax_type: cit
     form: reference
     answer: >
-      Thông tư 96/2015/TT-BTC đã bị Thông tư 20/2026/TT-BTC thay thế nên không áp dụng nữa. Hiện nay Nghị định 320/2025/NĐ-CP
+      Thông tư 96/2015/TT-BTC bị Thông tư 20/2026/TT-BTC thay thế từ 12/3/2026; riêng khoản chi phát sinh trước ngày đó của kỳ
+      tính thuế 2025 vẫn theo điều kiện, hồ sơ của Thông tư 96/2015. Hiện nay Nghị định 320/2025/NĐ-CP
       quy định phần chi có tính chất phúc lợi trực tiếp cho người lao động vượt quá 01 tháng lương bình quân thực tế thực hiện
       trong năm tính thuế thì không được trừ.
     unanswerable: repealed
@@ -2851,11 +2878,12 @@ questions:
     form: reference
     answer: >
       Không có khoản khấu trừ nào cho linh kiện ô tô. Hàng chịu thuế tiêu thụ đặc biệt là sản phẩm hoàn chỉnh, không gồm
-      linh kiện để lắp ráp, nên linh kiện nhập khẩu không phải nộp thuế tiêu thụ đặc biệt. Nghị định 360/2025/NĐ-CP chỉ cho
-      khấu trừ số thuế đã nộp với nguyên liệu chịu thuế tiêu thụ đặc biệt, theo chứng từ nộp thuế ở khâu nhập khẩu.
+      linh kiện để lắp ráp, nên linh kiện nhập khẩu không phải nộp thuế tiêu thụ đặc biệt. Với nguyên liệu, Nghị định
+      360/2025/NĐ-CP cho khấu trừ số thuế đã nộp với nguyên liệu chịu thuế tiêu thụ đặc biệt nhập khẩu (theo chứng từ nộp
+      thuế ở khâu nhập khẩu) hoặc mua trực tiếp của nhà sản xuất trong nước.
     key_facts:
       - "linh kiện để lắp ráp không chịu thuế tiêu thụ đặc biệt"
-      - "chỉ được khấu trừ thuế đã nộp với nguyên liệu chịu thuế tiêu thụ đặc biệt"
+      - "được khấu trừ thuế đã nộp với nguyên liệu chịu thuế tiêu thụ đặc biệt, nhập khẩu hoặc mua của nhà sản xuất trong nước"
     provisions:
       - 66/2025/QH15 Điều 2
       - 360/2025/NĐ-CP Điều 8
@@ -2925,7 +2953,9 @@ questions:
     question: Tem dán chai rượu nhập khẩu mua ở đâu và giá bao nhiêu một con tem?
     tax_type: sct
     form: plain
-    answer: Các văn bản trong bộ dữ liệu không quy định về tem rượu nhập khẩu, nơi mua hay giá tem.
+    answer: >
+      Các văn bản trong bộ dữ liệu không quy định nơi mua tem rượu nhập khẩu hay giá tem; chúng chỉ quy định tổ chức, cá
+      nhân sử dụng tem chi trả chi phí in và sử dụng tem theo quy định của Bộ trưởng Bộ Tài chính.
     unanswerable: out_of_scope
     added_in: 2
   - id: q220  # step 2: repealed confirmed by 158/2025/TT-BTC Điều 5 khoản 2, which replaces 195/2015/TT-BTC
@@ -3031,12 +3061,12 @@ questions:
     tax_type: household
     form: plain
     answer: >
-      Tính chung. Mức 01 tỷ đồng không phải nộp thuế áp dụng cho tổng doanh thu cả năm của mọi địa điểm; hộ được chọn trừ
-      vào địa điểm nào có lợi nhất nhưng tổng mức trừ không quá 01 tỷ đồng. Hộ khai tổng hợp các địa điểm trên 01 hồ sơ nộp
+      Tính chung. Mức 01 tỷ đồng không phải nộp thuế áp dụng cho tổng doanh thu cả năm của mọi địa điểm; khi nộp thuế TNCN
+      theo tỷ lệ trên doanh thu, hộ được chọn trừ vào địa điểm nào có lợi nhất nhưng tổng mức trừ không quá 01 tỷ đồng. Hộ khai tổng hợp các địa điểm trên 01 hồ sơ nộp
       cơ quan thuế quản lý trụ sở, và nộp thuế cho từng địa điểm.
     key_facts:
       - "doanh thu các địa điểm tính chung"
-      - "tổng mức trừ không quá 01 tỷ đồng một năm"
+      - "khi nộp thuế TNCN theo tỷ lệ trên doanh thu, tổng mức trừ không quá 01 tỷ đồng một năm"
       - "khai trên 01 hồ sơ tại cơ quan thuế quản lý trụ sở, nộp thuế từng địa điểm"
     provisions:
       - 68/2026/NĐ-CP Điều 4
@@ -3142,15 +3172,21 @@ questions:
     tax_type: household
     form: plain
     answer: >
-      Hộ kinh doanh thông báo thay đổi thông tin địa điểm kinh doanh đến cơ quan thuế quản lý trụ sở trong 10 ngày làm việc
-      kể từ ngày thay đổi, theo Mẫu số 01/TB-ĐĐKD. Cơ quan thuế phản hồi theo Mẫu số 02/TB-ĐĐKD.
+      Với địa điểm kinh doanh ngoài trụ sở, hộ kinh doanh thông báo thay đổi thông tin địa điểm kinh doanh đến cơ quan thuế
+      quản lý trụ sở trong 10 ngày làm việc kể từ ngày thay đổi, theo Mẫu số 01/TB-ĐĐKD; cơ quan thuế phản hồi theo Mẫu số
+      02/TB-ĐĐKD. Nếu chỗ chuyển là trụ sở của hộ thì đó là thay đổi thông tin đăng ký thuế theo Thông tư 90/2026: không đổi
+      cơ quan thuế quản lý thì hộ đăng ký theo cơ chế một cửa liên thông thông báo cùng việc thay đổi đăng ký hộ kinh doanh,
+      hộ khác nộp tờ khai mẫu số 08-MST; nếu đổi cơ quan thuế quản lý thì nộp mẫu số 08-MST cho cơ quan thuế nơi chuyển đi
+      trước, rồi làm thủ tục tại nơi chuyển đến.
     key_facts:
       - "thông báo trong 10 ngày làm việc kể từ ngày thay đổi"
       - "gửi cơ quan thuế quản lý trụ sở"
       - "Mẫu số 01/TB-ĐĐKD"
+      - "chuyển trụ sở: thay đổi thông tin đăng ký thuế, tờ khai mẫu số 08-MST"
     provisions:
       - 68/2026/NĐ-CP Điều 8 khoản 4
       - 18/2026/TT-BTC Điều 3
+      - 90/2026/TT-BTC Điều 23
     added_in: 2
   - id: q234
     question: Cơ quan thuế có lấy dữ liệu tài khoản ngân hàng để xác định doanh thu của hộ kinh doanh không?
@@ -3282,10 +3318,13 @@ questions:
     form: reference
     answer: >
       Điều 5 Nghị định 68/2026/NĐ-CP quy định doanh thu để tính thuế TNCN, không quy định người không phải nộp thuế. Theo Điều
-      4, cá nhân kinh doanh cư trú có doanh thu năm từ 01 tỷ đồng trở xuống không phải nộp thuế TNCN.
+      4, cá nhân kinh doanh cư trú có doanh thu năm từ 01 tỷ đồng trở xuống không phải nộp thuế TNCN; theo Điều 3, hộ, cá
+      nhân kinh doanh có doanh thu năm từ 01 tỷ đồng trở xuống không chịu thuế GTGT.
     key_facts:
       - "cá nhân kinh doanh có doanh thu năm từ 01 tỷ đồng trở xuống không phải nộp thuế TNCN"
+      - "doanh thu năm từ 01 tỷ đồng trở xuống không chịu thuế GTGT"
     provisions:
+      - 68/2026/NĐ-CP Điều 3
       - 68/2026/NĐ-CP Điều 4
       - 141/2026/NĐ-CP Điều 1
     added_in: 2
@@ -3324,6 +3363,7 @@ questions:
     provisions:
       - 141/2026/NĐ-CP Điều 1
       - 141/2026/NĐ-CP Điều 3
+      - 68/2026/NĐ-CP Điều 3
       - 68/2026/NĐ-CP Điều 4
     added_in: 2
   - id: q247
@@ -3654,13 +3694,19 @@ conversations:
         tax_type: administration
         form: plain
         answer: >
-          Quyết định cưỡng chế phải được gửi cho doanh nghiệp bằng phương thức điện tử (hoặc thư bảo đảm, gửi trực tiếp) và đăng
-          trên trang thông tin điện tử ngành thuế ngay trong ngày ban hành. Quyết định có hiệu lực từ ngày ký. Các văn bản không
-          quy định một thông báo riêng phải gửi trước khi ra quyết định.
+          Có. Sau 30 ngày kể từ hết thời hạn nộp mà công ty chưa nộp, cơ quan thuế thông báo số tiền thuế nợ và số ngày chậm
+          nộp; hằng tháng cơ quan thuế còn thông báo tiền thuế nợ, tiền chậm nộp theo mẫu số 01/NVT qua tài khoản giao dịch thuế
+          điện tử. Cưỡng chế chỉ áp dụng khi nợ quá 90 ngày. Quyết định cưỡng chế phải được gửi cho doanh nghiệp bằng phương
+          thức điện tử (hoặc thư bảo đảm, gửi trực tiếp) và đăng trên trang thông tin điện tử ngành thuế ngay trong ngày ban
+          hành; quyết định có hiệu lực từ ngày ký.
         key_facts:
+          - "sau 30 ngày kể từ hết hạn nộp, cơ quan thuế thông báo số tiền thuế nợ và số ngày chậm nộp"
+          - "hằng tháng thông báo tiền thuế nợ theo mẫu số 01/NVT"
           - "quyết định cưỡng chế gửi doanh nghiệp ngay trong ngày ban hành"
           - "có hiệu lực từ ngày ký"
         provisions:
+          - 108/2025/QH15 Điều 16 khoản 4
+          - 89/2026/TT-BTC Điều 39 khoản 2
           - 108/2025/QH15 Điều 49
           - 252/2026/NĐ-CP Điều 65
       - question: Nộp đủ tiền rồi thì bao lâu tài khoản được gỡ?
@@ -3744,6 +3790,8 @@ conversations:
           - "không có hóa đơn thì không được khấu trừ thuế đầu vào"
         provisions:
           - 48/2024/QH15 Điều 14
+          - 181/2025/NĐ-CP Điều 26
+          - 144/2026/NĐ-CP Điều 4
       - question: Vậy khoản chi đó có được tính vào chi phí khi tính thuế TNDN không?
         tax_type: cit
         form: plain
@@ -3884,7 +3932,7 @@ conversations:
           - "trừ khi chuyển do sáp nhập, chia tách hoặc cùng hệ thống"
         provisions:
           - 253/2026/NĐ-CP Điều 51
-      - question: Công ty mà tôi ủy quyền quyết toán thay phải nộp hồ sơ chậm nhất vào ngày nào?
+      - question: Vậy công ty mới phải nộp hồ sơ quyết toán thay tôi chậm nhất khi nào?
         tax_type: administration
         form: plain
         answer: >
@@ -3937,7 +3985,7 @@ conversations:
           - "phải có chứng từ nộp thuế"
         provisions:
           - 20/2026/TT-BTC Điều 3 khoản 13
-      - question: Công ty khai và nộp thay thuế TNCN từ tiền cho thuê nhà của cá nhân theo kỳ nào?
+      - question: Còn phần thuế TNCN công ty nộp thay đó thì khai theo kỳ nào?
         tax_type: pit
         form: plain
         answer: >
@@ -4049,13 +4097,16 @@ conversations:
         tax_type: household
         form: plain
         answer: >
-          Các văn bản không quy định thủ tục thuế riêng cho việc hộ chuyển lên công ty. Nếu hộ chấm dứt hoạt động kinh doanh
-          trong năm thì phải thông báo doanh thu thực tế lũy kế từ đầu năm đến thời điểm chấm dứt cùng hồ sơ chấm dứt hoạt động.
+          Phải hoàn tất nghĩa vụ thuế của hộ. Hộ kinh doanh chuyển lên doanh nghiệp nhỏ và vừa phải hoàn thành nghĩa vụ thuế với
+          cơ quan thuế quản lý trực tiếp, hoặc gửi văn bản cam kết doanh nghiệp chuyển đổi từ hộ kế thừa toàn bộ nghĩa vụ thuế
+          của hộ. Mã số thuế của hộ bị chấm dứt hiệu lực khi hộ chuyển đổi lên doanh nghiệp.
         key_facts:
-          - "thông báo doanh thu thực tế lũy kế từ đầu năm đến khi chấm dứt"
-          - "nộp cùng hồ sơ chấm dứt hoạt động"
+          - "hộ hoàn thành nghĩa vụ thuế với cơ quan thuế quản lý trực tiếp"
+          - "hoặc cam kết bằng văn bản doanh nghiệp mới kế thừa toàn bộ nghĩa vụ thuế của hộ"
+          - "mã số thuế của hộ chấm dứt hiệu lực khi chuyển đổi lên doanh nghiệp"
         provisions:
-          - 68/2026/NĐ-CP Điều 8 khoản 6
+          - 90/2026/TT-BTC Điều 28 khoản 2
+          - 90/2026/TT-BTC Điều 27 khoản 1
       - question: Sau khi thành công ty rồi thì có được miễn thuế TNDN mấy năm đầu không?
         tax_type: cit
         form: plain
@@ -4070,6 +4121,7 @@ conversations:
           - "doanh nghiệp doanh thu năm từ 01 tỷ đồng trở xuống được miễn thuế"
         provisions:
           - 67/2025/QH15 Điều 15
+          - 67/2025/QH15 Điều 10
           - 320/2025/NĐ-CP Điều 21
           - 141/2026/NĐ-CP Điều 2
   - id: c22
@@ -4089,6 +4141,7 @@ conversations:
           - "khai hai lần trong năm hoặc một lần theo năm"
         provisions:
           - 68/2026/NĐ-CP Điều 5
+          - 68/2026/NĐ-CP Điều 3
           - 68/2026/NĐ-CP Điều 4
           - 141/2026/NĐ-CP Điều 1
           - 68/2026/NĐ-CP Điều 8 khoản 3
