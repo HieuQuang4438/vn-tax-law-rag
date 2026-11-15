@@ -3,6 +3,8 @@
 Run: python scripts/llm_pilot.py
 Writes eval/results/llm-pilot/<date>-<commit>.json, and a blind grading sheet
 eval/llm-pilot-grading.me.md with its key eval/llm-pilot-key.me.md (both untracked).
+Finished items are kept in eval/llm-pilot-progress.me.md, so a run stopped by an error resumes at the
+same commit; the file is removed when the run completes.
 """
 
 import hashlib
@@ -16,6 +18,7 @@ from datetime import datetime
 from importlib.metadata import version
 from pathlib import Path
 
+import httpx2
 from google import genai
 from google.genai import errors, types
 
@@ -45,6 +48,7 @@ SET = ROOT / "eval" / "questions.yaml"
 OUT = ROOT / "eval" / "results" / "llm-pilot"
 SHEET = ROOT / "eval" / "llm-pilot-grading.me.md"
 KEY = ROOT / "eval" / "llm-pilot-key.me.md"
+PROGRESS = ROOT / "eval" / "llm-pilot-progress.me.md"
 
 
 def git(*args: str) -> str:
@@ -74,7 +78,8 @@ def passages(chunk_ids: list[str]) -> str:
 
 
 class Keys:
-    """Tries the keys in order and moves to the next on a 429 (#13); waits and retries on a 5xx."""
+    """Tries the keys in order and moves to the next on a 429 (#13); waits and retries on a 5xx or a
+    dropped connection."""
 
     def __init__(self):
         no_retry = types.HttpOptions(retry_options=types.HttpRetryOptions(attempts=1))
@@ -97,7 +102,8 @@ class Keys:
                         raise
                     self.refused += 1
                     self.current = (self.current + 1) % len(self.clients)
-                except errors.ServerError:
+                except (errors.ServerError, httpx2.TransportError) as error:
+                    print(f"  {model}: {type(error).__name__}, retrying", file=sys.stderr, flush=True)
                     self.unavailable += 1
                     time.sleep(WAIT_UNAVAILABLE_S)
                     break
@@ -174,8 +180,12 @@ def main() -> None:
     retriever = Retriever.load(DATA)
     system = PROMPT.read_text(encoding="utf-8")
     keys = Keys()
-    items = []
-    for question in chosen:
+    done = json.loads(PROGRESS.read_text(encoding="utf-8")) if PROGRESS.exists() else {"commit": commit, "items": []}
+    if done["commit"] != commit:
+        raise SystemExit(f"{PROGRESS.name} is from commit {done['commit']}; remove it to start again")
+    items = done["items"]
+    resumed = len(items)
+    for question in chosen[resumed:]:
         hits = [hit.chunk_id for hit in retriever.retrieve(question.question).hits]
         user = f"Passages:\n\n{passages(hits)}\n\nQuestion: {question.question}"
         item = {"id": question.id, "tax_type": question.tax_type, "unanswerable": question.unanswerable,
@@ -184,6 +194,7 @@ def main() -> None:
             item["models"][model] = answer(keys, model, system, user)
             time.sleep(PAUSE_S)
         items.append(item)
+        PROGRESS.write_bytes(json.dumps(done, ensure_ascii=False).encode("utf-8"))
         print(f"{question.id} done", flush=True)
     started = datetime.now().astimezone()
     results = {
@@ -200,6 +211,7 @@ def main() -> None:
             "prices_usd_per_mtok": {"read": PRICES_READ, "2026": PRICES, "from_2027": PRICES_2027},
             "keys": len(GOOGLE_API_KEYS),
             "pause_s": PAUSE_S,
+            "resumed_after_items": resumed,
             "google_genai": version("google-genai"),
             "finished": started.isoformat(timespec="seconds"),
         },
@@ -210,6 +222,7 @@ def main() -> None:
     path = OUT / f"{started:%Y-%m-%d}-{commit}.json"
     path.write_bytes((json.dumps(results, ensure_ascii=False, indent=2) + "\n").encode("utf-8"))
     write_sheet(items, {q.id: q for q in chosen})
+    PROGRESS.unlink(missing_ok=True)
     print(f"Results: {path.relative_to(ROOT)}")
     for model, numbers in results["summary"].items():
         print(f"  {model}: {json.dumps(numbers)}")
