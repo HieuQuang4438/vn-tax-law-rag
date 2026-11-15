@@ -658,6 +658,187 @@ questions:
     answer: TODO
     unanswerable: repealed
     added_in: 2
+  - id: q165
+    question: Công ty có doanh thu năm khoảng 30 tỷ thì thuế suất thu nhập doanh nghiệp là bao nhiêu?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q166
+    question: Công ty lời từ bán đất nhưng lỗ ở mảng sản xuất thì có được lấy lãi bù vào lỗ khi tính thuế TNDN không?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q167
+    question: Chi phí quảng cáo, tiếp thị có bị giới hạn tỷ lệ tối đa khi tính chi phí được trừ không?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q168
+    question: Công ty ủng hộ tiền cho đồng bào vùng lũ thì khoản đó có được tính vào chi phí được trừ không?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q169
+    question: Chi tiền trang phục cho nhân viên thì được tính vào chi phí được trừ tối đa bao nhiêu một người một năm?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q170
+    question: Công ty đóng bảo hiểm hưu trí tự nguyện cho nhân viên thì được trừ tối đa bao nhiêu khi tính thuế TNDN?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q171
+    question: Doanh nghiệp được trích quỹ phát triển khoa học và công nghệ tối đa bao nhiêu phần trăm thu nhập tính thuế?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q172
+    question: Hợp tác xã có thu nhập từ trồng trọt, chăn nuôi thì có được miễn thuế TNDN không?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q173
+    question: Doanh nghiệp công nghệ cao được hưởng thuế suất TNDN ưu đãi bao nhiêu?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q174
+    question: Công ty đầu tư mở rộng dây chuyền sản xuất thì phần thu nhập tăng thêm có được ưu đãi thuế TNDN không?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q175
+    question: Doanh nghiệp dùng nhiều lao động nữ thì được giảm thuế TNDN như thế nào?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q176
+    question: Công ty nước ngoài không có văn phòng ở Việt Nam nhận tiền bản quyền từ công ty Việt Nam thì bị tính thuế TNDN theo tỷ lệ bao nhiêu?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q177
+    question: Lãi chênh lệch tỷ giá do đánh giá lại số dư ngoại tệ cuối năm có phải tính vào thu nhập chịu thuế TNDN không?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q178
+    question: Công ty vừa có dự án được ưu đãi thuế vừa có hoạt động không được ưu đãi thì có phải hạch toán thu nhập riêng không?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q179
+    question: Công ty vay tiền của nhân viên để kinh doanh thì lãi vay được trừ tối đa theo mức lãi suất nào?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q180
+    question: Tổng số thuế TNDN tạm nộp bốn quý thấp hơn 80% số phải nộp khi quyết toán thì công ty có bị tính tiền chậm nộp không?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q181
+    question: Theo Điều 4 Luật 67/2025, thu nhập từ chuyển giao công nghệ thuộc lĩnh vực ưu tiên có được miễn thuế TNDN không?
+    tax_type: cit
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q182
+    question: Theo Nghị định 320/2025, hóa đơn mua hàng từ bao nhiêu tiền trở lên phải thanh toán không dùng tiền mặt mới được tính vào chi phí được trừ?
+    tax_type: cit
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q183
+    question: Thông tư 20/2026 hướng dẫn xác định thu nhập chịu thuế khi chuyển nhượng dự án đầu tư như thế nào?
+    tax_type: cit
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q184
+    question: Theo Nghị định 320/2025, doanh nghiệp khởi nghiệp sáng tạo được miễn thuế TNDN mấy năm?
+    tax_type: cit
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q185
+    question: Theo Thông tư 20/2026, tiền mua bảo hiểm sức khỏe cho nhân viên có được tính vào chi phí được trừ không?
+    tax_type: cit
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q186
+    question: Thông tư 20/2026 quy định trường hợp nào doanh nghiệp nộp thuế TNDN theo tỷ lệ phần trăm trên doanh thu?
+    tax_type: cit
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q187
+    question: Thuế suất thuế thu nhập doanh nghiệp của Việt Nam cao hơn hay thấp hơn Thái Lan?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q188
+    question: Quốc hội có dự định giảm thuế suất TNDN phổ thông xuống 15% vào năm 2028 không?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q189
+    question: Năm 2025 doanh nghiệp nào nộp thuế thu nhập doanh nghiệp nhiều nhất cả nước?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q190
+    question: Có mẫu file Excel tính thuế TNDN tạm nộp theo quý nào tải được không?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q191
+    question: Những công ty kiểm toán nào được Bộ Tài chính chấp thuận kiểm toán báo cáo quyết toán thuế TNDN?
+    tax_type: cit
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q192
+    question: Theo Thông tư 96/2015, chi phúc lợi cho nhân viên chỉ được trừ tối đa một tháng lương bình quân đúng không?
+    tax_type: cit
+    form: reference
+    answer: TODO
+    unanswerable: repealed
+    added_in: 2
+  - id: q193
+    question: Theo Nghị định 218/2013, khoản chi tài trợ cho trường học cần hồ sơ gì mới được tính vào chi phí được trừ?
+    tax_type: cit
+    form: reference
+    answer: TODO
+    unanswerable: repealed
+    added_in: 2
 conversations:
   - id: c07
     added_in: 2
@@ -768,5 +949,27 @@ conversations:
         answer: TODO
       - question: Hạn chót bên đó phải quyết toán thay cho tôi là ngày nào?
         tax_type: administration
+        form: plain
+        answer: TODO
+  - id: c16
+    added_in: 2
+    turns:
+      - question: Công ty mình góp vốn vào một công ty khác trong nước và được chia lợi nhuận thì khoản đó có phải nộp thuế TNDN không?
+        tax_type: cit
+        form: plain
+        answer: TODO
+      - question: Nếu công ty nhận vốn góp là công ty ở nước ngoài thì sao?
+        tax_type: cit
+        form: plain
+        answer: TODO
+  - id: c17
+    added_in: 2
+    turns:
+      - question: Công ty thuê nhà của cá nhân, hợp đồng ghi công ty nộp thuế thay cho chủ nhà, thì tiền thuế đó có được tính vào chi phí được trừ không?
+        tax_type: cit
+        form: plain
+        answer: TODO
+      - question: Công ty khai và nộp thay khoản thuế đó theo kỳ nào?
+        tax_type: household
         form: plain
         answer: TODO
