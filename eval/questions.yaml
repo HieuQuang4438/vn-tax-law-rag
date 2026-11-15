@@ -1413,205 +1413,407 @@ questions:
     question: Công ty mình bán phần mềm máy tính tự viết thì có phải chịu thuế GTGT không?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: Không. Sản phẩm phần mềm và dịch vụ phần mềm theo quy định của pháp luật thuộc đối tượng không chịu thuế GTGT.
+    key_facts:
+      - "sản phẩm phần mềm, dịch vụ phần mềm không chịu thuế GTGT"
+    provisions:
+      - 48/2024/QH15 Điều 5 khoản 21
+      - 181/2025/NĐ-CP Điều 4 khoản 13
     added_in: 2
   - id: q102
     question: Trung tâm dạy tiếng Anh cho trẻ em thu học phí thì có phải tính thuế GTGT không?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: >
+      Không, nếu là hoạt động dạy học theo quy định của pháp luật về giáo dục: hoạt động dạy học, dạy nghề theo pháp luật
+      về giáo dục, giáo dục nghề nghiệp thuộc đối tượng không chịu thuế GTGT, kể cả các khoản thu hộ, chi hộ của cơ sở dạy
+      học. Hàng hóa, dịch vụ do bên khác cung cấp cho cơ sở dạy học vẫn chịu thuế.
+    key_facts:
+      - "dạy học, dạy nghề theo pháp luật về giáo dục không chịu thuế GTGT"
+      - "khoản thu hộ, chi hộ của cơ sở dạy học cũng không chịu thuế"
+    provisions:
+      - 48/2024/QH15 Điều 5 khoản 13
+      - 181/2025/NĐ-CP Điều 4 khoản 7
     added_in: 2
-  - id: q103
+  - id: q103  # step 2: 48/2024 Điều 9 carries the outside-corpus warning (Law 90/2025 amends point a cl 1, exports); the answer uses cl 2 and 3, which it does not touch; 149/2025 Điều 1 listed because it amends Điều 9 khoản 5 of the same article
     question: Công ty cho người dân thuê căn hộ để ở thì tiền thuê có chịu thuế GTGT không?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: >
+      Có. Cho thuê căn hộ để ở không thuộc các đối tượng không chịu thuế GTGT, nên tiền thuê chịu thuế GTGT với giá tính
+      thuế là số tiền cho thuê chưa có thuế. Thuế suất là 10%; riêng bán, cho thuê, cho thuê mua nhà ở xã hội theo Luật
+      Nhà ở áp dụng 5%.
+    key_facts:
+      - "cho thuê nhà ở không thuộc đối tượng không chịu thuế GTGT"
+      - "giá tính thuế là số tiền cho thuê chưa có thuế GTGT"
+      - "thuế suất 10%; nhà ở xã hội 5%"
+    provisions:
+      - 48/2024/QH15 Điều 7 khoản 1
+      - 48/2024/QH15 Điều 9 khoản 2
+      - 48/2024/QH15 Điều 9 khoản 3
+      - 149/2025/QH15 Điều 1
     added_in: 2
   - id: q104
     question: Doanh nghiệp bán nhà ở dự án thì khi tính thuế GTGT có được trừ tiền sử dụng đất ra không?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: Có. Với kinh doanh bất động sản, giá tính thuế GTGT là giá bán chưa có thuế trừ tiền sử dụng đất hoặc tiền thuê đất nộp ngân sách nhà nước (giá đất được trừ).
+    key_facts:
+      - "giá tính thuế = giá bán chưa có thuế GTGT trừ tiền sử dụng đất hoặc tiền thuê đất nộp ngân sách"
+    provisions:
+      - 48/2024/QH15 Điều 7 khoản 1
     added_in: 2
   - id: q105
     question: Hàng tặng kèm theo chương trình khuyến mại đã đăng ký thì có phải tính thuế GTGT không?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: Hàng hóa, dịch vụ dùng để khuyến mại theo quy định của pháp luật về thương mại có giá tính thuế GTGT bằng không (0), nên không phát sinh thuế phải nộp.
+    key_facts:
+      - "hàng khuyến mại theo pháp luật thương mại có giá tính thuế bằng 0"
+    provisions:
+      - 48/2024/QH15 Điều 7 khoản 1
     added_in: 2
   - id: q106
     question: Công ty biếu quà Tết cho khách hàng bằng sản phẩm của mình thì giá tính thuế GTGT lấy theo giá nào?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: Hàng hóa dùng để biếu, tặng có giá tính thuế GTGT là giá tính thuế của hàng hóa cùng loại hoặc tương đương tại thời điểm biếu, tặng.
+    key_facts:
+      - "giá tính thuế của hàng hóa cùng loại hoặc tương đương tại thời điểm biếu, tặng"
+    provisions:
+      - 48/2024/QH15 Điều 7 khoản 1
     added_in: 2
   - id: q107
     question: Làm thầu xây dựng thì thời điểm phải tính thuế GTGT là lúc nghiệm thu hay lúc nhận tiền?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: >
+      Lúc nghiệm thu: với hoạt động xây dựng, lắp đặt, thời điểm xác định thuế GTGT là thời điểm nghiệm thu, bàn giao công trình, hạng mục công trình hoặc khối lượng hoàn thành, không phân biệt đã thu được tiền hay chưa.
+    key_facts:
+      - "thời điểm nghiệm thu, bàn giao công trình, hạng mục, khối lượng hoàn thành"
+      - "không phân biệt đã thu được tiền hay chưa"
+    provisions:
+      - 181/2025/NĐ-CP Điều 16 khoản 6
     added_in: 2
   - id: q108
     question: Doanh nghiệp mới thành lập muốn tự nguyện áp dụng phương pháp khấu trừ thuế GTGT thì cần điều kiện gì?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: >
+      Doanh nghiệp phải thực hiện đầy đủ chế độ kế toán, hóa đơn, chứng từ. Doanh nghiệp mới thành lập được đăng ký tự nguyện
+      áp dụng phương pháp khấu trừ khi: được thành lập từ dự án đầu tư của cơ sở đang nộp thuế theo phương pháp khấu trừ; hoặc
+      có dự án đầu tư được cấp có thẩm quyền phê duyệt; hoặc có phương án đầu tư được người có thẩm quyền của doanh nghiệp
+      quyết định phê duyệt.
+    key_facts:
+      - "thực hiện đầy đủ chế độ kế toán, hóa đơn, chứng từ"
+      - "thành lập từ dự án đầu tư của cơ sở đang nộp thuế theo phương pháp khấu trừ"
+      - "có dự án đầu tư được cấp có thẩm quyền phê duyệt hoặc phương án đầu tư được doanh nghiệp phê duyệt"
+    provisions:
+      - 181/2025/NĐ-CP Điều 21
     added_in: 2
   - id: q109
     question: Doanh thu một năm từ bao nhiêu trở lên thì doanh nghiệp bắt buộc phải nộp thuế GTGT theo phương pháp khấu trừ?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: >
+      Cơ sở kinh doanh có doanh thu hằng năm từ bán hàng hóa, cung cấp dịch vụ từ 01 tỷ đồng trở lên và thực hiện đầy đủ chế độ
+      kế toán, hóa đơn, chứng từ áp dụng phương pháp khấu trừ (trừ hộ, cá nhân kinh doanh). Doanh thu năm xác định từ kỳ tháng
+      11 (quý 4) năm trước đến hết tháng 10 (quý 3) năm hiện tại, và phương pháp được áp dụng ổn định 02 năm liên tục.
+    key_facts:
+      - "doanh thu hằng năm từ 01 tỷ đồng trở lên"
+      - "thực hiện đầy đủ chế độ kế toán, hóa đơn, chứng từ"
+      - "áp dụng ổn định 02 năm liên tục"
+    provisions:
+      - 48/2024/QH15 Điều 11 khoản 2
+      - 181/2025/NĐ-CP Điều 21
     added_in: 2
   - id: q110
     question: Tiệm kinh doanh mua bán vàng trang sức thì thuế GTGT tính theo cách nào?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: >
+      Hoạt động mua, bán, chế tác vàng, bạc, đá quý nộp thuế GTGT theo phương pháp tính trực tiếp trên giá trị gia tăng: số thuế
+      bằng giá trị gia tăng nhân thuế suất, trong đó giá trị gia tăng là giá thanh toán của vàng bán ra trừ giá thanh toán của
+      vàng mua vào tương ứng. Cơ sở phải hạch toán riêng hoạt động này.
+    key_facts:
+      - "phương pháp tính trực tiếp trên giá trị gia tăng"
+      - "giá trị gia tăng = giá thanh toán bán ra trừ giá thanh toán mua vào tương ứng"
+      - "phải hạch toán riêng hoạt động mua bán vàng, bạc, đá quý"
+    provisions:
+      - 48/2024/QH15 Điều 12
+      - 149/2025/QH15 Điều 1
+      - 181/2025/NĐ-CP Điều 22
     added_in: 2
   - id: q111
     question: Hóa đơn đầu vào bị bỏ sót, sáu tháng sau mới phát hiện thì còn được kê khai khấu trừ không?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: >
+      Còn. Hóa đơn đầu vào bị sót làm giảm số thuế phải nộp nên được kê khai vào tháng, quý phát hiện sai sót, với điều kiện khai
+      trước khi cơ quan thuế, cơ quan có thẩm quyền công bố quyết định kiểm tra, thanh tra.
+    key_facts:
+      - "khai vào tháng, quý phát hiện sai sót"
+      - "phải khai trước khi công bố quyết định kiểm tra, thanh tra"
+    provisions:
+      - 48/2024/QH15 Điều 14 khoản 1
     added_in: 2
   - id: q112
     question: Máy móc dùng chung cho hàng chịu thuế và hàng không chịu thuế GTGT thì thuế đầu vào được khấu trừ thế nào?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: >
+      Chỉ được khấu trừ phần thuế đầu vào dùng cho hàng hóa, dịch vụ chịu thuế GTGT. Doanh nghiệp phải hạch toán riêng phần được
+      khấu trừ và không được khấu trừ; nếu không hạch toán riêng được thì thuế đầu vào được khấu trừ tính theo tỷ lệ doanh thu
+      hàng chịu thuế trên tổng doanh thu hàng hóa, dịch vụ bán ra.
+    key_facts:
+      - "chỉ khấu trừ thuế đầu vào dùng cho hàng hóa, dịch vụ chịu thuế"
+      - "không hạch toán riêng được: phân bổ theo tỷ lệ doanh thu chịu thuế trên tổng doanh thu"
+    provisions:
+      - 48/2024/QH15 Điều 14 khoản 1
     added_in: 2
   - id: q113
     question: Công ty mua ô tô 5 chỗ giá 2 tỷ thì thuế GTGT đầu vào được khấu trừ hết hay chỉ một phần?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: >
+      Chỉ một phần. Ô tô chở người từ 09 chỗ trở xuống là tài sản cố định có trị giá trên 1,6 tỷ đồng (chưa có thuế GTGT) chỉ được
+      khấu trừ thuế đầu vào tương ứng với phần trị giá đến 1,6 tỷ đồng; trừ xe dùng kinh doanh vận chuyển hàng hóa, hành khách,
+      du lịch, khách sạn hoặc làm mẫu, lái thử cho kinh doanh ô tô.
+    key_facts:
+      - "chỉ khấu trừ thuế đầu vào tương ứng phần trị giá đến 1,6 tỷ đồng"
+      - "áp dụng cho ô tô chở người từ 09 chỗ trở xuống"
+      - "trừ xe dùng kinh doanh vận tải, du lịch, khách sạn"
+    provisions:
+      - 181/2025/NĐ-CP Điều 24
     added_in: 2
   - id: q114
     question: Công ty đang xây nhà máy, chưa có doanh thu thì có được hoàn thuế GTGT đầu vào không?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: >
+      Có thể. Cơ sở kinh doanh đã đăng ký nộp thuế theo phương pháp khấu trừ có dự án đầu tư đang trong giai đoạn đầu tư thì bù trừ
+      thuế đầu vào của dự án với số thuế phải nộp của hoạt động đang có; sau bù trừ nếu số thuế đầu vào chưa được khấu trừ hết từ
+      300 triệu đồng trở lên thì được hoàn. Một số dự án không được hoàn mà chỉ được kết chuyển, như chưa góp đủ vốn điều lệ hoặc
+      chưa đủ điều kiện kinh doanh ngành nghề có điều kiện.
+    key_facts:
+      - "phải nộp thuế theo phương pháp khấu trừ, dự án đang trong giai đoạn đầu tư"
+      - "thuế đầu vào chưa khấu trừ hết từ 300 triệu đồng trở lên sau bù trừ"
+      - "không được hoàn nếu chưa góp đủ vốn điều lệ đã đăng ký"
+    provisions:
+      - 48/2024/QH15 Điều 15 khoản 2
     added_in: 2
   - id: q115
     question: Bán hàng cho doanh nghiệp trong khu chế xuất thì có được áp thuế suất GTGT 0% không?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: >
+      Có, nếu hàng hóa bán cho tổ chức trong khu phi thuế quan và được tiêu dùng trong khu đó phục vụ trực tiếp cho sản xuất xuất
+      khẩu. Phải có hợp đồng, chứng từ thanh toán không dùng tiền mặt và tờ khai hải quan. Không áp dụng 0% với xăng dầu mua nội
+      địa và ô tô bán vào khu phi thuế quan.
+    key_facts:
+      - "bán cho tổ chức trong khu phi thuế quan, tiêu dùng trong khu phục vụ sản xuất xuất khẩu"
+      - "có hợp đồng, chứng từ thanh toán không dùng tiền mặt, tờ khai hải quan"
+      - "không áp dụng cho xăng dầu, ô tô bán vào khu phi thuế quan"
+    provisions:
+      - 181/2025/NĐ-CP Điều 17 khoản 1
+      - 181/2025/NĐ-CP Điều 17 khoản 4
+      - 181/2025/NĐ-CP Điều 18
     added_in: 2
   - id: q116
     question: Khách sạn phục vụ khách du lịch nước ngoài thì tiền phòng có được áp thuế suất 0% không?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: Không. Dịch vụ khách sạn, du lịch lữ hành cung cấp tại Việt Nam cho tổ chức, cá nhân nước ngoài thuộc các trường hợp không áp dụng thuế suất 0%.
+    key_facts:
+      - "dịch vụ khách sạn cung cấp tại Việt Nam cho người nước ngoài không áp dụng thuế suất 0%"
+    provisions:
+      - 181/2025/NĐ-CP Điều 17 khoản 4
     added_in: 2
   - id: q117
     question: Nông dân tự trồng rau rồi mang ra chợ bán thì có phải chịu thuế GTGT không?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: Không. Sản phẩm trồng trọt chưa chế biến hoặc chỉ qua sơ chế thông thường do cá nhân tự sản xuất bán ra thuộc đối tượng không chịu thuế GTGT.
+    key_facts:
+      - "sản phẩm cây trồng tự sản xuất bán ra, chưa chế biến: không chịu thuế GTGT"
+    provisions:
+      - 48/2024/QH15 Điều 5 khoản 1
+      - 149/2025/QH15 Điều 1
     added_in: 2
   - id: q118
     question: Phòng khám tư nhân thu tiền khám chữa bệnh thì có phải tính thuế GTGT không?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: Không. Dịch vụ khám bệnh, chữa bệnh, phòng bệnh cho người thuộc đối tượng không chịu thuế GTGT, kể cả tiền thuốc nằm trong gói dịch vụ chữa bệnh.
+    key_facts:
+      - "dịch vụ khám bệnh, chữa bệnh không chịu thuế GTGT"
+      - "tiền thuốc trong gói dịch vụ chữa bệnh cũng không chịu thuế"
+    provisions:
+      - 48/2024/QH15 Điều 5 khoản 10
     added_in: 2
   - id: q119
     question: Phí bảo hiểm nhân thọ khách hàng đóng có chịu thuế GTGT không?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: Không. Bảo hiểm nhân thọ thuộc đối tượng không chịu thuế GTGT.
+    key_facts:
+      - "bảo hiểm nhân thọ không chịu thuế GTGT"
+    provisions:
+      - 48/2024/QH15 Điều 5 khoản 8
     added_in: 2
   - id: q120
     question: Theo Điều 5 Luật 48/2024, chuyển giao công nghệ có thuộc diện không chịu thuế GTGT không?
     tax_type: vat
     form: reference
-    answer: TODO
+    answer: Có. Chuyển giao công nghệ theo Luật Chuyển giao công nghệ thuộc đối tượng không chịu thuế GTGT (khoản 21 Điều 5), cùng với chuyển nhượng quyền sở hữu trí tuệ và sản phẩm, dịch vụ phần mềm.
+    key_facts:
+      - "chuyển giao công nghệ theo Luật Chuyển giao công nghệ không chịu thuế GTGT"
+    provisions:
+      - 48/2024/QH15 Điều 5 khoản 21
     added_in: 2
-  - id: q121
+  - id: q121  # step 2: moved to unanswerable; 181/2025 Điều 26 khoản 1 defines a non-cash payment voucher by reference to Decree 52/2024/NĐ-CP, which is not in the corpus, and never names e-wallets
     question: Theo Nghị định 181/2025, thanh toán qua ví điện tử có được coi là thanh toán không dùng tiền mặt để khấu trừ thuế đầu vào không?
     tax_type: vat
     form: reference
-    answer: TODO
+    answer: >
+      Nghị định 181/2025 định nghĩa chứng từ thanh toán không dùng tiền mặt bằng cách dẫn chiếu Nghị định 52/2024/NĐ-CP về thanh
+      toán không dùng tiền mặt và không nêu ví điện tử; Nghị định 52/2024 không có trong bộ dữ liệu, nên không xác định được.
+    unanswerable: out_of_scope
     added_in: 2
-  - id: q122
+  - id: q122  # step 2: Thông tư 69/2025 named in the question only sets dossiers (Điều 3); the list of non-taxable imported machinery is in 48/2024/QH15 Điều 5 khoản 17 and 181/2025/NĐ-CP Điều 4 khoản 10
     question: Theo Thông tư 69/2025, máy móc nhập khẩu để tạo tài sản cố định mà trong nước chưa sản xuất được thì có phải chịu thuế GTGT không?
     tax_type: vat
     form: reference
-    answer: TODO
+    answer: >
+      Thông tư 69/2025 chỉ quy định hồ sơ. Theo Luật 48/2024, máy móc nhập khẩu loại trong nước chưa sản xuất được chỉ không chịu
+      thuế GTGT khi dùng trực tiếp cho nghiên cứu khoa học, phát triển công nghệ hoặc cho tìm kiếm thăm dò, phát triển mỏ dầu khí;
+      riêng để tạo tài sản cố định thì chỉ có máy bay, trực thăng, tàu lượn, giàn khoan, tàu thuyền chưa sản xuất được trong nước.
+      Máy móc thông thường nhập khẩu để tạo tài sản cố định không thuộc các trường hợp này nên vẫn chịu thuế GTGT.
+    key_facts:
+      - "tạo tài sản cố định: chỉ máy bay, trực thăng, tàu lượn, giàn khoan, tàu thuyền trong nước chưa sản xuất được"
+      - "máy móc chưa sản xuất được dùng trực tiếp cho nghiên cứu khoa học hoặc dầu khí không chịu thuế"
+      - "máy móc thông thường nhập khẩu tạo tài sản cố định vẫn chịu thuế GTGT"
+    provisions:
+      - 48/2024/QH15 Điều 5 khoản 17
+      - 181/2025/NĐ-CP Điều 4 khoản 10
     added_in: 2
   - id: q123
     question: Thông tư 77/2025 quy định dịch vụ môi giới chứng khoán có chịu thuế GTGT không?
     tax_type: vat
     form: reference
-    answer: TODO
+    answer: Không. Môi giới chứng khoán là dịch vụ kinh doanh chứng khoán thuộc đối tượng không chịu thuế GTGT.
+    key_facts:
+      - "môi giới chứng khoán không chịu thuế GTGT"
+    provisions:
+      - 48/2024/QH15 Điều 5 khoản 9
+      - 77/2025/TT-BTC Điều 3
     added_in: 2
   - id: q124
     question: Nghị định 144/2026 có thay đổi điều kiện hoàn thuế GTGT cho hàng xuất khẩu không?
     tax_type: vat
     form: reference
-    answer: TODO
+    answer: >
+      Không. Nghị định 144/2026 (hiệu lực từ 20/6/2026) không sửa các quy định về hoàn thuế hàng xuất khẩu; nó sửa Điều 4 (đối
+      tượng không chịu thuế: bảo hiểm, bán nợ, tài nguyên khoáng sản xuất khẩu), điểm b khoản 1 Điều 9, khoản 2 Điều 23 (doanh
+      thu dùng để phân bổ thuế đầu vào được khấu trừ), điểm g khoản 2 Điều 26 (mua trả chậm, trả góp) và thay Phụ lục I, II của
+      Nghị định 181/2025.
+    key_facts:
+      - "không sửa quy định về hoàn thuế hàng xuất khẩu"
+      - "sửa khoản 2 Điều 23 về doanh thu để phân bổ thuế đầu vào"
+      - "sửa điểm g khoản 2 Điều 26 về mua trả chậm, trả góp"
+      - "hiệu lực từ ngày 20/6/2026"
+    provisions:
+      - 144/2026/NĐ-CP Điều 1
+      - 144/2026/NĐ-CP Điều 2
+      - 144/2026/NĐ-CP Điều 3
+      - 144/2026/NĐ-CP Điều 4
+      - 144/2026/NĐ-CP Điều 5
+      - 144/2026/NĐ-CP Điều 6
     added_in: 2
   - id: q125
     question: Điều 14 Luật 48/2024 quy định thuế GTGT đầu vào muốn được khấu trừ thì phải có những điều kiện gì?
     tax_type: vat
     form: reference
-    answer: TODO
+    answer: >
+      Thuế GTGT đầu vào được khấu trừ khi có hóa đơn GTGT mua hàng hóa, dịch vụ (hoặc chứng từ nộp thuế GTGT khâu nhập khẩu, chứng
+      từ nộp thay cho phía nước ngoài) và có chứng từ thanh toán không dùng tiền mặt, trừ trường hợp đặc thù do Chính phủ quy định.
+      Với hàng hóa, dịch vụ xuất khẩu còn phải có hợp đồng với bên nước ngoài, hóa đơn bán hàng, chứng từ thanh toán không dùng tiền
+      mặt, tờ khai hải quan, phiếu đóng gói, vận đơn, chứng từ bảo hiểm (nếu có).
+    key_facts:
+      - "có hóa đơn GTGT hoặc chứng từ nộp thuế GTGT khâu nhập khẩu"
+      - "có chứng từ thanh toán không dùng tiền mặt"
+      - "hàng xuất khẩu: thêm hợp đồng với bên nước ngoài và tờ khai hải quan"
+    provisions:
+      - 48/2024/QH15 Điều 14 khoản 2
     added_in: 2
   - id: q126
     question: Luật 09/2026/QH16 sửa những điểm nào trong Luật Thuế giá trị gia tăng?
     tax_type: vat
     form: reference
-    answer: TODO
+    answer: >
+      Luật 09/2026/QH16 chỉ sửa khoản 25 Điều 5 Luật Thuế GTGT: hàng hóa, dịch vụ của hộ, cá nhân kinh doanh có doanh thu năm từ mức
+      do Chính phủ quy định trở xuống không chịu thuế GTGT, và Chính phủ quy định mức doanh thu đó theo từng thời kỳ. Quy định này có
+      hiệu lực từ ngày 01/01/2026.
+    key_facts:
+      - "sửa khoản 25 Điều 5 Luật Thuế GTGT"
+      - "ngưỡng doanh thu không chịu thuế của hộ, cá nhân kinh doanh do Chính phủ quy định"
+      - "hiệu lực từ 01/01/2026"
+    provisions:
+      - 09/2026/QH16 Điều 2
+      - 09/2026/QH16 Điều 5
     added_in: 2
   - id: q127
     question: Đi du lịch Thái Lan mua hàng thì được hoàn thuế VAT ở sân bay bao nhiêu phần trăm?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu chỉ gồm pháp luật thuế Việt Nam, không có quy định hoàn thuế VAT cho du khách tại Thái Lan.
     unanswerable: out_of_scope
     added_in: 2
   - id: q128
     question: Phần mềm kế toán MISA tự lên tờ khai thuế GTGT bằng cách nào?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu không mô tả cách phần mềm kế toán MISA lập tờ khai thuế GTGT.
     unanswerable: out_of_scope
     added_in: 2
   - id: q129
     question: Vì sao Quốc hội lại nâng ngưỡng doanh thu không phải nộp thuế GTGT lên 500 triệu?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu chỉ ghi quy định, không nêu lý do Quốc hội nâng ngưỡng doanh thu không chịu thuế GTGT.
     unanswerable: out_of_scope
     added_in: 2
   - id: q130
     question: Quầy hoàn thuế GTGT cho khách nước ngoài ở sân bay Tân Sơn Nhất mở cửa từ mấy giờ?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu không có thông tin về giờ mở cửa của quầy hoàn thuế GTGT tại sân bay Tân Sơn Nhất.
     unanswerable: out_of_scope
     added_in: 2
   - id: q131
     question: Năm ngoái doanh nghiệp nào được hoàn thuế GTGT nhiều nhất cả nước?
     tax_type: vat
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu là văn bản pháp luật, không có số liệu về doanh nghiệp được hoàn thuế GTGT nhiều nhất.
     unanswerable: out_of_scope
     added_in: 2
-  - id: q132
+  - id: q132  # step 2: repealed confirmed: 69/2025/TT-BTC Điều 10 khoản 2 replaces 219/2013/TT-BTC
     question: Theo Thông tư 219/2013, doanh nghiệp có số thuế GTGT đầu vào chưa khấu trừ hết từ 300 triệu đồng trở lên sau 12 tháng liên tục thì được hoàn thuế, đúng không?
     tax_type: vat
     form: reference
-    answer: TODO
+    answer: >
+      Thông tư 219/2013/TT-BTC đã được thay thế bởi Thông tư 69/2025/TT-BTC nên không còn áp dụng. Hiện nay Luật 48/2024 quy định
+      hoàn thuế sau 12 tháng hoặc 04 quý liên tục với số thuế chưa khấu trừ hết từ 300 triệu đồng chỉ cho cơ sở kinh doanh chỉ sản
+      xuất, cung cấp hàng hóa, dịch vụ chịu thuế suất 5%.
     unanswerable: repealed
     added_in: 2
-  - id: q133
+  - id: q133  # step 2: repealed confirmed: 48/2024/QH15 Điều 18 repeals Law 13/2008/QH12
     question: Theo Luật Thuế GTGT số 13/2008/QH12, phân bón có thuộc đối tượng không chịu thuế không?
     tax_type: vat
     form: reference
-    answer: TODO
+    answer: >
+      Luật Thuế GTGT số 13/2008/QH12 đã hết hiệu lực, được thay bằng Luật 48/2024/QH15. Theo luật hiện hành, phân bón không còn là
+      đối tượng không chịu thuế mà chịu thuế suất 5%.
     unanswerable: repealed
     added_in: 2
   - id: q134
