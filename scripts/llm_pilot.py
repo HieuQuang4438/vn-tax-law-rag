@@ -36,6 +36,7 @@ ANSWERABLE_PER_TYPE = 3
 UNANSWERABLE_PER_TYPE = 1
 PAUSE_S = 10  # between requests, under the free tier's per-minute limit
 WAIT_ALL_LIMITED_S = 60  # when every key is refused with 429
+WAIT_UNAVAILABLE_S = 30  # after a 5xx, before the same request again
 ROUNDS = 5
 
 DATA = ROOT / "data"
@@ -73,13 +74,14 @@ def passages(chunk_ids: list[str]) -> str:
 
 
 class Keys:
-    """Tries the keys in order and moves to the next on a 429 (#13)."""
+    """Tries the keys in order and moves to the next on a 429 (#13); waits and retries on a 5xx."""
 
     def __init__(self):
         no_retry = types.HttpOptions(retry_options=types.HttpRetryOptions(attempts=1))
         self.clients = [genai.Client(api_key=key, http_options=no_retry) for key in GOOGLE_API_KEYS]
         self.current = 0
         self.refused = 0
+        self.unavailable = 0
 
     def generate(self, model: str, system: str, user: str):
         config = types.GenerateContentConfig(system_instruction=system)
@@ -95,8 +97,13 @@ class Keys:
                         raise
                     self.refused += 1
                     self.current = (self.current + 1) % len(self.clients)
-            time.sleep(WAIT_ALL_LIMITED_S)
-        raise RuntimeError(f"every key refused with 429 for {ROUNDS} rounds")
+                except errors.ServerError:
+                    self.unavailable += 1
+                    time.sleep(WAIT_UNAVAILABLE_S)
+                    break
+            else:
+                time.sleep(WAIT_ALL_LIMITED_S)
+        raise RuntimeError(f"no answer after {ROUNDS} rounds of 429 or 5xx")
 
 
 def cost(prices: tuple[float, float], prompt: int, output: int) -> float:
@@ -104,7 +111,7 @@ def cost(prices: tuple[float, float], prompt: int, output: int) -> float:
 
 
 def answer(keys: Keys, model: str, system: str, user: str) -> dict:
-    refused = keys.refused
+    refused, unavailable = keys.refused, keys.unavailable
     response, seconds = keys.generate(model, system, user)
     usage = response.usage_metadata
     prompt = usage.prompt_token_count or 0
@@ -120,6 +127,7 @@ def answer(keys: Keys, model: str, system: str, user: str) -> dict:
         "cost_usd": cost(PRICES[model], prompt, output),
         "cost_usd_2027": cost(PRICES_2027[model], prompt, output),
         "refused_429": keys.refused - refused,
+        "unavailable_5xx": keys.unavailable - unavailable,
     }
 
 
@@ -136,6 +144,7 @@ def summary(items: list[dict], model: str) -> dict:
         "cost_usd_max": max(run["cost_usd"] for run in runs),
         "cost_usd_2027_mean": statistics.mean(run["cost_usd_2027"] for run in runs),
         "refused_429": sum(run["refused_429"] for run in runs),
+        "unavailable_5xx": sum(run["unavailable_5xx"] for run in runs),
     }
 
 
