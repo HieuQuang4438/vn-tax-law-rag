@@ -81,7 +81,8 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   of them answerable, and at least 20 conversations. A question or a conversation may carry
   `added_in`, the set version that added it (1 when absent), and every results file records it
   per item and breaks EVAL-001 and EVAL-007 down by it, so items added after a round of tuning
-  are scored apart. FR-CORE-015, EVAL-001, EVAL-007, #26.
+  are scored apart. An `answer` left as `TODO`, the placeholder of the first drafting step, is
+  an error on every question and turn. FR-CORE-015, EVAL-001, EVAL-007, #26.
 
 ### Changed
 

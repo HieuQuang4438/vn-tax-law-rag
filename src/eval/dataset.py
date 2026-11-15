@@ -17,6 +17,7 @@ TAX_TYPES = ("administration", "vat", "pit", "cit", "sct", "household")
 FORMS = ("plain", "reference")
 UNANSWERABLE = ("out_of_scope", "repealed")
 UNANSWERABLE_SHARE = 0.20
+PLACEHOLDER = "TODO"  # step 1 leaves every answer as this (eval-set.md, *Provenance*)
 TURNS = (2, 3)
 KEY_FACTS = (1, 4)
 
@@ -245,6 +246,8 @@ class _Checker:
         for name in ("question", "answer"):
             if name in raw and not (isinstance(raw[name], str) and raw[name].strip()):
                 say(f'"{name}" must be text')
+        if isinstance(raw.get("answer"), str) and raw["answer"].strip() == PLACEHOLDER:
+            say(f"answer is still {PLACEHOLDER}")
         if "tax_type" in raw and raw["tax_type"] not in TAX_TYPES:
             say(f'tax_type "{raw["tax_type"]}" is not one of {", ".join(TAX_TYPES)}')
         if "form" in raw and raw["form"] not in FORMS:
