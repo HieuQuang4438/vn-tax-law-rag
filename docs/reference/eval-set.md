@@ -122,6 +122,7 @@ line of that question in the file. Messages about the set as a whole have no pre
 | `tax_type` not in the list | `tax_type "<value>"` |
 | `form` not in the list | `form "<value>"` |
 | `unanswerable` not in the list | `unanswerable "<value>"` |
+| `answer` is `TODO`, step 1's placeholder, on any question or turn, answerable or not (approved on #26) | `answer is still TODO` |
 | an answerable question with no provision | `no provisions` |
 | an answerable question with fewer than 1 or more than 4 key facts | `key_facts: 1 to 4` |
 | an unanswerable question with provisions or key facts | `unanswerable but has provisions`, `unanswerable but has key_facts` |

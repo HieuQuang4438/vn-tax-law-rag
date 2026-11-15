@@ -201,6 +201,24 @@ def test_question_errors(tmp_path, corpus, target, change, message):
     assert has(report.errors, f"line {line_of(path, target)}: {target}: ", message), report.errors
 
 
+@pytest.mark.parametrize("answer", ["TODO", " TODO "])
+@pytest.mark.parametrize("target", ["q01", "q25", "c01.1"])
+def test_an_answer_left_as_todo_is_an_error(tmp_path, corpus, target, answer):
+    """#26: q25 is unanswerable, so no other rule would catch it."""
+    data = valid_set()
+    if target.startswith("c"):
+        data["conversations"][0]["turns"][0]["answer"] = answer
+    else:
+        item(data, target)["answer"] = answer
+    assert has(run(tmp_path, corpus, data).errors, target, "answer is still TODO")
+
+
+def test_an_answer_that_only_mentions_todo_is_not_an_error(tmp_path, corpus):
+    data = valid_set()
+    item(data, "q01")["answer"] = "TODO list của doanh nghiệp không phải là chứng từ."
+    assert not has(run(tmp_path, corpus, data).errors, "TODO")
+
+
 def test_a_duplicate_id_is_an_error(tmp_path, corpus):
     data = valid_set()
     item(data, "q04")["id"] = "q03"
