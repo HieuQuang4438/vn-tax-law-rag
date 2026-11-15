@@ -110,7 +110,7 @@ questions:
     answer: TODO
     added_in: 2
   - id: q77
-    question: Cơ quan thuế được truy thu số thuế khai thiếu từ mấy năm trước trở lại?
+    question: Nếu doanh nghiệp khai thiếu thuế do sai sót, không có hành vi trốn thuế, cơ quan thuế có thể truy thu các kỳ tính thuế cách đây tối đa bao nhiêu năm?
     tax_type: administration
     form: plain
     answer: TODO
@@ -176,13 +176,13 @@ questions:
     answer: TODO
     added_in: 2
   - id: q88
-    question: Theo Thông tư 94/2026, doanh nghiệp bị xếp vào nhóm rủi ro cao thì hồ sơ hoàn thuế bị xử lý khác thế nào?
+    question: Theo Thông tư 94/2026, doanh nghiệp bị xếp vào nhóm rủi ro cao thì hồ sơ hoàn thuế có phải kiểm tra trước khi hoàn không?
     tax_type: administration
     form: reference
     answer: TODO
     added_in: 2
   - id: q89
-    question: Hàng nhập khẩu có ngân hàng bảo lãnh số thuế thì được nộp thuế chậm nhất bao nhiêu ngày?
+    question: Nếu khoản thuế nhập khẩu được ngân hàng bảo lãnh thì doanh nghiệp phải nộp thuế chậm nhất sau bao nhiêu ngày?
     tax_type: administration
     form: plain
     answer: TODO
@@ -206,7 +206,7 @@ questions:
     answer: TODO
     added_in: 2
   - id: q93
-    question: Theo Luật 108/2025, nhà cung cấp nước ngoài bán dịch vụ cho người Việt Nam mà không có cơ sở thường trú ở Việt Nam thì ai phải khai và nộp thuế?
+    question: Theo Luật 108/2025, nhà cung cấp nước ngoài không có cơ sở thường trú tại Việt Nam bán dịch vụ cho doanh nghiệp Việt Nam thì bên nào phải khai và nộp thuế?
     tax_type: administration
     form: reference
     answer: TODO
@@ -452,7 +452,7 @@ questions:
     unanswerable: out_of_scope
     added_in: 2
   - id: q132
-    question: Theo Thông tư 219/2013, hàng mua vào từ 20 triệu đồng trở lên phải chuyển khoản mới được khấu trừ thuế đầu vào, đúng không?
+    question: Theo Thông tư 219/2013, doanh nghiệp có số thuế GTGT đầu vào chưa khấu trừ hết từ 300 triệu đồng trở lên sau 12 tháng liên tục thì được hoàn thuế, đúng không?
     tax_type: vat
     form: reference
     answer: TODO
@@ -562,7 +562,7 @@ questions:
     answer: TODO
     added_in: 2
   - id: q150
-    question: Tiền tôi ủng hộ quỹ từ thiện có được trừ khi tính thuế thu nhập cá nhân không?
+    question: Tôi ủng hộ tiền thông qua một quỹ từ thiện được thành lập và hoạt động hợp pháp thì khoản đóng góp đó có được trừ khi tính thuế TNCN không?
     tax_type: pit
     form: plain
     answer: TODO
@@ -580,7 +580,7 @@ questions:
     answer: TODO
     added_in: 2
   - id: q153
-    question: Theo Nghị định 253/2026, phụ cấp cho người làm việc ở vùng đặc biệt khó khăn có được miễn thuế thu nhập cá nhân không?
+    question: Theo Nghị định 253/2026, phụ cấp thu hút trả cho người làm việc tại vùng có điều kiện kinh tế - xã hội đặc biệt khó khăn có được miễn thuế TNCN không?
     tax_type: pit
     form: reference
     answer: TODO
@@ -677,7 +677,7 @@ questions:
     answer: TODO
     added_in: 2
   - id: q168
-    question: Công ty ủng hộ tiền cho đồng bào vùng lũ thì khoản đó có được tính vào chi phí được trừ không?
+    question: Công ty ủng hộ tiền khắc phục hậu quả lũ lụt thông qua Ủy ban Mặt trận Tổ quốc Việt Nam thì khoản chi đó có được tính vào chi phí được trừ khi tính thuế TNDN không?
     tax_type: cit
     form: plain
     answer: TODO
@@ -719,7 +719,7 @@ questions:
     answer: TODO
     added_in: 2
   - id: q175
-    question: Doanh nghiệp dùng nhiều lao động nữ thì được giảm thuế TNDN như thế nào?
+    question: Các khoản chi thêm cho lao động nữ theo quy định có được tính vào chi phí được trừ khi tính thuế TNDN không?
     tax_type: cit
     form: plain
     answer: TODO
@@ -870,7 +870,7 @@ questions:
     answer: TODO
     added_in: 2
   - id: q199
-    question: Xe bán tải chở hàng thì thuế tiêu thụ đặc biệt tính thế nào?
+    question: Xe bán tải cabin kép có phải chịu thuế tiêu thụ đặc biệt không?
     tax_type: sct
     form: plain
     answer: TODO
@@ -1045,7 +1045,7 @@ questions:
     added_in: 2
   - id: q227
     question: Hộ kinh doanh thuê nhân viên bán hàng thì có phải khấu trừ thuế thu nhập cá nhân của nhân viên không?
-    tax_type: household
+    tax_type: pit
     form: plain
     answer: TODO
     added_in: 2
@@ -1289,7 +1289,7 @@ conversations:
         tax_type: pit
         form: plain
         answer: TODO
-      - question: Hạn chót bên đó phải quyết toán thay cho tôi là ngày nào?
+      - question: Công ty mà tôi ủy quyền quyết toán thay phải nộp hồ sơ chậm nhất vào ngày nào?
         tax_type: administration
         form: plain
         answer: TODO
@@ -1311,8 +1311,8 @@ conversations:
         tax_type: cit
         form: plain
         answer: TODO
-      - question: Công ty khai và nộp thay khoản thuế đó theo kỳ nào?
-        tax_type: household
+      - question: Công ty khai và nộp thay thuế TNCN từ tiền cho thuê nhà của cá nhân theo kỳ nào?
+        tax_type: pit
         form: plain
         answer: TODO
   - id: c18
