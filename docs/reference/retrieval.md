@@ -38,7 +38,7 @@ result.unresolved   # list[Unresolved], in question order
 |---|---|
 | `Retriever(index_dir, enriched_dir, processed_dir, embedder, fusion=None)` | Reads both indexes, the chunks and the documents' metadata. The embedder embeds the question, as at build time. `fusion` is a `Fusion`; none means `Fusion()`. The retriever keeps it as `Retriever.fusion`. |
 | `Retriever.load(data_dir=Path("data"), embedder=None, index_dir=None, enriched_dir=None, fusion=None)` | The same, from `enriched_dir`, `data_dir/processed` and `index_dir`, which are `data_dir/enriched` and `data_dir/index` when not given. With no embedder, the model and input limit the index's manifest names are loaded offline by `src.index.load_embedder` (approved on #11); a manifest without `input_limit` gets the model's maximum. |
-| `Fusion(rrf_k=RRF_K, keyword_weight=1.0, vector_weight=1.0, per_article=False, candidates=None)` | How the lists are fused and cut, as described under *Fusion* (approved on #25). `candidates` none means `CANDIDATES`, read when the retriever searches. It raises `ValueError` for `rrf_k` below 1, a weight of 0 or less, or `candidates` below 1. |
+| `Fusion(rrf_k=RRF_K, keyword_weight=1.0, vector_weight=1.0, per_article=True, candidates=None)` | How the lists are fused and cut, as described under *Fusion* (approved on #25). `candidates` none means `CANDIDATES`, read when the retriever searches. It raises `ValueError` for `rrf_k` below 1, a weight of 0 or less, or `candidates` below 1. |
 | `Fusion.config()` | `{"rrf_k", "candidates", "keyword_weight", "vector_weight", "per_article"}`, with `candidates` as a number, for the results files. |
 | `Retriever.retrieve(question, k=TOP_K)` | A `Retrieval` for one question. |
 | `Retriever.rankings(question)` | A `Rankings` for one question: the orders `retrieve` cuts from, uncut, for *Cut diagnosis* (approved on #24). |
@@ -178,8 +178,8 @@ by rank: rank 1 of every list in turn, then rank 2, and so on. The lists are pas
 keyword, vector, document. The retriever passes its `Fusion`'s `rrf_k` as the constant, and its
 `keyword_weight` and `vector_weight` for the first two lists. The document list always weighs 1;
 the `rrf` that ranks it uses the same constant and weighs its two lists 1 each. The defaults of `Fusion()` are `RRF_K` 60, `CANDIDATES` 50, both
-weights 1 and `per_article` off. They are starting values, changed only through a recorded
-experiment (#8, #25).
+weights 1 and `per_article` on. `per_article` was adopted on #25 (*Fusion tuning*); the others
+are the starting values of #8. Each is changed only through a recorded experiment.
 
 ## The k hits
 
@@ -192,7 +192,7 @@ experiment (#8, #25).
    A chunk already in a slot does not take a second one. Context assembly (#14) adds the whole
    parent article, so one slot brings in the article.
 2. **Fused hits.** The fused list, in order, skipping chunks already in a slot, until there are
-   k hits. With `per_article` on (approved on #25), a fused chunk is also skipped when its
+   k hits. With `per_article` on, the default since #25, a fused chunk is also skipped when its
    parent article already has a chunk above it: in a slot or as an earlier fused hit. The slots
    themselves are kept as they are, so two named clauses of one article keep both slots. The
    skip is applied to `Rankings.final` itself, before any cut, so the hits are still its first
@@ -352,7 +352,9 @@ Which fusion setting raises recall@8, given that 30 of the 43 missed articles si
 (bge-m3@8192, `syllable` BM25, 1,286 chunks), `TOP_K` 8, `rewrite: none`, the dev laptop,
 bootstrap seed 0, one commit for every run.
 
-**Variants.** Each changes one knob of `Fusion()`. Everything else stays at the default.
+**Variants.** Each changes one knob of the setting before #25, `per_article` off. Everything
+else stays as it was. Since #25 `per_article` is on by default, so the baseline is reproduced
+with `--no-per-article` and every other variant with `--no-per-article` added.
 
 | Variant | Options | Why, from *Cut diagnosis* |
 |---|---|---|

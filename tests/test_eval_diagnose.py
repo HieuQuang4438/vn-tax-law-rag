@@ -303,5 +303,5 @@ def test_without_fusion_options_the_file_records_the_default(command):
     files = sorted(out.glob("*.json")) if out.is_dir() else []
     assert len(files) == 1
     pipeline = at(json.loads(files[0].read_text(encoding="utf-8")), "configuration", "pipeline")
-    expected = {"rrf_k": 60, "candidates": 50, "keyword_weight": 1.0, "vector_weight": 1.0, "per_article": False}
+    expected = {"rrf_k": 60, "candidates": 50, "keyword_weight": 1.0, "vector_weight": 1.0, "per_article": True}
     assert {key: at(pipeline, key) for key in expected} == expected

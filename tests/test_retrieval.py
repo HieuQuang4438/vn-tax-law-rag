@@ -359,7 +359,8 @@ def test_an_article_between_two_documents_is_reported_no_document(retriever):
 
 # --- Hybrid search ------------------------------------------------------------------------------
 
-def test_a_document_without_an_article_adds_its_chunks_as_a_document_list(retriever):
+def test_a_document_without_an_article_adds_its_chunks_as_a_document_list(data_dir):
+    retriever = fused_retriever(data_dir, per_article=False)  # every chunk of the document, two of one article
     result = retriever.retrieve("Nghị định 68/2026 quy định gì về khai thuế?")
     named = {"427630:D4", "427630:D5:K1", "427630:D5:K2"}
     assert named <= set(ids(result))
@@ -654,7 +655,8 @@ def test_the_keyword_ranking_holds_only_chunks_scoring_above_zero(retriever):
 
 
 @pytest.mark.parametrize("question", [RANKING_QUESTIONS[0], RANKING_QUESTIONS[2]])
-def test_the_lists_are_the_first_candidates_of_each_ranking(retriever, monkeypatch, question):
+def test_the_lists_are_the_first_candidates_of_each_ranking(data_dir, monkeypatch, question):
+    retriever = fused_retriever(data_dir, per_article=False)  # every fused chunk is a hit
     monkeypatch.setattr(hybrid, "CANDIDATES", 3)
     rankings = retriever.rankings(question)
     hits = retriever.retrieve(question, k=len(CHUNKS)).hits
@@ -693,10 +695,10 @@ def weighted(lists: list[list[str]], constant: int, weights: list[float]) -> dic
     return scores
 
 
-def test_the_default_fusion_is_the_starting_values(monkeypatch):
-    assert Fusion() == Fusion(rrf_k=60, keyword_weight=1.0, vector_weight=1.0, per_article=False, candidates=None)
+def test_the_default_fusion_is_the_starting_values_with_one_hit_per_article(monkeypatch):
+    assert Fusion() == Fusion(rrf_k=60, keyword_weight=1.0, vector_weight=1.0, per_article=True, candidates=None)
     assert Fusion().config() == {"rrf_k": 60, "candidates": 50, "keyword_weight": 1.0, "vector_weight": 1.0,
-                                 "per_article": False}
+                                 "per_article": True}
     assert Fusion(candidates=100).config()["candidates"] == 100
     monkeypatch.setattr(hybrid, "CANDIDATES", 3)
     assert Fusion().config()["candidates"] == 3
@@ -731,7 +733,7 @@ def test_the_default_fusion_gives_the_same_results(retriever, data_dir):
 @pytest.mark.parametrize("settings", [{"rrf_k": 20}, {"rrf_k": 120}, {"keyword_weight": 2.0},
                                       {"vector_weight": 2.0}, {"rrf_k": 5, "keyword_weight": 0.5}])
 def test_the_fused_scores_follow_the_fusion(data_dir, settings):
-    retriever = fused_retriever(data_dir, **settings)
+    retriever = fused_retriever(data_dir, per_article=False, **settings)  # every fused chunk is a hit
     fusion = retriever.fusion
     question = RANKING_QUESTIONS[0]  # no reference: the hits are the fused list
     rankings = retriever.rankings(question)
@@ -760,7 +762,7 @@ def test_the_document_list_weighs_one_with_the_fusion_constant(data_dir):
 
 
 def test_the_fusion_cuts_each_list_at_its_candidates(data_dir):
-    retriever = fused_retriever(data_dir, candidates=3)
+    retriever = fused_retriever(data_dir, candidates=3, per_article=False)  # every fused chunk is a hit
     for question in (RANKING_QUESTIONS[0], RANKING_QUESTIONS[2]):
         rankings = retriever.rankings(question)
         assert rankings.candidates == 3
@@ -775,7 +777,8 @@ def test_rankings_report_the_candidates_read_at_call_time(retriever, monkeypatch
     assert retriever.rankings(RANKING_QUESTIONS[0]).candidates == 3
 
 
-def test_one_hit_per_article_skips_a_chunk_whose_article_is_above_it(retriever, data_dir):
+def test_one_hit_per_article_skips_a_chunk_whose_article_is_above_it(data_dir):
+    retriever = fused_retriever(data_dir, per_article=False)
     per_article = fused_retriever(data_dir, per_article=True)
     shorter = 0
     for question in RANKING_QUESTIONS:
@@ -791,9 +794,9 @@ def test_one_hit_per_article_skips_a_chunk_whose_article_is_above_it(retriever, 
     assert shorter  # the corpus has split articles, so some chunk is skipped
 
 
-def test_one_hit_per_article_skips_the_other_clauses_of_a_named_article(retriever, data_dir):
+def test_one_hit_per_article_skips_the_other_clauses_of_a_named_article(data_dir):
     question = "Điều 10 Luật 48/2024 về hoàn thuế dự án đầu tư"
-    assert "379409:D10:K1" in retriever.rankings(question).final
+    assert "379409:D10:K1" in fused_retriever(data_dir, per_article=False).rankings(question).final
     final = fused_retriever(data_dir, per_article=True).rankings(question).final
     assert final[0] == "379409:D10:K2"
     assert "379409:D10:K1" not in final
@@ -806,7 +809,8 @@ def test_one_hit_per_article_keeps_two_named_clauses_of_one_article(data_dir):
     assert "379409:D5:K25" not in final
 
 
-def test_one_hit_per_article_keeps_the_prefix_found_by_and_score(retriever, data_dir):
+def test_one_hit_per_article_keeps_the_prefix_found_by_and_score(data_dir):
+    retriever = fused_retriever(data_dir, per_article=False)
     per_article = fused_retriever(data_dir, per_article=True)
     for question in RANKING_QUESTIONS:
         final = per_article.rankings(question).final

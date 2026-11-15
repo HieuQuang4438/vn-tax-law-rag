@@ -60,12 +60,12 @@ class Rankings:
 
 @dataclass(frozen=True)
 class Fusion:
-    """How the lists are fused and cut (#25); the defaults are the starting values."""
+    """How the lists are fused and cut (#25): the starting values, with one hit per article since #25."""
 
     rrf_k: int = RRF_K
     keyword_weight: float = 1.0
     vector_weight: float = 1.0
-    per_article: bool = False
+    per_article: bool = True  # adopted on #25
     candidates: int | None = None  # None: CANDIDATES, read when the retriever searches
 
     def __post_init__(self):

@@ -33,7 +33,7 @@ python -m src.eval.run --compare eval/results/<file>    # also prints what chang
 | `--rrf-k` | `RRF_K` (60) | the fusion's `rrf_k` ([retrieval.md](retrieval.md#hybrid-search)) |
 | `--keyword-weight` | 1 | the fusion's `keyword_weight` |
 | `--vector-weight` | 1 | the fusion's `vector_weight` |
-| `--per-article` | off | turns on the fusion's `per_article` |
+| `--per-article`, `--no-per-article` | on | the fusion's `per_article`, on by default since #25 |
 | `--candidates` | `CANDIDATES` (50) | the fusion's `candidates` |
 
 The fusion options build the `Fusion` that `Retriever.load` gets (approved on #25). With none

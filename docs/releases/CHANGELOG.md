@@ -75,9 +75,16 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   `--per-article` and `--candidates`, recorded under `pipeline` in every results file. With
   `per_article`, a chunk whose article already has a chunk above it is skipped, so the top 8
   holds 8 articles. `--compare --comparisons n` also prints a Bonferroni interval of each paired
-  change. `Fusion()` gives today's results. FR-CORE-008, ADR-0002, #25.
+  change. With `per_article` off, the results are those before #25. FR-CORE-008, ADR-0002, #25.
 
 ### Changed
+
+- One hit per article by default: after the reference slots, a chunk whose article already has
+  a chunk above it is skipped, so the top 8 holds 8 articles; `--no-per-article` turns it off.
+  Measured on eval set v1 against five other fusion variants (`RRF_K` 20 and 120, either list
+  weighted 2, 100 candidates), recall@8 0.678 to 0.714, paired change +0.036 [+0.006, +0.071],
+  the only variant whose interval lies above 0. Its Bonferroni interval over the six comparisons
+  starts at 0, so it is re-checked on eval set v2. FR-CORE-008, ADR-0002, #25.
 
 - Clause-split threshold 800 to 1,600 tokens: 1,286 chunks instead of 1,923, 98 articles split
   instead of 238. Measured on eval set v1 against 400, 800 and no split, recall@8 0.633 to

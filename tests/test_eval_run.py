@@ -638,3 +638,11 @@ def test_the_command_passes_its_comparisons_to_compare(command, capsys):
     assert main(argv + ["--compare", str(files[0]), "--comparisons", "6"],
                 pipeline=FakePipeline(default=["379409:D9"])) == 0
     assert "bonferroni [" in capsys.readouterr().out
+
+
+def test_no_per_article_turns_the_default_off(command, loads):
+    argv, out, _ = command
+    assert main(argv + ["--no-per-article"]) == 0
+    assert loads == [Fusion(per_article=False)]
+    files = sorted(out.glob("*.json")) if out.is_dir() else []
+    assert at(json.loads(files[0].read_text(encoding="utf-8")), "configuration", "pipeline", "per_article") is False

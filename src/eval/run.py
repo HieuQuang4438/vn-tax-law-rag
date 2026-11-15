@@ -348,7 +348,8 @@ def add_fusion_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--rrf-k", type=int, help="the fusion's rrf_k; default RRF_K")
     parser.add_argument("--keyword-weight", type=float, help="the fusion's keyword_weight; default 1")
     parser.add_argument("--vector-weight", type=float, help="the fusion's vector_weight; default 1")
-    parser.add_argument("--per-article", action="store_true", help="skip a chunk whose article is already above it")
+    parser.add_argument("--per-article", action=argparse.BooleanOptionalAction, default=None,
+                        help="skip a chunk whose article is already above it; default on")
     parser.add_argument("--candidates", type=int, help="the fusion's candidates; default CANDIDATES")
 
 
@@ -356,10 +357,10 @@ def fusion_from(parser: argparse.ArgumentParser, args: argparse.Namespace):
     """The `Fusion` the options name; a value it refuses stops the command with exit code 2."""
     from src.retrieval import Fusion
 
-    settings = {name: getattr(args, name) for name in ("rrf_k", "keyword_weight", "vector_weight", "candidates")
-                if getattr(args, name) is not None}
+    settings = {name: getattr(args, name) for name in ("rrf_k", "keyword_weight", "vector_weight", "per_article",
+                                                       "candidates") if getattr(args, name) is not None}
     try:
-        return Fusion(per_article=args.per_article, **settings)
+        return Fusion(**settings)
     except ValueError as error:
         parser.error(str(error))
 
