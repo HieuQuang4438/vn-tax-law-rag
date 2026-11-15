@@ -465,6 +465,199 @@ questions:
     answer: TODO
     unanswerable: repealed
     added_in: 2
+  - id: q134
+    question: Mức giảm trừ gia cảnh cho bản thân người đi làm hiện nay là bao nhiêu một tháng?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q135
+    question: Muốn đăng ký bố mẹ già là người phụ thuộc thì thu nhập của bố mẹ phải dưới mức bao nhiêu?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q136
+    question: Con tôi 20 tuổi đang học đại học, không đi làm, thì có được đăng ký người phụ thuộc không?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q137
+    question: Tiền làm thêm giờ ban đêm có bị tính thuế thu nhập cá nhân không?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q138
+    question: Tiền thưởng Tết công ty phát có phải chịu thuế thu nhập cá nhân không?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q139
+    question: Trúng xổ số Vietlott 2 tỷ thì bị trừ bao nhiêu tiền thuế?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q140
+    question: Tôi được thừa kế căn nhà của bố mẹ để lại thì có phải nộp thuế thu nhập cá nhân không?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q141
+    question: Anh trai cho em gái một mảnh đất thì em gái có được miễn thuế thu nhập cá nhân không?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q142
+    question: Bán căn nhà duy nhất đang ở thì có được miễn thuế thu nhập cá nhân không?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q143
+    question: Tiền lãi gửi tiết kiệm ngân hàng có bị đánh thuế thu nhập cá nhân không?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q144
+    question: Nhận cổ tức bằng tiền mặt thì bị khấu trừ thuế thu nhập cá nhân bao nhiêu phần trăm?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q145
+    question: Bán cổ phiếu trên sàn chứng khoán thì nộp thuế thu nhập cá nhân bao nhiêu?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q146
+    question: Công ty mua bảo hiểm nhân thọ cho nhân viên thì phí bảo hiểm đó có tính vào thu nhập chịu thuế của nhân viên không?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q147
+    question: Công ty phát tiền đồng phục bằng tiền mặt thì khoản đó có bị tính thuế thu nhập cá nhân không?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q148
+    question: Tiền nhuận bút viết sách có phải nộp thuế thu nhập cá nhân không?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q149
+    question: Tự đóng quỹ hưu trí tự nguyện thì được trừ tối đa bao nhiêu khi tính thuế thu nhập?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q150
+    question: Tiền tôi ủng hộ quỹ từ thiện có được trừ khi tính thuế thu nhập cá nhân không?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q151
+    question: Người mắc bệnh hiểm nghèo không đủ tiền nộp thuế thì có được giảm thuế thu nhập cá nhân không?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    added_in: 2
+  - id: q152
+    question: Theo Luật 109/2025, bán phần vốn góp trong công ty TNHH thì chịu thuế thu nhập cá nhân bao nhiêu?
+    tax_type: pit
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q153
+    question: Theo Nghị định 253/2026, phụ cấp cho người làm việc ở vùng đặc biệt khó khăn có được miễn thuế thu nhập cá nhân không?
+    tax_type: pit
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q154
+    question: Thông tư 87/2026 quy định cá nhân tự quyết toán thuế thu nhập cá nhân dùng tờ khai mẫu nào?
+    tax_type: pit
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q155
+    question: Điều 4 Luật 109/2025 quy định những khoản thu nhập nào được miễn thuế?
+    tax_type: pit
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q156
+    question: Luật 09/2026/QH16 sửa gì về thuế thu nhập cá nhân khi bán nhà đất?
+    tax_type: pit
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q157
+    question: Theo Nghị định 253/2026, tiền thuê nhà công ty trả hộ cho nhân viên được tính vào thu nhập chịu thuế tối đa bao nhiêu?
+    tax_type: pit
+    form: reference
+    answer: TODO
+    added_in: 2
+  - id: q158
+    question: Du học sinh Việt Nam đi làm thêm ở Mỹ thì bên Mỹ trừ thuế thu nhập bao nhiêu phần trăm?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q159
+    question: Chính phủ có kế hoạch nâng mức giảm trừ gia cảnh lên 20 triệu vào năm 2027 không?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q160
+    question: Năm ngoái người nộp thuế thu nhập cá nhân nhiều nhất cả nước nộp bao nhiêu tiền?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q161
+    question: Cơ quan thuế có gửi tin nhắn Zalo nhắc người dân quyết toán thuế thu nhập cá nhân không?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q162
+    question: Công ty trừ thuế thu nhập cá nhân vào lương của tôi nhưng không nộp cho nhà nước thì tôi kiện ra tòa án cấp nào?
+    tax_type: pit
+    form: plain
+    answer: TODO
+    unanswerable: out_of_scope
+    added_in: 2
+  - id: q163
+    question: Theo Thông tư 111/2013, mức giảm trừ cho mỗi người phụ thuộc là 3,6 triệu một tháng đúng không?
+    tax_type: pit
+    form: reference
+    answer: TODO
+    unanswerable: repealed
+    added_in: 2
+  - id: q164
+    question: Theo Luật Thuế thu nhập cá nhân số 04/2007/QH12, bán nhà đất thì nộp thuế 25% trên phần lãi được tính thế nào?
+    tax_type: pit
+    form: reference
+    answer: TODO
+    unanswerable: repealed
+    added_in: 2
 conversations:
   - id: c07
     added_in: 2
@@ -538,5 +731,42 @@ conversations:
         answer: TODO
       - question: Còn phần thiệt hại không được bồi thường thì có được tính vào chi phí được trừ không?
         tax_type: cit
+        form: plain
+        answer: TODO
+  - id: c13
+    added_in: 2
+    turns:
+      - question: Tôi được công ty cử đi làm ở nước ngoài 6 tháng, lương vẫn trả ở Việt Nam thì có phải nộp thuế thu nhập cá nhân ở Việt Nam không?
+        tax_type: pit
+        form: plain
+        answer: TODO
+      - question: Nếu bên đó cũng đã trừ thuế của tôi rồi thì sao?
+        tax_type: pit
+        form: plain
+        answer: TODO
+  - id: c14
+    added_in: 2
+    turns:
+      - question: Tôi có thu nhập từ bán hàng đa cấp thì công ty đa cấp có khấu trừ thuế thay tôi không?
+        tax_type: pit
+        form: plain
+        answer: TODO
+      - question: Mức khấu trừ đó là bao nhiêu phần trăm?
+        tax_type: pit
+        form: plain
+        answer: TODO
+  - id: c15
+    added_in: 2
+    turns:
+      - question: Tôi nghỉ việc giữa năm, chỉ làm ở công ty cũ 5 tháng, thì có được ủy quyền cho công ty cũ quyết toán thuế không?
+        tax_type: pit
+        form: plain
+        answer: TODO
+      - question: Còn nếu tôi đã chuyển sang làm ở công ty mới thì ủy quyền cho bên nào?
+        tax_type: pit
+        form: plain
+        answer: TODO
+      - question: Hạn chót bên đó phải quyết toán thay cho tôi là ngày nào?
+        tax_type: administration
         form: plain
         answer: TODO
