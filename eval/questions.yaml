@@ -832,259 +832,581 @@ questions:
     question: Hạn chót nộp tờ khai thuế theo tháng là ngày bao nhiêu của tháng sau?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: Hạn nộp hồ sơ khai thuế theo tháng chậm nhất là ngày thứ 20 của tháng tiếp theo tháng phát sinh nghĩa vụ thuế.
+    key_facts:
+      - "ngày thứ 20 của tháng tiếp theo tháng phát sinh nghĩa vụ thuế"
+    provisions:
+      - 252/2026/NĐ-CP Điều 10 khoản 2
     added_in: 2
   - id: q60
     question: Công ty mình mới thành lập năm nay thì khai thuế GTGT theo tháng hay theo quý?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Doanh nghiệp mới bắt đầu hoạt động được chọn khai thuế GTGT theo quý. Sau khi kinh doanh đủ 12 tháng,
+      từ năm dương lịch tiếp theo doanh nghiệp căn cứ doanh thu năm trước liền kề: từ 50 tỷ đồng trở xuống thì
+      được khai theo quý, trên 50 tỷ đồng thì khai theo tháng; nếu ngay năm mới hoạt động doanh thu đã trên 50 tỷ
+      đồng thì khai theo tháng từ năm tiếp theo.
+    key_facts:
+      - "doanh nghiệp mới bắt đầu hoạt động được lựa chọn khai thuế GTGT theo quý"
+      - "doanh thu năm trước liền kề từ 50 tỷ đồng trở xuống: được khai theo quý"
+      - "doanh thu năm mới hoạt động trên 50 tỷ đồng: khai theo tháng từ năm tiếp theo"
+    provisions:
+      - 89/2026/TT-BTC Điều 19 khoản 1
     added_in: 2
   - id: q61
     question: Doanh nghiệp phải nộp hồ sơ quyết toán thuế năm chậm nhất là bao lâu sau khi kết thúc năm tài chính?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: Hồ sơ quyết toán thuế năm nộp chậm nhất là ngày cuối cùng của tháng thứ 03 kể từ ngày kết thúc năm dương lịch hoặc năm tài chính (kỳ quyết toán thuế).
+    key_facts:
+      - "ngày cuối cùng của tháng thứ 03 kể từ ngày kết thúc kỳ quyết toán thuế"
+    provisions:
+      - 252/2026/NĐ-CP Điều 10 khoản 5
     added_in: 2
   - id: q62
     question: Công ty chuyển trụ sở sang tỉnh khác thì phải báo thay đổi thông tin đăng ký thuế trong bao nhiêu ngày?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Doanh nghiệp đăng ký thuế cùng đăng ký kinh doanh theo cơ chế một cửa liên thông thì thông báo thay đổi
+      thông tin đăng ký thuế cùng với thủ tục thay đổi nội dung đăng ký doanh nghiệp, theo thời hạn của pháp luật
+      về đăng ký doanh nghiệp; người nộp thuế đăng ký thuế trực tiếp với cơ quan thuế thì phải thông báo trong 10
+      ngày làm việc kể từ ngày có thay đổi. Khi chuyển trụ sở sang tỉnh khác làm thay đổi cơ quan thuế quản lý,
+      doanh nghiệp còn phải nộp đủ các hồ sơ khai thuế đã đến hạn và nộp đủ tiền thuế, tiền chậm nộp, tiền phạt
+      với cơ quan thuế nơi đi.
+    key_facts:
+      - "đăng ký theo cơ chế một cửa liên thông: thông báo cùng với thay đổi nội dung đăng ký doanh nghiệp"
+      - "đăng ký thuế trực tiếp với cơ quan thuế: trong 10 ngày làm việc kể từ ngày phát sinh thay đổi"
+      - "chuyển sang tỉnh khác: nộp đủ hồ sơ khai thuế đã đến hạn và số thuế còn phải nộp với cơ quan thuế nơi đi"
+    provisions:
+      - 90/2026/TT-BTC Điều 9
+      - 252/2026/NĐ-CP Điều 6 khoản 3
+      - 252/2026/NĐ-CP Điều 7 khoản 1
     added_in: 2
   - id: q63
     question: Bây giờ mã số thuế cá nhân có phải là số căn cước công dân luôn không?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: Đúng. Mã số thuế của cá nhân, chủ hộ kinh doanh, cá nhân kinh doanh là số định danh cá nhân được cấp theo pháp luật về căn cước.
+    key_facts:
+      - "mã số thuế của cá nhân là số định danh cá nhân theo pháp luật về căn cước"
+    provisions:
+      - 108/2025/QH15 Điều 11 khoản 1
     added_in: 2
   - id: q64
     question: Doanh nghiệp đang tạm ngừng kinh doanh thì trong thời gian tạm ngừng có phải nộp tờ khai thuế không?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Không. Trong thời gian tạm ngừng hoạt động, kinh doanh, người nộp thuế không phải nộp hồ sơ khai thuế, trừ
+      khi tạm ngừng không trọn tháng, quý, năm dương lịch hoặc năm tài chính thì vẫn phải nộp hồ sơ khai thuế tháng,
+      quý, hồ sơ quyết toán năm. Trong thời gian tạm ngừng cũng không được sử dụng hóa đơn.
+    key_facts:
+      - "trong thời gian tạm ngừng không phải nộp hồ sơ khai thuế"
+      - "tạm ngừng không trọn tháng, quý, năm thì vẫn phải khai kỳ đó"
+      - "không được sử dụng hóa đơn trong thời gian tạm ngừng"
+    provisions:
+      - 252/2026/NĐ-CP Điều 7 khoản 1
     added_in: 2
-  - id: q65
+  - id: q65  # step 2: Thông tư 90/2026 named in the question covers tax registration, not the dependant dossier; the documents are listed in 87/2026/TT-BTC Điều 4
     question: Theo Thông tư 90/2026, đăng ký người phụ thuộc cho con nhỏ chưa có căn cước thì cần giấy tờ gì?
     tax_type: administration
     form: reference
-    answer: TODO
+    answer: >
+      Hồ sơ xác định người phụ thuộc là con đẻ gồm bản chụp Giấy khai sinh của con (hoặc bản chụp quyết định
+      nhận cha, mẹ, con hoặc văn bản của cơ quan có thẩm quyền xác nhận quan hệ cha mẹ con); bản chụp thẻ Căn cước
+      của con chỉ phải nộp khi con đã được cấp Căn cước. Con nuôi cần thêm quyết định công nhận việc nuôi con nuôi;
+      con riêng của vợ, chồng cần thêm giấy chứng nhận kết hôn.
+    key_facts:
+      - "con đẻ: bản chụp Giấy khai sinh của con"
+      - "bản chụp thẻ Căn cước chỉ khi con đã được cấp Căn cước"
+      - "con nuôi: thêm quyết định công nhận việc nuôi con nuôi"
+    provisions:
+      - 87/2026/TT-BTC Điều 4
     added_in: 2
-  - id: q66
+  - id: q66  # step 2: moved to unanswerable; the corpus lists what must be done before a tax code ends (invoices, returns, payments, refunds) but says nothing on closing bank accounts or its order
     question: Công ty giải thể thì thủ tục chấm dứt hiệu lực mã số thuế phải làm trước hay sau khi đóng tài khoản ngân hàng?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Các văn bản trong bộ dữ liệu không quy định thứ tự giữa thủ tục chấm dứt hiệu lực mã số thuế và việc đóng tài
+      khoản ngân hàng; chúng chỉ quy định các nghĩa vụ phải hoàn thành trước khi chấm dứt hiệu lực mã số thuế. Việc
+      đóng tài khoản thuộc pháp luật về ngân hàng và doanh nghiệp.
+    unanswerable: out_of_scope
     added_in: 2
   - id: q67
     question: Doanh nghiệp nợ thuế quá 90 ngày thì cơ quan thuế được áp dụng những biện pháp cưỡng chế nào?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Doanh nghiệp có tiền thuế nợ quá 90 ngày kể từ ngày hết thời hạn nộp thuộc diện bị cưỡng chế. Các biện pháp
+      cưỡng chế gồm: trích tiền từ tài khoản, phong tỏa tài khoản; khấu trừ một phần tiền lương hoặc thu nhập; dừng
+      làm thủ tục hải quan; ngừng sử dụng hóa đơn; thu tiền, tài sản do bên khác nắm giữ; kê biên, bán đấu giá tài
+      sản; nộp đơn yêu cầu phá sản; thu hồi giấy chứng nhận đăng ký doanh nghiệp, giấy phép.
+    key_facts:
+      - "nợ thuế quá 90 ngày kể từ ngày hết thời hạn nộp thì bị cưỡng chế"
+      - "trích tiền từ tài khoản, phong tỏa tài khoản"
+      - "dừng làm thủ tục hải quan; ngừng sử dụng hóa đơn"
+      - "kê biên, bán đấu giá tài sản; thu hồi giấy chứng nhận đăng ký doanh nghiệp"
+    provisions:
+      - 108/2025/QH15 Điều 48
+      - 108/2025/QH15 Điều 49
     added_in: 2
   - id: q68
     question: Công ty còn nợ thuế thì giám đốc có bị tạm hoãn xuất cảnh không?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Có thể. Người đại diện theo pháp luật (hoặc chủ sở hữu hưởng lợi) của doanh nghiệp bị tạm hoãn xuất cảnh khi
+      doanh nghiệp thuộc diện bị cưỡng chế, có số tiền thuế nợ từ 500 triệu đồng trở lên và đã quá hạn nộp từ 120
+      ngày trở lên; hoặc khi doanh nghiệp bị thông báo không hoạt động tại địa chỉ đăng ký mà sau 120 ngày không
+      khôi phục hoặc chấm dứt hiệu lực mã số thuế.
+    key_facts:
+      - "doanh nghiệp thuộc diện bị cưỡng chế"
+      - "tiền thuế nợ từ 500 triệu đồng trở lên"
+      - "quá thời hạn nộp từ 120 ngày trở lên"
+    provisions:
+      - 252/2026/NĐ-CP Điều 28 khoản 1
     added_in: 2
   - id: q69
     question: Tiền thuế nợ trong trường hợp nào thì được xóa nợ?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Tiền thuế nợ được xóa khi: cá nhân đã chết, bị tuyên bố đã chết hoặc mất năng lực hành vi dân sự mà không có tài
+      sản (kể cả tài sản thừa kế); doanh nghiệp, hợp tác xã bị tuyên bố phá sản, đã thanh toán nợ mà không còn tài sản;
+      người nộp thuế đã bị cưỡng chế bằng thu hồi giấy chứng nhận đăng ký, giấy phép mà khoản nợ quá 10 năm kể từ hạn
+      nộp nhưng không có khả năng thu hồi; hoặc bị ảnh hưởng bởi thiên tai, thảm họa, dịch bệnh diện rộng, đã được
+      miễn tiền chậm nộp và gia hạn mà vẫn không phục hồi được sản xuất, kinh doanh.
+    key_facts:
+      - "cá nhân đã chết hoặc mất năng lực hành vi dân sự không có tài sản"
+      - "doanh nghiệp bị tuyên bố phá sản, không còn tài sản"
+      - "đã bị thu hồi giấy chứng nhận đăng ký và nợ quá 10 năm không có khả năng thu hồi"
+      - "ảnh hưởng thiên tai, dịch bệnh diện rộng, đã được miễn tiền chậm nộp và gia hạn"
+    provisions:
+      - 108/2025/QH15 Điều 21 khoản 1
     added_in: 2
   - id: q70
     question: Xưởng bị cháy, thiệt hại nặng nên nộp thuế chậm thì có được miễn tiền chậm nộp không?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Có. Hỏa hoạn gây thiệt hại vật chất là trường hợp bất khả kháng, người nộp thuế được miễn tiền chậm nộp. Hồ sơ
+      gồm văn bản đề nghị theo mẫu 01/MTCN, tài liệu của cơ quan có thẩm quyền xác nhận thời gian, địa điểm xảy ra
+      hỏa hoạn, và văn bản xác định giá trị thiệt hại của cơ quan tài chính hoặc giám định độc lập.
+    key_facts:
+      - "hỏa hoạn gây thiệt hại vật chất là trường hợp bất khả kháng"
+      - "được miễn tiền chậm nộp"
+      - "cần xác nhận của cơ quan có thẩm quyền về hỏa hoạn và văn bản xác định giá trị thiệt hại"
+    provisions:
+      - 108/2025/QH15 Điều 4
+      - 108/2025/QH15 Điều 16 khoản 5
+      - 89/2026/TT-BTC Điều 41 khoản 2
     added_in: 2
   - id: q71
     question: Theo Luật Quản lý thuế 108/2025, cơ quan thuế được tự ấn định số thuế phải nộp trong những trường hợp nào?
     tax_type: administration
     form: reference
-    answer: TODO
+    answer: >
+      Cơ quan thuế ấn định thuế khi người nộp thuế: không đăng ký thuế, không khai thuế, không nộp bổ sung hồ sơ theo
+      yêu cầu hoặc khai không đầy đủ, trung thực về căn cứ tính thuế; có hồ sơ nhưng không xác định được hoặc không tự
+      tính được số thuế; không phản ánh đúng số liệu trên sổ kế toán; không xuất trình sổ sách, hóa đơn, chứng từ đúng
+      hạn; không chấp hành quyết định kiểm tra; mua bán, kê khai không đúng giá thực tế hoặc giá giao dịch thông
+      thường; dùng hóa đơn, chứng từ không hợp pháp; và các trường hợp khác theo Điều 24.
+    key_facts:
+      - "không đăng ký thuế, không khai thuế hoặc khai không đầy đủ, trung thực"
+      - "không xuất trình sổ kế toán, hóa đơn, chứng từ trong thời hạn quy định"
+      - "không chấp hành quyết định kiểm tra thuế"
+      - "kê khai không đúng giá thực tế thanh toán hoặc giá giao dịch thông thường"
+    provisions:
+      - 108/2025/QH15 Điều 24 khoản 2
     added_in: 2
-  - id: q72
+  - id: q72  # step 2: Nghị định 252/2026 named in the question leaves the number of instalments to the Minister of Finance (Điều 65 khoản 2); the 12-month limit is in 108/2025/QH15 Điều 48 khoản 6
     question: Theo Nghị định 252/2026, tiền thuế nợ được nộp dần trong tối đa bao nhiêu tháng?
     tax_type: administration
     form: reference
-    answer: TODO
+    answer: >
+      Tiền thuế nợ được nộp dần trong thời hạn không quá 12 tháng kể từ ngày cơ quan có thẩm quyền chấp nhận, và phải
+      có bảo lãnh của tổ chức tín dụng. Nghị định 252/2026 giao Bộ trưởng Bộ Tài chính quy định số lần nộp dần và hồ sơ,
+      thủ tục.
+    key_facts:
+      - "không quá 12 tháng kể từ ngày có văn bản chấp nhận nộp dần"
+      - "phải có bảo lãnh của tổ chức tín dụng"
+    provisions:
+      - 108/2025/QH15 Điều 48 khoản 6
+      - 252/2026/NĐ-CP Điều 65
     added_in: 2
   - id: q73
     question: Theo Thông tư 89/2026, hồ sơ đề nghị miễn tiền chậm nộp gồm những giấy tờ gì?
     tax_type: administration
     form: reference
-    answer: TODO
+    answer: >
+      Với trường hợp do thiên tai, thảm họa, dịch bệnh, hỏa hoạn, tai nạn bất ngờ, hồ sơ miễn tiền chậm nộp gồm: văn
+      bản đề nghị theo mẫu số 01/MTCN; bản chính hoặc bản sao chứng thực tài liệu của cơ quan có thẩm quyền xác nhận
+      thời gian, địa điểm xảy ra sự kiện; văn bản xác định giá trị thiệt hại vật chất của cơ quan tài chính hoặc cơ
+      quan giám định độc lập; và văn bản, chứng từ về bồi thường thiệt hại (nếu có). Hồ sơ đủ thì cơ quan thuế giải
+      quyết trong 07 ngày làm việc.
+    key_facts:
+      - "văn bản đề nghị miễn tiền chậm nộp mẫu số 01/MTCN"
+      - "tài liệu của cơ quan có thẩm quyền xác nhận thời gian, địa điểm xảy ra sự kiện"
+      - "văn bản xác định giá trị thiệt hại của cơ quan tài chính hoặc giám định độc lập"
+      - "giải quyết trong 07 ngày làm việc kể từ ngày tiếp nhận hồ sơ đầy đủ"
+    provisions:
+      - 89/2026/TT-BTC Điều 41
     added_in: 2
-  - id: q74
+  - id: q74  # step 2: the corpus has no rule on a tax inspection (thanh tra); Law 108/2025 regulates the on-site tax check (kiểm tra thuế), which the answer gives
     question: Một cuộc thanh tra thuế tại trụ sở doanh nghiệp kéo dài tối đa bao nhiêu ngày?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Luật Quản lý thuế 108/2025 quy định kiểm tra thuế tại trụ sở người nộp thuế: không quá 20 ngày kể từ ngày công
+      bố quyết định kiểm tra, gia hạn 01 lần không quá 20 ngày; với doanh nghiệp có giao dịch liên kết không quá 40
+      ngày, gia hạn 01 lần không quá 40 ngày; nếu cần trao đổi thông tin với cơ quan thuế nước ngoài có thể kéo dài
+      nhưng không quá 02 năm. Thời gian tạm dừng kiểm tra không tính vào thời hạn.
+    key_facts:
+      - "không quá 20 ngày kể từ ngày công bố quyết định kiểm tra, gia hạn 01 lần không quá 20 ngày"
+      - "doanh nghiệp có giao dịch liên kết: không quá 40 ngày, gia hạn 01 lần không quá 40 ngày"
+      - "cần thông tin từ cơ quan thuế nước ngoài: không quá 02 năm"
+    provisions:
+      - 108/2025/QH15 Điều 22 khoản 3
     added_in: 2
   - id: q75
     question: Cơ quan thuế xuống kiểm tra tại trụ sở công ty thì phải báo trước cho công ty bao lâu?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Quyết định kiểm tra thuế phải gửi cho người nộp thuế trong 03 ngày làm việc kể từ ngày ký, và được công bố
+      trong 10 ngày làm việc kể từ ngày ban hành.
+    key_facts:
+      - "gửi quyết định kiểm tra trong 03 ngày làm việc kể từ ngày ký"
+      - "công bố quyết định kiểm tra trong 10 ngày làm việc kể từ ngày ban hành"
+    provisions:
+      - 89/2026/TT-BTC Điều 88 khoản 7
     added_in: 2
   - id: q76
     question: Trường hợp nào hồ sơ hoàn thuế bị kiểm tra trước rồi mới được hoàn?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Cơ quan thuế kiểm tra trước, hoàn thuế sau đối với: hồ sơ hoàn thuế lần đầu của từng dự án đầu tư, từng trường
+      hợp hoàn thuế; hồ sơ đề nghị hoàn trong 02 năm kể từ khi bị xử lý về hành vi trốn thuế; hồ sơ hoặc số tiền đề
+      nghị hoàn được xác định có rủi ro cao; và hồ sơ hoàn thuế của doanh nghiệp, tổ chức khi giải thể, phá sản.
+    key_facts:
+      - "hoàn thuế lần đầu theo từng dự án, từng trường hợp hoàn thuế"
+      - "đề nghị hoàn trong 02 năm kể từ khi bị xử lý về trốn thuế"
+      - "hồ sơ có rủi ro cao"
+      - "doanh nghiệp giải thể, phá sản"
+    provisions:
+      - 252/2026/NĐ-CP Điều 30 khoản 1
     added_in: 2
   - id: q77
     question: Nếu doanh nghiệp khai thiếu thuế do sai sót, không có hành vi trốn thuế, cơ quan thuế có thể truy thu các kỳ tính thuế cách đây tối đa bao nhiêu năm?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Khai sai dẫn đến thiếu thuế có thời hiệu xử phạt 05 năm; quá thời hiệu thì không bị phạt nhưng vẫn phải nộp
+      đủ số tiền thuế thiếu và tiền chậm nộp trong thời hạn 10 năm trở về trước kể từ ngày phát hiện vi phạm. Nếu không
+      đăng ký thuế thì phải nộp cho toàn bộ thời gian trở về trước.
+    key_facts:
+      - "truy thu số thuế thiếu và tiền chậm nộp trong 10 năm trở về trước kể từ ngày phát hiện"
+      - "thời hiệu xử phạt hành vi khai sai dẫn đến thiếu thuế là 05 năm"
+      - "không đăng ký thuế: truy thu toàn bộ thời gian trở về trước"
+    provisions:
+      - 108/2025/QH15 Điều 44 khoản 7
+      - 108/2025/QH15 Điều 44 khoản 8
     added_in: 2
   - id: q78
     question: Công ty đã lập lệnh chuyển tiền thuế đúng hạn nhưng ngân hàng chuyển trễ thì công ty có bị tính tiền chậm nộp không?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Không, nếu ngân hàng đã trích tiền đúng hạn: khi nộp điện tử, ngày nộp thuế là ngày ngân hàng trích tiền từ tài
+      khoản của người nộp thuế và được ghi trên chứng từ nộp tiền. Ngân hàng phải chuyển tiền vào tài khoản Kho bạc
+      ngay trong ngày giao dịch (chậm nhất trước 10 giờ ngày giao dịch tiếp theo); nếu chậm chuyển do lỗi của ngân
+      hàng thì ngân hàng phải trả tiền lãi chậm chuyển.
+    key_facts:
+      - "ngày nộp thuế là ngày trích tiền từ tài khoản, ghi trên chứng từ nộp tiền"
+      - "ngân hàng chuyển trong ngày giao dịch, chậm nhất trước 10 giờ ngày giao dịch tiếp theo"
+      - "chậm chuyển do lỗi ngân hàng thì ngân hàng trả tiền lãi chậm chuyển"
+    provisions:
+      - 108/2025/QH15 Điều 14 khoản 5
+      - 252/2026/NĐ-CP Điều 61 khoản 1
     added_in: 2
   - id: q79
     question: Hóa đơn điện tử đã gửi khách mà ghi sai tên công ty người mua thì sửa bằng cách nào?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Nếu chỉ sai tên (hoặc địa chỉ) người mua mà mã số thuế, số tiền, thuế suất, tiền thuế và hàng hóa đều đúng, người
+      bán thông báo cho người mua và không phải lập lại hóa đơn, đồng thời thông báo cho cơ quan thuế theo Mẫu số
+      04/SS-HĐĐT. Nếu sai mã số thuế hay các nội dung về tiền, thuế suất, hàng hóa thì lập hóa đơn điều chỉnh hoặc
+      hóa đơn thay thế.
+    key_facts:
+      - "sai tên, địa chỉ nhưng đúng mã số thuế và số tiền: không phải lập lại hóa đơn"
+      - "thông báo cho người mua và thông báo cơ quan thuế theo Mẫu số 04/SS-HĐĐT"
+      - "sai mã số thuế, số tiền, thuế suất: lập hóa đơn điều chỉnh hoặc thay thế"
+    provisions:
+      - 91/2026/TT-BTC Điều 10 khoản 1
     added_in: 2
   - id: q80
     question: Khách trả lại hàng sau khi đã xuất hóa đơn điện tử thì bên bán phải làm gì với hóa đơn đó?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Khi người mua trả lại toàn bộ hoặc một phần hàng hóa, người bán lập hóa đơn điều chỉnh; nếu hai bên thỏa thuận
+      để người mua lập hóa đơn khi trả lại hàng thì người mua lập hóa đơn điện tử giao cho người bán.
+    key_facts:
+      - "người bán lập hóa đơn điều chỉnh"
+      - "nếu có thỏa thuận thì người mua lập hóa đơn trả lại hàng giao cho người bán"
+    provisions:
+      - 91/2026/TT-BTC Điều 10 khoản 5
     added_in: 2
   - id: q81
     question: Doanh nghiệp nào được dùng hóa đơn điện tử không có mã của cơ quan thuế?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Doanh nghiệp kinh doanh trong các lĩnh vực điện lực, xăng dầu, bưu chính, viễn thông, nước sạch, tài chính ngân
+      hàng, chứng khoán, bảo hiểm, y tế, thương mại điện tử, siêu thị, thương mại, vận tải… và tổ chức kinh tế đã hoặc
+      sẽ giao dịch điện tử với cơ quan thuế, có phần mềm kế toán, phần mềm lập hóa đơn đáp ứng lập, tra cứu, lưu trữ
+      và truyền dữ liệu hóa đơn đến người mua và cơ quan thuế thì được dùng hóa đơn điện tử không có mã, trừ trường hợp
+      rủi ro cao về thuế.
+    key_facts:
+      - "thuộc các lĩnh vực như điện lực, xăng dầu, viễn thông, ngân hàng, bảo hiểm, thương mại điện tử"
+      - "có phần mềm kế toán, phần mềm lập hóa đơn và bảo đảm truyền dữ liệu đến người mua và cơ quan thuế"
+      - "không áp dụng cho trường hợp rủi ro cao về thuế"
+    provisions:
+      - 254/2026/NĐ-CP Điều 6 khoản 1
     added_in: 2
   - id: q82
     question: Theo Nghị định 254/2026, quán ăn bán cho khách lẻ không lấy hóa đơn thì có phải lập hóa đơn không?
     tax_type: administration
     form: reference
-    answer: TODO
+    answer: >
+      Có. Khi bán hàng hóa, dịch vụ, người bán phải lập hóa đơn điện tử giao cho người mua, trừ các trường hợp không phải
+      dùng hóa đơn theo Điều 7, và quán ăn không thuộc các trường hợp đó. Kinh doanh ăn uống bán trực tiếp cho người
+      tiêu dùng sử dụng hóa đơn điện tử từ máy tính tiền.
+    key_facts:
+      - "bán hàng hóa, dịch vụ phải lập hóa đơn điện tử giao cho người mua"
+      - "ăn uống bán trực tiếp cho người tiêu dùng dùng hóa đơn điện tử từ máy tính tiền"
+    provisions:
+      - 254/2026/NĐ-CP Điều 4 khoản 1
+      - 254/2026/NĐ-CP Điều 6 khoản 1
     added_in: 2
   - id: q83
     question: Chứng từ khấu trừ thuế thu nhập cá nhân cấp cho nhân viên bây giờ bắt buộc làm bản điện tử hay vẫn in giấy được?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Bắt buộc bản điện tử: tổ chức khấu trừ thuế TNCN phải lập chứng từ khấu trừ thuế điện tử giao cho người bị khấu
+      trừ, theo định dạng chuẩn dữ liệu. Với nhân viên ký hợp đồng từ 03 tháng trở lên, công ty chỉ lập một chứng từ
+      khấu trừ trong một năm tính thuế; nếu nhân viên ủy quyền quyết toán thì không phải lập chứng từ.
+    key_facts:
+      - "phải lập chứng từ khấu trừ thuế TNCN điện tử"
+      - "hợp đồng từ 03 tháng trở lên: một chứng từ cho một năm tính thuế"
+      - "cá nhân ủy quyền quyết toán: không phải lập chứng từ khấu trừ"
+    provisions:
+      - 254/2026/NĐ-CP Điều 4 khoản 2
+      - 254/2026/NĐ-CP Điều 24
     added_in: 2
-  - id: q84
+  - id: q84  # step 2: Thông tư 91/2026 named in the question sets no retention period; 254/2026/NĐ-CP Điều 5 refers it to the accounting law, which is not in the corpus
     question: Thông tư 91/2026 yêu cầu doanh nghiệp lưu trữ hóa đơn điện tử trong bao lâu?
     tax_type: administration
     form: reference
-    answer: TODO
+    answer: >
+      Thông tư 91/2026 không đặt thời hạn riêng. Theo Nghị định 254/2026, hóa đơn điện tử được lưu trữ đúng và đủ thời
+      hạn theo pháp luật kế toán, dưới dạng thông điệp dữ liệu, bảo đảm an toàn, toàn vẹn, không bị sửa đổi và sẵn
+      sàng in ra giấy hoặc tra cứu khi có yêu cầu. Số năm cụ thể thuộc pháp luật kế toán, không có trong bộ dữ liệu.
+    key_facts:
+      - "lưu trữ đúng và đủ thời hạn theo pháp luật kế toán"
+      - "lưu trữ dưới dạng thông điệp dữ liệu, sẵn sàng in ra giấy hoặc tra cứu"
+    provisions:
+      - 254/2026/NĐ-CP Điều 5
     added_in: 2
   - id: q85
     question: Công ty mẹ nắm bao nhiêu phần trăm vốn của công ty con thì hai bên bị coi là có quan hệ liên kết?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: Hai doanh nghiệp có quan hệ liên kết khi một doanh nghiệp nắm giữ trực tiếp hoặc gián tiếp ít nhất 25% vốn góp của chủ sở hữu của doanh nghiệp kia.
+    key_facts:
+      - "nắm giữ trực tiếp hoặc gián tiếp ít nhất 25% vốn góp của chủ sở hữu"
+    provisions:
+      - 255/2026/NĐ-CP Điều 5 khoản 2
     added_in: 2
   - id: q86
     question: Doanh nghiệp có giao dịch liên kết nhưng doanh thu nhỏ thì có được miễn lập hồ sơ xác định giá giao dịch liên kết không?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Có, nếu tổng doanh thu của kỳ tính thuế dưới 50 tỷ đồng và tổng giá trị các giao dịch liên kết trong kỳ dưới 30
+      tỷ đồng thì được miễn lập Hồ sơ xác định giá giao dịch liên kết, nhưng vẫn phải kê khai thông tin giao dịch liên
+      kết theo Phụ lục I của Nghị định 255/2026.
+    key_facts:
+      - "tổng doanh thu kỳ tính thuế dưới 50 tỷ đồng"
+      - "tổng giá trị giao dịch liên kết dưới 30 tỷ đồng"
+      - "vẫn phải kê khai theo Phụ lục I"
+    provisions:
+      - 255/2026/NĐ-CP Điều 20 khoản 2
     added_in: 2
   - id: q87
     question: Theo Nghị định 255/2026, khi cơ quan thuế yêu cầu thì doanh nghiệp có bao nhiêu ngày để nộp hồ sơ xác định giá giao dịch liên kết?
     tax_type: administration
     form: reference
-    answer: TODO
+    answer: >
+      Thời hạn cung cấp Hồ sơ xác định giá giao dịch liên kết không quá 30 ngày làm việc kể từ khi nhận văn bản yêu cầu
+      của cơ quan thuế; có lý do chính đáng thì được gia hạn 01 lần không quá 15 ngày làm việc.
+    key_facts:
+      - "không quá 30 ngày làm việc kể từ khi nhận văn bản yêu cầu"
+      - "gia hạn 01 lần không quá 15 ngày làm việc"
+    provisions:
+      - 255/2026/NĐ-CP Điều 18 khoản 4
     added_in: 2
   - id: q88
     question: Theo Thông tư 94/2026, doanh nghiệp bị xếp vào nhóm rủi ro cao thì hồ sơ hoàn thuế có phải kiểm tra trước khi hoàn không?
     tax_type: administration
     form: reference
-    answer: TODO
+    answer: >
+      Có. Người nộp thuế có hồ sơ hoàn thuế GTGT bị phân loại rủi ro cao thì bị kiểm tra trước, hoàn thuế sau (trừ
+      trường hợp hồ sơ liền kề trước đó đã kiểm tra không phát hiện khai sai và không thuộc nhóm rủi ro cao chấm điểm
+      khác thì được hoàn trước, kiểm tra sau). Với các hồ sơ hoàn thuế khác, rủi ro cao cũng kiểm tra trước, hoàn sau;
+      rủi ro trung bình và thấp được hoàn trước, kiểm tra sau.
+    key_facts:
+      - "rủi ro cao: kiểm tra trước, hoàn thuế sau"
+      - "rủi ro trung bình và thấp: hoàn thuế trước, kiểm tra sau"
+    provisions:
+      - 94/2026/TT-BTC Điều 16
     added_in: 2
-  - id: q89
+  - id: q89  # step 2: moved to unanswerable; the corpus sends the payment deadline of guaranteed import duty to the Law on Export and Import Duties (108/2025/QH15 Điều 14 khoản 1), which is not in the corpus
     question: Nếu khoản thuế nhập khẩu được ngân hàng bảo lãnh thì doanh nghiệp phải nộp thuế chậm nhất sau bao nhiêu ngày?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Các văn bản trong bộ dữ liệu không quy định thời hạn nộp thuế nhập khẩu khi có bảo lãnh; thời hạn nộp thuế đối với
+      hàng hóa xuất khẩu, nhập khẩu thực hiện theo Luật Thuế xuất khẩu, thuế nhập khẩu, không có trong bộ dữ liệu.
+    unanswerable: out_of_scope
     added_in: 2
   - id: q90
     question: Theo Thông tư 86/2026, doanh nghiệp nhập nguyên liệu về sản xuất hàng xuất khẩu thì khi nào được hoàn thuế nhập khẩu đã nộp?
     tax_type: administration
     form: reference
-    answer: TODO
+    answer: >
+      Được hoàn thuế nhập khẩu khi sản phẩm sản xuất từ nguyên liệu, vật tư, linh kiện nhập khẩu đã thực tế xuất khẩu;
+      số thuế được hoàn tương ứng với lượng, chủng loại nguyên liệu thực tế dùng để sản xuất sản phẩm đã xuất khẩu.
+      Doanh nghiệp phải có cơ sở sản xuất tại Việt Nam và quyền sở hữu hoặc quyền sử dụng máy móc, thiết bị phù hợp;
+      hồ sơ gồm công văn đề nghị hoàn, hợp đồng và hóa đơn xuất khẩu, nhập khẩu, chứng từ thanh toán và báo cáo tính thuế
+      nguyên liệu nhập khẩu theo Mẫu số 15.
+    key_facts:
+      - "sản phẩm đã thực tế xuất khẩu"
+      - "số thuế hoàn tương ứng với nguyên liệu thực tế dùng để sản xuất sản phẩm đã xuất khẩu"
+      - "có cơ sở sản xuất tại Việt Nam và máy móc, thiết bị phù hợp"
+      - "báo cáo tính thuế nguyên liệu, vật tư, linh kiện nhập khẩu theo Mẫu số 15"
+    provisions:
+      - 86/2026/TT-BTC Điều 11 khoản 1
     added_in: 2
   - id: q91
     question: Hàng nhập khẩu đã thông quan rồi mới phát hiện khai sai thì còn được khai bổ sung trong bao lâu?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Thời hạn khai bổ sung hàng xuất nhập khẩu theo pháp luật hải quan. Về xử phạt: khai bổ sung trong 60 ngày kể từ
+      ngày thông quan và trước khi có quyết định thanh tra, kiểm tra thì không bị phạt; khai bổ sung sau 60 ngày nhưng
+      trước khi có quyết định kiểm tra sau thông quan, thanh tra, kiểm tra thì bị phạt 10% số thuế khai thiếu, ngoài
+      việc nộp đủ thuế và tiền chậm nộp.
+    key_facts:
+      - "khai bổ sung trong 60 ngày kể từ ngày thông quan, trước quyết định kiểm tra: không bị phạt"
+      - "sau 60 ngày, trước quyết định kiểm tra sau thông quan: phạt 10% số thuế khai thiếu"
+      - "vẫn phải nộp đủ tiền thuế và tiền chậm nộp"
+    provisions:
+      - 108/2025/QH15 Điều 44 khoản 2
+      - 108/2025/QH15 Điều 44 khoản 3
+      - 108/2025/QH15 Điều 45 khoản 3
     added_in: 2
   - id: q92
     question: Mình nộp thuế qua app ngân hàng thì ngày nào được tính là ngày đã nộp thuế?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: Nộp theo phương thức điện tử thì ngày nộp thuế là ngày ngân hàng hoặc tổ chức thanh toán trích tiền từ tài khoản của người nộp thuế và được ghi trên chứng từ nộp tiền.
+    key_facts:
+      - "ngày trích tiền từ tài khoản của người nộp thuế, ghi trên chứng từ nộp tiền"
+    provisions:
+      - 108/2025/QH15 Điều 14 khoản 5
     added_in: 2
   - id: q93
     question: Theo Luật 108/2025, nhà cung cấp nước ngoài không có cơ sở thường trú tại Việt Nam bán dịch vụ cho doanh nghiệp Việt Nam thì bên nào phải khai và nộp thuế?
     tax_type: administration
     form: reference
-    answer: TODO
+    answer: >
+      Theo Luật 108/2025, tổ chức nước ngoài kinh doanh trên nền tảng thương mại điện tử, nền tảng số và các dịch vụ
+      khác trực tiếp hoặc ủy quyền khai, nộp thuế tại Việt Nam, trừ trường hợp thuộc diện khấu trừ, nộp thay. Doanh
+      nghiệp Việt Nam nộp thuế GTGT theo phương pháp khấu trừ khi mua dịch vụ của nhà cung cấp nước ngoài phải khấu
+      trừ, nộp thay thuế GTGT và thuế TNDN của nhà cung cấp đó; số thuế đã được khấu trừ, nộp thay thì nhà cung cấp
+      không phải nộp nữa.
+    key_facts:
+      - "nhà cung cấp nước ngoài trực tiếp hoặc ủy quyền khai, nộp thuế tại Việt Nam"
+      - "doanh nghiệp Việt Nam nộp GTGT theo phương pháp khấu trừ phải khấu trừ, nộp thay thuế GTGT và TNDN"
+      - "số thuế đã được khấu trừ, nộp thay thì người nộp thuế không phải nộp"
+    provisions:
+      - 108/2025/QH15 Điều 12 khoản 2
+      - 108/2025/QH15 Điều 12 khoản 3
+      - 252/2026/NĐ-CP Điều 43 khoản 3
     added_in: 2
   - id: q94
     question: Kế toán lập hóa đơn điện tử sai thời điểm thì công ty bị phạt bao nhiêu tiền?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Các văn bản trong bộ dữ liệu không quy định mức phạt tiền cụ thể cho hành vi lập hóa đơn sai thời điểm; mức phạt
+      vi phạm về hóa đơn thuộc nghị định xử phạt vi phạm hành chính về thuế, hóa đơn, không có trong bộ dữ liệu.
     unanswerable: out_of_scope
     added_in: 2
   - id: q95
     question: Thi chứng chỉ hành nghề dịch vụ làm thủ tục về thuế gồm mấy môn và điểm đạt là bao nhiêu?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: >
+      Các văn bản trong bộ dữ liệu không quy định nội dung, số môn hay điểm đạt của kỳ thi chứng chỉ hành nghề dịch vụ
+      làm thủ tục về thuế; nội dung này thuộc văn bản riêng của Bộ Tài chính về thi chứng chỉ.
     unanswerable: out_of_scope
     added_in: 2
   - id: q96
     question: Chi cục thuế khu vực quản lý quận Bình Thạnh bây giờ đặt trụ sở ở đâu?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu là văn bản pháp luật về thuế, không có thông tin về trụ sở của cơ quan thuế quản lý từng địa bàn.
     unanswerable: out_of_scope
     added_in: 2
   - id: q97
     question: Hiện nay cả nước còn tổng cộng bao nhiêu tiền nợ thuế chưa thu được?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu là văn bản pháp luật, không có số liệu thống kê về tổng số tiền nợ thuế của cả nước.
     unanswerable: out_of_scope
     added_in: 2
   - id: q98
     question: Phần mềm hỗ trợ kê khai HTKK bản mới nhất là phiên bản nào?
     tax_type: administration
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu không có thông tin về phiên bản phần mềm hỗ trợ kê khai HTKK.
     unanswerable: out_of_scope
     added_in: 2
   - id: q99
     question: Theo Thông tư 156/2013, hồ sơ khai bổ sung thuế gồm những gì?
     tax_type: administration
     form: reference
-    answer: TODO
+    answer: >
+      Thông tư 156/2013/TT-BTC không còn hiệu lực nên không áp dụng. Việc khai bổ sung hiện theo Luật Quản lý thuế
+      108/2025/QH15 và Nghị định 252/2026/NĐ-CP: được khai bổ sung trong 05 năm kể từ hạn nộp hồ sơ của kỳ có sai sót,
+      trước khi có quyết định thanh tra, kiểm tra.
     unanswerable: repealed
     added_in: 2
-  - id: q100
+  - id: q100  # step 2: repealed confirmed by 89/2026/TT-BTC Điều 99 khoản 3, which repeals 80/2021/TT-BTC
     question: Theo Thông tư 80/2021, tờ khai thuế GTGT theo phương pháp khấu trừ là mẫu số mấy?
     tax_type: administration
     form: reference
-    answer: TODO
+    answer: >
+      Thông tư 80/2021/TT-BTC đã bị bãi bỏ bởi Thông tư 89/2026/TT-BTC nên mẫu tờ khai theo thông tư đó không còn áp
+      dụng; mẫu tờ khai hiện hành nằm trong phụ lục của Thông tư 89/2026/TT-BTC.
     unanswerable: repealed
     added_in: 2
   - id: q101
