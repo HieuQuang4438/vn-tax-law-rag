@@ -2195,181 +2195,386 @@ questions:
     question: Công ty có doanh thu năm khoảng 30 tỷ thì thuế suất thu nhập doanh nghiệp là bao nhiêu?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Thuế suất 17%, áp dụng cho doanh nghiệp có tổng doanh thu năm từ trên 03 tỷ đồng đến không quá 50 tỷ đồng. Doanh thu
+      làm căn cứ là tổng doanh thu của kỳ tính thuế năm trước liền kề.
+    key_facts:
+      - "thuế suất 17%"
+      - "doanh thu năm từ trên 03 tỷ đến không quá 50 tỷ đồng"
+      - "căn cứ doanh thu của kỳ tính thuế năm trước liền kề"
+    provisions:
+      - 67/2025/QH15 Điều 10
+      - 320/2025/NĐ-CP Điều 11
     added_in: 2
   - id: q166
     question: Công ty lời từ bán đất nhưng lỗ ở mảng sản xuất thì có được lấy lãi bù vào lỗ khi tính thuế TNDN không?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Được. Doanh nghiệp có hoạt động sản xuất, kinh doanh bị lỗ được bù trừ số lỗ vào thu nhập chịu thuế của các hoạt động
+      có thu nhập do doanh nghiệp tự lựa chọn, kể cả thu nhập từ chuyển nhượng bất động sản; phần còn lại áp thuế suất của
+      hoạt động còn thu nhập. Chiều ngược lại bị hạn chế: lỗ từ chuyển nhượng bất động sản không được bù trừ với thu nhập
+      của hoạt động sản xuất, kinh doanh đang được hưởng ưu đãi thuế.
+    key_facts:
+      - "lỗ sản xuất, kinh doanh được bù trừ vào thu nhập của hoạt động có thu nhập do doanh nghiệp tự chọn"
+      - "phần thu nhập còn lại áp thuế suất của hoạt động còn thu nhập"
+      - "lỗ chuyển nhượng bất động sản không bù trừ với thu nhập đang được ưu đãi thuế"
+    provisions:
+      - 67/2025/QH15 Điều 7
+      - 320/2025/NĐ-CP Điều 6
     added_in: 2
   - id: q167
     question: Chi phí quảng cáo, tiếp thị có bị giới hạn tỷ lệ tối đa khi tính chi phí được trừ không?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Không có tỷ lệ khống chế tối đa. Chi quảng cáo, tiếp thị được trừ nếu thực tế phát sinh, liên quan đến sản xuất, kinh
+      doanh, có đủ hóa đơn, chứng từ và thanh toán không dùng tiền mặt khi từ 05 triệu đồng trở lên. Không được trừ khi quảng
+      cáo sản phẩm bị cấm quảng cáo, hoặc sản phẩm phải đăng ký quảng cáo mà doanh nghiệp không đăng ký.
+    key_facts:
+      - "không có mức khống chế tỷ lệ tối đa cho chi quảng cáo, tiếp thị"
+      - "không được trừ khi quảng cáo sản phẩm bị cấm quảng cáo hoặc không đăng ký quảng cáo theo quy định"
+      - "phải có hóa đơn, chứng từ; từ 05 triệu đồng phải thanh toán không dùng tiền mặt"
+    provisions:
+      - 320/2025/NĐ-CP Điều 9 khoản 1
+      - 320/2025/NĐ-CP Điều 10 khoản 23
     added_in: 2
   - id: q168
     question: Công ty ủng hộ tiền khắc phục hậu quả lũ lụt thông qua Ủy ban Mặt trận Tổ quốc Việt Nam thì khoản chi đó có được tính vào chi phí được trừ khi tính thuế TNDN không?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Được. Khoản tài trợ cho phòng, chống, khắc phục hậu quả thiên tai là khoản chi được trừ, kể cả khi tài trợ trực tiếp
+      cho tổ chức được thành lập và hoạt động theo pháp luật hoặc cho cá nhân thông qua cơ quan, tổ chức có chức năng huy động
+      tài trợ. Hồ sơ là biên bản xác nhận khoản tài trợ theo Mẫu số 01/TNDN, có chữ ký của đại diện doanh nghiệp và đại diện
+      bên nhận tài trợ.
+    key_facts:
+      - "tài trợ khắc phục hậu quả thiên tai được tính vào chi phí được trừ"
+      - "tài trợ cho cá nhân phải thông qua cơ quan, tổ chức có chức năng huy động tài trợ"
+      - "hồ sơ là biên bản xác nhận khoản tài trợ Mẫu số 01/TNDN"
+    provisions:
+      - 67/2025/QH15 Điều 9
+      - 320/2025/NĐ-CP Điều 9 khoản 2
+      - 20/2026/TT-BTC Điều 3 khoản 5
     added_in: 2
   - id: q169
     question: Chi tiền trang phục cho nhân viên thì được tính vào chi phí được trừ tối đa bao nhiêu một người một năm?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Chi trang phục bằng tiền được trừ tối đa 05 triệu đồng/người/năm. Chi trang phục bằng hiện vật không bị khống chế mức
+      nhưng phải có hóa đơn, chứng từ.
+    key_facts:
+      - "trang phục bằng tiền tối đa 05 triệu đồng/người/năm"
+      - "trang phục bằng hiện vật phải có hóa đơn, chứng từ"
+    provisions:
+      - 320/2025/NĐ-CP Điều 10 khoản 8
     added_in: 2
   - id: q170
     question: Công ty đóng bảo hiểm hưu trí tự nguyện cho nhân viên thì được trừ tối đa bao nhiêu khi tính thuế TNDN?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Tối đa 05 triệu đồng/tháng/người cho bảo hiểm hưu trí tự nguyện, bảo hiểm nhân thọ, bảo hiểm hưu trí bổ sung. Điều
+      kiện hưởng và mức hưởng phải ghi trong hợp đồng lao động, thỏa ước lao động tập thể hoặc quy chế tài chính, quy chế
+      thưởng. Doanh nghiệp còn nợ hoặc chưa đóng đủ bảo hiểm bắt buộc cho người lao động thì không được trừ khoản này.
+    key_facts:
+      - "tối đa 05 triệu đồng/tháng/người"
+      - "điều kiện và mức hưởng ghi trong hợp đồng lao động, thỏa ước hoặc quy chế tài chính"
+      - "không được trừ nếu chưa thực hiện đầy đủ bảo hiểm bắt buộc"
+    provisions:
+      - 67/2025/QH15 Điều 9
+      - 320/2025/NĐ-CP Điều 10 khoản 4
     added_in: 2
   - id: q171
     question: Doanh nghiệp được trích quỹ phát triển khoa học và công nghệ tối đa bao nhiêu phần trăm thu nhập tính thuế?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Tối đa 20% thu nhập tính thuế hằng năm. Nếu trong 05 năm kể từ khi trích lập mà quỹ không được sử dụng, sử dụng không
+      hết 70% hoặc sử dụng sai mục đích thì phải nộp lại phần thuế TNDN tương ứng và tiền lãi.
+    key_facts:
+      - "trích tối đa 20% thu nhập tính thuế hằng năm"
+      - "trong 05 năm phải sử dụng ít nhất 70%"
+      - "không sử dụng hết hoặc sai mục đích thì nộp lại thuế và tiền lãi"
+    provisions:
+      - 67/2025/QH15 Điều 17
     added_in: 2
-  - id: q172
+  - id: q172  # step 2: 09/2026/QH16 Điều 3 listed because it amends 67/2025/QH15 Điều 4 (adds khoản 14a); the answer uses khoản 1
     question: Hợp tác xã có thu nhập từ trồng trọt, chăn nuôi thì có được miễn thuế TNDN không?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Có. Thu nhập của hợp tác xã, liên hiệp hợp tác xã từ sản xuất sản phẩm cây trồng, chăn nuôi (sản phẩm tự trồng, tự chăn
+      nuôi, kể cả sơ chế thông thường) được miễn thuế TNDN, không phụ thuộc địa bàn. Với doanh nghiệp, miễn thuế này chỉ áp
+      dụng ở địa bàn có điều kiện kinh tế - xã hội đặc biệt khó khăn.
+    key_facts:
+      - "thu nhập của hợp tác xã từ trồng trọt, chăn nuôi được miễn thuế TNDN"
+      - "là sản phẩm do hợp tác xã tự trồng, chăn nuôi, kể cả sơ chế thông thường"
+      - "doanh nghiệp chỉ được miễn ở địa bàn đặc biệt khó khăn"
+    provisions:
+      - 67/2025/QH15 Điều 4
+      - 09/2026/QH16 Điều 3
+      - 320/2025/NĐ-CP Điều 4 khoản 1
     added_in: 2
   - id: q173
     question: Doanh nghiệp công nghệ cao được hưởng thuế suất TNDN ưu đãi bao nhiêu?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Thu nhập của doanh nghiệp công nghệ cao được áp dụng thuế suất 10% trong 15 năm, tính từ năm đầu tiên có doanh thu
+      hoặc từ năm được cấp Giấy chứng nhận nếu được cấp sau. Doanh nghiệp còn được miễn thuế tối đa 04 năm và giảm 50% số
+      thuế phải nộp tối đa 09 năm tiếp theo.
+    key_facts:
+      - "thuế suất 10% trong 15 năm"
+      - "miễn thuế tối đa 04 năm, giảm 50% tối đa 09 năm tiếp theo"
+    provisions:
+      - 67/2025/QH15 Điều 12 khoản 2
+      - 67/2025/QH15 Điều 13
+      - 67/2025/QH15 Điều 14
     added_in: 2
   - id: q174
     question: Công ty đầu tư mở rộng dây chuyền sản xuất thì phần thu nhập tăng thêm có được ưu đãi thuế TNDN không?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Có, nếu dự án thuộc ngành, nghề hoặc địa bàn ưu đãi. Khi dự án đang hoạt động còn thời gian ưu đãi, thu nhập tăng
+      thêm hưởng ưu đãi của dự án cho thời gian còn lại, không phải hạch toán riêng. Khi dự án đã hết ưu đãi, thu nhập tăng
+      thêm được miễn, giảm thuế (không ưu đãi thuế suất) nếu đạt một tiêu chí: nguyên giá tài sản cố định tăng thêm đạt mức
+      tối thiểu, hoặc tăng ít nhất 20%, hoặc công suất thiết kế tăng ít nhất 20%. Trường hợp này phải hạch toán riêng thu
+      nhập tăng thêm. Đầu tư mở rộng do sáp nhập, mua lại thì không được ưu đãi.
+    key_facts:
+      - "dự án còn ưu đãi thì thu nhập tăng thêm hưởng ưu đãi cho thời gian còn lại"
+      - "dự án hết ưu đãi thì được miễn, giảm thuế, không ưu đãi thuế suất"
+      - "nguyên giá tài sản cố định hoặc công suất thiết kế tăng tối thiểu 20%"
+      - "không áp dụng cho đầu tư mở rộng do sáp nhập, mua lại"
+    provisions:
+      - 67/2025/QH15 Điều 14
     added_in: 2
   - id: q175
     question: Các khoản chi thêm cho lao động nữ theo quy định có được tính vào chi phí được trừ khi tính thuế TNDN không?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Có, nếu chi đúng đối tượng, đúng mục đích. Các khoản chi thêm cho lao động nữ gồm: đào tạo lại nghề; tiền lương,
+      phụ cấp giáo viên nhà trẻ, mẫu giáo do doanh nghiệp tổ chức; khám sức khỏe thêm trong năm; bồi dưỡng sau khi sinh con;
+      phụ cấp làm thêm cho lao động nữ không nghỉ sau sinh, nghỉ cho con bú. Doanh nghiệp sản xuất, xây dựng, vận tải dùng
+      nhiều lao động nữ còn được giảm thuế TNDN bằng số chi thêm này.
+    key_facts:
+      - "chi thêm cho lao động nữ được trừ nếu chi đúng đối tượng, đúng mục đích"
+      - "gồm đào tạo lại nghề, khám sức khỏe thêm, bồi dưỡng sau sinh"
+      - "doanh nghiệp dùng nhiều lao động nữ được giảm thuế bằng số chi thêm"
+    provisions:
+      - 320/2025/NĐ-CP Điều 10 khoản 8
+      - 320/2025/NĐ-CP Điều 21
     added_in: 2
   - id: q176
     question: Công ty nước ngoài không có văn phòng ở Việt Nam nhận tiền bản quyền từ công ty Việt Nam thì bị tính thuế TNDN theo tỷ lệ bao nhiêu?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Thuế TNDN tính bằng 10% trên doanh thu tính thuế từ tiền bản quyền. Doanh thu tính thuế là toàn bộ doanh thu nhà thầu
+      nước ngoài nhận được, chưa trừ các khoản thuế phải nộp.
+    key_facts:
+      - "tỷ lệ 10% trên doanh thu tính thuế"
+      - "doanh thu tính thuế là toàn bộ doanh thu chưa trừ thuế phải nộp"
+    provisions:
+      - 320/2025/NĐ-CP Điều 12 khoản 3
+      - 20/2026/TT-BTC Điều 7 khoản 3
     added_in: 2
   - id: q177
     question: Lãi chênh lệch tỷ giá do đánh giá lại số dư ngoại tệ cuối năm có phải tính vào thu nhập chịu thuế TNDN không?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Tùy khoản mục. Lãi chênh lệch tỷ giá do đánh giá lại các khoản nợ phải trả có gốc ngoại tệ cuối kỳ phải tính vào thu
+      nhập chịu thuế (vào thu nhập khác nếu không liên quan trực tiếp đến hoạt động kinh doanh chính). Chênh lệch tỷ giá do
+      đánh giá lại số dư cuối năm là tiền mặt, tiền gửi, tiền đang chuyển, nợ phải thu có gốc ngoại tệ thì không tính vào thu
+      nhập chịu thuế; lỗ từ các khoản này cũng không được trừ.
+    key_facts:
+      - "lãi do đánh giá lại nợ phải trả gốc ngoại tệ tính vào thu nhập chịu thuế"
+      - "đánh giá lại tiền mặt, tiền gửi, nợ phải thu gốc ngoại tệ không tính vào thu nhập chịu thuế"
+      - "lỗ đánh giá lại tiền mặt, tiền gửi, nợ phải thu không được trừ"
+    provisions:
+      - 320/2025/NĐ-CP Điều 3 khoản 3
+      - 320/2025/NĐ-CP Điều 10 khoản 16
     added_in: 2
   - id: q178
     question: Công ty vừa có dự án được ưu đãi thuế vừa có hoạt động không được ưu đãi thì có phải hạch toán thu nhập riêng không?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Có. Doanh nghiệp phải hạch toán riêng thu nhập từ hoạt động được ưu đãi thuế với thu nhập không được ưu đãi. Nếu
+      không hạch toán riêng được thì thu nhập được ưu đãi xác định theo tỷ lệ doanh thu hoặc chi phí được trừ của hoạt động
+      được ưu đãi trên tổng doanh thu hoặc tổng chi phí được trừ của doanh nghiệp.
+    key_facts:
+      - "phải hạch toán riêng thu nhập được ưu đãi và không được ưu đãi"
+      - "không hạch toán riêng được thì phân bổ theo tỷ lệ doanh thu hoặc chi phí"
+    provisions:
+      - 67/2025/QH15 Điều 18
+      - 320/2025/NĐ-CP Điều 23 khoản 1
     added_in: 2
   - id: q179
     question: Công ty vay tiền của nhân viên để kinh doanh thì lãi vay được trừ tối đa theo mức lãi suất nào?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Lãi vay của đối tượng không phải tổ chức tín dụng chỉ được trừ trong mức lãi suất theo Bộ luật Dân sự; phần lãi vượt
+      mức đó không được trừ.
+    key_facts:
+      - "lãi vay không phải tổ chức tín dụng vượt mức theo Bộ luật Dân sự không được trừ"
+    provisions:
+      - 67/2025/QH15 Điều 9
+      - 320/2025/NĐ-CP Điều 10 khoản 10
     added_in: 2
   - id: q180
     question: Tổng số thuế TNDN tạm nộp bốn quý thấp hơn 80% số phải nộp khi quyết toán thì công ty có bị tính tiền chậm nộp không?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: >
+      Có. Tổng số thuế tạm nộp của 04 quý không được thấp hơn 80% số thuế phải nộp theo quyết toán năm. Nếu nộp thiếu,
+      doanh nghiệp phải nộp tiền chậm nộp trên số nộp thiếu, tính từ ngày tiếp theo hạn tạm nộp quý 4 đến ngày liền trước
+      ngày nộp số còn thiếu.
+    key_facts:
+      - "tổng tạm nộp 04 quý không thấp hơn 80% số quyết toán"
+      - "nộp thiếu thì tính tiền chậm nộp trên số nộp thiếu"
+      - "tính từ ngày tiếp theo hạn tạm nộp quý 4"
+    provisions:
+      - 252/2026/NĐ-CP Điều 24
     added_in: 2
-  - id: q181
+  - id: q181  # step 2: 09/2026/QH16 Điều 3 listed because it amends 67/2025/QH15 Điều 4 (adds khoản 14a); the answer uses khoản 13
     question: Theo Điều 4 Luật 67/2025, thu nhập từ chuyển giao công nghệ thuộc lĩnh vực ưu tiên có được miễn thuế TNDN không?
     tax_type: cit
     form: reference
-    answer: TODO
+    answer: >
+      Chỉ khi chuyển giao cho tổ chức, cá nhân ở địa bàn có điều kiện kinh tế - xã hội đặc biệt khó khăn thì thu nhập từ
+      chuyển giao công nghệ thuộc lĩnh vực ưu tiên mới được miễn thuế. Nếu chuyển giao cho địa bàn có điều kiện kinh tế - xã
+      hội khó khăn thì chỉ được giảm 50% số thuế trên phần thu nhập này.
+    key_facts:
+      - "miễn thuế khi chuyển giao cho tổ chức, cá nhân ở địa bàn đặc biệt khó khăn"
+      - "địa bàn khó khăn thì giảm 50%"
+    provisions:
+      - 67/2025/QH15 Điều 4
+      - 09/2026/QH16 Điều 3
+      - 67/2025/QH15 Điều 15
     added_in: 2
   - id: q182
     question: Theo Nghị định 320/2025, hóa đơn mua hàng từ bao nhiêu tiền trở lên phải thanh toán không dùng tiền mặt mới được tính vào chi phí được trừ?
     tax_type: cit
     form: reference
-    answer: TODO
+    answer: >
+      Hóa đơn mua hàng hóa, dịch vụ từng lần từ 05 triệu đồng trở lên phải có chứng từ thanh toán không dùng tiền mặt mới
+      được trừ. Mua nhiều lần cùng một người bán trong cùng một ngày, tổng từ 05 triệu đồng trở lên cũng phải thanh toán
+      không dùng tiền mặt.
+    key_facts:
+      - "từ 05 triệu đồng trở lên mỗi lần"
+      - "mua nhiều lần trong ngày tổng từ 05 triệu đồng cũng phải thanh toán không dùng tiền mặt"
+    provisions:
+      - 320/2025/NĐ-CP Điều 9 khoản 1
     added_in: 2
-  - id: q183
+  - id: q183  # step 2: moved to unanswerable; 20/2026/TT-BTC has no rule on this, and 320/2025/NĐ-CP only lists the income (Điều 3 khoản 3 điểm c) without a method to compute it
     question: Thông tư 20/2026 hướng dẫn xác định thu nhập chịu thuế khi chuyển nhượng dự án đầu tư như thế nào?
     tax_type: cit
     form: reference
-    answer: TODO
+    answer: >
+      Thông tư 20/2026/TT-BTC không hướng dẫn cách xác định thu nhập chịu thuế khi chuyển nhượng dự án đầu tư. Các văn bản
+      trong bộ dữ liệu chỉ xếp khoản này vào thu nhập khác, không cho hưởng ưu đãi thuế và không cho bù trừ lỗ với thu nhập
+      đang được ưu đãi, chứ không quy định công thức tính.
+    unanswerable: out_of_scope
     added_in: 2
-  - id: q184
+  - id: q184  # step 2: moved to unanswerable; the corpus gives startups only PIT exemptions (109/2025/QH15 Điều 4 khoản 19), no CIT exemption
     question: Theo Nghị định 320/2025, doanh nghiệp khởi nghiệp sáng tạo được miễn thuế TNDN mấy năm?
     tax_type: cit
     form: reference
-    answer: TODO
+    answer: >
+      Nghị định 320/2025/NĐ-CP không có quy định miễn thuế TNDN riêng cho doanh nghiệp khởi nghiệp sáng tạo. Ưu đãi gần nhất
+      là miễn thuế 02 năm cho doanh nghiệp nhỏ thành lập mới từ hộ kinh doanh, khác với đối tượng được hỏi.
+    unanswerable: out_of_scope
     added_in: 2
-  - id: q185
+  - id: q185  # step 2: the question names 20/2026/TT-BTC, but the rule is in 320/2025/NĐ-CP Điều 10 khoản 4 điểm d
     question: Theo Thông tư 20/2026, tiền mua bảo hiểm sức khỏe cho nhân viên có được tính vào chi phí được trừ không?
     tax_type: cit
     form: reference
-    answer: TODO
+    answer: >
+      Được, nhưng bị khống chế. Chi bảo hiểm sức khỏe cho người lao động là khoản chi có tính chất phúc lợi; tổng các khoản
+      chi phúc lợi trực tiếp chỉ được trừ tối đa 01 tháng lương bình quân thực tế thực hiện trong năm tính thuế. Quy định này
+      nằm ở Nghị định 320/2025/NĐ-CP; Thông tư 20/2026/TT-BTC không quy định riêng.
+    key_facts:
+      - "bảo hiểm sức khỏe là khoản chi có tính chất phúc lợi"
+      - "tổng chi phúc lợi tối đa 01 tháng lương bình quân thực tế thực hiện trong năm"
+    provisions:
+      - 320/2025/NĐ-CP Điều 10 khoản 4
     added_in: 2
   - id: q186
     question: Thông tư 20/2026 quy định trường hợp nào doanh nghiệp nộp thuế TNDN theo tỷ lệ phần trăm trên doanh thu?
     tax_type: cit
     form: reference
-    answer: TODO
+    answer: >
+      Theo Thông tư 20/2026/TT-BTC, doanh nghiệp nước ngoài là nhà thầu, nhà thầu phụ nước ngoài (có hoặc không có cơ sở
+      thường trú, kể cả kinh doanh thương mại điện tử, trên nền tảng số) có thu nhập tại Việt Nam theo hợp đồng với tổ chức,
+      cá nhân Việt Nam nộp thuế TNDN theo tỷ lệ % trên doanh thu tính thuế. Số thuế bằng doanh thu tính thuế nhân tỷ lệ %
+      theo khoản 3 Điều 12 Nghị định 320/2025/NĐ-CP.
+    key_facts:
+      - "áp dụng cho nhà thầu nước ngoài, nhà thầu phụ nước ngoài"
+      - "số thuế bằng doanh thu tính thuế nhân tỷ lệ %"
+    provisions:
+      - 20/2026/TT-BTC Điều 7 khoản 1
+      - 20/2026/TT-BTC Điều 7 khoản 3
+      - 20/2026/TT-BTC Điều 7 khoản 5
     added_in: 2
   - id: q187
     question: Thuế suất thuế thu nhập doanh nghiệp của Việt Nam cao hơn hay thấp hơn Thái Lan?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu chỉ quy định thuế suất TNDN của Việt Nam (phổ thông 20%), không có thông tin về thuế suất của Thái Lan để so sánh.
     unanswerable: out_of_scope
     added_in: 2
   - id: q188
     question: Quốc hội có dự định giảm thuế suất TNDN phổ thông xuống 15% vào năm 2028 không?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu không có thông tin về dự định của Quốc hội; Luật 67/2025/QH15 hiện quy định thuế suất phổ thông 20%.
     unanswerable: out_of_scope
     added_in: 2
   - id: q189
     question: Năm 2025 doanh nghiệp nào nộp thuế thu nhập doanh nghiệp nhiều nhất cả nước?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu là văn bản quy phạm pháp luật, không có số liệu thu nộp thuế của từng doanh nghiệp.
     unanswerable: out_of_scope
     added_in: 2
   - id: q190
     question: Có mẫu file Excel tính thuế TNDN tạm nộp theo quý nào tải được không?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu không cung cấp file Excel tính thuế; chúng chỉ quy định nghĩa vụ tạm nộp thuế TNDN theo quý.
     unanswerable: out_of_scope
     added_in: 2
   - id: q191
     question: Những công ty kiểm toán nào được Bộ Tài chính chấp thuận kiểm toán báo cáo quyết toán thuế TNDN?
     tax_type: cit
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu không có danh sách công ty kiểm toán được chấp thuận.
     unanswerable: out_of_scope
     added_in: 2
-  - id: q192
+  - id: q192  # step 2: repealed confirmed by 20/2026/TT-BTC Điều 10 khoản 6, which replaces 96/2015/TT-BTC
     question: Theo Thông tư 96/2015, chi phúc lợi cho nhân viên chỉ được trừ tối đa một tháng lương bình quân đúng không?
     tax_type: cit
     form: reference
-    answer: TODO
+    answer: >
+      Thông tư 96/2015/TT-BTC đã bị Thông tư 20/2026/TT-BTC thay thế nên không áp dụng nữa. Hiện nay Nghị định 320/2025/NĐ-CP
+      quy định phần chi có tính chất phúc lợi trực tiếp cho người lao động vượt quá 01 tháng lương bình quân thực tế thực hiện
+      trong năm tính thuế thì không được trừ.
     unanswerable: repealed
     added_in: 2
-  - id: q193
+  - id: q193  # step 2: repealed confirmed by 320/2025/NĐ-CP Điều 24 khoản 2, which replaces 218/2013/NĐ-CP
     question: Theo Nghị định 218/2013, khoản chi tài trợ cho trường học cần hồ sơ gì mới được tính vào chi phí được trừ?
     tax_type: cit
     form: reference
-    answer: TODO
+    answer: >
+      Nghị định 218/2013/NĐ-CP đã bị Nghị định 320/2025/NĐ-CP thay thế nên không áp dụng nữa. Hiện nay hồ sơ khoản tài trợ
+      cho giáo dục theo Thông tư 20/2026/TT-BTC là biên bản xác nhận khoản tài trợ (Mẫu số 01/TNDN) có chữ ký của đại diện
+      doanh nghiệp và đại diện bên nhận tài trợ.
     unanswerable: repealed
     added_in: 2
   - id: q194
