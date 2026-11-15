@@ -11,7 +11,7 @@ from pathlib import Path
 
 from src.eval.dataset import EvalSet, Item, load_eval_set
 from src.eval.metrics import bootstrap_interval, recall_at_k
-from src.eval.run import _parents, configuration, write_results
+from src.eval.run import _parents, add_fusion_arguments, configuration, write_results
 from src.retrieval import TOP_K, Rankings
 from src.retrieval import hybrid
 
@@ -150,6 +150,7 @@ def main(argv: list[str] | None = None, retriever=None) -> int:
     parser.add_argument("--enriched", help="the enriched chunks; default <data>/enriched")
     parser.add_argument("--index", help="the index folder; default <data>/index")
     parser.add_argument("--out", default="eval/results/diagnostics", help="where the file is written")
+    add_fusion_arguments(parser)
     args = parser.parse_args(argv)
     set_path, data, out = Path(args.set), Path(args.data), Path(args.out)
     index_dir = Path(args.index) if args.index else data / "index"

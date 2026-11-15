@@ -17,7 +17,7 @@ from test_eval_run import at, item, write_data, write_set
 from src.eval.dataset import Conversation, EvalSet
 from src.eval.diagnose import CUTS, DEPTH, diagnose, main, summary, verdict
 from src.eval.metrics import bootstrap_interval
-from src.retrieval import Rankings, Unresolved
+from src.retrieval import Fusion, Rankings, Retriever, Unresolved
 
 ROOT = Path(__file__).resolve().parent.parent
 TOP_KEYS = ["format", "run", "configuration", "recall", "misses", "verdict", "items"]
@@ -265,3 +265,43 @@ def test_recall_at_8_equals_the_runner_scores(connections):
     assert at(diagnosed, "recall", "standalone", "8", "value") == pytest.approx(at(run, "scores", "EVAL-001", "value"))
     assert at(diagnosed, "recall", "follow_up", "8", "value") == pytest.approx(at(run, "scores", "EVAL-005", "value"))
     assert connections == []
+
+
+# --- Fusion settings (#25) ----------------------------------------------------------------------
+
+def test_a_miss_is_in_a_list_within_the_candidates_its_rankings_fused(connections):
+    wider = {**RANKINGS, QUESTIONS[0].question: Rankings(
+        keyword=placed({"100:D2": 1}, 40), vector=placed({"100:D1:K2": 2, "100:D2": 70}, 250),
+        final=placed({"100:D1:K2": 1, "100:D2": 10}, 60), candidates=80)}
+    results = diagnose(small_set(), FakeRetriever(wider), PARENTS)
+    assert at(entry(results, "q01"), "misses", 0, "lists") == ["keyword", "vector"]
+
+
+def test_the_fusion_options_reach_the_retriever_and_the_file(command, monkeypatch):
+    argv, out = command
+    loads = []
+
+    def load(cls, data_dir=Path("data"), embedder=None, index_dir=None, enriched_dir=None, fusion=None):
+        loads.append(fusion)
+        return FakeRetriever(default=Rankings(final=["379409:D9"]))
+
+    monkeypatch.setattr(Retriever, "load", classmethod(load))
+    options = ["--rrf-k", "20", "--keyword-weight", "2", "--vector-weight", "1.5", "--per-article",
+               "--candidates", "100"]
+    assert main(argv + options) == 0
+    assert loads == [Fusion(rrf_k=20, keyword_weight=2.0, vector_weight=1.5, per_article=True, candidates=100)]
+    files = sorted(out.glob("*.json")) if out.is_dir() else []
+    assert len(files) == 1
+    pipeline = at(json.loads(files[0].read_text(encoding="utf-8")), "configuration", "pipeline")
+    expected = {"rrf_k": 20, "candidates": 100, "keyword_weight": 2.0, "vector_weight": 1.5, "per_article": True}
+    assert {key: at(pipeline, key) for key in expected} == expected
+
+
+def test_without_fusion_options_the_file_records_the_default(command):
+    argv, out = command
+    assert main(argv, retriever=FakeRetriever(default=Rankings(final=["379409:D9"]))) == 0
+    files = sorted(out.glob("*.json")) if out.is_dir() else []
+    assert len(files) == 1
+    pipeline = at(json.loads(files[0].read_text(encoding="utf-8")), "configuration", "pipeline")
+    expected = {"rrf_k": 60, "candidates": 50, "keyword_weight": 1.0, "vector_weight": 1.0, "per_article": False}
+    assert {key: at(pipeline, key) for key in expected} == expected

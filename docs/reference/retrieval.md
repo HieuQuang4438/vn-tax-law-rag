@@ -36,25 +36,27 @@ result.unresolved   # list[Unresolved], in question order
 
 | Name | What it is |
 |---|---|
-| `Retriever(index_dir, enriched_dir, processed_dir, embedder)` | Reads both indexes, the chunks and the documents' metadata. The embedder embeds the question, as at build time. |
-| `Retriever.load(data_dir=Path("data"), embedder=None, index_dir=None, enriched_dir=None)` | The same, from `enriched_dir`, `data_dir/processed` and `index_dir`, which are `data_dir/enriched` and `data_dir/index` when not given. With no embedder, the model and input limit the index's manifest names are loaded offline by `src.index.load_embedder` (approved on #11); a manifest without `input_limit` gets the model's maximum. |
+| `Retriever(index_dir, enriched_dir, processed_dir, embedder, fusion=None)` | Reads both indexes, the chunks and the documents' metadata. The embedder embeds the question, as at build time. `fusion` is a `Fusion`; none means `Fusion()`. The retriever keeps it as `Retriever.fusion`. |
+| `Retriever.load(data_dir=Path("data"), embedder=None, index_dir=None, enriched_dir=None, fusion=None)` | The same, from `enriched_dir`, `data_dir/processed` and `index_dir`, which are `data_dir/enriched` and `data_dir/index` when not given. With no embedder, the model and input limit the index's manifest names are loaded offline by `src.index.load_embedder` (approved on #11); a manifest without `input_limit` gets the model's maximum. |
+| `Fusion(rrf_k=RRF_K, keyword_weight=1.0, vector_weight=1.0, per_article=False, candidates=None)` | How the lists are fused and cut, as described under *Fusion* (approved on #25). `candidates` none means `CANDIDATES`, read when the retriever searches. It raises `ValueError` for `rrf_k` below 1, a weight of 0 or less, or `candidates` below 1. |
+| `Fusion.config()` | `{"rrf_k", "candidates", "keyword_weight", "vector_weight", "per_article"}`, with `candidates` as a number, for the results files. |
 | `Retriever.retrieve(question, k=TOP_K)` | A `Retrieval` for one question. |
 | `Retriever.rankings(question)` | A `Rankings` for one question: the orders `retrieve` cuts from, uncut, for *Cut diagnosis* (approved on #24). |
-| `Rankings` | `keyword: list[str]`, every chunk with a BM25 score above 0, best first; `vector: list[str]`, every chunk, best first; `final: list[str]`, every reference slot, then the fused list; `unresolved: list[Unresolved]`, as `retrieve` reports them. Each list is in the order `retrieve` uses. |
+| `Rankings` | `keyword: list[str]`, every chunk with a BM25 score above 0, best first; `vector: list[str]`, every chunk, best first; `final: list[str]`, every reference slot, then the fused list; `unresolved: list[Unresolved]`, as `retrieve` reports them; `candidates: int`, how many of `keyword` and of `vector` were fused. Each list is in the order `retrieve` uses. |
 | `Retrieval` | `hits: list[Hit]`, `unresolved: list[Unresolved]`. |
 | `Hit` | `chunk_id: str`, `found_by: tuple[str, ...]`, `score: float`. |
 | `Unresolved` | `text: str`, the reference as written in the question; `reason: str`, one of the reasons below. |
 | `find_references(question)` | The `Reference`s in the question, in order, before any corpus lookup. |
 | `Reference` | `text`, `kind`, `number`, `article`, `clause`, as described under *References*. |
-| `rrf(lists, constant=RRF_K)` | Reciprocal rank fusion of ranked lists of chunk ids, as described under *Fusion*. |
+| `rrf(lists, constant=RRF_K, weights=None)` | Reciprocal rank fusion of ranked lists of chunk ids, as described under *Fusion*. `weights` holds one weight per list; none means 1 for each. Raises `ValueError` when it is not as long as `lists`. |
 | `IndexNotReadyError` | Raised by the constructor when the index cannot be used, as described under *Loading*. |
 | `TOP_K`, `RRF_K`, `CANDIDATES` | 8, 60, 50. |
 
 `retrieve(question, k).hits` are always the first k of `rankings(question).final`, for every k
 and every question, including one that names more than k articles: the slots are filled in
-question order, so a smaller cut keeps the first of them. The keyword list is the first
-`CANDIDATES` of `Rankings.keyword`, and the vector list the first `CANDIDATES` of
-`Rankings.vector`.
+question order, so a smaller cut keeps the first of them. This holds for every `Fusion`. The
+keyword list is the first `Rankings.candidates` of `Rankings.keyword`, and the vector list the
+first `Rankings.candidates` of `Rankings.vector`.
 
 `found_by` lists every way the chunk was found, in this order: `reference` (it fills a reference
 slot), `keyword` (it is in the keyword list), `vector` (it is in the vector list), `document` (it
@@ -151,7 +153,8 @@ reference changes nothing else: the question is searched as if it were not there
 
 ## Hybrid search
 
-Three ranked lists of chunk ids, each at most `CANDIDATES` (50) long:
+Three ranked lists of chunk ids, each at most the fusion's `candidates` (`CANDIDATES`, 50, by
+default) long:
 
 - **Keyword list.** The question's tokens, by the tokenizer the index was built with
   (`bm25_tokenizer` in its manifest, [index.md](index.md)), scored by the BM25 index.
@@ -168,12 +171,15 @@ Three ranked lists of chunk ids, each at most `CANDIDATES` (50) long:
   among those chunks alone. Chunks from other documents can still win over them, so a wrong
   document in the question does not hide the right answer.
 
-**Fusion.** `rrf(lists)` scores each chunk as the sum, over the lists that hold it, of
-1 / (`RRF_K` + rank), rank counted from 1. It returns `(chunk_id, score)` pairs, best first. Ties
-keep the order in which chunks first appear when the lists are read rank by rank: rank 1 of
-every list in turn, then rank 2, and so on. The lists are passed in the order keyword, vector,
-document. All lists weigh the same. `RRF_K` 60, `CANDIDATES` 50 and the equal weights are
-starting values, changed only through a recorded experiment (#8).
+**Fusion.** `rrf(lists, constant, weights)` scores each chunk as the sum, over the lists that
+hold it, of weight / (constant + rank), rank counted from 1. It returns `(chunk_id, score)`
+pairs, best first. Ties keep the order in which chunks first appear when the lists are read rank
+by rank: rank 1 of every list in turn, then rank 2, and so on. The lists are passed in the order
+keyword, vector, document. The retriever passes its `Fusion`'s `rrf_k` as the constant, and its
+`keyword_weight` and `vector_weight` for the first two lists. The document list always weighs 1;
+the `rrf` that ranks it uses the same constant and weighs its two lists 1 each. The defaults of `Fusion()` are `RRF_K` 60, `CANDIDATES` 50, both
+weights 1 and `per_article` off. They are starting values, changed only through a recorded
+experiment (#8, #25).
 
 ## The k hits
 
@@ -186,7 +192,11 @@ starting values, changed only through a recorded experiment (#8).
    A chunk already in a slot does not take a second one. Context assembly (#14) adds the whole
    parent article, so one slot brings in the article.
 2. **Fused hits.** The fused list, in order, skipping chunks already in a slot, until there are
-   k hits.
+   k hits. With `per_article` on (approved on #25), a fused chunk is also skipped when its
+   parent article already has a chunk above it: in a slot or as an earlier fused hit. The slots
+   themselves are kept as they are, so two named clauses of one article keep both slots. The
+   skip is applied to `Rankings.final` itself, before any cut, so the hits are still its first
+   k. A hit's `found_by` and `score` do not change.
 
 When more than k articles are referenced, the first k take the slots. The same question against
 the same index always gives the same result.
@@ -228,7 +238,8 @@ comment on #24. ADR-0002 reopens the reranker question only if the misses are ra
 python -m src.eval.diagnose      # eval/questions.yaml, data/, writes to eval/results/diagnostics/
 ```
 
-Its options are `--set`, `--data`, `--enriched`, `--index` and `--out`, as for
+Its options are `--set`, `--data`, `--enriched`, `--index`, `--out` and the fusion options
+`--rrf-k`, `--keyword-weight`, `--vector-weight`, `--per-article` and `--candidates`, as for
 `python -m src.eval.run` ([eval-results.md](eval-results.md#running-it)). `--out` defaults to
 `eval/results/diagnostics`.
 
@@ -255,7 +266,7 @@ first 8 of `final`. For each miss:
 | `keyword_rank` | the rank of its best chunk in `Rankings.keyword`; null if no chunk of it scores above 0 |
 | `vector_rank` | the rank of its best chunk in `Rankings.vector` |
 | `place` | `below_cut` if `final_rank` is 9 to 50; `beyond_50` if it is above 50; `not_in_pool` if it is null |
-| `lists` | the lists whose first `CANDIDATES` hold a chunk of it, out of `keyword` and `vector`, in that order |
+| `lists` | the lists whose first `Rankings.candidates` hold a chunk of it, out of `keyword` and `vector`, in that order |
 | `split` | true if the article has more than one chunk |
 
 An item with an unresolved reference keeps its reasons, as in the runner's items, and its misses
@@ -285,8 +296,9 @@ ids and numbers only.
 }
 ```
 
-- `configuration` is the runner's, with `pipeline` holding `top_k` 8, `rrf_k`, `candidates`,
-  `rewrite: none`, `depth` 50 and `cuts`.
+- `configuration` is the runner's, with `pipeline` holding `top_k` 8, `rewrite: none`, the
+  fusion's `config()` (`rrf_k`, `candidates`, `keyword_weight`, `vector_weight`,
+  `per_article`), `depth` 50 and `cuts`.
 - `misses` gives, per group, `articles` (the number of misses), `below_cut`, `beyond_50`,
   `not_in_pool`, the share `below_cut` / `articles` as `share_below_cut`, `lists` as counts of
   `both`, `keyword`, `vector` and `neither`, `split` and `unresolved`.
@@ -331,3 +343,47 @@ ADR-0002's condition for reconsidering a reranker is now met: the right article 
 but ranked below the cut. A cross-encoder still costs 19–28 s per 20 pairs on this laptop
 (ADR-0002), so the next issue tunes the fusion, as the decision rule says. Its options are left
 to that issue's proposal.
+
+## Fusion tuning
+
+Which fusion setting raises recall@8, given that 30 of the 43 missed articles sit at ranks 9 to
+50 (*Cut diagnosis*, *Result*)? The question is #25. The approach is the approved comment on
+#25. Only the fusion changes. Everything else is fixed: eval set v1, today's index
+(bge-m3@8192, `syllable` BM25, 1,286 chunks), `TOP_K` 8, `rewrite: none`, the dev laptop,
+bootstrap seed 0, one commit for every run.
+
+**Variants.** Each changes one knob of `Fusion()`. Everything else stays at the default.
+
+| Variant | Options | Why, from *Cut diagnosis* |
+|---|---|---|
+| Baseline | none | the current setting, re-run at the same commit; it must give recall@8 0.678, or the work stops |
+| V1 | `--per-article` | the top 8 holds 6.82 distinct articles on average |
+| V2 | `--rrf-k 20` | a smaller constant lifts chunks ranked high in one list |
+| V3 | `--rrf-k 120` | a larger constant lifts chunks found by both lists; 22 of the 43 misses are in both |
+| V4 | `--keyword-weight 2` | 7 misses are in the BM25 list only |
+| V5 | `--vector-weight 2` | 6 misses are in the vector list only |
+| V6 | `--candidates 100` | a chunk ranked 51 to 100 in one list still adds to its fused score |
+
+Each variant is scored with `python -m src.eval.run <options> --compare <baseline file>
+--comparisons 6`, and placed with `python -m src.eval.diagnose <options>`.
+
+**Decision rule** (approved on #25):
+
+1. **Winner.** A variant wins when the paired 95% interval of its EVAL-001 change against the
+   baseline lies entirely above 0, as on #10 to #12.
+2. **Multiplicity.** Each winner's Bonferroni interval (`--comparisons 6`, *Comparing two runs*
+   in [eval-results.md](eval-results.md#comparing-two-runs)) is reported. A winner whose
+   Bonferroni interval includes 0 is still adopted, marked "re-check on eval set v2".
+3. **Guard.** A winner is not adopted when the paired interval of its EVAL-007 change lies
+   entirely below 0, or when its median latency (AC-012) is above 2 s. EVAL-005 is reported, but
+   with n = 10 it does not decide.
+4. **More than one winner.** The winner with the largest mean change is the candidate. One more
+   run combines every winner's options. It is adopted only if it passes rules 1 and 3 against
+   the baseline and its mean change beats the candidate's. Otherwise the candidate is adopted.
+5. **No winner.** `Fusion()` stays the default.
+
+The adopted setting becomes the defaults of `Fusion()`, and the *Fusion* paragraph above gets the
+new values. ADR-0002 is edited only if the setting contradicts it; none of the variants does.
+
+**Ceiling.** 13 of the 43 misses are beyond rank 50 or in no list, out of the fusion's reach. A
+perfect order of today's top 50 reaches recall@8 no higher than recall@50, 0.922.

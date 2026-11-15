@@ -55,9 +55,25 @@ class Rankings:
     vector: list[str] = field(default_factory=list)  # every chunk, best first
     final: list[str] = field(default_factory=list)  # every reference slot, then the fused list
     unresolved: list[Unresolved] = field(default_factory=list)
+    candidates: int = CANDIDATES  # how many of keyword and of vector were fused
 
 
-def rrf(lists: list[list[str]], constant: int = RRF_K) -> list[tuple[str, float]]:
+@dataclass(frozen=True)
+class Fusion:
+    """How the lists are fused and cut (#25); the defaults are the starting values."""
+
+    rrf_k: int = RRF_K
+    keyword_weight: float = 1.0
+    vector_weight: float = 1.0
+    per_article: bool = False
+    candidates: int | None = None  # None: CANDIDATES, read when the retriever searches
+
+    def config(self) -> dict:
+        """The setting as the results files record it."""
+        return {}  # stub (#25)
+
+
+def rrf(lists: list[list[str]], constant: int = RRF_K, weights: list[float] | None = None) -> list[tuple[str, float]]:
     """Fused (chunk_id, score) pairs, best first; ties keep first appearance, read rank by rank."""
     scores: dict[str, float] = {}
     for rank in range(max((len(ranked) for ranked in lists), default=0)):
@@ -102,7 +118,9 @@ def _manifest_embedder(index_dir: Path) -> Embedder:
 
 
 class Retriever:
-    def __init__(self, index_dir: Path, enriched_dir: Path, processed_dir: Path, embedder: Embedder):
+    def __init__(self, index_dir: Path, enriched_dir: Path, processed_dir: Path, embedder: Embedder,
+                 fusion: Fusion | None = None):
+        self.fusion = fusion or Fusion()
         manifest_path = index_dir / "manifest.json"
         if not manifest_path.is_file():
             raise _not_ready(f"no {manifest_path}: the index is missing or its build did not finish")
@@ -168,7 +186,8 @@ class Retriever:
 
     @classmethod
     def load(cls, data_dir: Path = Path("data"), embedder: Embedder | None = None,
-             index_dir: Path | None = None, enriched_dir: Path | None = None) -> "Retriever":
+             index_dir: Path | None = None, enriched_dir: Path | None = None,
+             fusion: Fusion | None = None) -> "Retriever":
         """Both indexes under `data_dir`, or in `index_dir` and `enriched_dir`; unless an embedder is given,
         the model and input limit the index's manifest names, from the local cache (#11)."""
         index_dir = index_dir or data_dir / "index"

@@ -24,6 +24,7 @@ from src.retrieval import (
     CANDIDATES,
     RRF_K,
     TOP_K,
+    Fusion,
     IndexNotReadyError,
     Retriever,
     find_references,
@@ -670,3 +671,153 @@ def test_rankings_report_unresolved_references_as_retrieve_does(retriever):
 def test_rankings_make_no_network_request(retriever, connections):
     assert retriever.rankings("Điều 9 Luật 48/2024 thuế suất").final
     assert connections == []
+
+
+# --- Fusion settings (#25) ----------------------------------------------------------------------
+
+def parent(chunk_id: str) -> str:
+    return ":".join(chunk_id.split(":")[:2])
+
+
+def fused_retriever(data_dir: Path, **settings) -> Retriever:
+    return Retriever(data_dir / "index", data_dir / "enriched", data_dir / "processed", TopicEmbedder(),
+                     fusion=Fusion(**settings))
+
+
+def weighted(lists: list[list[str]], constant: int, weights: list[float]) -> dict[str, float]:
+    """The fused score of each chunk, written out from the definition."""
+    scores: dict[str, float] = {}
+    for ranked, weight in zip(lists, weights):
+        for rank, chunk_id in enumerate(ranked, start=1):
+            scores[chunk_id] = scores.get(chunk_id, 0.0) + weight / (constant + rank)
+    return scores
+
+
+def test_the_default_fusion_is_the_starting_values(monkeypatch):
+    assert Fusion() == Fusion(rrf_k=60, keyword_weight=1.0, vector_weight=1.0, per_article=False, candidates=None)
+    assert Fusion().config() == {"rrf_k": 60, "candidates": 50, "keyword_weight": 1.0, "vector_weight": 1.0,
+                                 "per_article": False}
+    assert Fusion(candidates=100).config()["candidates"] == 100
+    monkeypatch.setattr(hybrid, "CANDIDATES", 3)
+    assert Fusion().config()["candidates"] == 3
+
+
+@pytest.mark.parametrize("settings", [{"rrf_k": 0}, {"keyword_weight": 0.0}, {"vector_weight": -1.0},
+                                      {"candidates": 0}])
+def test_a_fusion_refuses_values_it_cannot_use(settings):
+    with pytest.raises(ValueError):
+        Fusion(**settings)
+
+
+def test_rrf_multiplies_each_list_by_its_weight():
+    fused = dict(rrf([["a", "b"], ["b", "c"]], constant=10, weights=[2.0, 0.5]))
+    assert math.isclose(fused["a"], 2 / 11)
+    assert math.isclose(fused["b"], 2 / 12 + 0.5 / 11)
+    assert math.isclose(fused["c"], 0.5 / 12)
+
+
+def test_rrf_refuses_weights_not_one_per_list():
+    with pytest.raises(ValueError):
+        rrf([["a"], ["b"]], weights=[1.0])
+
+
+def test_the_default_fusion_gives_the_same_results(retriever, data_dir):
+    default = fused_retriever(data_dir)
+    for question in RANKING_QUESTIONS:
+        assert default.retrieve(question) == retriever.retrieve(question), question
+        assert default.rankings(question) == retriever.rankings(question), question
+
+
+@pytest.mark.parametrize("settings", [{"rrf_k": 20}, {"rrf_k": 120}, {"keyword_weight": 2.0},
+                                      {"vector_weight": 2.0}, {"rrf_k": 5, "keyword_weight": 0.5}])
+def test_the_fused_scores_follow_the_fusion(data_dir, settings):
+    retriever = fused_retriever(data_dir, **settings)
+    fusion = retriever.fusion
+    question = RANKING_QUESTIONS[0]  # no reference: the hits are the fused list
+    rankings = retriever.rankings(question)
+    expected = weighted([rankings.keyword[:CANDIDATES], rankings.vector[:CANDIDATES]], fusion.rrf_k,
+                        [fusion.keyword_weight, fusion.vector_weight])
+    hits = retriever.retrieve(question, k=len(CHUNKS)).hits
+    assert {h.chunk_id for h in hits} == set(expected)
+    for hit in hits:
+        assert math.isclose(hit.score, expected[hit.chunk_id]), hit
+    scores = [h.score for h in hits]
+    assert scores == sorted(scores, reverse=True)
+
+
+def test_the_document_list_weighs_one_with_the_fusion_constant(data_dir):
+    retriever = fused_retriever(data_dir, rrf_k=10, keyword_weight=2.0, vector_weight=0.5)
+    question = "Nghị định 68/2026 quy định gì về khai thuế?"
+    rankings = retriever.rankings(question)
+    within = [[c for c in ranking if c.startswith("427630:")] for ranking in (rankings.keyword, rankings.vector)]
+    named = sorted(weighted(within, 10, [1.0, 1.0]).items(), key=lambda pair: -pair[1])
+    document = [chunk_id for chunk_id, _ in named][:CANDIDATES]
+    expected = weighted([rankings.keyword[:CANDIDATES], rankings.vector[:CANDIDATES], document], 10, [2.0, 0.5, 1.0])
+    hits = retriever.retrieve(question, k=len(CHUNKS)).hits
+    assert any("document" in h.found_by for h in hits)
+    for hit in hits:
+        assert math.isclose(hit.score, expected[hit.chunk_id]), hit
+
+
+def test_the_fusion_cuts_each_list_at_its_candidates(data_dir):
+    retriever = fused_retriever(data_dir, candidates=3)
+    for question in (RANKING_QUESTIONS[0], RANKING_QUESTIONS[2]):
+        rankings = retriever.rankings(question)
+        assert rankings.candidates == 3
+        hits = retriever.retrieve(question, k=len(CHUNKS)).hits
+        assert {h.chunk_id for h in hits if "keyword" in h.found_by} == set(rankings.keyword[:3]), question
+        assert {h.chunk_id for h in hits if "vector" in h.found_by} == set(rankings.vector[:3]), question
+
+
+def test_rankings_report_the_candidates_read_at_call_time(retriever, monkeypatch):
+    assert retriever.rankings(RANKING_QUESTIONS[0]).candidates == 50
+    monkeypatch.setattr(hybrid, "CANDIDATES", 3)
+    assert retriever.rankings(RANKING_QUESTIONS[0]).candidates == 3
+
+
+def test_one_hit_per_article_skips_a_chunk_whose_article_is_above_it(retriever, data_dir):
+    per_article = fused_retriever(data_dir, per_article=True)
+    shorter = 0
+    for question in RANKING_QUESTIONS:
+        default = retriever.rankings(question).final
+        slots = {h.chunk_id for h in retriever.retrieve(question, k=len(CHUNKS)).hits if "reference" in h.found_by}
+        expected, seen = [], set()
+        for chunk_id in default:
+            if chunk_id in slots or parent(chunk_id) not in seen:
+                expected.append(chunk_id)
+            seen.add(parent(chunk_id))
+        assert per_article.rankings(question).final == expected, question
+        shorter += len(expected) < len(default)
+    assert shorter  # the corpus has split articles, so some chunk is skipped
+
+
+def test_one_hit_per_article_skips_the_other_clauses_of_a_named_article(retriever, data_dir):
+    question = "Điều 10 Luật 48/2024 về hoàn thuế dự án đầu tư"
+    assert "379409:D10:K1" in retriever.rankings(question).final
+    final = fused_retriever(data_dir, per_article=True).rankings(question).final
+    assert final[0] == "379409:D10:K2"
+    assert "379409:D10:K1" not in final
+
+
+def test_one_hit_per_article_keeps_two_named_clauses_of_one_article(data_dir):
+    final = fused_retriever(data_dir, per_article=True).rankings(
+        "Khoản 1 Điều 5 Luật 48/2024 và khoản 2 Điều 5 Luật 48/2024 quy định gì?").final
+    assert final[:2] == ["379409:D5:K1", "379409:D5:K2"]
+    assert "379409:D5:K25" not in final
+
+
+def test_one_hit_per_article_keeps_the_prefix_found_by_and_score(retriever, data_dir):
+    per_article = fused_retriever(data_dir, per_article=True)
+    for question in RANKING_QUESTIONS:
+        final = per_article.rankings(question).final
+        everything = {h.chunk_id: h for h in retriever.retrieve(question, k=len(CHUNKS)).hits}
+        for k in (1, 2, 3, TOP_K, 50):
+            hits = per_article.retrieve(question, k=k).hits
+            assert ids(per_article.retrieve(question, k=k)) == final[:k], (question, k)
+            assert all(hit == everything[hit.chunk_id] for hit in hits), (question, k)
+
+
+def test_load_gives_the_retriever_its_fusion(data_dir):
+    fusion = Fusion(rrf_k=20, per_article=True)
+    assert Retriever.load(data_dir, embedder=TopicEmbedder(), fusion=fusion).fusion == fusion
+    assert Retriever.load(data_dir, embedder=TopicEmbedder()).fusion == Fusion()

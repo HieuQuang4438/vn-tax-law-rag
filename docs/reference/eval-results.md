@@ -29,6 +29,17 @@ python -m src.eval.run --compare eval/results/<file>    # also prints what chang
 | `--index` | `<data>/index` | the index folder, for a variant built with `python -m src.index --out` |
 | `--out` | `eval/results` | where the results file is written |
 | `--compare` | none | an earlier results file to compare with |
+| `--comparisons` | 1 | how many variants are compared with the same baseline; above 1, `--compare` also prints the Bonferroni interval (#25) |
+| `--rrf-k` | `RRF_K` (60) | the fusion's `rrf_k` ([retrieval.md](retrieval.md#hybrid-search)) |
+| `--keyword-weight` | 1 | the fusion's `keyword_weight` |
+| `--vector-weight` | 1 | the fusion's `vector_weight` |
+| `--per-article` | off | turns on the fusion's `per_article` |
+| `--candidates` | `CANDIDATES` (50) | the fusion's `candidates` |
+
+The fusion options build the `Fusion` that `Retriever.load` gets (approved on #25). With none
+of them, it is `Fusion()`. A value `Fusion` refuses (`--rrf-k` or `--candidates` below 1, a
+weight of 0 or less) stops the command with exit code 2 before anything loads.
+`--comparisons` below 1 stops it the same way.
 
 The command:
 
@@ -122,7 +133,7 @@ The file holds ids and numbers only: no question text, no answer text and no cor
 | `diff_sha256` | `sha256` of the output of `git diff HEAD` when dirty, else null |
 | `eval_set` | `path`, `version`, `sha256` of the set file |
 | `index` | from the index folder's `manifest.json`: `model`, `revision`, `chunks_sha256`, `chunk_count`, `bm25_tokenizer`, `chunking`, `input_limit`, `truncated` (each null for a manifest without it) |
-| `pipeline` | `stages` (`["retrieval"]`), `rewrite` (`none`), `top_k`, `rrf_k`, `candidates` |
+| `pipeline` | `stages` (`["retrieval"]`), `rewrite` (`none`), `top_k`, then the retriever's `Fusion.config()`: `rrf_k`, `candidates`, `keyword_weight`, `vector_weight`, `per_article` |
 | `bootstrap` | `resamples` 1000, `seed` 0, `level` 0.95 |
 | `versions` | `python` and the installed `bm25s`, `chromadb`, `numpy`, `pyvi`, `sentence-transformers`, `torch`, `underthesea`; null for one not installed |
 | `machine` | `os` (`platform.platform()`), `cpu` (`platform.processor()`), `cpu_count`, `ram_gb` (null when it cannot be read) |
@@ -186,6 +197,10 @@ prints `different eval sets: scores are not comparable` and exits with 2. Otherw
   of the change (approved on #10). Over the items scored in both runs, the per-item differences
   new − old are resampled as under *Interval*, with the same seed: the two runs score the same
   items, so this interval is far narrower than the two runs' own intervals side by side;
+- with `--comparisons n` above 1, after each `paired` interval also `bonferroni [low, high]`:
+  the same per-item differences resampled 10,000 times with seed 0, at level 1 − 0.05 / n
+  (approved on #25). Several variants compared with one baseline make a win by chance more
+  likely, and this interval corrects for that;
 - every item whose recall dropped: its id, old and new recall.
 
 ## Baseline

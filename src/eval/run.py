@@ -310,7 +310,7 @@ def _paired(old_items: list[dict], new_items: list[dict], selects, key: str) -> 
     return [(before[i["id"]], i[key]) for i in new_items if selects(i) and i[key] is not None and i["id"] in before]
 
 
-def compare(old: dict, new: dict) -> str:
+def compare(old: dict, new: dict, comparisons: int = 1) -> str:
     """Score changes and recall drops; raises ValueError when the eval sets differ."""
     if old["configuration"]["eval_set"]["sha256"] != new["configuration"]["eval_set"]["sha256"]:
         raise ValueError("different eval sets: scores are not comparable")
@@ -335,6 +335,22 @@ def compare(old: dict, new: dict) -> str:
 
 # --- Command ------------------------------------------------------------------------------------
 
+def add_fusion_arguments(parser: argparse.ArgumentParser) -> None:
+    """The fusion options, shared with `src.eval.diagnose` (#25)."""
+    parser.add_argument("--rrf-k", type=int, help="the fusion's rrf_k; default RRF_K")
+    parser.add_argument("--keyword-weight", type=float, help="the fusion's keyword_weight; default 1")
+    parser.add_argument("--vector-weight", type=float, help="the fusion's vector_weight; default 1")
+    parser.add_argument("--per-article", action="store_true", help="skip a chunk whose article is already above it")
+    parser.add_argument("--candidates", type=int, help="the fusion's candidates; default CANDIDATES")
+
+
+def fusion_from(parser: argparse.ArgumentParser, args: argparse.Namespace):
+    """The `Fusion` the options name; a value it refuses stops the command with exit code 2."""
+    from src.retrieval import Fusion
+
+    return Fusion()  # stub (#25)
+
+
 def _parents(enriched_dir: Path) -> dict[str, str]:
     lines = (enriched_dir / "chunks.jsonl").read_text(encoding="utf-8").splitlines()
     return {chunk["id"]: chunk["parent_id"] for chunk in map(json.loads, lines)}
@@ -348,6 +364,9 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None) -> int
     parser.add_argument("--index", help="the index folder; default <data>/index")
     parser.add_argument("--out", default="eval/results", help="where the results file is written")
     parser.add_argument("--compare", help="an earlier results file to compare with")
+    parser.add_argument("--comparisons", type=int, default=1,
+                        help="variants compared with the same baseline; above 1, also the Bonferroni interval")
+    add_fusion_arguments(parser)
     args = parser.parse_args(argv)
     set_path, data, out = Path(args.set), Path(args.data), Path(args.out)
     index_dir = Path(args.index) if args.index else data / "index"

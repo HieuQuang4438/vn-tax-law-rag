@@ -23,8 +23,18 @@ import yaml
 
 from src.eval.dataset import TAX_TYPES, Conversation, EvalSet, Item, Provision
 from src.eval.metrics import bootstrap_interval, context_precision_at_k, paired_bootstrap_interval, recall_at_k
-from src.eval.run import TARGETS, Outcome, compare, configuration, evaluate, main, summary, write_results
-from src.retrieval import Hit, Unresolved
+from src.eval.run import (
+    TARGETS,
+    Outcome,
+    RetrievalPipeline,
+    compare,
+    configuration,
+    evaluate,
+    main,
+    summary,
+    write_results,
+)
+from src.retrieval import TOP_K, Fusion, Hit, Retrieval, Retriever, Unresolved
 
 ROOT = Path(__file__).resolve().parent.parent
 EVAL_IDS = [f"EVAL-00{n}" for n in range(1, 9)]
@@ -539,3 +549,92 @@ def test_configuration_records_the_input_limit_and_texts_cut_from_the_manifest(t
                                          encoding="utf-8")
     config = configuration(small_set(), Path("eval/questions.yaml"), index, FakePipeline.config, ROOT)
     assert (at(config, "index").get("input_limit"), at(config, "index").get("truncated")) == (2048, 12)
+
+
+# --- Fusion settings and the Bonferroni interval (#25) -----------------------------------------
+
+class FusionRetriever:
+    """A retriever with a fusion setting that finds one article for every question."""
+
+    def __init__(self, fusion: Fusion):
+        self.fusion = fusion
+
+    def retrieve(self, question: str, k: int = TOP_K) -> Retrieval:
+        return Retrieval([Hit("379409:D9", ("keyword",), 0.5)], [])
+
+
+@pytest.fixture
+def loads(monkeypatch) -> list:
+    """The fusion of every `Retriever.load` call, which returns a `FusionRetriever`."""
+    calls = []
+
+    def load(cls, data_dir=Path("data"), embedder=None, index_dir=None, enriched_dir=None, fusion=None):
+        calls.append(fusion)
+        return FusionRetriever(fusion or Fusion())
+
+    monkeypatch.setattr(Retriever, "load", classmethod(load))
+    return calls
+
+
+FUSION_OPTIONS = ["--rrf-k", "20", "--keyword-weight", "2", "--vector-weight", "1.5", "--per-article",
+                  "--candidates", "100"]
+FUSION_CONFIG = {"rrf_k": 20, "candidates": 100, "keyword_weight": 2.0, "vector_weight": 1.5, "per_article": True}
+
+
+def test_the_pipeline_records_the_retrievers_fusion():
+    pipeline = RetrievalPipeline(FusionRetriever(Fusion(rrf_k=20, keyword_weight=2.0, per_article=True)))
+    assert pipeline.config == {"stages": ["retrieval"], "rewrite": "none", "top_k": 8, "rrf_k": 20,
+                               "candidates": 50, "keyword_weight": 2.0, "vector_weight": 1.0, "per_article": True}
+
+
+def test_the_fusion_options_reach_the_retriever_and_the_file(command, loads):
+    argv, out, _ = command
+    assert main(argv + FUSION_OPTIONS) == 0
+    assert loads == [Fusion(rrf_k=20, keyword_weight=2.0, vector_weight=1.5, per_article=True, candidates=100)]
+    files = sorted(out.glob("*.json")) if out.is_dir() else []
+    assert len(files) == 1
+    pipeline = at(json.loads(files[0].read_text(encoding="utf-8")), "configuration", "pipeline")
+    assert {key: at(pipeline, key) for key in FUSION_CONFIG} == FUSION_CONFIG
+
+
+def test_without_fusion_options_the_retriever_gets_the_default(command, loads):
+    argv, _, _ = command
+    assert main(argv) == 0
+    assert loads in ([None], [Fusion()])
+
+
+@pytest.mark.parametrize("option", [["--rrf-k", "0"], ["--candidates", "0"], ["--keyword-weight", "0"],
+                                    ["--vector-weight", "-1"], ["--comparisons", "0"]])
+def test_a_value_the_fusion_refuses_stops_the_command_before_anything_loads(command, loads, option):
+    argv, out, _ = command
+    with pytest.raises(SystemExit) as stopped:
+        main(argv + option)
+    assert stopped.value.code == 2
+    assert loads == []
+    assert not out.exists()
+
+
+def test_compare_adds_the_bonferroni_interval_for_several_comparisons(connections):
+    old = full_results(evaluate(small_set(), FakePipeline(), PARENTS))
+    hits = dict(HITS)
+    hits[QUESTIONS[0].question] = ["379409:D5:K1"]
+    new = full_results(evaluate(small_set(), FakePipeline(hits), PARENTS))
+    low, high = paired_bootstrap_interval([1.0, 1.0, 0.5], [0.5, 1.0, 0.5], resamples=10_000, level=1 - 0.05 / 6)
+    text = compare(old, new, comparisons=6)
+    line = next((l for l in text.splitlines() if "EVAL-001" in l), "")
+    assert f"bonferroni [{low:+.3f}, {high:+.3f}]" in line
+    assert line.index("paired [") < line.index("bonferroni [")
+    for eval_id in ("EVAL-005", "EVAL-007"):
+        assert "bonferroni [" in next((l for l in text.splitlines() if eval_id in l), "")
+    assert "bonferroni" not in compare(old, new)
+
+
+def test_the_command_passes_its_comparisons_to_compare(command, capsys):
+    argv, out, _ = command
+    assert main(argv, pipeline=FakePipeline(default=["379409:D9"])) == 0
+    files = sorted(out.glob("*.json")) if out.is_dir() else []
+    assert len(files) == 1
+    capsys.readouterr()
+    assert main(argv + ["--compare", str(files[0]), "--comparisons", "6"],
+                pipeline=FakePipeline(default=["379409:D9"])) == 0
+    assert "bonferroni [" in capsys.readouterr().out
