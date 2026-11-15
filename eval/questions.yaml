@@ -3330,7 +3330,7 @@ questions:
     question: Lớp tập huấn miễn phí về thuế cho hộ kinh doanh ở Hà Nội tháng tới tổ chức ở đâu?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu không có thông tin về lịch hay địa điểm tập huấn thuế; chúng chỉ quy định cơ quan thuế có trách nhiệm hướng dẫn, hỗ trợ hộ kinh doanh.
     unanswerable: out_of_scope
     added_in: 2
   - id: q248  # step 2: repealed confirmed by 18/2026/TT-BTC Điều 9 khoản 2, which replaces 40/2021/TT-BTC
