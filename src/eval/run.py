@@ -70,11 +70,8 @@ class RetrievalPipeline:
     """Today's pipeline: one stage, retrieval, each question as written (`rewrite: none`)."""
 
     def __init__(self, retriever, k: int = TOP_K):
-        from src.retrieval import hybrid
-
         self._retriever, self._k = retriever, k
-        self.config = {"stages": ["retrieval"], "rewrite": "none", "top_k": k,
-                       "rrf_k": hybrid.RRF_K, "candidates": hybrid.CANDIDATES}
+        self.config = {"stages": ["retrieval"], "rewrite": "none", "top_k": k, **retriever.fusion.config()}
 
     def answer(self, question: str) -> Outcome:
         started = time.perf_counter()
@@ -310,8 +307,14 @@ def _paired(old_items: list[dict], new_items: list[dict], selects, key: str) -> 
     return [(before[i["id"]], i[key]) for i in new_items if selects(i) and i[key] is not None and i["id"] in before]
 
 
+BONFERRONI_RESAMPLES = 10_000  # the corrected interval reads a far tail, so it needs more resamples (#25)
+
+
 def compare(old: dict, new: dict, comparisons: int = 1) -> str:
-    """Score changes and recall drops; raises ValueError when the eval sets differ."""
+    """Score changes and recall drops; raises ValueError when the eval sets differ.
+
+    With `comparisons` above 1, each paired interval is followed by its Bonferroni interval (#25).
+    """
     if old["configuration"]["eval_set"]["sha256"] != new["configuration"]["eval_set"]["sha256"]:
         raise ValueError("different eval sets: scores are not comparable")
     lines = [f"Compared with {old['configuration']['commit'][:7]} ({old['run']['started']})"]
@@ -322,8 +325,13 @@ def compare(old: dict, new: dict, comparisons: int = 1) -> str:
             if eval_id in PAIRED:
                 pairs = _paired(old["items"], new["items"], *PAIRED[eval_id])
                 if pairs:
-                    low, high = paired_bootstrap_interval([o for o, _ in pairs], [n for _, n in pairs])
+                    before_values, after_values = [o for o, _ in pairs], [n for _, n in pairs]
+                    low, high = paired_bootstrap_interval(before_values, after_values)
                     line += f"  paired [{low:+.3f}, {high:+.3f}]"
+                    if comparisons > 1:
+                        low, high = paired_bootstrap_interval(before_values, after_values, BONFERRONI_RESAMPLES,
+                                                              level=1 - (1 - BOOTSTRAP_LEVEL) / comparisons)
+                        line += f"  bonferroni [{low:+.3f}, {high:+.3f}]"
             lines.append(line)
     previous = {i["id"]: i["recall"] for i in old["items"]}
     drops = [f"  {i['id']}  recall {previous[i['id']]:.3f} -> {i['recall']:.3f}" for i in new["items"]
@@ -348,7 +356,12 @@ def fusion_from(parser: argparse.ArgumentParser, args: argparse.Namespace):
     """The `Fusion` the options name; a value it refuses stops the command with exit code 2."""
     from src.retrieval import Fusion
 
-    return Fusion()  # stub (#25)
+    settings = {name: getattr(args, name) for name in ("rrf_k", "keyword_weight", "vector_weight", "candidates")
+                if getattr(args, name) is not None}
+    try:
+        return Fusion(per_article=args.per_article, **settings)
+    except ValueError as error:
+        parser.error(str(error))
 
 
 def _parents(enriched_dir: Path) -> dict[str, str]:
@@ -368,6 +381,9 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None) -> int
                         help="variants compared with the same baseline; above 1, also the Bonferroni interval")
     add_fusion_arguments(parser)
     args = parser.parse_args(argv)
+    if args.comparisons < 1:
+        parser.error(f"--comparisons must be at least 1, not {args.comparisons}")
+    fusion = fusion_from(parser, args)
     set_path, data, out = Path(args.set), Path(args.data), Path(args.out)
     index_dir = Path(args.index) if args.index else data / "index"
     enriched = Path(args.enriched) if args.enriched else data / "enriched"
@@ -378,7 +394,7 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None) -> int
     if pipeline is None:
         from src.retrieval import Retriever
 
-        pipeline = RetrievalPipeline(Retriever.load(data, index_dir=index_dir, enriched_dir=enriched))
+        pipeline = RetrievalPipeline(Retriever.load(data, index_dir=index_dir, enriched_dir=enriched, fusion=fusion))
     scored = evaluate(eval_set, pipeline, _parents(enriched))
     config = configuration(eval_set, set_path, index_dir, pipeline.config)
     command = " ".join(["python -m src.eval.run", *(argv if argv is not None else [])])
@@ -390,7 +406,7 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None) -> int
     if args.compare:
         old = json.loads(Path(args.compare).read_text(encoding="utf-8"))
         try:
-            text = compare(old, results)
+            text = compare(old, results, args.comparisons)
         except ValueError as error:
             print(error)
             return 2

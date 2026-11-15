@@ -69,6 +69,13 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   cuts from. Measured on eval set v1, 30 of the 43 articles missing from the top 8 are ranked 9
   to 50, and recall@20 is 0.850, so the next step is tuning the fusion. FR-CORE-008, ADR-0002,
   #24.
+- Fusion setting as a run option: `Retriever` takes a `Fusion` (`rrf_k`, `keyword_weight`,
+  `vector_weight`, `per_article`, `candidates`), and `python -m src.eval.run` and
+  `python -m src.eval.diagnose` take `--rrf-k`, `--keyword-weight`, `--vector-weight`,
+  `--per-article` and `--candidates`, recorded under `pipeline` in every results file. With
+  `per_article`, a chunk whose article already has a chunk above it is skipped, so the top 8
+  holds 8 articles. `--compare --comparisons n` also prints a Bonferroni interval of each paired
+  change. `Fusion()` gives today's results. FR-CORE-008, ADR-0002, #25.
 
 ### Changed
 

@@ -11,9 +11,8 @@ from pathlib import Path
 
 from src.eval.dataset import EvalSet, Item, load_eval_set
 from src.eval.metrics import bootstrap_interval, recall_at_k
-from src.eval.run import _parents, add_fusion_arguments, configuration, write_results
+from src.eval.run import _parents, add_fusion_arguments, configuration, fusion_from, write_results
 from src.retrieval import TOP_K, Rankings
-from src.retrieval import hybrid
 
 FORMAT = 1
 CUTS = (8, 12, 16, 20, 30, 50)
@@ -45,9 +44,8 @@ def _miss(article: str, rankings: Rankings, parents: dict[str, str], chunk_count
     keyword_rank = _best_rank(rankings.keyword, article, parents)
     vector_rank = _best_rank(rankings.vector, article, parents)
     place = "not_in_pool" if final_rank is None else "below_cut" if final_rank <= DEPTH else "beyond_50"
-    candidates = hybrid.CANDIDATES  # read at call time, as the retriever does
     lists = [name for name, rank in (("keyword", keyword_rank), ("vector", vector_rank))
-             if rank is not None and rank <= candidates]
+             if rank is not None and rank <= rankings.candidates]
     return {"article": article, "final_rank": final_rank, "keyword_rank": keyword_rank, "vector_rank": vector_rank,
             "place": place, "lists": lists, "split": chunk_counts[article] > 1}
 
@@ -152,6 +150,7 @@ def main(argv: list[str] | None = None, retriever=None) -> int:
     parser.add_argument("--out", default="eval/results/diagnostics", help="where the file is written")
     add_fusion_arguments(parser)
     args = parser.parse_args(argv)
+    fusion = fusion_from(parser, args)
     set_path, data, out = Path(args.set), Path(args.data), Path(args.out)
     index_dir = Path(args.index) if args.index else data / "index"
     enriched = Path(args.enriched) if args.enriched else data / "enriched"
@@ -162,10 +161,10 @@ def main(argv: list[str] | None = None, retriever=None) -> int:
     if retriever is None:
         from src.retrieval import Retriever
 
-        retriever = Retriever.load(data, index_dir=index_dir, enriched_dir=enriched)
+        retriever = Retriever.load(data, index_dir=index_dir, enriched_dir=enriched, fusion=fusion)
     diagnosed = diagnose(eval_set, retriever, _parents(enriched))
-    pipeline = {"stages": ["retrieval"], "rewrite": "none", "top_k": TOP_K, "rrf_k": hybrid.RRF_K,
-                "candidates": hybrid.CANDIDATES, "depth": DEPTH, "cuts": list(CUTS)}
+    pipeline = {"stages": ["retrieval"], "rewrite": "none", "top_k": TOP_K, **fusion.config(),
+                "depth": DEPTH, "cuts": list(CUTS)}
     command = " ".join(["python -m src.eval.diagnose", *(argv if argv is not None else [])])
     results = {"format": FORMAT,
                "run": {"started": started_at, "command": command, "seconds": round(time.perf_counter() - started, 1)},

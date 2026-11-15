@@ -68,21 +68,42 @@ class Fusion:
     per_article: bool = False
     candidates: int | None = None  # None: CANDIDATES, read when the retriever searches
 
+    def __post_init__(self):
+        if self.rrf_k < 1:
+            raise ValueError(f"rrf_k must be at least 1, not {self.rrf_k}")
+        for name in ("keyword_weight", "vector_weight"):
+            if getattr(self, name) <= 0:
+                raise ValueError(f"{name} must be above 0, not {getattr(self, name)}")
+        if self.candidates is not None and self.candidates < 1:
+            raise ValueError(f"candidates must be at least 1, not {self.candidates}")
+
+    def candidate_count(self) -> int:
+        """How many of each ranking are fused: `candidates`, or `CANDIDATES` as it is now."""
+        return CANDIDATES if self.candidates is None else self.candidates
+
     def config(self) -> dict:
         """The setting as the results files record it."""
-        return {}  # stub (#25)
+        return {"rrf_k": self.rrf_k, "candidates": self.candidate_count(), "keyword_weight": self.keyword_weight,
+                "vector_weight": self.vector_weight, "per_article": self.per_article}
 
 
 def rrf(lists: list[list[str]], constant: int = RRF_K, weights: list[float] | None = None) -> list[tuple[str, float]]:
-    """Fused (chunk_id, score) pairs, best first; ties keep first appearance, read rank by rank."""
+    """Fused (chunk_id, score) pairs, best first; ties keep first appearance, read rank by rank.
+
+    Each list adds its weight / (constant + rank); with no weights, every list weighs 1 (#25).
+    """
+    if weights is None:
+        weights = [1.0] * len(lists)
+    elif len(weights) != len(lists):
+        raise ValueError(f"{len(weights)} weights for {len(lists)} lists")
     scores: dict[str, float] = {}
     for rank in range(max((len(ranked) for ranked in lists), default=0)):
         for ranked in lists:
             if rank < len(ranked):
                 scores.setdefault(ranked[rank], 0.0)
-    for ranked in lists:
+    for ranked, weight in zip(lists, weights):
         for rank, chunk_id in enumerate(ranked, start=1):
-            scores[chunk_id] += 1 / (constant + rank)
+            scores[chunk_id] += weight / (constant + rank)
     order = {chunk_id: i for i, chunk_id in enumerate(scores)}
     return sorted(scores.items(), key=lambda pair: (-pair[1], order[pair[0]]))
 
@@ -145,6 +166,7 @@ class Retriever:
         self._ids = [row["id"] for row in rows]
         self._row = {chunk_id: i for i, chunk_id in enumerate(self._ids)}
         self._doc_of = [row["doc_id"] for row in rows]
+        self._parent = {row["id"]: row["parent_id"] for row in rows}
         self._article_chunks: dict[str, list[str]] = {}
         for row in rows:
             self._article_chunks.setdefault(row["parent_id"], []).append(row["id"])
@@ -189,10 +211,11 @@ class Retriever:
              index_dir: Path | None = None, enriched_dir: Path | None = None,
              fusion: Fusion | None = None) -> "Retriever":
         """Both indexes under `data_dir`, or in `index_dir` and `enriched_dir`; unless an embedder is given,
-        the model and input limit the index's manifest names, from the local cache (#11)."""
+        the model and input limit the index's manifest names, from the local cache (#11); `fusion` as for the
+        constructor (#25)."""
         index_dir = index_dir or data_dir / "index"
         return cls(index_dir, enriched_dir or data_dir / "enriched", data_dir / "processed",
-                   embedder or _manifest_embedder(index_dir))
+                   embedder or _manifest_embedder(index_dir), fusion)
 
     # --- references
 
@@ -245,7 +268,7 @@ class Retriever:
         search = self._search(question)
         return Rankings(keyword=[self._ids[r] for r in search.keyword_rows],
                         vector=[self._ids[r] for r in search.vector_rows],
-                        final=list(search.final), unresolved=list(search.unresolved))
+                        final=list(search.final), unresolved=list(search.unresolved), candidates=search.candidates)
 
     def retrieve(self, question: str, k: int = TOP_K) -> Retrieval:
         search = self._search(question)
@@ -274,16 +297,18 @@ class Retriever:
         tokens = self._tokenize(question) + [t for d in documents for t in self._tokenize(d.number)]
         keyword_rows = self._keyword_ranking(tokens)
         vector_rows = self._vector_ranking(question)
-        keyword = [self._ids[r] for r in keyword_rows[:CANDIDATES]]
-        vector = [self._ids[r] for r in vector_rows[:CANDIDATES]]
-        lists = [keyword, vector]
+        fusion, candidates = self.fusion, self.fusion.candidate_count()
+        keyword = [self._ids[r] for r in keyword_rows[:candidates]]
+        vector = [self._ids[r] for r in vector_rows[:candidates]]
+        lists, weights = [keyword, vector], [fusion.keyword_weight, fusion.vector_weight]
         named: list[str] = []
         if documents:
             doc_ids = {d.doc_id for d in documents}
             within = [[self._ids[r] for r in rows if self._doc_of[r] in doc_ids] for rows in (keyword_rows, vector_rows)]
-            named = [chunk_id for chunk_id, _ in rrf(within)][:CANDIDATES]
+            named = [chunk_id for chunk_id, _ in rrf(within, fusion.rrf_k)][:candidates]
             lists.append(named)
-        fused = rrf(lists)
+            weights.append(1.0)  # the document list always weighs 1 (#25)
+        fused = rrf(lists, fusion.rrf_k, weights)
 
         # Every slot, in question order: a cut at k keeps the first k of them, as before #24.
         slots: list[str] = []
@@ -294,8 +319,14 @@ class Retriever:
                 chunk_id = next((c for c, _ in fused if c in own), self._article_chunks[article.article_id][0])
             if chunk_id not in slots:
                 slots.append(chunk_id)
-        final = slots + [c for c, _ in fused if c not in slots]
-        return _Search(keyword_rows, vector_rows, slots, final, dict(fused),
+        final, taken = list(slots), set(slots)
+        above = {self._parent[c] for c in slots}  # the articles with a chunk above, for per_article
+        for chunk_id, _ in fused:
+            if chunk_id in taken or (fusion.per_article and self._parent[chunk_id] in above):
+                continue
+            final.append(chunk_id)
+            above.add(self._parent[chunk_id])
+        return _Search(keyword_rows, vector_rows, slots, final, dict(fused), candidates,
                        {"keyword": set(keyword), "vector": set(vector), "document": set(named)}, unresolved)
 
 
@@ -306,5 +337,6 @@ class _Search:
     slots: list[str]  # every reference slot, in question order
     final: list[str]  # the slots, then the fused list
     score: dict[str, float]  # fused score per chunk
+    candidates: int  # how many of each ranking were fused
     lists: dict[str, set[str]]  # the chunks of the keyword, vector and document lists
     unresolved: list[Unresolved]
