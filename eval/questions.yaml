@@ -2938,41 +2938,110 @@ questions:
       theo Nghị định 360/2025/NĐ-CP.
     unanswerable: repealed
     added_in: 2
-  - id: q221
+  - id: q221  # step 2: 141/2026/NĐ-CP Điều 1 listed because it amends the 68/2026/NĐ-CP articles cited (500 triệu becomes 01 tỷ); 89/2026/TT-BTC Điều 99 khoản 4 listed because it repeals parts of 18/2026/TT-BTC Điều 4 (khoản 2 điểm a, c and khoản 3), not the parts used
     question: Hộ kinh doanh có doanh thu dưới mức phải nộp thuế thì có cần khai báo doanh thu với cơ quan thuế không?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Có. Hộ kinh doanh có doanh thu năm từ 01 tỷ đồng trở xuống không phải nộp thuế GTGT, TNCN nhưng vẫn phải thông báo
+      doanh thu thực tế phát sinh trong năm với cơ quan thuế, chậm nhất ngày 31 tháng 01 năm sau, theo Mẫu số 01/TKN-CNKD.
+    key_facts:
+      - "vẫn phải thông báo doanh thu thực tế phát sinh trong năm"
+      - "chậm nhất ngày 31 tháng 01 năm sau"
+      - "Mẫu số 01/TKN-CNKD"
+    provisions:
+      - 68/2026/NĐ-CP Điều 8 khoản 1
+      - 141/2026/NĐ-CP Điều 1
+      - 18/2026/TT-BTC Điều 4
+      - 89/2026/TT-BTC Điều 99 khoản 4
     added_in: 2
-  - id: q222
+  - id: q222  # step 2: 141/2026/NĐ-CP Điều 1 listed because it amends the 68/2026/NĐ-CP articles cited (500 triệu becomes 01 tỷ)
     question: Tiệm mới mở từ tháng 7 thì ngưỡng doanh thu không phải nộp thuế tính cho cả năm hay chia theo số tháng?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Không chia theo số tháng. Hộ mới ra kinh doanh so doanh thu thực tế lũy kế với ngưỡng 01 tỷ đồng; khi doanh thu lũy kế
+      vượt 01 tỷ đồng thì khai thuế theo quý kể từ quý phát sinh doanh thu vượt ngưỡng. Nếu bắt đầu trong 06 tháng cuối năm
+      và doanh thu từ 01 tỷ đồng trở xuống thì thông báo doanh thu chậm nhất ngày 31 tháng 01 năm sau.
+    key_facts:
+      - "so doanh thu thực tế lũy kế với ngưỡng 01 tỷ đồng, không chia theo tháng"
+      - "vượt 01 tỷ đồng thì khai thuế theo quý từ quý phát sinh"
+      - "bắt đầu 06 tháng cuối năm thì thông báo doanh thu chậm nhất 31 tháng 01 năm sau"
+    provisions:
+      - 68/2026/NĐ-CP Điều 9
+      - 141/2026/NĐ-CP Điều 1
     added_in: 2
-  - id: q223
+  - id: q223  # step 2: 141/2026/NĐ-CP Điều 1 listed because it amends the 68/2026/NĐ-CP articles cited (500 triệu becomes 01 tỷ)
     question: Mình bán hàng qua Facebook, khách chuyển khoản trực tiếp, không qua sàn nào, thì phải tự khai thuế theo kỳ nào?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Bán qua nền tảng không có chức năng đặt hàng và thanh toán thì phải tự kê khai, nộp thuế như hộ kinh doanh thông
+      thường. Nếu doanh thu năm từ 01 tỷ đồng trở xuống thì chỉ thông báo doanh thu theo năm (chậm nhất 31 tháng 01 năm sau).
+      Nếu trên 01 tỷ đồng thì khai thuế theo quý (theo tháng nếu doanh thu năm trên 50 tỷ đồng). Không có địa điểm kinh doanh
+      thì khai tại cơ quan thuế nơi cư trú.
+    key_facts:
+      - "phải tự kê khai, nộp thuế"
+      - "doanh thu đến 01 tỷ đồng thì thông báo doanh thu theo năm"
+      - "trên 01 tỷ đồng thì khai theo quý"
+      - "khai tại cơ quan thuế nơi cư trú"
+    provisions:
+      - 68/2026/NĐ-CP Điều 11
+      - 68/2026/NĐ-CP Điều 8 khoản 1
+      - 68/2026/NĐ-CP Điều 10
+      - 141/2026/NĐ-CP Điều 1
+      - 68/2026/NĐ-CP Điều 8 khoản 4
     added_in: 2
-  - id: q224
+  - id: q224  # step 2: 141/2026/NĐ-CP Điều 1 and 09/2026/QH16 Điều 1 listed because they amend 68/2026/NĐ-CP Điều 4 and 109/2025/QH15 Điều 7 khoản 1 (threshold now 01 tỷ)
     question: Tiệm cắt tóc gội đầu của hộ kinh doanh nộp thuế thu nhập cá nhân theo tỷ lệ bao nhiêu trên doanh thu?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Cắt tóc, gội đầu là dịch vụ, nên nếu nộp thuế TNCN theo tỷ lệ trên doanh thu thì thuế suất là 2%, tính trên phần doanh
+      thu vượt 01 tỷ đồng. Cách tính này áp dụng cho hộ có doanh thu năm trên 01 tỷ đến 03 tỷ đồng; hộ từ 01 tỷ đồng trở xuống
+      không phải nộp thuế TNCN.
+    key_facts:
+      - "dịch vụ thuế suất 2%"
+      - "tính trên phần doanh thu vượt 01 tỷ đồng"
+    provisions:
+      - 109/2025/QH15 Điều 7
+      - 09/2026/QH16 Điều 1
+      - 68/2026/NĐ-CP Điều 4
+      - 141/2026/NĐ-CP Điều 1
     added_in: 2
-  - id: q225
+  - id: q225  # step 2: 141/2026/NĐ-CP Điều 1 and 09/2026/QH16 Điều 1 listed because they amend 68/2026/NĐ-CP Điều 4 and 109/2025/QH15 Điều 7 khoản 1 (threshold now 01 tỷ)
     question: Hộ kinh doanh chạy xe tải chở hàng thuê thì nộp thuế theo tỷ lệ bao nhiêu?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Vận tải chịu thuế suất thuế TNCN 1,5% trên phần doanh thu vượt 01 tỷ đồng, nếu hộ có doanh thu năm trên 01 tỷ đến 03 tỷ
+      đồng và nộp theo tỷ lệ trên doanh thu. Doanh thu vận tải là toàn bộ doanh thu vận chuyển hàng hóa phát sinh trong kỳ.
+    key_facts:
+      - "vận tải thuế suất 1,5%"
+      - "tính trên phần doanh thu vượt 01 tỷ đồng"
+    provisions:
+      - 109/2025/QH15 Điều 7
+      - 09/2026/QH16 Điều 1
+      - 68/2026/NĐ-CP Điều 4
+      - 141/2026/NĐ-CP Điều 1
+      - 68/2026/NĐ-CP Điều 5
     added_in: 2
-  - id: q226
+  - id: q226  # step 2: 141/2026/NĐ-CP Điều 1 listed because it amends the 68/2026/NĐ-CP articles cited (500 triệu becomes 01 tỷ)
     question: Hộ kinh doanh có cửa hàng ở hai tỉnh khác nhau thì doanh thu để xét ngưỡng nộp thuế tính chung hay tính riêng từng nơi?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Tính chung. Mức 01 tỷ đồng không phải nộp thuế áp dụng cho tổng doanh thu cả năm của mọi địa điểm; hộ được chọn trừ
+      vào địa điểm nào có lợi nhất nhưng tổng mức trừ không quá 01 tỷ đồng. Hộ khai tổng hợp các địa điểm trên 01 hồ sơ nộp
+      cơ quan thuế quản lý trụ sở, và nộp thuế cho từng địa điểm.
+    key_facts:
+      - "doanh thu các địa điểm tính chung"
+      - "tổng mức trừ không quá 01 tỷ đồng một năm"
+      - "khai trên 01 hồ sơ tại cơ quan thuế quản lý trụ sở, nộp thuế từng địa điểm"
+    provisions:
+      - 68/2026/NĐ-CP Điều 4
+      - 141/2026/NĐ-CP Điều 1
+      - 68/2026/NĐ-CP Điều 8 khoản 4
     added_in: 2
   - id: q227
     question: Hộ kinh doanh thuê nhân viên bán hàng thì có phải khấu trừ thuế thu nhập cá nhân của nhân viên không?
@@ -2993,119 +3062,269 @@ questions:
     question: Hộ kinh doanh nộp thuế theo phương pháp kê khai thì tiền thuê mặt bằng có được trừ khi tính thuế không?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Được. Khi tính thuế TNCN theo thu nhập tính thuế nhân thuế suất, chi phí thuê tài sản là chi phí được trừ nếu thực tế
+      phát sinh, liên quan đến kinh doanh, có hóa đơn, chứng từ và thanh toán không dùng tiền mặt với khoản từ 05 triệu đồng
+      trở lên.
+    key_facts:
+      - "tiền thuê mặt bằng là chi phí được trừ"
+      - "phải có hóa đơn, chứng từ"
+      - "từ 05 triệu đồng phải thanh toán không dùng tiền mặt"
+    provisions:
+      - 68/2026/NĐ-CP Điều 6
     added_in: 2
-  - id: q229
+  - id: q229  # step 2: 141/2026/NĐ-CP Điều 1 listed because it amends the 68/2026/NĐ-CP articles cited (500 triệu becomes 01 tỷ)
     question: Tài xế chạy Grab có phải tự nộp thuế không hay công ty đã khấu trừ thay rồi?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Nếu nền tảng có chức năng đặt hàng và thanh toán thì chủ quản nền tảng khấu trừ, khai thay và nộp thay thuế trên từng
+      giao dịch, nên tài xế không phải tự nộp phần đó. Tài xế vẫn phải tự quyết toán thuế TNCN theo năm nếu tổng doanh thu
+      trên 03 tỷ đồng, hoặc trên 01 tỷ đồng và chọn tính theo thu nhập; thuế đã khấu trừ được trừ đi. Nếu doanh thu cả năm
+      từ 01 tỷ đồng trở xuống thì số thuế đã bị khấu trừ được xử lý nộp thừa.
+    key_facts:
+      - "nền tảng có chức năng đặt hàng và thanh toán khấu trừ, nộp thay"
+      - "doanh thu trên 03 tỷ đồng thì tự quyết toán TNCN"
+      - "doanh thu đến 01 tỷ đồng thì thuế đã khấu trừ được xử lý nộp thừa"
+    provisions:
+      - 68/2026/NĐ-CP Điều 11
+      - 68/2026/NĐ-CP Điều 12
+      - 141/2026/NĐ-CP Điều 1
     added_in: 2
-  - id: q230
+  - id: q230  # step 2: 141/2026/NĐ-CP Điều 1 listed because it amends the 68/2026/NĐ-CP articles cited (500 triệu becomes 01 tỷ)
     question: Mình bán hàng trên Amazon cho khách nước ngoài thì ai khai và nộp thuế cho khoản doanh thu đó?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Nếu nền tảng (trong nước hoặc nước ngoài) có chức năng đặt hàng trực tuyến và thanh toán thì chủ quản nền tảng khấu trừ,
+      khai thay và nộp thay thuế trên từng giao dịch. Nếu nền tảng không có các chức năng đó thì hộ kinh doanh cư trú tự kê
+      khai, nộp thuế. Các văn bản không quy định riêng cho việc bán cho khách nước ngoài.
+    key_facts:
+      - "nền tảng có chức năng đặt hàng và thanh toán khấu trừ, nộp thay"
+      - "nền tảng không có các chức năng đó thì hộ kinh doanh tự kê khai"
+    provisions:
+      - 68/2026/NĐ-CP Điều 11
+      - 141/2026/NĐ-CP Điều 1
     added_in: 2
   - id: q231
     question: Hộ kinh doanh tạm nghỉ bán hai tháng thì có phải báo cho cơ quan thuế không?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Có. Hộ đã đăng ký kinh doanh làm thủ tục tạm ngừng theo pháp luật về đăng ký doanh nghiệp. Trường hợp không phải đăng
+      ký kinh doanh nhưng đã đăng ký thuế thì gửi thông báo cho cơ quan thuế để cập nhật tình trạng tạm ngừng. Trong thời gian
+      tạm ngừng không phải nộp hồ sơ khai thuế, trừ khi tạm ngừng không trọn quý (khai theo quý) hoặc không trọn tháng (khai
+      theo tháng).
+    key_facts:
+      - "hộ đã đăng ký kinh doanh làm thủ tục tạm ngừng theo pháp luật đăng ký doanh nghiệp"
+      - "không phải đăng ký kinh doanh thì thông báo cơ quan thuế"
+      - "tạm ngừng không trọn quý, trọn tháng vẫn phải khai thuế"
+    provisions:
+      - 68/2026/NĐ-CP Điều 8 khoản 6
     added_in: 2
-  - id: q232
+  - id: q232  # step 2: 89/2026/TT-BTC Điều 99 khoản 4 listed because it repeals parts of 18/2026/TT-BTC Điều 4 (khoản 2 điểm a, c and khoản 3), not the parts used
     question: Hộ kinh doanh có được dùng tài khoản ngân hàng cá nhân để nhận tiền bán hàng không?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Được. Hộ kinh doanh phải thông báo cho cơ quan thuế, bằng phương thức điện tử, tất cả các số tài khoản thanh toán và ví
+      điện tử liên quan đến sản xuất, kinh doanh, theo Mẫu số 01/BK-STK, và thông báo lại khi thay đổi.
+    key_facts:
+      - "phải thông báo tất cả số tài khoản, ví điện tử dùng cho kinh doanh"
+      - "Mẫu số 01/BK-STK"
+    provisions:
+      - 68/2026/NĐ-CP Điều 13
+      - 18/2026/TT-BTC Điều 4
+      - 89/2026/TT-BTC Điều 99 khoản 4
     added_in: 2
   - id: q233
     question: Hộ kinh doanh chuyển địa điểm kinh doanh sang phường khác thì phải làm thủ tục gì với cơ quan thuế?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Hộ kinh doanh thông báo thay đổi thông tin địa điểm kinh doanh đến cơ quan thuế quản lý trụ sở trong 10 ngày làm việc
+      kể từ ngày thay đổi, theo Mẫu số 01/TB-ĐĐKD. Cơ quan thuế phản hồi theo Mẫu số 02/TB-ĐĐKD.
+    key_facts:
+      - "thông báo trong 10 ngày làm việc kể từ ngày thay đổi"
+      - "gửi cơ quan thuế quản lý trụ sở"
+      - "Mẫu số 01/TB-ĐĐKD"
+    provisions:
+      - 68/2026/NĐ-CP Điều 8 khoản 4
+      - 18/2026/TT-BTC Điều 3
     added_in: 2
   - id: q234
     question: Cơ quan thuế có lấy dữ liệu tài khoản ngân hàng để xác định doanh thu của hộ kinh doanh không?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Có. Tổ chức tín dụng, tổ chức cung ứng dịch vụ thanh toán phải định kỳ cung cấp số tài khoản theo mã số thuế, kết nối
+      và chia sẻ thông tin giao dịch của người nộp thuế phục vụ quản lý thuế, và phối hợp khi có giao dịch bất thường. Hộ kinh
+      doanh cũng phải tự thông báo mọi tài khoản, ví điện tử dùng cho kinh doanh.
+    key_facts:
+      - "ngân hàng cung cấp thông tin tài khoản và giao dịch cho cơ quan thuế"
+      - "hộ kinh doanh phải thông báo mọi tài khoản dùng cho kinh doanh"
+    provisions:
+      - 108/2025/QH15 Điều 40 khoản 2
+      - 252/2026/NĐ-CP Điều 61 khoản 3
+      - 68/2026/NĐ-CP Điều 13
     added_in: 2
-  - id: q235
+  - id: q235  # step 2: 141/2026/NĐ-CP Điều 1 listed because it amends the 68/2026/NĐ-CP articles cited (500 triệu becomes 01 tỷ)
     question: Hộ kinh doanh nộp thuế trễ hạn thì có bị tính tiền chậm nộp không?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Có. Tiền chậm nộp bằng 0,03%/ngày tính trên số tiền thuế chậm nộp. Riêng hộ tạm nộp thuế TNCN theo quý ít hơn số phải
+      nộp khi quyết toán thì nộp bổ sung mà không phải tính tiền chậm nộp.
+    key_facts:
+      - "tiền chậm nộp 0,03%/ngày"
+      - "tạm nộp TNCN thiếu so với quyết toán không tính tiền chậm nộp"
+    provisions:
+      - 108/2025/QH15 Điều 16
+      - 68/2026/NĐ-CP Điều 10
+      - 141/2026/NĐ-CP Điều 1
     added_in: 2
-  - id: q236
+  - id: q236  # step 2: 141/2026/NĐ-CP Điều 1 listed because it amends the 68/2026/NĐ-CP articles cited (500 triệu becomes 01 tỷ)
     question: Quán vừa bán tạp hóa vừa bán cà phê mà không tách được doanh thu từng loại thì áp tỷ lệ thuế nào?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: >
+      Với thuế GTGT, nếu không tách được doanh thu theo từng tỷ lệ % thì phải áp tỷ lệ % cao nhất của các hàng hóa, dịch vụ
+      đang kinh doanh trên toàn bộ doanh thu. Với thuế TNCN của cá nhân cư trú, các văn bản không có quy định riêng cho
+      trường hợp này.
+    key_facts:
+      - "thuế GTGT áp tỷ lệ % cao nhất trên toàn bộ doanh thu"
+    provisions:
+      - 69/2025/TT-BTC Điều 5
+      - 68/2026/NĐ-CP Điều 3
+      - 141/2026/NĐ-CP Điều 1
     added_in: 2
-  - id: q237
+  - id: q237  # step 2: moved to unanswerable; 68/2026/NĐ-CP lets households choose a method (Điều 4 khoản 5) but sets no notice or deadline for the choice
     question: Theo Nghị định 68/2026, hộ kinh doanh có doanh thu trên ngưỡng phải thông báo phương pháp tính thuế cho cơ quan thuế khi nào?
     tax_type: household
     form: reference
-    answer: TODO
+    answer: >
+      Nghị định 68/2026/NĐ-CP không quy định thủ tục hay thời hạn thông báo phương pháp tính thuế. Nghị định chỉ cho hộ có
+      doanh thu trên 01 tỷ đến 03 tỷ đồng chọn phương pháp, buộc áp dụng ổn định 02 năm với phương pháp thu nhập tính thuế,
+      và quy định khai thuế theo quý.
+    unanswerable: out_of_scope
     added_in: 2
   - id: q238
     question: Nghị định 141/2026 thay đổi gì về ngưỡng doanh thu phải nộp thuế của hộ kinh doanh?
     tax_type: household
     form: reference
-    answer: TODO
+    answer: >
+      Nghị định 141/2026/NĐ-CP nâng ngưỡng doanh thu năm không phải nộp thuế GTGT, TNCN của hộ kinh doanh từ 500 triệu đồng
+      lên 01 tỷ đồng, bằng cách sửa cụm từ "500 triệu đồng" thành "01 tỷ đồng" trong Nghị định 68/2026/NĐ-CP. Thay đổi áp
+      dụng từ 01/01/2026. Hộ có doanh thu từ 01 tỷ đồng trở xuống đã kê khai, nộp thuế thì được xử lý số thuế đã nộp như
+      tiền nộp thừa.
+    key_facts:
+      - "ngưỡng nâng từ 500 triệu đồng lên 01 tỷ đồng"
+      - "áp dụng từ 01/01/2026"
+      - "thuế đã nộp của hộ từ 01 tỷ đồng trở xuống được xử lý nộp thừa"
+    provisions:
+      - 141/2026/NĐ-CP Điều 1
+      - 141/2026/NĐ-CP Điều 3
+      - 141/2026/NĐ-CP Điều 4
     added_in: 2
-  - id: q239
+  - id: q239  # step 2: 89/2026/TT-BTC Điều 99 khoản 4 listed because it repeals parts of 18/2026/TT-BTC Điều 4 (khoản 2 điểm a, c and khoản 3), not the parts used
     question: Thông tư 18/2026 quy định hộ kinh doanh dùng tờ khai thuế mẫu số mấy?
     tax_type: household
     form: reference
-    answer: TODO
+    answer: >
+      Hộ kinh doanh dưới ngưỡng thông báo doanh thu theo Mẫu số 01/TKN-CNKD. Hộ nộp thuế (cả hai phương pháp) khai thuế GTGT,
+      TNCN theo Mẫu số 01/CNKD; hộ nộp theo thu nhập tính thuế khai quyết toán TNCN theo Mẫu số 02/CNKD-TNCN-QTT. Cá nhân cho
+      thuê bất động sản tự khai dùng Mẫu số 01/BĐS. Thông tư 50/2026/TT-BTC thay thế các mẫu 01/TKN-CNKD, 01/CNKD, 01/BĐS bằng
+      mẫu mới cùng số hiệu.
+    key_facts:
+      - "Mẫu số 01/CNKD để khai thuế GTGT, TNCN"
+      - "Mẫu số 01/TKN-CNKD để thông báo doanh thu"
+      - "Mẫu số 02/CNKD-TNCN-QTT để quyết toán TNCN"
+    provisions:
+      - 18/2026/TT-BTC Điều 4
+      - 89/2026/TT-BTC Điều 99 khoản 4
+      - 50/2026/TT-BTC Điều 3
     added_in: 2
-  - id: q240
+  - id: q240  # step 2: the question names 50/2026/TT-BTC, but the channels are in 68/2026/NĐ-CP Điều 8 khoản 4 điểm a
     question: Theo Thông tư 50/2026, hộ kinh doanh được nộp hồ sơ khai thuế qua những kênh nào?
     tax_type: household
     form: reference
-    answer: TODO
+    answer: >
+      Hộ kinh doanh nộp hồ sơ khai thuế bằng phương thức điện tử. Người có hoàn cảnh đặc biệt (người cao tuổi, người khuyết
+      tật, người thuộc diện bảo trợ xã hội, người ở địa bàn đặc biệt khó khăn hoặc bất khả kháng) không thể giao dịch điện tử
+      thì nộp trực tiếp hoặc qua bưu chính đến Trung tâm Phục vụ hành chính công cấp xã. Quy định này nằm ở Nghị định
+      68/2026/NĐ-CP; Thông tư 50/2026/TT-BTC không quy định kênh nộp.
+    key_facts:
+      - "nộp hồ sơ khai thuế bằng phương thức điện tử"
+      - "người có hoàn cảnh đặc biệt nộp trực tiếp hoặc qua bưu chính"
+      - "nộp tại Trung tâm Phục vụ hành chính công cấp xã"
+    provisions:
+      - 68/2026/NĐ-CP Điều 8 khoản 4
     added_in: 2
-  - id: q241
+  - id: q241  # step 2: 50/2026/TT-BTC Điều 2 replaces the form in 18/2026/TT-BTC Điều 5 khoản 2; 141/2026/NĐ-CP Điều 1 listed because it amends 68/2026/NĐ-CP Điều 12
     question: Thông tư 18/2026 quy định hộ kinh doanh nộp thừa tiền thuế muốn xin hoàn thì gửi hồ sơ gì?
     tax_type: household
     form: reference
-    answer: TODO
+    answer: >
+      Hộ nộp thuế TNCN theo tỷ lệ trên doanh thu gửi Tờ khai Mẫu số 01/TKN-CNKD. Hộ nộp theo thu nhập tính thuế nhân thuế
+      suất gửi Tờ khai Mẫu số 02/CNKD-TNCN-QTT. Hồ sơ nộp tại cơ quan thuế nơi nộp hồ sơ khai thuế.
+    key_facts:
+      - "phương pháp tỷ lệ trên doanh thu dùng Mẫu số 01/TKN-CNKD"
+      - "phương pháp thu nhập tính thuế dùng Mẫu số 02/CNKD-TNCN-QTT"
+    provisions:
+      - 18/2026/TT-BTC Điều 5
+      - 50/2026/TT-BTC Điều 2
+      - 68/2026/NĐ-CP Điều 12
+      - 141/2026/NĐ-CP Điều 1
     added_in: 2
-  - id: q242
+  - id: q242  # step 2: the question names Điều 5, but the rule is in 68/2026/NĐ-CP Điều 4 khoản 1 (amended by 141/2026/NĐ-CP Điều 1)
     question: Theo Điều 5 Nghị định 68/2026, những cá nhân kinh doanh nào không phải nộp thuế?
     tax_type: household
     form: reference
-    answer: TODO
+    answer: >
+      Điều 5 Nghị định 68/2026/NĐ-CP quy định doanh thu để tính thuế TNCN, không quy định người không phải nộp thuế. Theo Điều
+      4, cá nhân kinh doanh cư trú có doanh thu năm từ 01 tỷ đồng trở xuống không phải nộp thuế TNCN.
+    key_facts:
+      - "cá nhân kinh doanh có doanh thu năm từ 01 tỷ đồng trở xuống không phải nộp thuế TNCN"
+    provisions:
+      - 68/2026/NĐ-CP Điều 4
+      - 141/2026/NĐ-CP Điều 1
     added_in: 2
   - id: q243
     question: Ở Thái Lan người bán hàng rong có phải nộp thuế không?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu chỉ quy định thuế của Việt Nam, không có thông tin về Thái Lan.
     unanswerable: out_of_scope
     added_in: 2
   - id: q244
     question: Năm 2025 cả nước có bao nhiêu hộ kinh doanh chuyển lên thành doanh nghiệp?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu là văn bản quy phạm pháp luật, không có số liệu thống kê về hộ kinh doanh chuyển lên doanh nghiệp.
     unanswerable: out_of_scope
     added_in: 2
   - id: q245
     question: Phần mềm bán hàng KiotViet có tự gửi dữ liệu hóa đơn sang cơ quan thuế không?
     tax_type: household
     form: plain
-    answer: TODO
+    answer: Các văn bản trong bộ dữ liệu không nói về phần mềm bán hàng cụ thể; chúng chỉ quy định hóa đơn điện tử khởi tạo từ máy tính tiền phải kết nối dữ liệu với cơ quan thuế.
     unanswerable: out_of_scope
     added_in: 2
-  - id: q246
+  - id: q246  # step 2: moved to answerable; 141/2026/NĐ-CP Điều 1 already raised the threshold to 01 tỷ from 01/01/2026
     question: Bộ Tài chính có dự định nâng ngưỡng doanh thu không phải nộp thuế của hộ kinh doanh lên 1 tỷ không?
     tax_type: household
     form: plain
-    answer: TODO
-    unanswerable: out_of_scope
+    answer: >
+      Ngưỡng đã là 01 tỷ đồng. Nghị định 141/2026/NĐ-CP sửa mức 500 triệu đồng thành 01 tỷ đồng trong Nghị định
+      68/2026/NĐ-CP, áp dụng từ 01/01/2026: hộ kinh doanh có doanh thu năm từ 01 tỷ đồng trở xuống không phải nộp thuế GTGT,
+      TNCN. Các văn bản không có thông tin về dự định khác của Bộ Tài chính.
+    key_facts:
+      - "ngưỡng không phải nộp thuế đã là 01 tỷ đồng"
+      - "áp dụng từ 01/01/2026"
+    provisions:
+      - 141/2026/NĐ-CP Điều 1
+      - 141/2026/NĐ-CP Điều 3
+      - 68/2026/NĐ-CP Điều 4
     added_in: 2
   - id: q247
     question: Lớp tập huấn miễn phí về thuế cho hộ kinh doanh ở Hà Nội tháng tới tổ chức ở đâu?
@@ -3114,11 +3333,14 @@ questions:
     answer: TODO
     unanswerable: out_of_scope
     added_in: 2
-  - id: q248
+  - id: q248  # step 2: repealed confirmed by 18/2026/TT-BTC Điều 9 khoản 2, which replaces 40/2021/TT-BTC
     question: Theo Thông tư 40/2021, hộ kinh doanh có doanh thu từ 100 triệu đồng một năm trở xuống thì không phải nộp thuế, đúng không?
     tax_type: household
     form: reference
-    answer: TODO
+    answer: >
+      Thông tư 40/2021/TT-BTC đã bị Thông tư 18/2026/TT-BTC thay thế nên không áp dụng nữa. Hiện nay hộ kinh doanh có doanh
+      thu năm từ 01 tỷ đồng trở xuống không phải nộp thuế GTGT, TNCN (Nghị định 68/2026/NĐ-CP, sửa bởi Nghị định
+      141/2026/NĐ-CP).
     unanswerable: repealed
     added_in: 2
 
