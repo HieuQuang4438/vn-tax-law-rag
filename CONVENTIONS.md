@@ -74,9 +74,13 @@ Rules:
           raise RuntimeError(f"Missing required env var: {name}")
       return value
 
-  GOOGLE_API_KEY = required("GOOGLE_API_KEY")
+  GOOGLE_API_KEYS = required_numbered("GOOGLE_API_KEY")
   LLM_MODEL = os.getenv("LLM_MODEL", "gemini-2.5-flash")
   ```
+- Several keys for one service are numbered from 1: `GOOGLE_API_KEY_1`, `GOOGLE_API_KEY_2`, …
+  `required_numbered(name)` reads them in order up to the first one missing or empty, and fails
+  loud if `<name>_1` is. A client tries them in that order and moves to the next on a 429
+  (approved on #13).
 - Never print or log a key, even truncated. Never paste keys into chat, issues, or commit messages.
 - Loose key files (e.g. a plain `keys.txt`) do not belong anywhere in this repo, gitignored or not. Keep secrets in `.env` only.
 - **Internal identifiers do not go in a public repo**: machine and VM names, cloud project IDs and resource names, deploy hostnames, client or employer names, documents issued to you by someone else. One public demo link is the exception. These are not secrets — there is nothing to rotate — so none of the rules above reach them; they leak **context** rather than access, and that is still a leak. If `AGENTS.md` says `private` but the repo may ever be flipped to public, this rule applies **from the first commit**, because history is permanent: a name removed later is still in the history, and taking it out means rewriting history, not deleting a file.
