@@ -1,0 +1,1088 @@
+{
+  "configuration": {
+    "commit": "e7d3946138d8426fe9b5c1b40673b2f31a54465d",
+    "dirty": false,
+    "eval_set": {
+      "version": 2,
+      "sha256": "f14d299e3d1e424748afc0dff9c0d8157c0b3d1eeabc0f8463ec55d399165832"
+    },
+    "sample": {
+      "seed": 0,
+      "answerable_per_tax_type": 3,
+      "unanswerable_per_tax_type": 1,
+      "ids": [
+        "q84",
+        "q86",
+        "q61",
+        "q96",
+        "q181",
+        "q180",
+        "q177",
+        "q189",
+        "q238",
+        "q233",
+        "q241",
+        "q243",
+        "q150",
+        "q138",
+        "q143",
+        "q159",
+        "q197",
+        "q213",
+        "q202",
+        "q219",
+        "q124",
+        "q120",
+        "q105",
+        "q130"
+      ]
+    },
+    "retrieval": "Retriever.load(data), default Fusion(), top 8",
+    "prompt_sha256": "a6a610a695a2d556446ec19cd3002fed208a3287a40508018e299b30821466d8",
+    "models": [
+      "gemini-3.6-flash",
+      "gemini-3.5-flash-lite"
+    ],
+    "generation": "default GenerateContentConfig, system instruction only",
+    "prices_usd_per_mtok": {
+      "read": "2026-11-16",
+      "2026": {
+        "gemini-3.6-flash": [
+          0.75,
+          3.75
+        ],
+        "gemini-3.5-flash-lite": [
+          0.3,
+          2.5
+        ]
+      },
+      "from_2027": {
+        "gemini-3.6-flash": [
+          1.5,
+          7.5
+        ],
+        "gemini-3.5-flash-lite": [
+          0.3,
+          2.5
+        ]
+      }
+    },
+    "keys": 4,
+    "pause_s": 10,
+    "resumed_after_items": 0,
+    "google_genai": "3.3.0",
+    "finished": "2026-11-16T09:27:45+07:00"
+  },
+  "summary": {
+    "gemini-3.6-flash": {
+      "n": 24,
+      "latency_median_s": 5.224500000000001,
+      "latency_p95_s": 21.101,
+      "prompt_tokens_mean": 7304.5,
+      "output_tokens_mean": 880.375,
+      "cost_usd_mean": 0.00877978125,
+      "cost_usd_max": 0.017061,
+      "cost_usd_2027_mean": 0.0175595625,
+      "refused_429": 1,
+      "unavailable_5xx": 0
+    },
+    "gemini-3.5-flash-lite": {
+      "n": 24,
+      "latency_median_s": 1.391,
+      "latency_p95_s": 1.873,
+      "prompt_tokens_mean": 7304.5,
+      "output_tokens_mean": 72.04166666666667,
+      "cost_usd_mean": 0.002371454166666667,
+      "cost_usd_max": 0.0043149,
+      "cost_usd_2027_mean": 0.002371454166666667,
+      "refused_429": 0,
+      "unavailable_5xx": 0
+    }
+  },
+  "items": [
+    {
+      "id": "q84",
+      "tax_type": "administration",
+      "unanswerable": null,
+      "hits": [
+        "439780:D12",
+        "439780:D3",
+        "439780:D8:K1",
+        "439780:D6:K3",
+        "439780:D24",
+        "439780:D1",
+        "439780:D9",
+        "439780:D10:K5"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 8557,
+          "answer_tokens": 17,
+          "thinking_tokens": 402,
+          "latency_s": 4.112,
+          "cost_usd": 0.007989,
+          "cost_usd_2027": 0.015978,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 8557,
+          "answer_tokens": 17,
+          "thinking_tokens": 0,
+          "latency_s": 1.417,
+          "cost_usd": 0.0026096,
+          "cost_usd_2027": 0.0026096,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q86",
+      "tax_type": "administration",
+      "unanswerable": null,
+      "hits": [
+        "439613:D20",
+        "439613:D18",
+        "439613:D21:K3",
+        "439613:D16",
+        "439613:D1",
+        "439613:D6",
+        "439613:D8",
+        "439613:D4"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Theo quy định tại Nghị định 255/2026/NĐ-CP, doanh nghiệp có phát sinh giao dịch liên kết có thể được miễn lập Hồ sơ xác định giá giao dịch liên kết (nhưng vẫn phải kê khai xác định giá giao dịch liên kết theo Phụ lục I) trong các trường hợp liên quan đến quy mô doanh thu như sau:\n\n1. **Trường hợp doanh thu dưới 50 tỷ đồng:**\n   - Doanh nghiệp có phát sinh giao dịch liên kết nhưng tổng doanh thu phát sinh của kỳ tính thuế dưới 50 tỷ đồng và tổng giá trị tất cả các giao dịch liên kết phát sinh trong kỳ tính thuế dưới 30 tỷ đồng [1].\n\n2. **Trường hợp doanh thu dưới 500 tỷ đồng:**\n   - Doanh nghiệp thực hiện kinh doanh không phát sinh doanh thu, chi phí từ hoạt động khai thác, sử dụng tài sản vô hình, có doanh thu dưới 500 tỷ đồng và áp dụng tỷ suất lợi nhuận thuần chưa trừ chi phí lãi vay và thuế thu nhập doanh nghiệp (không bao gồm chênh lệch doanh thu và chi phí của hoạt động tài chính) trên doanh thu thuần đạt từ mức quy định trở lên theo từng lĩnh vực [1]:\n     - Phân phối: Từ 5% trở lên [1].\n     - Sản xuất: Từ 10% trở lên [1].\n     - Gia công: Từ 15% trở lên [1].\n   - Trường hợp doanh nghiệp không áp dụng theo mức tỷ suất lợi nhuận thuần quy định nêu trên thì vẫn phải lập Hồ sơ xác định giá giao dịch liên kết theo quy định [1].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 7400,
+          "answer_tokens": 353,
+          "thinking_tokens": 920,
+          "latency_s": 6.656,
+          "cost_usd": 0.01032375,
+          "cost_usd_2027": 0.0206475,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Có, người nộp thuế có phát sinh giao dịch liên kết nhưng có tổng doanh thu phát sinh của kỳ tính thuế dưới 50 tỷ đồng và tổng giá trị tất cả các giao dịch liên kết phát sinh trong kỳ tính thuế dưới 30 tỷ đồng thì được miễn lập Hồ sơ xác định giá giao dịch liên kết (nhưng vẫn có trách nhiệm kê khai xác định giá giao dịch liên kết theo Phụ lục I ban hành kèm theo Nghị định này).",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 7400,
+          "answer_tokens": 95,
+          "thinking_tokens": 0,
+          "latency_s": 1.136,
+          "cost_usd": 0.0024575,
+          "cost_usd_2027": 0.0024575,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q61",
+      "tax_type": "administration",
+      "unanswerable": null,
+      "hits": [
+        "439382:D10",
+        "440483:D25:K2",
+        "440483:D21:K1",
+        "427630:D8:K3",
+        "440483:D27",
+        "439382:D6:K3",
+        "439613:D19",
+        "433387:D2"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Theo quy định, thời hạn nộp hồ sơ khai quyết toán thuế (bao gồm trường hợp khai quyết toán khi kết thúc năm dương lịch hoặc năm tài chính [3]) chậm nhất là ngày cuối cùng của tháng thứ 03 kể từ ngày kết thúc kỳ quyết toán thuế [1].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 9675,
+          "answer_tokens": 58,
+          "thinking_tokens": 654,
+          "latency_s": 4.855,
+          "cost_usd": 0.00992625,
+          "cost_usd_2027": 0.0198525,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Đối với loại thuế khai quyết toán thuế năm, thời hạn nộp hồ sơ khai quyết toán thuế chậm nhất là ngày cuối cùng của tháng thứ 03 kể từ ngày kết thúc kỳ quyết toán thuế [1].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 9675,
+          "answer_tokens": 44,
+          "thinking_tokens": 0,
+          "latency_s": 1.468,
+          "cost_usd": 0.0030125,
+          "cost_usd_2027": 0.0030125,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q96",
+      "tax_type": "administration",
+      "unanswerable": "out_of_scope",
+      "hits": [
+        "440483:D3",
+        "439660:D13:K4",
+        "440483:D5:K1",
+        "439660:D41",
+        "439382:D2",
+        "404357:D17:K3",
+        "440483:D88:K3",
+        "439660:D35:K4"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 6323,
+          "answer_tokens": 17,
+          "thinking_tokens": 420,
+          "latency_s": 3.232,
+          "cost_usd": 0.006381,
+          "cost_usd_2027": 0.012762,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 6323,
+          "answer_tokens": 17,
+          "thinking_tokens": 0,
+          "latency_s": 1.351,
+          "cost_usd": 0.0019393999999999998,
+          "cost_usd_2027": 0.0019393999999999998,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q181",
+      "tax_type": "cit",
+      "unanswerable": null,
+      "hits": [
+        "404386:D4",
+        "421582:D4:K13",
+        "404386:D15",
+        "404386:D12:K2",
+        "421582:D18:K2",
+        "421582:D21",
+        "404386:D14",
+        "439303:D42"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Theo khoản 13 Điều 4 Luật 67/2025/QH15, thu nhập từ chuyển giao công nghệ thuộc lĩnh vực ưu tiên chuyển giao công nghệ được miễn thuế thu nhập doanh nghiệp nếu chuyển giao cho tổ chức, cá nhân ở địa bàn có điều kiện kinh tế - xã hội đặc biệt khó khăn [1].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 8264,
+          "answer_tokens": 72,
+          "thinking_tokens": 630,
+          "latency_s": 3.957,
+          "cost_usd": 0.0088305,
+          "cost_usd_2027": 0.017661,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Theo quy định, thu nhập từ chuyển giao công nghệ thuộc lĩnh vực ưu tiên chuyển giao cho tổ chức, cá nhân ở địa bàn có điều kiện kinh tế - xã hội đặc biệt khó khăn được miễn thuế thu nhập doanh nghiệp [1].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 8264,
+          "answer_tokens": 49,
+          "thinking_tokens": 0,
+          "latency_s": 1.257,
+          "cost_usd": 0.0026016999999999998,
+          "cost_usd_2027": 0.0026016999999999998,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q180",
+      "tax_type": "cit",
+      "unanswerable": null,
+      "hits": [
+        "439382:D24",
+        "440483:D21:K4",
+        "439382:D26",
+        "421539:D14",
+        "433387:D2",
+        "421582:D11",
+        "421539:D45",
+        "421539:D16"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Có, công ty sẽ bị tính tiền chậm nộp trong trường hợp này [1]. \n\nCụ thể theo quy định:\n- Người nộp thuế phải tự xác định số thuế tạm nộp hằng quý, nhưng tổng số thuế đã tạm nộp của 04 quý không được thấp hơn 80% số thuế phải nộp theo quyết toán năm do người nộp thuế tự kê khai [1].\n- Trường hợp người nộp thuế nộp thiếu so với số thuế phải tạm nộp 04 quý (thấp hơn mức 80% nêu trên) thì phải nộp tiền chậm nộp tính trên số thuế nộp thiếu [1].\n- Tiền chậm nộp được tính kể từ ngày tiếp theo liền kề của ngày cuối cùng của thời hạn tạm nộp quý 04 đến ngày liền kề trước của ngày số tiền còn thiếu được nộp vào ngân sách nhà nước, bao gồm cả trường hợp người nộp thuế kê khai bổ sung [1].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 10018,
+          "answer_tokens": 208,
+          "thinking_tokens": 747,
+          "latency_s": 5.211,
+          "cost_usd": 0.01109475,
+          "cost_usd_2027": 0.0221895,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Có, người nộp thuế phải nộp tiền chậm nộp tính trên số thuế nộp thiếu nếu tổng số thuế, khoản thu khác đã tạm nộp của 04 quý thấp hơn 80% số thuế, khoản thu khác phải nộp theo quyết toán năm do người nộp thuế tự kê khai [1]. \n\nSố tiền chậm nộp này được tính trên số thuế nộp thiếu kể từ ngày tiếp theo liền kề của ngày cuối cùng của thời hạn tạm nộp quý 04 đến ngày liền kề trước của ngày số tiền còn thiếu được nộp vào ngân sách nhà nước, bao gồm cả trường hợp người nộp thuế kê khai bổ sung [1].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 10018,
+          "answer_tokens": 142,
+          "thinking_tokens": 0,
+          "latency_s": 1.531,
+          "cost_usd": 0.0033604,
+          "cost_usd_2027": 0.0033604,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q177",
+      "tax_type": "cit",
+      "unanswerable": null,
+      "hits": [
+        "421582:D10:K16",
+        "439382:D14",
+        "439303:D17",
+        "421582:D3:K3",
+        "421582:D4:K9",
+        "404386:D3",
+        "428454:D7:K4",
+        "404357:D23:K2"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Theo quy định tại Nghị định 320/2025/NĐ-CP, việc tính lãi chênh lệch tỷ giá do đánh giá lại số dư ngoại tệ cuối năm/cuối kỳ tính thuế vào thu nhập chịu thuế TNDN phụ thuộc vào loại khoản mục ngoại tệ [4]:\n\n1. **Đối với số dư cuối năm là tiền mặt, tiền gửi, tiền đang chuyển và các khoản nợ phải thu có gốc ngoại tệ:**\n   - **Không tính vào thu nhập chịu thuế TNDN.** \n   - Lý do: Thu nhập từ chênh lệch tỷ giá trong kỳ tính thuế không bao gồm chênh lệch tỷ giá hối đoái do đánh giá lại số dư cuối năm tài chính là tiền mặt, tiền gửi, tiền đang chuyển, các khoản nợ phải thu có gốc ngoại tệ [4].\n\n2. **Đối với khoản nợ phải trả có gốc ngoại tệ cuối kỳ tính thuế:**\n   - **Được tính vào thu nhập chịu thuế TNDN** (nếu phát sinh lãi chênh lệch tỷ giá) [4].\n   - Cụ thể: \n     - Nếu liên quan trực tiếp đến doanh thu, chi phí của hoạt động sản xuất, kinh doanh chính thì được tính vào thu nhập của hoạt động sản xuất, kinh doanh chính [4].\n     - Nếu không liên quan trực tiếp đến doanh thu, chi phí của hoạt động sản xuất, kinh doanh chính thì tính vào thu nhập khác [4].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 8932,
+          "answer_tokens": 309,
+          "thinking_tokens": 1490,
+          "latency_s": 12.224,
+          "cost_usd": 0.01344525,
+          "cost_usd_2027": 0.0268905,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Lỗ chênh lệch tỷ giá hối đoái do đánh giá lại số dư cuối năm là tiền mặt, tiền gửi, tiền đang chuyển, các khoản nợ phải thu có gốc ngoại tệ (trừ lỗ chênh lệch tỷ giá hối đoái do đánh giá lại các khoản nợ phải trả có gốc ngoại tệ cuối kỳ tính thuế) là khoản chi không được trừ [1].\n\nBên cạnh đó, các khoản chênh lệch tỷ giá hối đoái quy định tại điểm h khoản 3 Điều 3 của Nghị định 320/2025/NĐ-CP không bao gồm chênh lệch tỷ giá hối đoái do đánh giá lại số dư cuối năm tài chính là: tiền mặt, tiền gửi, tiền đang chuyển, các khoản nợ phải thu có gốc ngoại tệ [4].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 8932,
+          "answer_tokens": 173,
+          "thinking_tokens": 0,
+          "latency_s": 1.743,
+          "cost_usd": 0.0031121,
+          "cost_usd_2027": 0.0031121,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q189",
+      "tax_type": "cit",
+      "unanswerable": "out_of_scope",
+      "hits": [
+        "440483:D21:K1",
+        "433387:D2",
+        "421582:D8:K3",
+        "404386:D3",
+        "433387:D4",
+        "404386:D19",
+        "428454:D7:K4",
+        "421582:D24"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 7355,
+          "answer_tokens": 17,
+          "thinking_tokens": 399,
+          "latency_s": 8.821,
+          "cost_usd": 0.00707625,
+          "cost_usd_2027": 0.0141525,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 7355,
+          "answer_tokens": 17,
+          "thinking_tokens": 0,
+          "latency_s": 1.365,
+          "cost_usd": 0.002249,
+          "cost_usd_2027": 0.002249,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q238",
+      "tax_type": "household",
+      "unanswerable": null,
+      "hits": [
+        "433387:D1",
+        "433387:D4",
+        "433387:D3",
+        "433387:D2",
+        "433387:D5",
+        "427630:D17",
+        "439382:D74",
+        "427630:D1"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Theo Nghị định 141/2026/NĐ-CP, các thay đổi liên quan đến mức doanh thu của hộ kinh doanh, cá nhân kinh doanh bao gồm:\n\n- Sửa đổi cụm từ “500 triệu đồng” thành “01 tỷ đồng” tại Điều 3, Điều 4, khoản 1 Điều 8, Điều 9, Điều 10, khoản 3 Điều 11, khoản 1 và khoản 2 Điều 12, khoản 4 Điều 17, khoản 3 Điều 18 của Nghị định số 68/2026/NĐ-CP [1].\n- Quy định về việc sử dụng hóa đơn điện tử: Hộ kinh doanh, cá nhân kinh doanh có doanh thu năm trên 01 tỷ đồng (hoặc trong năm tính thuế có doanh thu lũy kế phát sinh trên 01 tỷ đồng) thì phải áp dụng hóa đơn điện tử có mã của cơ quan thuế hoặc hóa đơn điện tử khởi tạo từ máy tính tiền có kết nối dữ liệu với cơ quan thuế [1]. Đối với trường hợp có doanh thu năm từ 01 tỷ đồng trở xuống, nếu đáp ứng điều kiện và có nhu cầu thì đăng ký sử dụng [1].\n- Xử lý chuyển tiếp đối với số thuế đã nộp: Trường hợp hộ kinh doanh, cá nhân kinh doanh tự xác định mức doanh thu năm từ hoạt động sản xuất, kinh doanh hàng hóa, dịch vụ từ 01 tỷ đồng trở xuống mà đã kê khai nộp thuế thu nhập cá nhân, thuế giá trị gia tăng theo quy định tại Nghị định số 68/2026/NĐ-CP thì được xử lý tiền thuế đã nộp theo quy định tại Điều 12 Nghị định số 68/2026/NĐ-CP [2].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 3904,
+          "answer_tokens": 392,
+          "thinking_tokens": 1167,
+          "latency_s": 11.546,
+          "cost_usd": 0.00877425,
+          "cost_usd_2027": 0.0175485,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 3904,
+          "answer_tokens": 17,
+          "thinking_tokens": 0,
+          "latency_s": 1.08,
+          "cost_usd": 0.0012137,
+          "cost_usd_2027": 0.0012137,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q233",
+      "tax_type": "household",
+      "unanswerable": null,
+      "hits": [
+        "439827:D23",
+        "439827:D24",
+        "427630:D8:K4",
+        "439827:D21:K1",
+        "439827:D10:K3",
+        "427777:D3",
+        "439827:D37",
+        "439382:D15"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Tùy thuộc vào việc hộ kinh doanh thay đổi địa chỉ của **địa điểm kinh doanh** hay thay đổi **địa chỉ trụ sở của hộ kinh doanh**, thủ tục thực hiện với cơ quan thuế như sau:\n\n**1. Trường hợp thay đổi địa chỉ của địa điểm kinh doanh** (điểm c khoản 1 Điều 23 Thông tư 90/2026/TT-BTC [1]):\n* Hộ kinh doanh thực hiện thông báo thay đổi thông tin đối với địa điểm kinh doanh gửi đến cơ quan thuế quản lý trực tiếp trụ sở của hộ kinh doanh trong thời hạn 10 (mười) ngày làm việc kể từ ngày thay đổi thông tin [3][6].\n* Hồ sơ thông báo: Gửi Thông báo về việc thay đổi thông tin địa điểm kinh doanh theo Mẫu số 01/TB-ĐĐKD ban hành kèm theo Thông tư 18/2026/TT-BTC [6].\n\n**2. Trường hợp thay đổi địa chỉ trụ sở của hộ kinh doanh** (đăng ký thuế theo cơ chế một cửa liên thông):\n* **Nếu không làm thay đổi cơ quan thuế quản lý trực tiếp**: Hộ kinh doanh thực hiện thông báo thay đổi thông tin đăng ký thuế cùng với việc thay đổi nội dung đăng ký hộ kinh doanh tại cơ quan đăng ký kinh doanh [1].\n* **Nếu làm thay đổi cơ quan thuế quản lý trực tiếp**:\n  * *Tại nơi chuyển đi*: Hộ kinh doanh nộp hồ sơ cho cơ quan thuế quản lý trực tiếp (cơ quan thuế nơi chuyển đi) để thực hiện thủ tục chuyển cơ quan thuế quản lý trước khi đăng ký thay đổi địa chỉ trụ sở với cơ quan đăng ký kinh doanh [1]. Hồ sơ gồm Tờ khai điều chỉnh, bổ sung thông tin đăng ký thuế mẫu số 08-MST ban hành kèm theo Thông tư 90/2026/TT-BTC [1].\n  * *Thủ tục tiếp theo*: Sau khi nhận được Thông báo về việc người nộp thuế chuyển địa điểm mẫu số 09-MST do cơ quan thuế nơi chuyển đi ban hành, hộ kinh doanh thực hiện đăng ký thay đổi địa chỉ trụ sở với cơ quan đăng ký kinh doanh theo quy định của pháp luật về đăng ký hộ kinh doanh [1].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 11083,
+          "answer_tokens": 489,
+          "thinking_tokens": 1844,
+          "latency_s": 9.509,
+          "cost_usd": 0.017061,
+          "cost_usd_2027": 0.034122,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Hộ kinh doanh thay đổi địa chỉ của địa điểm kinh doanh thì thực hiện theo quy định tại điểm đ khoản 4 Điều 8 Nghị định số 68/2026/NĐ-CP và khoản 1 Điều 3 Thông tư số 18/2026/TT-BTC [1].\n\nCụ thể, hộ kinh doanh phải thực hiện thông báo địa điểm kinh doanh (hoặc thay đổi thông tin địa điểm kinh doanh) đến cơ quan thuế quản lý trực tiếp trụ sở của hộ kinh doanh trong thời hạn 10 ngày làm việc kể từ ngày thay đổi thông tin theo mẫu do Bộ trưởng Bộ Tài chính quy định [3][6]. \n\nHồ sơ và thủ tục cụ thể gồm:\n- Gửi Thông báo về việc thành lập địa điểm kinh doanh, thay đổi thông tin, tạm ngừng kinh doanh, chấm dứt hoạt động địa điểm kinh doanh đến cơ quan thuế quản lý trụ sở kinh doanh theo Mẫu số 01/TB-ĐĐKD [6].\n- Cơ quan thuế sẽ gửi thông báo cho người nộp thuế theo Mẫu số 02/TB-ĐĐKD [6].\n\n*Lưu ý:* Trường hợp hộ kinh doanh đăng ký thuế theo cơ chế một cửa liên thông khi thay đổi địa chỉ trụ sở làm thay đổi cơ quan thuế quản lý trực tiếp (trừ trường hợp thay đổi do thay đổi địa giới hành chính hoặc cơ quan thuế phân công lại), hộ kinh doanh thực hiện nộp hồ sơ thay đổi (Tờ khai điều chỉnh, bổ sung thông tin đăng ký thuế mẫu số 08-MST) tại cơ quan thuế nơi chuyển đi trước khi đăng ký thay đổi địa chỉ trụ sở với cơ quan đăng ký kinh doanh [1]. Sau đó, hộ kinh doanh thực hiện đăng ký thay đổi địa chỉ trụ sở với cơ quan đăng ký kinh doanh theo quy định pháp luật [1].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 11083,
+          "answer_tokens": 396,
+          "thinking_tokens": 0,
+          "latency_s": 2.588,
+          "cost_usd": 0.0043149,
+          "cost_usd_2027": 0.0043149,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q241",
+      "tax_type": "household",
+      "unanswerable": null,
+      "hits": [
+        "427777:D5",
+        "427777:D6",
+        "427777:D7",
+        "427777:D1",
+        "427777:D4",
+        "427777:D3",
+        "427777:D8",
+        "434628:D2"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Theo quy định tại Điều 5 Thông tư 18/2026/TT-BTC (được sửa đổi, bổ sung bởi Thông tư 50/2026/TT-BTC), hồ sơ đề nghị hoàn thuế nộp thừa đối với hộ kinh doanh, cá nhân kinh doanh được xác định tùy thuộc vào phương pháp nộp thuế thu nhập cá nhân như sau:\n\n1. **Trường hợp nộp thuế thu nhập cá nhân theo phương pháp thuế suất nhân (x) với doanh thu tính thuế:** Hồ sơ đề nghị hoàn thuế nộp thừa là Tờ khai thuế theo **Mẫu số 01/TKN-CNKD** ban hành kèm theo Thông tư 18/2026/TT-BTC [1].\n\n2. **Trường hợp nộp thuế thu nhập cá nhân theo phương pháp thu nhập tính thuế nhân (x) với thuế suất:** Hồ sơ đề nghị hoàn thuế nộp thừa là Tờ khai thuế theo **Mẫu số 02/CNKD-TNCN-QTT** ban hành kèm theo Thông tư 18/2026/TT-BTC [1][8].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 2966,
+          "answer_tokens": 245,
+          "thinking_tokens": 900,
+          "latency_s": 21.101,
+          "cost_usd": 0.00651825,
+          "cost_usd_2027": 0.0130365,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Hồ sơ đề nghị hoàn thuế nộp thừa đối với hộ kinh doanh, cá nhân kinh doanh được quy định tùy theo phương pháp nộp thuế thu nhập cá nhân như sau:\n\n- Đối với hộ kinh doanh, cá nhân kinh doanh nộp thuế thu nhập cá nhân theo phương pháp thuế suất nhân (x) với doanh thu tính thuế, hồ sơ là Tờ khai thuế theo Mẫu số 01/TKN-CNKD ban hành kèm theo Thông tư 18/2026/TT-BTC [1].\n- Đối với hộ kinh doanh, cá nhân kinh doanh nộp thuế thu nhập cá nhân theo phương pháp thu nhập tính thuế nhân (x) với thuế suất, hồ sơ là Tờ khai thuế theo Mẫu số 02/CNKD-TNCN-QTT ban hành kèm theo Thông tư 18/2026/TT-BTC [1][8].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 2966,
+          "answer_tokens": 192,
+          "thinking_tokens": 0,
+          "latency_s": 1.468,
+          "cost_usd": 0.0013698,
+          "cost_usd_2027": 0.0013698,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q243",
+      "tax_type": "household",
+      "unanswerable": "out_of_scope",
+      "hits": [
+        "404453:D9:K2",
+        "379409:D4",
+        "405694:D3",
+        "379409:D9",
+        "421739:D1",
+        "439382:D43",
+        "404357:D11",
+        "439827:D4"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 8472,
+          "answer_tokens": 17,
+          "thinking_tokens": 351,
+          "latency_s": 2.604,
+          "cost_usd": 0.007734,
+          "cost_usd_2027": 0.015468,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 8472,
+          "answer_tokens": 17,
+          "thinking_tokens": 0,
+          "latency_s": 1.467,
+          "cost_usd": 0.0025840999999999998,
+          "cost_usd_2027": 0.0025840999999999998,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q150",
+      "tax_type": "pit",
+      "unanswerable": null,
+      "hits": [
+        "422733:D11",
+        "439303:D49",
+        "439303:D30",
+        "421582:D10:K17",
+        "421582:D9:K2",
+        "421582:D4:K8",
+        "428454:D3:K12",
+        "422733:D4"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Theo quy định của pháp luật về thuế thu nhập cá nhân, cá nhân cư trú **được giảm trừ** khoản đóng góp vào quỹ từ thiện vào thu nhập chịu thuế trước khi tính thuế đối với thu nhập từ tiền lương, tiền công [1][2].\n\nĐể khoản đóng góp này được tính giảm trừ, cần đáp ứng các điều kiện cụ thể sau:\n\n1. **Điều kiện đối với quỹ từ thiện:** Quỹ từ thiện phải được cơ quan nhà nước có thẩm quyền cho phép thành lập hoặc công nhận, hoạt động vì mục đích từ thiện, nhân đạo, khuyến học, không vì mục tiêu lợi nhuận [1][2].\n2. **Điều kiện về chứng từ, nguồn chi:** Khoản chi phải đáp ứng các điều kiện về hóa đơn, chứng từ theo quy định của pháp luật và không được chi trả từ các nguồn khác [1]. \n3. **Hồ sơ xác định khoản đóng góp:** Hồ sơ bao gồm bản chụp chứng từ thu hợp pháp của tổ chức, cơ sở và các quỹ hoặc chứng từ thanh toán không dùng tiền mặt qua tổ chức tín dụng [2].\n4. **Thời điểm áp dụng:** Khoản đóng góp từ thiện phát sinh vào năm nào thì được tính giảm trừ vào thu nhập chịu thuế của năm đó, không được chuyển trừ vào thu nhập chịu thuế của năm tính thuế tiếp theo [2].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 6773,
+          "answer_tokens": 283,
+          "thinking_tokens": 825,
+          "latency_s": 4.967,
+          "cost_usd": 0.00923475,
+          "cost_usd_2027": 0.0184695,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Có, cá nhân cư trú được giảm trừ vào thu nhập chịu thuế trước khi tính thuế đối với thu nhập từ tiền lương, tiền công đối với khoản đóng góp vào quỹ từ thiện, quỹ nhân đạo, quỹ khuyến học [1][2]. \n\nQuỹ từ thiện này phải được cơ quan nhà nước có thẩm quyền cho phép thành lập hoặc công nhận, hoạt động vì mục đích từ thiện, nhân đạo, khuyến học, không vì mục tiêu lợi nhuận [1][2]. Khoản đóng góp này phải đáp ứng các điều kiện về hóa đơn, chứng từ theo quy định của pháp luật và không được chi trả từ các nguồn khác [1].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 6773,
+          "answer_tokens": 135,
+          "thinking_tokens": 0,
+          "latency_s": 1.334,
+          "cost_usd": 0.0023694,
+          "cost_usd_2027": 0.0023694,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q138",
+      "tax_type": "pit",
+      "unanswerable": null,
+      "hits": [
+        "439303:D50:K3",
+        "439303:D8:K4",
+        "439303:D12",
+        "422733:D3",
+        "421582:D10:K8",
+        "439303:D58",
+        "440483:D22:K6",
+        "439303:D55"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 8028,
+          "answer_tokens": 17,
+          "thinking_tokens": 1077,
+          "latency_s": 5.238,
+          "cost_usd": 0.0101235,
+          "cost_usd_2027": 0.020247,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 8028,
+          "answer_tokens": 17,
+          "thinking_tokens": 0,
+          "latency_s": 1.274,
+          "cost_usd": 0.0024509,
+          "cost_usd_2027": 0.0024509,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q143",
+      "tax_type": "pit",
+      "unanswerable": null,
+      "hits": [
+        "439303:D24",
+        "421582:D4:K11",
+        "422733:D4",
+        "421582:D10:K21",
+        "439303:D25",
+        "439303:D34",
+        "439303:D21",
+        "439303:D53"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Tiền lãi gửi tiết kiệm ngân hàng của cá nhân **không bị đánh thuế thu nhập cá nhân**, do thuộc diện thu nhập được **miễn thuế thu nhập cá nhân** [1][3].\n\nCụ thể:\n- Thu nhập từ lãi tiền gửi tại tổ chức tín dụng nằm trong danh mục các khoản thu nhập được miễn thuế [3].\n- Khoản lãi tiền gửi cá nhân nhận được từ lãi gửi Đồng Việt Nam, vàng, ngoại tệ tại các tổ chức tín dụng, chi nhánh ngân hàng nước ngoài dưới hình thức gửi tiết kiệm (bao gồm cả gửi không kỳ hạn, có kỳ hạn, chứng chỉ tiền gửi, kỳ phiếu, tín phiếu và các hình thức nhận tiền gửi khác theo nguyên tắc có hoàn trả đầy đủ tiền gốc, lãi cho người gửi theo thỏa thuận) được miễn thuế thu nhập cá nhân [1].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 4933,
+          "answer_tokens": 174,
+          "thinking_tokens": 712,
+          "latency_s": 4.46,
+          "cost_usd": 0.00702225,
+          "cost_usd_2027": 0.0140445,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Tiền lãi gửi tiết kiệm ngân hàng (lãi tiền gửi tại tổ chức tín dụng dưới hình thức gửi tiết kiệm) được miễn thuế thu nhập cá nhân [1].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 4933,
+          "answer_tokens": 35,
+          "thinking_tokens": 0,
+          "latency_s": 1.456,
+          "cost_usd": 0.0015673999999999998,
+          "cost_usd_2027": 0.0015673999999999998,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q159",
+      "tax_type": "pit",
+      "unanswerable": "out_of_scope",
+      "hits": [
+        "422733:D10",
+        "439303:D47",
+        "439303:D48",
+        "439434:D3",
+        "433921:D4",
+        "405694:D8:K1",
+        "439434:D1",
+        "421582:D20"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 7572,
+          "answer_tokens": 17,
+          "thinking_tokens": 490,
+          "latency_s": 3.541,
+          "cost_usd": 0.00758025,
+          "cost_usd_2027": 0.0151605,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 7572,
+          "answer_tokens": 17,
+          "thinking_tokens": 0,
+          "latency_s": 1.157,
+          "cost_usd": 0.0023141,
+          "cost_usd_2027": 0.0023141,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q197",
+      "tax_type": "sct",
+      "unanswerable": null,
+      "hits": [
+        "405694:D2",
+        "422910:D3",
+        "422910:D4:K6",
+        "405694:D3",
+        "440483:D20",
+        "405694:D8:K1",
+        "422908:D3:K5",
+        "422910:D6"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Có, xe mô tô hai bánh và xe mô tô ba bánh có dung tích xi lanh trên 125 cm³ (trên 125 phân khối) thuộc đối tượng chịu thuế tiêu thụ đặc biệt [1]. \n\nMức thuế suất thuế tiêu thụ đặc biệt áp dụng đối với loại xe này là 20% [6].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 9130,
+          "answer_tokens": 74,
+          "thinking_tokens": 346,
+          "latency_s": 3.588,
+          "cost_usd": 0.0084225,
+          "cost_usd_2027": 0.016845,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Có, xe mô tô hai bánh và xe mô tô ba bánh có dung tích xi lanh trên 125 cm3 thuộc đối tượng chịu thuế tiêu thụ đặc biệt [1][2].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 9130,
+          "answer_tokens": 40,
+          "thinking_tokens": 0,
+          "latency_s": 1.153,
+          "cost_usd": 0.002839,
+          "cost_usd_2027": 0.002839,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q213",
+      "tax_type": "sct",
+      "unanswerable": null,
+      "hits": [
+        "422908:D3:K3",
+        "422908:D1",
+        "422908:D4",
+        "422908:D5",
+        "422908:D2",
+        "422910:D4:K2",
+        "422910:D8",
+        "405694:D3"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 4182,
+          "answer_tokens": 17,
+          "thinking_tokens": 925,
+          "latency_s": 12.995,
+          "cost_usd": 0.006669,
+          "cost_usd_2027": 0.013338,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 4182,
+          "answer_tokens": 17,
+          "thinking_tokens": 0,
+          "latency_s": 0.981,
+          "cost_usd": 0.0012970999999999998,
+          "cost_usd_2027": 0.0012970999999999998,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q202",
+      "tax_type": "sct",
+      "unanswerable": null,
+      "hits": [
+        "422910:D5:K5",
+        "405694:D6",
+        "422910:D3",
+        "405694:D2",
+        "440483:D20",
+        "422908:D3:K4",
+        "405694:D3",
+        "422910:D8"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Có, bán thẻ hội viên sân gôn (golf) thuộc đối tượng chịu thuế tiêu thụ đặc biệt [3][4].\n\nCụ thể theo các quy định sau:\n- Kinh doanh gôn (golf) là dịch vụ thuộc đối tượng chịu thuế tiêu thụ đặc biệt [4].\n- Hoạt động kinh doanh gôn bao gồm cả hoạt động kinh doanh sân tập gôn, bán thẻ hội viên, vé chơi gôn [3].\n- Giá bán thẻ hội viên là một phần trong căn cứ xác định giá tính thuế tiêu thụ đặc biệt đối với kinh doanh gôn [1][2].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 7600,
+          "answer_tokens": 126,
+          "thinking_tokens": 777,
+          "latency_s": 9.982,
+          "cost_usd": 0.00908625,
+          "cost_usd_2027": 0.0181725,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Có, kinh doanh gôn (golf) bao gồm cả việc bán thẻ hội viên và vé chơi gôn thuộc đối tượng chịu thuế tiêu thụ đặc biệt [1][3][4].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 7600,
+          "answer_tokens": 38,
+          "thinking_tokens": 0,
+          "latency_s": 1.195,
+          "cost_usd": 0.002375,
+          "cost_usd_2027": 0.002375,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q219",
+      "tax_type": "sct",
+      "unanswerable": "out_of_scope",
+      "hits": [
+        "422910:D5:K4",
+        "379409:D16",
+        "405694:D6",
+        "405694:D2",
+        "439381:D40",
+        "428454:D7:K2",
+        "404357:D25",
+        "422910:D3"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 6070,
+          "answer_tokens": 17,
+          "thinking_tokens": 613,
+          "latency_s": 21.375,
+          "cost_usd": 0.006915,
+          "cost_usd_2027": 0.01383,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 6070,
+          "answer_tokens": 17,
+          "thinking_tokens": 0,
+          "latency_s": 1.674,
+          "cost_usd": 0.0018635,
+          "cost_usd_2027": 0.0018635,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q124",
+      "tax_type": "vat",
+      "unanswerable": null,
+      "hits": [
+        "433921:D1",
+        "433921:D2",
+        "433921:D3",
+        "433921:D5",
+        "433921:D4",
+        "433921:D6",
+        "439660:D11:K1",
+        "439660:D32:K2"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 5348,
+          "answer_tokens": 17,
+          "thinking_tokens": 715,
+          "latency_s": 12.491,
+          "cost_usd": 0.006756,
+          "cost_usd_2027": 0.013512,
+          "refused_429": 1,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 5348,
+          "answer_tokens": 17,
+          "thinking_tokens": 0,
+          "latency_s": 1.482,
+          "cost_usd": 0.0016469,
+          "cost_usd_2027": 0.0016469,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q120",
+      "tax_type": "vat",
+      "unanswerable": null,
+      "hits": [
+        "379409:D5:K21",
+        "404357:D4:K13",
+        "421582:D4:K13",
+        "404386:D15",
+        "439382:D49",
+        "379409:D9",
+        "404386:D4",
+        "422733:D5"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Theo khoản 21 Điều 5 Luật 48/2024/QH15, chuyển giao công nghệ theo quy định của Luật Chuyển giao công nghệ thuộc đối tượng không chịu thuế giá trị gia tăng [1].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 4927,
+          "answer_tokens": 50,
+          "thinking_tokens": 239,
+          "latency_s": 2.934,
+          "cost_usd": 0.004779,
+          "cost_usd_2027": 0.009558,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Theo Điều 5 Luật 48/2024/QH15, chuyển giao công nghệ theo quy định của Luật Chuyển giao công nghệ thuộc đối tượng không chịu thuế giá trị gia tăng [1].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 4927,
+          "answer_tokens": 46,
+          "thinking_tokens": 0,
+          "latency_s": 1.066,
+          "cost_usd": 0.0015930999999999999,
+          "cost_usd_2027": 0.0015930999999999999,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q105",
+      "tax_type": "vat",
+      "unanswerable": null,
+      "hits": [
+        "404357:D6",
+        "404357:D23:K7",
+        "379409:D7",
+        "405694:D6",
+        "439827:D4",
+        "440483:D19:K3",
+        "439303:D61",
+        "404357:D9"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Theo quy định của pháp luật về thuế giá trị gia tăng (GTGT):\n\n- Đối với hàng hóa dùng để khuyến mại (bao gồm trường hợp tặng hàng hóa không thu tiền) theo đúng quy định của pháp luật về thương mại thì giá tính thuế GTGT được xác định bằng không (0) [1][3].\n- Thuế GTGT đầu vào của hàng hóa mà cơ sở kinh doanh sử dụng để khuyến mại được khấu trừ [2].\n- Trường hợp hàng hóa dùng để khuyến mại nhưng không thực hiện theo quy định về khuyến mại của pháp luật về thương mại thì giá tính thuế GTGT được xác định theo giá tính thuế GTGT của hàng hóa cùng loại hoặc tương đương tại thời điểm phát sinh hoạt động đó (như đối với hàng hóa biếu, tặng, cho) [1].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 9953,
+          "answer_tokens": 168,
+          "thinking_tokens": 914,
+          "latency_s": 5.949,
+          "cost_usd": 0.01152225,
+          "cost_usd_2027": 0.0230445,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Đối với hàng hóa, dịch vụ dùng để khuyến mại theo quy định của pháp luật về thương mại, giá tính thuế giá trị gia tăng được xác định bằng không (0) (trừ trường hợp bán hàng, cung cấp dịch vụ với giá thấp hơn giá bán trước đó được áp dụng trong thời gian khuyến mại giảm giá) [1]. \n\nCác hình thức khuyến mại có giá tính thuế bằng không (0) hoặc giá bán ra không bao gồm giá trị của hàng hóa, dịch vụ dùng để khuyến mại bao gồm cả trường hợp tặng hàng hóa, cung cấp dịch vụ không thu tiền [1].\n\nBên cạnh đó, thuế giá trị gia tăng đầu vào của hàng hóa mà cơ sở kinh doanh sử dụng để khuyến mại thì được khấu trừ [2].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 9953,
+          "answer_tokens": 157,
+          "thinking_tokens": 0,
+          "latency_s": 1.464,
+          "cost_usd": 0.0033784,
+          "cost_usd_2027": 0.0033784,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q130",
+      "tax_type": "vat",
+      "unanswerable": "out_of_scope",
+      "hits": [
+        "404453:D9:K2",
+        "404357:D33",
+        "404357:D17:K3",
+        "404357:D18",
+        "440483:D28",
+        "440483:D79",
+        "404357:D28",
+        "439382:D61:K1"
+      ],
+      "models": {
+        "gemini-3.6-flash": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 7843,
+          "answer_tokens": 17,
+          "thinking_tokens": 401,
+          "latency_s": 3.554,
+          "cost_usd": 0.00744975,
+          "cost_usd_2027": 0.0148995,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 7843,
+          "answer_tokens": 17,
+          "thinking_tokens": 0,
+          "latency_s": 1.873,
+          "cost_usd": 0.0023954000000000002,
+          "cost_usd_2027": 0.0023954000000000002,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    }
+  ]
+}

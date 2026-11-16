@@ -20,6 +20,11 @@ def test_optional_var_falls_back_to_default():
     assert LLM_MODEL
 
 
+def test_default_llm_model_is_the_one_adr_0003_chose():
+    """ADR-0003: `gemini-3.5-flash-lite` unless `LLM_MODEL` is set (#13)."""
+    assert getattr(config, "DEFAULT_LLM_MODEL", None) == "gemini-3.5-flash-lite"
+
+
 def _required_numbered():
     found = getattr(config, "required_numbered", None)
     assert found is not None, "src.config has no required_numbered"
