@@ -29,11 +29,13 @@ from src.config import GOOGLE_API_KEYS  # noqa: E402
 from src.eval.dataset import load_eval_set  # noqa: E402
 from src.retrieval import Retriever  # noqa: E402
 
-MODELS = ("gemini-3.8-flash", "gemini-3.5-flash-lite")
-# Paid tier, USD per 1M text tokens, output including thinking: Google AI Studio pricing page, read 2026-11-15.
-PRICES = {"gemini-3.8-flash": (0.75, 3.75), "gemini-3.5-flash-lite": (0.30, 2.50)}
-PRICES_2027 = {"gemini-3.8-flash": (1.50, 7.50), "gemini-3.5-flash-lite": (0.30, 2.50)}
-PRICES_READ = "2026-11-15"
+# gemini-3.8-flash was dropped after three runs on the free tier stalled (#13); its 3 items are in
+# eval/results/llm-pilot/2026-11-16-597534e-partial.json.
+MODELS = ("gemini-3.6-flash", "gemini-3.5-flash-lite")
+# Paid tier, USD per 1M text tokens, output including thinking: Google AI Studio pricing page, read 2026-11-16.
+PRICES = {"gemini-3.6-flash": (0.75, 3.75), "gemini-3.5-flash-lite": (0.30, 2.50)}
+PRICES_2027 = {"gemini-3.6-flash": (1.50, 7.50), "gemini-3.5-flash-lite": (0.30, 2.50)}
+PRICES_READ = "2026-11-16"
 SEED = 0
 ANSWERABLE_PER_TYPE = 3
 UNANSWERABLE_PER_TYPE = 1

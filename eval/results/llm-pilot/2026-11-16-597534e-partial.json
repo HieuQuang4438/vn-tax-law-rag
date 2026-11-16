@@ -1,0 +1,132 @@
+{
+  "configuration": {
+    "commit": "597534e",
+    "partial": "stopped after 3 of 24 items: gemini-3.8-flash gave no answer on q96 after 5 rounds of 503 UNAVAILABLE and dropped connections; the model is dropped from the pilot (#13)",
+    "script": "scripts/llm_pilot.py at the commit above; sample, prompt and prices as configured there"
+  },
+  "items": [
+    {
+      "id": "q84",
+      "tax_type": "administration",
+      "unanswerable": null,
+      "hits": [
+        "439780:D12",
+        "439780:D3",
+        "439780:D8:K1",
+        "439780:D6:K3",
+        "439780:D24",
+        "439780:D1",
+        "439780:D9",
+        "439780:D10:K5"
+      ],
+      "models": {
+        "gemini-3.8-flash": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 8557,
+          "answer_tokens": 17,
+          "thinking_tokens": 252,
+          "latency_s": 108.392,
+          "cost_usd": 0.0074265,
+          "cost_usd_2027": 0.014853,
+          "refused_429": 1,
+          "unavailable_5xx": 3
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 8557,
+          "answer_tokens": 17,
+          "thinking_tokens": 0,
+          "latency_s": 1.503,
+          "cost_usd": 0.0026096,
+          "cost_usd_2027": 0.0026096,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q86",
+      "tax_type": "administration",
+      "unanswerable": null,
+      "hits": [
+        "439613:D20",
+        "439613:D18",
+        "439613:D21:K3",
+        "439613:D16",
+        "439613:D1",
+        "439613:D6",
+        "439613:D8",
+        "439613:D4"
+      ],
+      "models": {
+        "gemini-3.8-flash": {
+          "answer": "Doanh nghiệp có phát sinh giao dịch liên kết có thể được miễn lập Hồ sơ xác định giá giao dịch liên kết (nhưng vẫn phải kê khai xác định giá giao dịch liên kết theo Phụ lục I) nếu thuộc các trường hợp sau:\n\n- Có tổng doanh thu phát sinh của kỳ tính thuế dưới 50 tỷ đồng và tổng giá trị tất cả các giao dịch liên kết phát sinh trong kỳ tính thuế dưới 30 tỷ đồng [1].\n- Doanh nghiệp thực hiện kinh doanh không phát sinh doanh thu, chi phí từ hoạt động khai thác, sử dụng tài sản vô hình, có doanh thu dưới 500 tỷ đồng và áp dụng tỷ suất lợi nhuận thuần chưa trừ chi phí lãi vay và thuế thu nhập doanh nghiệp (không bao gồm chênh lệch doanh thu và chi phí của hoạt động tài chính) trên doanh thu thuần đạt mức quy định [1]:\n  + Phân phối: Từ 5% trở lên [1];\n  + Sản xuất: Từ 10% trở lên [1];\n  + Gia công: Từ 15% trở lên [1].\n  *(Trường hợp không áp dụng theo mức tỷ suất lợi nhuận thuần quy định này thì phải lập Hồ sơ xác định giá giao dịch liên kết theo quy định [1]).*",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 7400,
+          "answer_tokens": 272,
+          "thinking_tokens": 560,
+          "latency_s": 11.506,
+          "cost_usd": 0.00867,
+          "cost_usd_2027": 0.01734,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Có, người nộp thuế có phát sinh giao dịch liên kết nhưng có tổng doanh thu phát sinh của kỳ tính thuế dưới 50 tỷ đồng và tổng giá trị tất cả các giao dịch liên kết phát sinh trong kỳ tính thuế dưới 30 tỷ đồng thì được miễn lập Hồ sơ xác định giá giao dịch liên kết [1].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 7400,
+          "answer_tokens": 69,
+          "thinking_tokens": 0,
+          "latency_s": 1.062,
+          "cost_usd": 0.0023925,
+          "cost_usd_2027": 0.0023925,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    },
+    {
+      "id": "q61",
+      "tax_type": "administration",
+      "unanswerable": null,
+      "hits": [
+        "439382:D10",
+        "440483:D25:K2",
+        "440483:D21:K1",
+        "427630:D8:K3",
+        "440483:D27",
+        "439382:D6:K3",
+        "439613:D19",
+        "433387:D2"
+      ],
+      "models": {
+        "gemini-3.8-flash": {
+          "answer": "Theo quy định, đối với loại thuế khai quyết toán thuế (như quyết toán thuế thu nhập doanh nghiệp khi kết thúc năm [3]), thời hạn nộp hồ sơ khai quyết toán thuế chậm nhất là ngày cuối cùng của tháng thứ 03 kể từ ngày kết thúc kỳ quyết toán thuế [1].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 9675,
+          "answer_tokens": 63,
+          "thinking_tokens": 548,
+          "latency_s": 128.427,
+          "cost_usd": 0.0095475,
+          "cost_usd_2027": 0.019095,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        },
+        "gemini-3.5-flash-lite": {
+          "answer": "Đối với loại thuế khai quyết toán thuế năm, thời hạn nộp hồ sơ khai thuế chậm nhất là ngày cuối cùng của tháng thứ 03 kể từ ngày kết thúc kỳ quyết toán thuế [1].",
+          "finish_reason": "FinishReason.STOP",
+          "prompt_tokens": 9675,
+          "answer_tokens": 42,
+          "thinking_tokens": 0,
+          "latency_s": 0.983,
+          "cost_usd": 0.0030075,
+          "cost_usd_2027": 0.0030075,
+          "refused_429": 0,
+          "unavailable_5xx": 0
+        }
+      }
+    }
+  ]
+}
