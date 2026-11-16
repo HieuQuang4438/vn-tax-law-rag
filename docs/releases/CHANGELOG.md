@@ -94,6 +94,12 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 
 ### Changed
 
+- Generation model: `LLM_MODEL` defaults to `gemini-3.5-flash-lite` (`DEFAULT_LLM_MODEL` in
+  `src.config`) instead of the deprecated `gemini-2.5-flash`, on the Gemini API free tier.
+  Chosen by a pilot of 24 eval set v2 questions graded blind (`scripts/llm_pilot.py`):
+  `gemini-3.6-flash` scored 0.750 against 0.667 but broke NFR-006 (p95 21.1 s) and, from
+  2027, NFR-007; Flash-Lite answered in 1.4 s median and 1.9 s p95 at 0.0024 USD per
+  question. FR-CORE-010, NFR-006, NFR-007, ADR-0003, #13.
 - One hit per article by default: after the reference slots, a chunk whose article already has
   a chunk above it is skipped, so the top 8 holds 8 articles; `--no-per-article` turns it off.
   Measured on eval set v1 against five other fusion variants (`RRF_K` 20 and 120, either list

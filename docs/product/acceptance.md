@@ -1,7 +1,8 @@
 ---
-status: in-review
-updated: 2026-11-15
+status: approved
+updated: 2026-11-16
 owner: HieuQuang4438
+approved-by: peer
 ---
 
 # Acceptance — vn-tax-law-rag

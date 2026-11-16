@@ -75,7 +75,7 @@ Rules:
       return value
 
   GOOGLE_API_KEYS = required_numbered("GOOGLE_API_KEY")
-  LLM_MODEL = os.getenv("LLM_MODEL", "gemini-2.5-flash")
+  LLM_MODEL = os.getenv("LLM_MODEL", "gemini-3.5-flash-lite")
   ```
 - Several keys for one service are numbered from 1: `GOOGLE_API_KEY_1`, `GOOGLE_API_KEY_2`, …
   `required_numbered(name)` reads them in order up to the first one missing or empty, and fails

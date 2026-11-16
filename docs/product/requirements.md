@@ -1,6 +1,6 @@
 ---
 status: approved
-updated: 2026-11-14
+updated: 2026-11-16
 owner: HieuQuang4438
 approved-by: peer
 ---
@@ -50,7 +50,7 @@ Nothing is released yet, so `Since` is `—` everywhere until the first release 
 | FR-CORE-007 | Resolve explicit document and article references in a question directly from chunk metadata. | — | — | approved | ADR-0002 |
 | FR-CORE-008 | Retrieve chunks by fusing keyword and vector results and keep the top 8. | — | — | approved | ADR-0002. k = 8 matches EVAL-001 |
 | FR-CORE-009 | Assemble the model's context from retrieved chunks: deduplicate, add the parent article of a clause, add the amending text of an amended chunk, give each passage a citation id, fit a token budget. | — | — | approved | |
-| FR-CORE-010 | Answer in Vietnamese using only the assembled passages, citing a passage for every claim. When a cited provision has been amended, say so and cite the amending provision. | — | — | approved | LLM not chosen |
+| FR-CORE-010 | Answer in Vietnamese using only the assembled passages, citing a passage for every claim. When a cited provision has been amended, say so and cite the amending provision. | — | — | approved | ADR-0003 |
 | FR-CORE-011 | Show each citation as document, article and clause with a link to the source page; flag any citation id that was not in the context. | — | — | approved | |
 | FR-CORE-012 | Reply that the documents do not cover the question when retrieval finds nothing relevant or the passages do not answer it. | — | — | approved | Threshold set by eval |
 | FR-CORE-013 | State with every answer that it is information with sources, not legal or tax advice. | — | — | approved | |
@@ -72,7 +72,7 @@ Nothing is released yet, so `Since` is `—` everywhere until the first release 
 | NFR-004 | The crawler waits at least 3 s between live requests and never re-fetches a cached page. | — | — | approved | Built |
 | NFR-005 | Rebuilding the index from cached pages is one command and gives the same chunks every time. | — | — | approved | |
 | NFR-006 | From question to complete answer: median ≤ 10 s and p95 ≤ 20 s on the demo hardware (Hugging Face Spaces CPU Basic), measured over the eval set. | — | — | approved | Provisional until the first measurement |
-| NFR-007 | Average model cost per question ≤ 0.01 USD, computed from recorded token usage at the provider's list price on the day of the run. | — | — | approved | Provisional until the LLM is chosen (#13) |
+| NFR-007 | Average model cost per question ≤ 0.01 USD, computed from recorded token usage at the provider's list price on the day of the run. | — | — | approved | 0.0024 USD per question on the LLM pilot (ADR-0003) |
 
 ## Traceability
 

@@ -23,4 +23,5 @@ def required_numbered(name: str) -> tuple[str, ...]:
 
 
 GOOGLE_API_KEYS = required_numbered("GOOGLE_API_KEY")
-LLM_MODEL = os.getenv("LLM_MODEL", "gemini-2.5-flash")
+DEFAULT_LLM_MODEL = "gemini-3.5-flash-lite"  # ADR-0003
+LLM_MODEL = os.getenv("LLM_MODEL", DEFAULT_LLM_MODEL)

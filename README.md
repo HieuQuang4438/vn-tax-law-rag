@@ -128,7 +128,7 @@ pytest
 ## Built with
 
 Python 3.12, requests, BeautifulSoup + lxml; bge-m3 through sentence-transformers on CPU, Chroma,
-bm25s. LLM not chosen yet.
+bm25s; gemini-3.5-flash-lite on the Gemini API free tier.
 
 ## Status
 

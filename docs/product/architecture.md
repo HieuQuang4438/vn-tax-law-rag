@@ -1,6 +1,6 @@
 ---
 status: approved
-updated: 2026-11-14
+updated: 2026-11-16
 owner: HieuQuang4438
 approved-by: peer
 ---
@@ -174,7 +174,8 @@ amended provision, each passage given a short citation id, all cut to a token bu
 The model answers in Vietnamese from those passages only, citing a passage for every claim,
 and says when a cited provision has been amended. If retrieval found nothing relevant, or the
 passages do not answer the question, the reply says the documents do not cover it.
-— FR-CORE-010, FR-CORE-012. The model is not chosen yet.
+— FR-CORE-010, FR-CORE-012. The model is `gemini-3.5-flash-lite` on the Gemini API free tier
+(ADR-0003).
 
 ### 6. Citations — planned
 
@@ -184,13 +185,14 @@ flagged rather than shown as a source. — FR-CORE-011, FR-CORE-013
 
 ## Measuring it — built for retrieval
 
-A hand-written eval set of 30–50 questions, some unanswerable and some multi-turn, each with
-its expected answer, key facts and supporting articles, is run through the whole pipeline by
-one command, `python -m src.eval.run`. It records retrieval recall and context precision,
-answer correctness, citation correctness, faithfulness, answer relevancy, not-found accuracy,
-latency and cost. Definitions and targets are in [acceptance.md](acceptance.md). The set lives
-in `eval/questions.yaml`; `python -m src.eval.check` checks it against the corpus while it is
-written ([eval-set.md](../reference/eval-set.md)).
+A hand-written eval set, sized per version in acceptance.md (240 questions in version 2), some
+unanswerable and some multi-turn, each with its expected answer, key facts and supporting
+articles, is run through the whole pipeline by one command, `python -m src.eval.run`. It
+records retrieval recall and context precision, answer correctness, citation correctness,
+faithfulness, answer relevancy, not-found accuracy, latency and cost. Definitions and targets
+are in [acceptance.md](acceptance.md). The set lives in `eval/questions.yaml`;
+`python -m src.eval.check` checks it against the corpus while it is written
+([eval-set.md](../reference/eval-set.md)).
 
 Today the pipeline stops at retrieval, so the run scores recall and context precision and
 records the answer metrics as not run. Each run writes a results file to `eval/results/`, with
