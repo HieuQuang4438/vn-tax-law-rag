@@ -33,6 +33,8 @@ data/index/
 data/index-*/
 # Threshold variants: chunks, enriched chunks and index per threshold (#12).
 data/t*/
+# Generated answers of eval runs: they quote the corpus (#15).
+data/eval-answers/
 
 # OS and editor
 .DS_Store

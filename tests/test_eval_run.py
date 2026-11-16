@@ -40,7 +40,8 @@ from src.retrieval import TOP_K, Fusion, Hit, Retrieval, Retriever, Unresolved
 ROOT = Path(__file__).resolve().parent.parent
 EVAL_IDS = [f"EVAL-00{n}" for n in range(1, 9)]
 GENERATION = ["EVAL-002", "EVAL-003", "EVAL-004", "EVAL-006", "EVAL-008"]
-TOP_KEYS = ["format", "run", "configuration", "scores", "breakdown", "latency", "cost", "items"]
+TOP_KEYS = ["format", "run", "configuration", "scores", "breakdown", "latency", "cost", "generation",
+            "ac015", "items"]
 
 
 def at(data, *keys):
@@ -661,3 +662,320 @@ def test_no_per_article_turns_the_default_off(command, loads):
     assert loads == [Fusion(per_article=False)]
     files = sorted(out.glob("*.json")) if out.is_dir() else []
     assert at(json.loads(files[0].read_text(encoding="utf-8")), "configuration", "pipeline", "per_article") is False
+
+
+# --- Generation stage (#15) ---------------------------------------------------------------------
+
+from src.answer import NOT_FOUND, Answer, Citation, Sentence  # noqa: E402
+from src.context import Context, Passage  # noqa: E402
+from src.eval.judge import Verdict  # noqa: E402
+from src.eval.metrics import ratio_bootstrap_interval  # noqa: E402
+from src.eval.run import Progress, ProgressMismatch  # noqa: E402
+from src.llm import Call  # noqa: E402
+
+GEN_TOP_KEYS = ["format", "run", "configuration", "scores", "breakdown", "latency", "cost", "generation", "ac015",
+                "items"]
+GEN_ITEM_KEYS = ["generated", "context_tokens", "dropped", "not_found", "sentences", "cited_sentences", "citations",
+                 "flagged", "cited_supported", "supported", "correct", "ac015", "judge_latency_s", "judge_tokens",
+                 "judge_cost_usd"]
+CHUNKS = {  # the enriched chunks AC-015 reads: id -> record
+    "379409:D5:K1": {"id": "379409:D5:K1", "parent_id": A, "clause": "1", "amended_by": []},
+    "379409:D5:K25": {"id": "379409:D5:K25", "parent_id": A, "clause": "25",
+                      "amended_by": [{"type": "amends", "source": "427630:D6"}]},
+    "379409:D9": {"id": "379409:D9", "parent_id": B, "clause": None, "amended_by": []},
+    "421739:D1": {"id": "421739:D1", "parent_id": C, "clause": None,
+                  "amended_by": [{"type": "repeals", "source": "999001:D1"}]},
+    "427630:D6": {"id": "427630:D6", "parent_id": "427630:D6", "clause": None, "amended_by": []},
+    "999001:D1": {"id": "999001:D1", "parent_id": X, "clause": None, "amended_by": []},
+}
+ARTICLE_A = Passage("1", "article", "379409", "5", ("379409:D5:K1", "379409:D5:K25"), ("1", "25"), "[1] A")
+AMENDING_A = Passage("2", "amending", "427630", "6", ("427630:D6",), (), "[2] sửa đổi A")
+ARTICLE_B = Passage("3", "article", "379409", "9", ("379409:D9",), ("1", "2"), "[3] B")
+ONLY_B = Passage("1", "article", "379409", "9", ("379409:D9",), ("1", "2"), "[1] B")
+ONLY_C = Passage("1", "article", "421739", "1", ("421739:D1",), (), "[1] C")
+
+
+def generated(passages, sentences, flagged=(), not_found=False) -> Answer:
+    ids = list(dict.fromkeys(i for _, citations in sentences for i in citations))
+    context = Context(passages=list(passages), text="\n\n".join(p.text for p in passages), tokens=100 * len(passages),
+                      dropped=[])
+    return Answer(sentences=[Sentence(text, citations) for text, citations in sentences],
+                  citations=[Citation(i, i not in flagged) for i in ids], flagged=list(flagged), not_found=not_found,
+                  text="", context=context, call=Call(None, "gemini-3.5-flash-lite", "answer", 9000, 100, 1.0, 0.003, 1),
+                  latency_s={"assembly": 0.01, "generation": 1.0})
+
+
+ANSWERS = {
+    QUESTIONS[0].question: generated([ARTICLE_A, AMENDING_A, ARTICLE_B],
+                                     [("Câu một.", ("1.25", "2")), ("Câu hai.", ("7",))], flagged=("7",)),
+    QUESTIONS[1].question: generated([ONLY_C], [(NOT_FOUND, ())], not_found=True),
+    QUESTIONS[2].question: generated([ONLY_B], [("Câu một.", ("1.2",)), ("Câu hai.", ()), ("Câu ba.", ("1",))]),
+    QUESTIONS[3].question: generated([ONLY_B], [(NOT_FOUND, ())], not_found=True),
+}
+DEFAULT_ANSWER = generated([ONLY_B], [("Câu một.", ("1",))])
+
+
+def judge_call() -> Call:
+    return Call(None, "gemini-3.5-flash-lite", "judge", 15000, 300, 2.0, 0.0012, 1)
+
+
+VERDICTS = {
+    QUESTIONS[0].question: Verdict((True, False), (True, True), (True,), False, True, True, judge_call()),
+    QUESTIONS[2].question: Verdict((False, None, True), (True, False, True), (False,), False, None, False, judge_call()),
+}
+
+
+class FakeJudge:
+    def __init__(self):
+        self.calls: list[tuple] = []
+
+    def judge(self, question, key_facts, answer, amended=()):
+        self.calls.append((question, tuple(key_facts), tuple(amended)))
+        default = Verdict(tuple(True if s.citations else None for s in answer.sentences),
+                          tuple(True for _ in answer.sentences), tuple(True for _ in key_facts), False,
+                          True if amended else None, True, judge_call())
+        return VERDICTS.get(question, default)
+
+
+class GeneratingPipeline:
+    generates = True
+    config = {"stages": ["retrieval", "assembly", "generation"], "rewrite": "none", "top_k": 8, "rrf_k": 60,
+              "candidates": 50, "model": "gemini-3.5-flash-lite"}
+
+    def __init__(self, answers=ANSWERS, default=None):
+        self.answers, self.default = answers, default
+        self.answered: list[str] = []
+        self.retrieved: list[str] = []
+
+    def _hits(self, question):
+        return [Hit(c, ("keyword",), 0.5) for c in HITS.get(question, ["379409:D9"])]
+
+    def answer(self, question: str) -> Outcome:
+        self.answered.append(question)
+        answer = self.answers.get(question, self.default)
+        if answer is None:  # a turn sent to answer() instead of retrieve(): the test asserts on `answered`
+            return Outcome(hits=self._hits(question), latency={"retrieval": 0.1})
+        return Outcome(hits=self._hits(question), latency={"retrieval": 0.1, **answer.latency_s},
+                       tokens={"input": 9000, "output": 100}, cost_usd=0.003, answer=answer)
+
+    def retrieve(self, question: str) -> Outcome:
+        self.retrieved.append(question)
+        return Outcome(hits=self._hits(question), latency={"retrieval": 0.1})
+
+
+@pytest.fixture
+def generation(connections):
+    pipeline, judge, answers = GeneratingPipeline(), FakeJudge(), []
+    results = evaluate(small_set(), pipeline, PARENTS, judge=judge, chunks=CHUNKS, answers=answers)
+    return results, pipeline, judge, answers
+
+
+def item_of(results, item_id):
+    matches = [i for i in at(results, "items") if i.get("id") == item_id]
+    assert len(matches) == 1, f"{item_id}: {len(matches)} items"
+    return matches[0]
+
+
+def test_ratio_interval_resamples_items_and_takes_the_ratio_of_sums():
+    numerators, denominators = [1.0, 0.0, 2.0, 3.0], [2.0, 1.0, 2.0, 4.0]
+    rng = np.random.default_rng(0)
+    draws = rng.integers(0, 4, size=(1000, 4))
+    ratios = np.asarray(numerators)[draws].sum(axis=1) / np.asarray(denominators)[draws].sum(axis=1)
+    expected = (float(np.percentile(ratios, 2.5)), float(np.percentile(ratios, 97.5)))
+    assert ratio_bootstrap_interval(numerators, denominators) == pytest.approx(expected)
+
+
+def test_a_run_without_generation_has_no_generation_or_ac015(results):
+    assert at(results, "generation") is None
+    assert at(results, "ac015") is None
+    assert all(at(i, "generated") is False for i in at(results, "items"))
+
+
+def test_questions_are_generated_and_turns_only_retrieved(generation):
+    results, pipeline, _, _ = generation
+    assert pipeline.answered == [q.question for q in QUESTIONS]
+    assert pipeline.retrieved == [QUESTIONS[0].question] + [t.question for t in TURNS]  # warm-up first
+    assert [at(i, "generated") for i in at(results, "items")] == [True] * 4 + [False] * 3
+
+
+def test_items_get_the_generation_keys_after_cost(generation):
+    results, *_ = generation
+    for entry in at(results, "items"):
+        keys = list(entry)
+        assert keys[keys.index("cost_usd") + 1:] == GEN_ITEM_KEYS
+    assert list(results) == GEN_TOP_KEYS
+
+
+def test_answerable_answers_are_judged_and_not_found_ones_are_not(generation):
+    _, _, judge, _ = generation
+    assert judge.calls == [(QUESTIONS[0].question, ("một sự kiện",), ("1.25",)),
+                           (QUESTIONS[2].question, ("một sự kiện",), ())]
+
+
+def test_an_item_records_its_answer_as_ids_and_counts(generation):
+    results, *_ = generation
+    q01 = item_of(results, "q01")
+    assert (at(q01, "not_found"), at(q01, "sentences"), at(q01, "cited_sentences")) == (False, 2, 2)
+    assert (at(q01, "citations"), at(q01, "flagged")) == (["1.25", "2", "7"], ["7"])
+    assert (at(q01, "cited_supported"), at(q01, "supported"), at(q01, "correct")) == (1, 2, True)
+    assert (at(q01, "context_tokens"), at(q01, "dropped")) == (300, [])
+    assert at(q01, "judge_tokens") == {"input": 15000, "output": 300}
+    assert at(q01, "judge_cost_usd") == pytest.approx(0.0012)
+    assert at(q01, "judge_latency_s") == pytest.approx(2.0)
+    q02 = item_of(results, "q02")
+    assert (at(q02, "not_found"), at(q02, "correct"), at(q02, "cited_supported"), at(q02, "judge_tokens")) == \
+        (True, False, None, None)
+    assert at(item_of(results, "q04"), "correct") is None
+    turn = item_of(results, "c01.2")
+    assert all(at(turn, key) is None for key in GEN_ITEM_KEYS if key != "generated")
+
+
+def test_eval002_is_the_share_of_cited_sentences_supported_by_their_citations(generation):
+    results, *_ = generation
+    entry = score(results, "EVAL-002")
+    assert at(entry, "value") == pytest.approx(2 / 4)
+    assert at(entry, "n") == 4
+    assert at(entry, "interval") == pytest.approx(list(ratio_bootstrap_interval([1, 1], [2, 2])))
+    assert at(entry, "judge") == "gemini-3.5-flash-lite"
+
+
+def test_eval003_is_the_mean_share_of_supported_sentences_over_answered_questions(generation):
+    results, *_ = generation
+    entry = score(results, "EVAL-003")
+    assert at(entry, "value") == pytest.approx((1 + 2 / 3) / 2)
+    assert at(entry, "n") == 2
+
+
+def test_eval006_counts_a_not_found_answer_as_incorrect(generation):
+    results, *_ = generation
+    entry = score(results, "EVAL-006")
+    assert at(entry, "value") == pytest.approx(1 / 3)
+    assert at(entry, "n") == 3
+
+
+def test_eval004_and_eval008_say_why_they_are_not_run(generation):
+    results, *_ = generation
+    assert (at(score(results, "EVAL-004"), "value"), at(score(results, "EVAL-004"), "reason")) == (None, "scored by #16")
+    assert (at(score(results, "EVAL-008"), "value"), at(score(results, "EVAL-008"), "reason")) == (None, "not scored")
+
+
+def test_the_generation_summary_counts_not_found_flagged_and_judge_calls(generation):
+    results, *_ = generation
+    assert at(results, "generation", "answered") == 4
+    assert at(results, "generation", "not_found") == {"answerable": 1, "answerable_of": 3, "unanswerable": 1,
+                                                      "unanswerable_of": 1}
+    assert at(results, "generation", "flagged") == {"ids": 1, "items": 1}
+    judge = at(results, "generation", "judge")
+    assert (at(judge, "model"), at(judge, "calls")) == ("gemini-3.5-flash-lite", 2)
+    assert at(judge, "cost_usd") == pytest.approx(0.0024)
+
+
+def test_ac015_passes_fails_and_retrieval_misses(generation):
+    results, *_ = generation
+    assert at(results, "ac015") == {"applies": ["q01", "q02", "q03"], "retrieval_misses": ["q03"],
+                                    "passes": ["q01"], "fails": ["q02"], "green": False}
+    assert at(item_of(results, "q01"), "ac015") == {"in_context": True, "cites_amending": True,
+                                                    "says_amended": True, "passes": True}
+    assert at(item_of(results, "q02"), "ac015") == {"in_context": True, "cites_amending": False,
+                                                    "says_amended": None, "passes": False}
+    assert at(item_of(results, "q03"), "ac015") == {"in_context": False, "cites_amending": None,
+                                                    "says_amended": None, "passes": None}
+    assert at(item_of(results, "q04"), "ac015") is None
+
+
+def test_ac015_is_green_when_every_question_in_the_context_passes(connections):
+    answers = dict(ANSWERS)
+    answers[QUESTIONS[1].question] = generated([ONLY_C], [("Bị bãi bỏ.", ("1",))])
+    results = evaluate(small_set(), GeneratingPipeline(answers), PARENTS, judge=FakeJudge(), chunks=CHUNKS)
+    assert at(results, "ac015", "fails") == ["q02"]  # q02 cites [1], which holds no amending source
+    assert at(results, "ac015", "green") is False
+    answers[QUESTIONS[1].question] = generated([ONLY_C, Passage("2", "amending", "999001", "1", ("999001:D1",), (),
+                                                                "[2] bãi bỏ")],
+                                               [("Bị bãi bỏ.", ("2",))])
+    results = evaluate(small_set(), GeneratingPipeline(answers), PARENTS, judge=FakeJudge(), chunks=CHUNKS)
+    assert at(results, "ac015", "passes") == ["q01", "q02"]
+    assert at(results, "ac015", "green") is True
+
+
+def test_latency_and_cost_are_over_the_generated_items(generation):
+    results, *_ = generation
+    assert at(results, "latency", "n") == 4
+    assert at(results, "latency", "median_s") == pytest.approx(0.1 + 0.01 + 1.0)
+    assert at(results, "latency", "scope") == "full pipeline, dev laptop"
+    assert at(results, "cost", "average_usd") == pytest.approx(0.003)
+    assert at(results, "cost", "note") == ""
+
+
+def test_the_answers_list_gets_one_record_per_generated_item(generation):
+    _, _, _, answers = generation
+    assert [record.get("id") for record in answers] == ["q01", "q02", "q03", "q04"]
+    q01 = answers[0]
+    assert list(q01) == ["id", "passages", "sentences", "flagged", "not_found", "verdict"]
+    assert q01["passages"] == [{"id": "1", "text": "[1] A"}, {"id": "2", "text": "[2] sửa đổi A"},
+                               {"id": "3", "text": "[3] B"}]
+    assert q01["sentences"] == [{"text": "Câu một.", "citations": ["1.25", "2"]},
+                                {"text": "Câu hai.", "citations": ["7"]}]
+    assert q01["verdict"] == {"cited": [True, False], "supported": [True, True], "facts": [True],
+                              "contradicts": False, "says_amended": True, "correct": True}
+    assert answers[1]["verdict"] is None
+
+
+def test_the_summary_marks_judged_scores_as_not_hand_checked(generation, tmp_path):
+    results, *_ = generation
+    text = summary(results, tmp_path / "x.json")
+    assert text.count("judge gemini-3.5-flash-lite, not hand-checked") == 3
+
+
+# --- Resume ---
+
+def header() -> dict:
+    return {"commit": "a" * 40, "eval_set_sha256": "a" * 64, "pipeline": GeneratingPipeline.config}
+
+
+def test_progress_keeps_each_generated_item_and_a_rerun_reuses_them(tmp_path, connections):
+    path = tmp_path / "progress.jsonl"
+    first = evaluate(small_set(), GeneratingPipeline(), PARENTS, judge=FakeJudge(), chunks=CHUNKS,
+                     progress=Progress.open(path, header()))
+    lines = path.read_text(encoding="utf-8").splitlines() if path.exists() else []
+    assert len(lines) == 1 + 4
+    assert json.loads(lines[0]) == header()
+    pipeline, judge = GeneratingPipeline(), FakeJudge()
+    second = evaluate(small_set(), pipeline, PARENTS, judge=judge, chunks=CHUNKS, progress=Progress.open(path, header()))
+    assert pipeline.answered == [] and judge.calls == []
+    assert at(second, "scores") == at(first, "scores")
+
+
+def test_progress_from_another_run_is_refused(tmp_path):
+    path = tmp_path / "progress.jsonl"
+    path.write_bytes((json.dumps({**header(), "commit": "b" * 40}) + "\n").encode("utf-8"))
+    with pytest.raises(ProgressMismatch):
+        Progress.open(path, header())
+
+
+def test_the_command_generates_writes_the_answers_file_and_removes_the_progress(command, capsys):
+    argv, out, _ = command
+    data = Path(argv[argv.index("--data") + 1])
+    assert main(argv + ["--generate"], pipeline=GeneratingPipeline(answers={}, default=DEFAULT_ANSWER),
+                judge=FakeJudge()) == 0
+    files = sorted(out.glob("*.json")) if out.is_dir() else []
+    assert len(files) == 1
+    written = json.loads(files[0].read_text(encoding="utf-8"))
+    assert at(written, "generation", "answered") == 30
+    answers_file = data / "eval-answers" / (files[0].stem + ".jsonl")
+    assert answers_file.exists()
+    assert len(answers_file.read_text(encoding="utf-8").splitlines()) == 30
+    assert not (data / "eval-answers" / "progress.jsonl").exists()
+    assert "not hand-checked" in capsys.readouterr().out
+
+
+def test_the_command_stops_on_progress_from_another_run(command, capsys):
+    argv, out, _ = command
+    data = Path(argv[argv.index("--data") + 1])
+    (data / "eval-answers").mkdir()
+    (data / "eval-answers" / "progress.jsonl").write_bytes(
+        (json.dumps({"commit": "0" * 40, "eval_set_sha256": "0" * 64, "pipeline": {}}) + "\n").encode("utf-8"))
+    code = main(argv + ["--generate"], pipeline=GeneratingPipeline(answers={}, default=DEFAULT_ANSWER),
+                judge=FakeJudge())
+    assert code == 2
+    assert not out.exists() or not list(out.glob("*.json"))
+    assert "progress.jsonl" in capsys.readouterr().out

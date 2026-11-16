@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Protocol
 
 from src.eval.dataset import EvalSet, Item, load_eval_set
 from src.eval.metrics import (
@@ -57,6 +57,7 @@ class Outcome:
     latency: dict[str, float] = field(default_factory=dict)  # seconds per stage
     tokens: dict[str, int] = field(default_factory=lambda: {"input": 0, "output": 0})
     cost_usd: float = 0.0
+    answer: Any = None  # a src.answer.Answer when the item was generated (#15)
 
 
 class Pipeline(Protocol):
@@ -77,6 +78,45 @@ class RetrievalPipeline:
         started = time.perf_counter()
         result = self._retriever.retrieve(question, k=self._k)
         return Outcome(result.hits, result.unresolved, {"retrieval": time.perf_counter() - started})
+
+
+class AnswerPipeline:
+    """Retrieval, context assembly and generation (#15). Interface stub."""
+
+    generates = True
+
+    def __init__(self, retriever, answerer, judge_model: str | None = None, k: int = TOP_K):
+        self._retriever, self._answerer, self._k = retriever, answerer, k
+        self.config = {"stages": ["retrieval", "assembly", "generation"], "rewrite": "none", "top_k": k,
+                       **retriever.fusion.config()}
+
+    def answer(self, question: str) -> Outcome:
+        return Outcome([])
+
+    def retrieve(self, question: str) -> Outcome:
+        return Outcome([])
+
+
+class ProgressMismatch(RuntimeError):
+    """The progress file belongs to another run."""
+
+
+class Progress:
+    """Generated items of an interrupted `--generate` run (#15). Interface stub."""
+
+    def __init__(self, path: Path, header: dict):
+        self.path, self.header = path, header
+        self.items: dict[str, dict] = {}
+
+    @classmethod
+    def open(cls, path: Path, header: dict) -> "Progress":
+        return cls(path, header)
+
+    def add(self, item: dict, answer: dict) -> None:
+        pass
+
+    def remove(self) -> None:
+        pass
 
 
 # --- Scoring ------------------------------------------------------------------------------------
@@ -138,7 +178,9 @@ def _breakdown(standalone: list[dict], key: str) -> dict:
             for group, entries in sorted(groups.items())}
 
 
-def evaluate(eval_set: EvalSet, pipeline: Pipeline, parents: dict[str, str], k: int = TOP_K) -> dict:
+def evaluate(eval_set: EvalSet, pipeline: Pipeline, parents: dict[str, str], k: int = TOP_K, judge=None,
+             chunks: dict[str, dict] | None = None, progress: Progress | None = None,
+             answers: list | None = None) -> dict:
     """scores, breakdown, latency, cost and items for one run."""
     runs = [(q, "question", None, None) for q in eval_set.questions]
     runs += [(t, "turn", c.id, n) for c in eval_set.conversations for n, t in enumerate(c.turns, start=1)]
@@ -371,13 +413,15 @@ def _parents(enriched_dir: Path) -> dict[str, str]:
     return {chunk["id"]: chunk["parent_id"] for chunk in map(json.loads, lines)}
 
 
-def main(argv: list[str] | None = None, pipeline: Pipeline | None = None) -> int:
+def main(argv: list[str] | None = None, pipeline: Pipeline | None = None, judge=None) -> int:
     parser = argparse.ArgumentParser(prog="python -m src.eval.run", description="Score the eval set.")
     parser.add_argument("--set", default="eval/questions.yaml", help="the eval set")
     parser.add_argument("--data", default="data", help="folder holding processed/, enriched/ and index/")
     parser.add_argument("--enriched", help="the enriched chunks; default <data>/enriched")
     parser.add_argument("--index", help="the index folder; default <data>/index")
     parser.add_argument("--out", default="eval/results", help="where the results file is written")
+    parser.add_argument("--generate", action="store_true",
+                        help="also assemble, generate and judge; spends API quota (#15)")
     parser.add_argument("--compare", help="an earlier results file to compare with")
     parser.add_argument("--comparisons", type=int, default=1,
                         help="variants compared with the same baseline; above 1, also the Bonferroni interval")

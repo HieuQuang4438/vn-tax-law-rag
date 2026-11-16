@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-15
+updated: 2026-11-16
 owner: HieuQuang4438
 ---
 
@@ -11,8 +11,9 @@ What `python -m src.eval.run` does and the results file it writes. It runs the e
 [acceptance.md](../product/acceptance.md#measurement-definitions). The rules are FR-CORE-015,
 AC-011 and AC-016. The approach is the approved comment on #9.
 
-Today the pipeline is retrieval only ([retrieval.md](retrieval.md)). The metrics that need an
-answer are written as not run until generation exists (#15, #16).
+By default the pipeline is retrieval only ([retrieval.md](retrieval.md)), and the metrics that
+need an answer are written as not run. `--generate` adds context assembly, generation and an
+LLM judge (*Generation stage*, #15).
 
 ## Running it
 
@@ -28,6 +29,7 @@ python -m src.eval.run --compare eval/results/<file>    # also prints what chang
 | `--enriched` | `<data>/enriched` | the enriched chunks, for a variant chunked another way (#12); it must be the folder the index was built from |
 | `--index` | `<data>/index` | the index folder, for a variant built with `python -m src.index --out` |
 | `--out` | `eval/results` | where the results file is written |
+| `--generate` | off | also assemble, generate and judge, as under *Generation stage*; spends API quota |
 | `--compare` | none | an earlier results file to compare with |
 | `--comparisons` | 1 | how many variants are compared with the same baseline; above 1, `--compare` also prints the Bonferroni interval (#25) |
 | `--rrf-k` | `RRF_K` (60) | the fusion's `rrf_k` ([retrieval.md](retrieval.md#hybrid-search)) |
@@ -61,7 +63,7 @@ file, when the two runs used different eval sets.
 | EVAL-001 | answerable standalone questions | recall@8 |
 | EVAL-005 | answerable follow-up turns: every turn after the first of a conversation | recall@8 |
 | EVAL-007 | answerable standalone questions | context precision@8 |
-| EVAL-002, EVAL-003, EVAL-004, EVAL-006, EVAL-008 | | not run: `no generation stage` |
+| EVAL-002, EVAL-003, EVAL-004, EVAL-006, EVAL-008 | | not run: `no generation stage`; with `--generate`, see *Generation stage* |
 
 - **recall@k** of one item: the share of its expected articles that are the parent article of
   at least one of its first k hits. The expected articles are the `article` of each of its
@@ -204,6 +206,124 @@ prints `different eval sets: scores are not comparable` and exits with 2. Otherw
   (approved on #25). Several variants compared with one baseline make a win by chance more
   likely, and this interval corrects for that;
 - every item whose recall dropped: its id, old and new recall.
+
+## Generation stage
+
+`--generate` adds context assembly, generation and the judge ([answer.md](answer.md)), approved
+on #15. Without it the run is retrieval only and calls no API. With it, on eval set v2, a run
+makes 240 generation calls and at most 184 judge calls, within the free tier's 500 requests
+per day (ADR-0003).
+
+- The pipeline is `AnswerPipeline(retriever, answerer)`: `generates` is true, `answer(question)`
+  retrieves, assembles and generates, and `retrieve(question)` only retrieves. Its stages are
+  `retrieval`, `assembly`, `generation`.
+- Standalone questions are generated; conversation turns are only retrieved until #19 adds the
+  rewrite (`generated: false`). The warm-up call only retrieves.
+- After its answer, each answerable standalone question that is not answered `not_found` is
+  judged: one call, `Judge.judge(question, key_facts, answer, amended)`, with `amended` the ids
+  AC-015 asks about (below). Unanswerable questions and not-found answers get no judge call.
+
+**Scores** with `--generate`:
+
+| ID | Over | Value |
+|---|---|---|
+| EVAL-002 | the sentences with at least one id, in the answers to answerable standalone questions | the share whose `cited` verdict is true: the sum over items of `cited_supported` over the sum of `cited_sentences`; `n` is that sum of sentences |
+| EVAL-003 | the answers to answerable standalone questions, not-found answers excluded | per answer, `supported / sentences`; the mean; `n` is the answers |
+| EVAL-006 | the answers to answerable standalone questions | 1 when `correct`, 0 otherwise, a not-found answer included as 0; the mean |
+| EVAL-004 | | not run: `scored by #16` |
+| EVAL-008 | | not run: `not scored` |
+
+EVAL-002's interval resamples items, as under *Interval*, and takes the ratio of the sums in each
+resample (`ratio_bootstrap_interval`), since sentences of one answer are not independent. The
+three judged scores carry `judge`, the judge's model, and the summary prints
+`judge <model>, not hand-checked` after them: a judged score stands only with the hand-check
+recorded beside it in *Generation runs*.
+
+**`generation`**, a top-level key after `cost`, null without `--generate`:
+
+| Key | Value |
+|---|---|
+| `answered` | items generated |
+| `not_found` | `{"answerable": …, "answerable_of": …, "unanswerable": …, "unanswerable_of": …}`, standalone questions answered not found, and how many were generated |
+| `flagged` | `{"ids": …, "items": …}`: citation ids not in the context, and the items with one (AC-009) |
+| `judge` | `{"model": …, "calls": …, "cost_usd": …}` |
+
+**`ac015`**, a top-level key after `generation`, null without `--generate`. An answerable
+standalone question **applies** when one of its provisions' chunks has an `amended_by` entry: the
+provision's `chunk`, or, when that is not a chunk id (an article named whole in a split
+article), every chunk of the article. It is **in the context** when one of those amended chunks
+is in an article passage of its context; otherwise it is a **retrieval miss**, and AC-015 does
+not judge it (acceptance.md, approved on #15, choice 5A). The ids passed to the judge are the
+amended chunks' ids in the context: `[n]` for a whole-article or `:K0` chunk, `[n.k]` for a
+clause chunk. The question **passes** when its answer is not not-found, cites an id in the
+context whose passage holds an `amended_by` source of those chunks (the amending passage of
+that chunk, or the article passage that contains it), and the judge's `says_amended` is true
+(choice 6A).
+
+| Key | Value |
+|---|---|
+| `applies`, `retrieval_misses`, `passes`, `fails` | item ids, in run order |
+| `green` | true when `fails` is empty and `applies` is not; null when nothing applies |
+
+**Latency and cost with `--generate`.** An item's `latency_s` has `retrieval`, `assembly` and
+`generation`; the judge is not part of answering and is recorded apart. Median and p95 are over
+the generated items only; the scope reads `full pipeline, dev laptop`. An item's `tokens` and
+`cost_usd` are its generation call's; the average is over the generated items, against NFR-007.
+
+**Items** get these keys, after `cost_usd`, null for an item not generated:
+
+| Key | Value |
+|---|---|
+| `generated` | true when the item went through generation |
+| `context_tokens`, `dropped` | `Context.tokens` and `Context.dropped` |
+| `not_found` | as in answer.md |
+| `sentences`, `cited_sentences` | sentences, and those with at least one id |
+| `citations`, `flagged` | the distinct ids, in first-use order, and those not in the context |
+| `cited_supported`, `supported` | sentences whose `cited`, and whose `supported`, verdict is true; null when not judged |
+| `correct` | the verdict's; false for a not-found answer to an answerable question; null for an unanswerable one |
+| `ac015` | null when AC-015 does not apply; else `{"in_context", "cites_amending", "says_amended", "passes"}`, the last three null for a retrieval miss |
+| `judge_latency_s`, `judge_tokens`, `judge_cost_usd` | the judge call's; null when not judged |
+
+**`configuration.pipeline`** with `--generate` adds, after the fusion settings: `model`,
+`prices` (`{"read", "input", "output"}`), `prompts` (`{"answer": sha256, "judge": sha256}` of
+the prompt files), `judge_model`, `context_budget`, and `google_genai`, the installed version.
+
+**Answers file.** The results file carries no answer text. The answers go to
+`data/eval-answers/<results file stem>.jsonl`, gitignored, since they
+quote the corpus (NFR-003): one line per generated item, `{"id", "passages": [{"id", "text"}], "sentences":
+[{"text", "citations"}], "flagged", "not_found", "verdict"}`, `verdict` being `{"cited",
+"supported", "facts", "contradicts", "says_amended", "correct"}` or null.
+
+**Resume.** Each generated item is appended to `data/eval-answers/progress.jsonl` as it
+finishes, after a first line `{"commit", "eval_set_sha256", "pipeline"}`. A `--generate` run
+that finds the file with the same first line reuses its items and generates the rest; with
+another first line it stops with exit code 2 and names the file. The file is removed once the
+results file is written. `run.resumed_items` counts the items reused.
+
+**Hand-check** (acceptance.md: at least 20 claims and 20 judgments per run).
+
+```bash
+python -m src.eval.handcheck sheet data/eval-answers/<file>.jsonl   # writes the sheet and its key
+python -m src.eval.handcheck score eval/<file>-handcheck.me.md      # prints the agreement
+```
+
+- `sheet <answers file> [--set eval/questions.yaml] [--out eval]` writes
+  `<out>/<answers file stem>-handcheck.me.md` and `<out>/<answers file stem>-handcheck-key.me.md`,
+  both untracked. It reads the questions and key facts from the set file's `questions` directly.
+  With one `random.Random(0)`, it samples 20 sentences from the judged answers' sentences that
+  have an id in the context, then 20 judged answers; all of them when there are fewer.
+- The sheet has one section per sentence, `## S<n> · <id> · sentence <i>` (i counted from 1 in
+  its answer): the question, the sentence with its ids, its cited passages, the whole context
+  in a folded `<details>` block, and the blank lines `Cited supports:` and `Context supports:`.
+  Then one section per answer, `## A<n> · <id>`: the question, the key facts, the answer, and the
+  blank line `Correct:`. No verdict is on the sheet.
+- The key is a JSON block: `{"S1": {"id", "sentence", "cited", "supported"}, "A1": {"id",
+  "correct"}, …}`, the judge's verdicts.
+- `score <sheet>` reads `yes` or `no`, in any case, after each of those labels, skips blank
+  ones, and prints `cited: <agreeing> of <graded>`, then `supported:` and `correct:`.
+
+**Generation runs.** Every clean `--generate` run is listed in a table under *Baseline*: its
+file, EVAL-002, EVAL-003, EVAL-006, the not-found counts, AC-015, and the hand-check agreement.
 
 ## Baseline
 

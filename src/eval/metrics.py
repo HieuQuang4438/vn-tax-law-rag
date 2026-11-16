@@ -38,6 +38,13 @@ def bootstrap_interval(values: list[float], resamples: int = BOOTSTRAP_RESAMPLES
     return float(np.percentile(means, tail)), float(np.percentile(means, 100 - tail))
 
 
+def ratio_bootstrap_interval(numerators: list[float], denominators: list[float],
+                             resamples: int = BOOTSTRAP_RESAMPLES, seed: int = BOOTSTRAP_SEED,
+                             level: float = BOOTSTRAP_LEVEL) -> tuple[float, float]:
+    """The interval of sum(numerators) / sum(denominators), resampling the items (#15). Stub."""
+    return (0.0, 0.0)
+
+
 def paired_bootstrap_interval(old: list[float], new: list[float], resamples: int = BOOTSTRAP_RESAMPLES,
                               seed: int = BOOTSTRAP_SEED, level: float = BOOTSTRAP_LEVEL) -> tuple[float, float]:
     """Bootstrap interval of the mean per-item difference new - old, item by item (#10)."""
