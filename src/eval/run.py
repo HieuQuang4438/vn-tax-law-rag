@@ -1,4 +1,5 @@
-"""Run the eval set through the pipeline and write a results file (#9, FR-CORE-015).
+"""Run the eval set through the pipeline and write a results file (#9, FR-CORE-015);
+with `--generate`, also generate and judge the answers (#15).
 
 Format and rules: `docs/reference/eval-results.md`.
 """
@@ -25,6 +26,7 @@ from src.eval.metrics import (
     bootstrap_interval,
     context_precision_at_k,
     paired_bootstrap_interval,
+    ratio_bootstrap_interval,
     recall_at_k,
 )
 from src.retrieval import TOP_K, Hit, Unresolved
@@ -81,20 +83,42 @@ class RetrievalPipeline:
 
 
 class AnswerPipeline:
-    """Retrieval, context assembly and generation (#15). Interface stub."""
+    """Retrieval, context assembly and generation (#15): `answer` does all three, `retrieve` the first."""
 
     generates = True
 
     def __init__(self, retriever, answerer, judge_model: str | None = None, k: int = TOP_K):
-        self._retriever, self._answerer, self._k = retriever, answerer, k
-        self.config = {"stages": ["retrieval", "assembly", "generation"], "rewrite": "none", "top_k": k,
-                       **retriever.fusion.config()}
+        from src.answer.answerer import PROMPT as ANSWER_PROMPT
+        from src.eval.judge import PROMPT as JUDGE_PROMPT
+        from src.llm import PRICES, PRICES_READ
 
-    def answer(self, question: str) -> Outcome:
-        return Outcome([])
+        self._retriever, self._answerer, self._k = retriever, answerer, k
+        model = answerer.llm.model
+        price_in, price_out = PRICES[model]
+        self.config = {"stages": ["retrieval", "assembly", "generation"], "rewrite": "none", "top_k": k,
+                       **retriever.fusion.config(), "model": model,
+                       "prices": {"read": PRICES_READ, "input": price_in, "output": price_out},
+                       "prompts": {"answer": hashlib.sha256(ANSWER_PROMPT.read_bytes()).hexdigest(),
+                                   "judge": hashlib.sha256(JUDGE_PROMPT.read_bytes()).hexdigest()},
+                       "judge_model": judge_model or model, "context_budget": answerer.assembler.budget,
+                       "google_genai": _version("google-genai")}
+
+    def _retrieval(self, question: str):
+        started = time.perf_counter()
+        result = self._retriever.retrieve(question, k=self._k)
+        return result, time.perf_counter() - started
 
     def retrieve(self, question: str) -> Outcome:
-        return Outcome([])
+        result, seconds = self._retrieval(question)
+        return Outcome(result.hits, result.unresolved, {"retrieval": seconds})
+
+    def answer(self, question: str) -> Outcome:
+        result, seconds = self._retrieval(question)
+        answer = self._answerer.answer(question, result)
+        call = answer.call
+        tokens = {"input": call.input_tokens, "output": call.output_tokens} if call else {"input": 0, "output": 0}
+        return Outcome(result.hits, result.unresolved, {"retrieval": seconds, **answer.latency_s}, tokens,
+                       call.cost_usd if call else 0.0, answer)
 
 
 class ProgressMismatch(RuntimeError):
@@ -102,21 +126,32 @@ class ProgressMismatch(RuntimeError):
 
 
 class Progress:
-    """Generated items of an interrupted `--generate` run (#15). Interface stub."""
+    """Generated items of an interrupted `--generate` run (#15): a first line naming the run, then one
+    line per item, `{"item": <results item>, "answer": <answers-file record>}`."""
 
-    def __init__(self, path: Path, header: dict):
-        self.path, self.header = path, header
-        self.items: dict[str, dict] = {}
+    def __init__(self, path: Path, header: dict, items: dict[str, dict]):
+        self.path, self.header, self.items = path, header, items
 
     @classmethod
     def open(cls, path: Path, header: dict) -> "Progress":
-        return cls(path, header)
+        header = json.loads(json.dumps(header))
+        if path.exists():
+            lines = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            if not lines or lines[0] != header:
+                raise ProgressMismatch(f"{path} is from another run; remove it to start again")
+            return cls(path, header, {line["item"]["id"]: line for line in lines[1:]})
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes((json.dumps(header, ensure_ascii=False) + "\n").encode("utf-8"))
+        return cls(path, header, {})
 
     def add(self, item: dict, answer: dict) -> None:
-        pass
+        line = {"item": item, "answer": answer}
+        with self.path.open("ab") as file:
+            file.write((json.dumps(line, ensure_ascii=False) + "\n").encode("utf-8"))
+        self.items[item["id"]] = line
 
     def remove(self) -> None:
-        pass
+        self.path.unlink(missing_ok=True)
 
 
 # --- Scoring ------------------------------------------------------------------------------------
@@ -137,9 +172,14 @@ def _score(eval_id: str, values: list[float]) -> dict:
     }
 
 
-def _not_run(eval_id: str) -> dict:
+def _not_run(eval_id: str, reason: str = NOT_RUN) -> dict:
     return {"name": NAMES[eval_id], "value": None, "n": 0, "interval": None, "target": TARGETS[eval_id],
-            "passes": None, "reason": NOT_RUN}
+            "passes": None, "reason": reason}
+
+
+GENERATION_KEYS = ("generated", "context_tokens", "dropped", "not_found", "sentences", "cited_sentences", "citations",
+                   "flagged", "cited_supported", "supported", "correct", "ac015", "judge_latency_s", "judge_tokens",
+                   "judge_cost_usd")
 
 
 def _item(item: Item, kind: str, conversation: str | None, turn: int | None, outcome: Outcome,
@@ -147,7 +187,7 @@ def _item(item: Item, kind: str, conversation: str | None, turn: int | None, out
     articles = [parents[hit.chunk_id] for hit in outcome.hits]
     expected = list(dict.fromkeys(p.article for p in item.provisions))
     scored = item.unanswerable is None and bool(expected)
-    return {
+    entry = {
         "id": item.id,
         "kind": kind,
         "conversation": conversation,
@@ -166,6 +206,81 @@ def _item(item: Item, kind: str, conversation: str | None, turn: int | None, out
         "tokens": dict(outcome.tokens),
         "cost_usd": outcome.cost_usd,
     }
+    entry.update({key: None for key in GENERATION_KEYS})
+    entry["generated"] = False
+    return entry
+
+
+def _amended(item: Item, answer, chunks: dict[str, dict], chunks_of: dict[str, list[dict]]) -> dict | None:
+    """AC-015 for one answer: none when it does not apply; else whether its amended provision is in the
+    context, the ids of the amended chunks there, and the chunk ids of their amending sources."""
+    amended: dict[str, dict] = {}
+    for provision in item.provisions:
+        targets = [chunks[provision.chunk]] if provision.chunk in chunks else chunks_of.get(provision.article, [])
+        amended.update({chunk["id"]: chunk for chunk in targets if chunk["amended_by"]})
+    if not amended:
+        return None
+    ids, sources = [], set()
+    for chunk in amended.values():
+        for passage in answer.context.passages:
+            if passage.kind == "article" and chunk["id"] in passage.chunk_ids:
+                clause = chunk["clause"]
+                ids.append(passage.id if clause in (None, "0") else f"{passage.id}.{chunk['id'].split(':K', 1)[1]}")
+                sources |= {link["source"] for link in chunk["amended_by"]}
+    return {"in_context": bool(ids), "ids": tuple(dict.fromkeys(ids)), "sources": sources}
+
+
+def _generated(entry: dict, item: Item, answer, judge, chunks: dict[str, dict], chunks_of: dict[str, list[dict]]):
+    """Fill the item's generation keys; return the answers-file record and the verdict."""
+    context = answer.context
+    entry.update({
+        "generated": True,
+        "context_tokens": context.tokens,
+        "dropped": list(context.dropped),
+        "not_found": answer.not_found,
+        "sentences": len(answer.sentences),
+        "cited_sentences": sum(1 for s in answer.sentences if s.citations),
+        "citations": [c.id for c in answer.citations],
+        "flagged": list(answer.flagged),
+    })
+    answerable = item.unanswerable is None
+    ac015 = _amended(item, answer, chunks, chunks_of) if answerable else None
+    verdict = None
+    if answerable and answer.not_found:
+        entry["correct"] = False
+    elif answerable and judge is not None:
+        amended = ac015["ids"] if ac015 and ac015["in_context"] else ()
+        verdict = judge.judge(item.question, list(item.key_facts), answer, amended)
+        entry.update({
+            "cited_supported": sum(1 for value in verdict.cited if value),
+            "supported": sum(1 for value in verdict.supported if value),
+            "correct": verdict.correct,
+            "judge_latency_s": verdict.call.latency_s if verdict.call else None,
+            "judge_tokens": {"input": verdict.call.input_tokens, "output": verdict.call.output_tokens}
+            if verdict.call else None,
+            "judge_cost_usd": verdict.call.cost_usd if verdict.call else None,
+        })
+    if ac015 is not None:
+        if not ac015["in_context"]:
+            entry["ac015"] = {"in_context": False, "cites_amending": None, "says_amended": None, "passes": None}
+        else:
+            passages = {p.id: p for p in context.passages}
+            cites = any(c.in_context and ac015["sources"] & set(passages[c.id.split(".")[0]].chunk_ids)
+                        for c in answer.citations if c.id.split(".")[0] in passages)
+            says = verdict.says_amended if verdict else None
+            entry["ac015"] = {"in_context": True, "cites_amending": bool(cites), "says_amended": says,
+                              "passes": bool(not answer.not_found and cites and says is True)}
+    record = {
+        "id": item.id,
+        "passages": [{"id": p.id, "text": p.text} for p in context.passages],
+        "sentences": [{"text": s.text, "citations": list(s.citations)} for s in answer.sentences],
+        "flagged": list(answer.flagged),
+        "not_found": answer.not_found,
+        "verdict": None if verdict is None else {
+            "cited": list(verdict.cited), "supported": list(verdict.supported), "facts": list(verdict.facts),
+            "contradicts": verdict.contradicts, "says_amended": verdict.says_amended, "correct": verdict.correct},
+    }
+    return record, verdict
 
 
 def _breakdown(standalone: list[dict], key: str) -> dict:
@@ -178,27 +293,107 @@ def _breakdown(standalone: list[dict], key: str) -> dict:
             for group, entries in sorted(groups.items())}
 
 
+def _judged_scores(items: list[dict], judge_model: str | None) -> dict:
+    answered = [i for i in items if i["kind"] == "question" and i["generated"] and i["answerable"]]
+    judged = [i for i in answered if i["cited_supported"] is not None]
+    cited = [i for i in judged if i["cited_sentences"]]
+    scores = {}
+    if cited:
+        supported, total = [i["cited_supported"] for i in cited], [i["cited_sentences"] for i in cited]
+        value = sum(supported) / sum(total)
+        scores["EVAL-002"] = {"name": NAMES["EVAL-002"], "value": value, "n": sum(total),
+                              "interval": list(ratio_bootstrap_interval(supported, total)),
+                              "target": TARGETS["EVAL-002"], "passes": value >= TARGETS["EVAL-002"]}
+    faithful = [i["supported"] / i["sentences"] for i in judged if i["sentences"]]
+    if faithful:
+        scores["EVAL-003"] = _score("EVAL-003", faithful)
+    correct = [1.0 if i["correct"] else 0.0 for i in answered if i["correct"] is not None]
+    if correct:
+        scores["EVAL-006"] = _score("EVAL-006", correct)
+    for entry in scores.values():
+        entry["judge"] = judge_model
+    return scores
+
+
+def _generation(items: list[dict], judge_model: str | None) -> dict:
+    generated = [i for i in items if i["generated"]]
+    answerable = [i for i in generated if i["answerable"]]
+    unanswerable = [i for i in generated if not i["answerable"]]
+    judged = [i for i in generated if i["judge_tokens"] is not None]
+    return {
+        "answered": len(generated),
+        "not_found": {"answerable": sum(1 for i in answerable if i["not_found"]), "answerable_of": len(answerable),
+                      "unanswerable": sum(1 for i in unanswerable if i["not_found"]),
+                      "unanswerable_of": len(unanswerable)},
+        "flagged": {"ids": sum(len(i["flagged"]) for i in generated),
+                    "items": sum(1 for i in generated if i["flagged"])},
+        "judge": {"model": judge_model, "calls": len(judged),
+                  "cost_usd": sum(i["judge_cost_usd"] or 0.0 for i in judged)},
+    }
+
+
+def _ac015(items: list[dict]) -> dict:
+    applies = [i for i in items if i["ac015"] is not None]
+    fails = [i["id"] for i in applies if i["ac015"]["passes"] is False]
+    return {
+        "applies": [i["id"] for i in applies],
+        "retrieval_misses": [i["id"] for i in applies if not i["ac015"]["in_context"]],
+        "passes": [i["id"] for i in applies if i["ac015"]["passes"] is True],
+        "fails": fails,
+        "green": (not fails) if applies else None,
+    }
+
+
 def evaluate(eval_set: EvalSet, pipeline: Pipeline, parents: dict[str, str], k: int = TOP_K, judge=None,
              chunks: dict[str, dict] | None = None, progress: Progress | None = None,
              answers: list | None = None) -> dict:
-    """scores, breakdown, latency, cost and items for one run."""
+    """scores, breakdown, latency, cost, generation, AC-015 and items for one run."""
+    generating = bool(getattr(pipeline, "generates", False))
+    retrieve = pipeline.retrieve if generating else pipeline.answer
+    chunks = chunks or {}
+    chunks_of: dict[str, list[dict]] = {}
+    for chunk in chunks.values():
+        chunks_of.setdefault(chunk["parent_id"], []).append(chunk)
     runs = [(q, "question", None, None) for q in eval_set.questions]
     runs += [(t, "turn", c.id, n) for c in eval_set.conversations for n, t in enumerate(c.turns, start=1)]
     if runs:
-        pipeline.answer(runs[0][0].question)  # warm-up, not recorded
-    items = [_item(item, kind, conversation, turn, pipeline.answer(item.question), parents, k)
-             for item, kind, conversation, turn in runs]
+        retrieve(runs[0][0].question)  # warm-up, not recorded
+    items, judge_model = [], getattr(getattr(judge, "llm", None), "model", None)
+    for item, kind, conversation, turn in runs:
+        if generating and kind == "question":
+            stored = progress.items.get(item.id) if progress else None
+            if stored:
+                entry, record = stored["item"], stored["answer"]
+            else:
+                outcome = pipeline.answer(item.question)
+                entry = _item(item, kind, conversation, turn, outcome, parents, k)
+                record, verdict = _generated(entry, item, outcome.answer, judge, chunks, chunks_of)
+                if verdict is not None and verdict.call is not None:
+                    judge_model = verdict.call.model
+                if progress:
+                    progress.add(entry, record)
+            if answers is not None:
+                answers.append(record)
+        else:
+            entry = _item(item, kind, conversation, turn, retrieve(item.question), parents, k)
+        items.append(entry)
 
     standalone = [i for i in items if i["kind"] == "question" and i["recall"] is not None]
     follow_ups = [i for i in items if i["kind"] == "turn" and i["turn"] > 1 and i["recall"] is not None]
-    retrieval = {
+    computed = {
         "EVAL-001": _score("EVAL-001", [i["recall"] for i in standalone]),
         "EVAL-005": _score("EVAL-005", [i["recall"] for i in follow_ups]),
         "EVAL-007": _score("EVAL-007", [i["context_precision"] for i in standalone]),
     }
-    scores = {eval_id: retrieval.get(eval_id) or _not_run(eval_id) for eval_id in sorted(TARGETS)}
+    if generating:
+        computed.update(_judged_scores(items, judge_model))
+    reasons = {"EVAL-004": "scored by #16", "EVAL-008": "not scored"} if generating else {}
+    default_reason = ("no judge" if judge is None else "no items") if generating else NOT_RUN
+    scores = {eval_id: computed.get(eval_id) or _not_run(eval_id, reasons.get(eval_id, default_reason))
+              for eval_id in sorted(TARGETS)}
 
-    totals = [sum(i["latency_s"].values()) for i in items]
+    timed = [i for i in items if i["generated"]] if generating else items
+    totals = [sum(i["latency_s"].values()) for i in timed]
     stages = list(pipeline.config.get("stages", []))
     latency = {
         "n": len(totals),
@@ -208,9 +403,9 @@ def evaluate(eval_set: EvalSet, pipeline: Pipeline, parents: dict[str, str], k: 
         "scope": f"{'retrieval only' if stages == ['retrieval'] else 'full pipeline'}, dev laptop",
         "nfr006": dict(NFR006),
     }
-    no_llm = all(i["tokens"].get("input", 0) == 0 and i["tokens"].get("output", 0) == 0 for i in items)
+    no_llm = all(i["tokens"].get("input", 0) == 0 and i["tokens"].get("output", 0) == 0 for i in timed)
     cost = {
-        "average_usd": _mean([i["cost_usd"] for i in items]) or 0.0,
+        "average_usd": _mean([i["cost_usd"] for i in timed]) or 0.0,
         "note": "no LLM in the pipeline" if no_llm else "",
         "nfr007": dict(NFR007),
     }
@@ -219,6 +414,8 @@ def evaluate(eval_set: EvalSet, pipeline: Pipeline, parents: dict[str, str], k: 
         "breakdown": {key: _breakdown(standalone, key) for key in ("form", "tax_type", "added_in")},
         "latency": latency,
         "cost": cost,
+        "generation": _generation(items, judge_model) if generating else None,
+        "ac015": _ac015(items) if generating else None,
         "items": items,
     }
 
@@ -314,8 +511,9 @@ def summary(results: dict, path: Path) -> str:
             continue
         low, high = entry["interval"]
         verdict = "" if entry["passes"] is None else ("PASS" if entry["passes"] else "FAIL")
+        judged = f"  judge {entry['judge']}, not hand-checked" if "judge" in entry else ""
         lines.append(f"  {eval_id}  {entry['name']}: {entry['value']:.3f}  n={entry['n']}  "
-                     f"[{low:.3f}, {high:.3f}]  {target}  {verdict}".rstrip())
+                     f"[{low:.3f}, {high:.3f}]  {target}  {verdict}".rstrip() + judged)
     lines.append("")
     lines.append("Breakdown: recall@k, context precision@k")
     for key, groups in results["breakdown"].items():
@@ -329,6 +527,19 @@ def summary(results: dict, path: Path) -> str:
     note = f" ({cost['note']})" if cost.get("note") else ""
     lines.append(f"Cost: average {cost['average_usd']:.4f} USD per item{note}; "
                  f"NFR-007: ≤ {cost['nfr007']['average_usd']} USD")
+    generation, ac015 = results.get("generation"), results.get("ac015")
+    if generation:
+        found, flagged, judge = generation["not_found"], generation["flagged"], generation["judge"]
+        lines.append(f"Generation: {generation['answered']} answered; not found on {found['answerable']} of "
+                     f"{found['answerable_of']} answerable and {found['unanswerable']} of {found['unanswerable_of']} "
+                     f"unanswerable; {flagged['ids']} ids not in the context, in {flagged['items']} items (AC-009); "
+                     f"judge {judge['model']}: {judge['calls']} calls, {judge['cost_usd']:.4f} USD")
+    if ac015:
+        verdict = {True: "GREEN", False: "NOT GREEN", None: "nothing applies"}[ac015["green"]]
+        lines.append(f"AC-015: {len(ac015['passes'])} pass, {len(ac015['fails'])} fail, "
+                     f"{len(ac015['retrieval_misses'])} retrieval misses, of {len(ac015['applies'])}: {verdict}")
+        if ac015["fails"]:
+            lines.append(f"  fails: {', '.join(ac015['fails'])}")
     return "\n".join(lines)
 
 
@@ -437,17 +648,50 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None, judge=
     started_at = datetime.now().astimezone().isoformat(timespec="seconds")
     started = time.perf_counter()
     eval_set = load_eval_set(set_path, data / "processed", enriched)
+    llm = None
     if pipeline is None:
         from src.retrieval import Retriever
 
-        pipeline = RetrievalPipeline(Retriever.load(data, index_dir=index_dir, enriched_dir=enriched, fusion=fusion))
-    scored = evaluate(eval_set, pipeline, _parents(enriched))
+        retriever = Retriever.load(data, index_dir=index_dir, enriched_dir=enriched, fusion=fusion)
+        if args.generate:
+            from src.answer import Answerer
+            from src.llm import LLM
+
+            llm = LLM()  # one wrapper for answers and judge: one pacing over one key
+            pipeline = AnswerPipeline(retriever, Answerer.load(data, llm=llm))
+        else:
+            pipeline = RetrievalPipeline(retriever)
+    progress, records, chunks = None, None, None
+    if args.generate:
+        if judge is None:
+            from src.eval.judge import Judge
+            from src.llm import LLM
+
+            judge = Judge(llm or LLM())
+        header = {"commit": _git(Path("."), "rev-parse", "HEAD").decode().strip(),
+                  "eval_set_sha256": eval_set.sha256, "pipeline": pipeline.config}
+        try:
+            progress = Progress.open(data / "eval-answers" / "progress.jsonl", header)
+        except ProgressMismatch as error:
+            print(error)
+            return 2
+        records = []
+        chunks = {chunk["id"]: chunk for chunk in map(json.loads, (enriched / "chunks.jsonl").read_text(
+            encoding="utf-8").splitlines())}
+    resumed = len(progress.items) if progress else 0
+    scored = evaluate(eval_set, pipeline, _parents(enriched), judge=judge, chunks=chunks, progress=progress,
+                      answers=records)
     config = configuration(eval_set, set_path, index_dir, pipeline.config)
     command = " ".join(["python -m src.eval.run", *(argv if argv is not None else [])])
-    results = {"format": FORMAT,
-               "run": {"started": started_at, "command": command, "seconds": round(time.perf_counter() - started, 1)},
-               "configuration": config, **scored}
+    run = {"started": started_at, "command": command, "seconds": round(time.perf_counter() - started, 1)}
+    if args.generate:
+        run["resumed_items"] = resumed
+    results = {"format": FORMAT, "run": run, "configuration": config, **scored}
     path = write_results(results, out)
+    if args.generate:
+        answers_path = data / "eval-answers" / f"{path.stem}.jsonl"
+        answers_path.write_bytes("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in records).encode("utf-8"))
+        progress.remove()
     print(summary(results, path))
     if args.compare:
         old = json.loads(Path(args.compare).read_text(encoding="utf-8"))

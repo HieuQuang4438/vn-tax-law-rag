@@ -1,8 +1,7 @@
 ---
-status: approved
+status: in-review
 updated: 2026-11-16
 owner: HieuQuang4438
-approved-by: peer
 ---
 
 # Architecture — vn-tax-law-rag
@@ -172,19 +171,23 @@ and how. Articles are ordered by retrieval rank and dropped whole from the lowes
 fit 24,000 tokens; the median question's context is about 12,900 tokens. Rules and measurements
 in [context.md](../reference/context.md). — FR-CORE-009
 
-### 5. Generation — planned
+### 5. Generation — built
 
-The model answers in Vietnamese from those passages only, citing a passage for every claim,
-and says when a cited provision has been amended. If retrieval found nothing relevant, or the
-passages do not answer the question, the reply says the documents do not cover it.
-— FR-CORE-010, FR-CORE-012. The model is `gemini-3.5-flash-lite` on the Gemini API free tier
-(ADR-0003).
+The model answers in Vietnamese from those passages only, as a list of sentences, each with the
+ids of the passages it comes from. When a provision it uses carries a link line, the prompt
+tells it to say the provision was amended and to cite the amending passage. If the passages do
+not answer the question, the reply is one fixed sentence saying the documents do not cover it;
+when it should be given is #16's. The model is `gemini-3.5-flash-lite` on the Gemini API free
+tier (ADR-0003), called through one wrapper that keeps under 15 requests a minute, retries and
+logs every call ([answer.md](../reference/answer.md)). — FR-CORE-010, FR-CORE-012
 
-### 6. Citations — planned
+### 6. Citations — built, the notice planned
 
-Each citation id becomes document, article and clause with a link to the source page, plus a
-note that this is information, not advice. A citation id that was not in the context is
-flagged rather than shown as a source. — FR-CORE-011, FR-CORE-013
+Each citation id becomes document, article and clause with a link to the source page; the
+link scrolls to the article where the browser supports text fragments, since the page has no
+anchor per article. A citation id that was not in the context is listed apart, never shown as
+a source. The note that this is information, not advice, comes with the web interface (#17).
+— FR-CORE-011, FR-CORE-013
 
 ## Measuring it — built for retrieval
 
@@ -197,7 +200,9 @@ are in [acceptance.md](acceptance.md). The set lives in `eval/questions.yaml`;
 `python -m src.eval.check` checks it against the corpus while it is written
 ([eval-set.md](../reference/eval-set.md)).
 
-Today the pipeline stops at retrieval, so the run scores recall and context precision and
-records the answer metrics as not run. Each run writes a results file to `eval/results/`, with
+By default the run stops at retrieval, so it scores recall and context precision and records
+the answer metrics as not run. With `--generate` it also answers every standalone question and
+an LLM judge scores citation correctness, faithfulness and answer correctness, each run checked
+by hand on a sample. Each run writes a results file to `eval/results/`, with
 the commit and the configuration, and can be compared with an earlier one
 ([eval-results.md](../reference/eval-results.md)). — FR-CORE-015

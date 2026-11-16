@@ -96,6 +96,14 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   amended chunk after it with a link line, cut by whole articles to 24,000 bge-m3 tokens; no
   model, no network. AC-008 holds on the 240 questions and 52 turns of eval set v2, median
   12,851 tokens per question (`context.md`). FR-CORE-009, AC-008, #14.
+- Cited answers: `src.answer` asks `gemini-3.5-flash-lite` for sentences that each carry
+  citation ids, through `src.llm`, the one wrapper around the API (under 15 requests a minute,
+  retries with backoff, one log line per call with tokens and cost). Each id resolves to
+  document, article and clause with a link to the source page; an id not in the context is
+  listed apart, never as a source. `python -m src.eval.run --generate` also answers and judges:
+  EVAL-002, EVAL-003, EVAL-006 and AC-015 from an LLM judge, checked by hand with
+  `python -m src.eval.handcheck`. FR-CORE-010, FR-CORE-011, AC-009, AC-015, EVAL-002, EVAL-003,
+  EVAL-006, #15.
 
 ### Changed
 

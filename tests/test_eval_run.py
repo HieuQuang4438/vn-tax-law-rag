@@ -672,6 +672,7 @@ from src.eval.judge import Verdict  # noqa: E402
 from src.eval.metrics import ratio_bootstrap_interval  # noqa: E402
 from src.eval.run import Progress, ProgressMismatch  # noqa: E402
 from src.llm import Call  # noqa: E402
+from types import SimpleNamespace  # noqa: E402
 
 GEN_TOP_KEYS = ["format", "run", "configuration", "scores", "breakdown", "latency", "cost", "generation", "ac015",
                 "items"]
@@ -726,6 +727,8 @@ VERDICTS = {
 
 
 class FakeJudge:
+    llm = SimpleNamespace(model="gemini-3.5-flash-lite")  # as Judge.llm
+
     def __init__(self):
         self.calls: list[tuple] = []
 
@@ -803,7 +806,7 @@ def test_items_get_the_generation_keys_after_cost(generation):
     for entry in at(results, "items"):
         keys = list(entry)
         assert keys[keys.index("cost_usd") + 1:] == GEN_ITEM_KEYS
-    assert list(results) == GEN_TOP_KEYS
+    assert list(results) == GEN_TOP_KEYS[3:]  # evaluate's part of the file
 
 
 def test_answerable_answers_are_judged_and_not_found_ones_are_not(generation):

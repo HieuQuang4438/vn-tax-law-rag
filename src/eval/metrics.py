@@ -41,8 +41,16 @@ def bootstrap_interval(values: list[float], resamples: int = BOOTSTRAP_RESAMPLES
 def ratio_bootstrap_interval(numerators: list[float], denominators: list[float],
                              resamples: int = BOOTSTRAP_RESAMPLES, seed: int = BOOTSTRAP_SEED,
                              level: float = BOOTSTRAP_LEVEL) -> tuple[float, float]:
-    """The interval of sum(numerators) / sum(denominators), resampling the items (#15). Stub."""
-    return (0.0, 0.0)
+    """Percentile bootstrap interval of sum(numerators) / sum(denominators), resampling the items:
+    claims of one answer are not independent, so the answer is the unit (#15)."""
+    top, bottom = np.asarray(numerators, dtype=np.float64), np.asarray(denominators, dtype=np.float64)
+    if top.size == 0 or top.size != bottom.size:
+        raise ValueError(f"numerators and denominators: {top.size} and {bottom.size} values")
+    rng = np.random.default_rng(seed)
+    draws = rng.integers(0, top.size, size=(resamples, top.size))
+    ratios = top[draws].sum(axis=1) / bottom[draws].sum(axis=1)
+    tail = round((1 - level) / 2 * 100, 10)
+    return float(np.percentile(ratios, tail)), float(np.percentile(ratios, 100 - tail))
 
 
 def paired_bootstrap_interval(old: list[float], new: list[float], resamples: int = BOOTSTRAP_RESAMPLES,
