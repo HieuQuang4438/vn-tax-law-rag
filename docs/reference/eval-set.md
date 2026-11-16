@@ -1,7 +1,8 @@
 ---
-status: draft
-updated: 2026-11-15
+status: approved
+updated: 2026-11-16
 owner: HieuQuang4438
+approved-by: peer
 ---
 
 # Eval set format
@@ -190,7 +191,7 @@ How the set is made, approved on #7, so that its questions are not shaped by the
 | Set version | Step 1 | Question review | Step 2 | Review | Cold read |
 |---|---|---|---|---|---|
 | 1 | Claude Opus 5.5, 2026-11-12; review applied 2026-11-13 | ChatGPT (model not shown in its interface), 2026-11-13; all findings accepted; q41–q45 written by it | Claude Opus 5.5, 2026-11-13 | owner, 2026-11-13: c02.2 (annex gap) and q21, c03.2, c03.3 (amended from outside) kept on purpose; q49 gains a key fact on what the corpus lacks; revenue thresholds left to the cold read | subagent, Claude Opus 5.5, 2026-11-13, read-only, no network: 0 wrong, 13 minor findings, corrected as approved on #7 |
-| 2 | Claude Code session (model not recorded), 2026-11-15; review applied 2026-11-15 | ChatGPT (model not shown in its interface), 2026-11-15; all 13 findings accepted; q132 replaced by the step 1 session on its suggestion, no question written by it | Claude Code session (model not recorded), 2026-11-15; q66, q89, q121, q154, q183, q184, q237 and c10.2 moved to unanswerable, q246 to answerable | owner, 2026-11-15: a sample of 49 new items (below), no errors found | 3 subagents, Claude Opus 5.5, 2026-11-15, read-only, no network: all 226 new items, 5 wrong, 23 minor findings, all accepted and applied on 2026-11-15; 10 of them on items of the owner's sample (q65, q91, q154, q173, q183, q212, q219, q242, q246, c17.2); q154 moved back to answerable |
+| 2 | Claude Opus 5.5 (owner's record, 2026-11-16), 2026-11-15; review applied 2026-11-15 | ChatGPT (model not shown in its interface), 2026-11-15; all 13 findings accepted; q132 replaced by the step 1 session on its suggestion, no question written by it | Claude Opus 5.5 (owner's record, 2026-11-16), 2026-11-15; q66, q89, q121, q154, q183, q184, q237 and c10.2 moved to unanswerable, q246 to answerable | owner, 2026-11-15: a sample of 49 new items (below), no errors found | 3 subagents, Claude Opus 5.5, 2026-11-15, read-only, no network: all 226 new items, 5 wrong, 23 minor findings, all accepted and applied on 2026-11-15; 10 of them on items of the owner's sample (q65, q91, q154, q173, q183, q212, q219, q242, q246, c17.2); q154 moved back to answerable |
 
 Each row records the model and the date of each step once it has run.
 

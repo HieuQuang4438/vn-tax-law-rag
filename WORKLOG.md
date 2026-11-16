@@ -12,6 +12,54 @@
 
 ---
 
+## Session 6 — 2026-11-15 to 2026-11-16 · Re-checks on eval set v2 and the generation LLM (#28, #27, #13)
+
+**Done**
+
+- #28: one hit per article re-checked on eval set v2 against `--no-per-article`: recall@8
+  +0.012 [+0.004, +0.023], the gain on the v1 items (+0.036 against +0.006 on `added_in: 2`).
+  Kept (`7b40a2f`).
+- #27: `AITeamVN/Vietnamese_Embedding` re-run on eval set v2: +0.015 [−0.006, +0.038]. bge-m3
+  stays; ADR-0002 stands (`008a98a`).
+- #13: `src.config` reads numbered keys `GOOGLE_API_KEY_1`, `_2`, ... (`3266dca`).
+- #13: LLM pilot `scripts/llm_pilot.py`: 24 questions added in v2 (seed 0), the same top 8 and
+  a minimal prompt for both models, free tier, graded blind by the owner. Results in
+  `eval/results/llm-pilot/`.
+- #13: ADR-0003 approved: `gemini-3.5-flash-lite` on the Gemini API free tier; `LLM_MODEL`
+  defaults to it (`907d5b5`). `architecture.md`, `requirements.md` and `acceptance.md`
+  re-approved by the owner; `architecture.md` no longer gives the set as 30–50 questions.
+
+**Decided + why**
+
+- Only Gemini models compared: one provider and account already set up (proposal on #13).
+- `gemini-3.8-flash` dropped from the pilot: 3 of 24 items in three runs, at 108 s, 11.5 s
+  and 128 s, then 503 and dropped connections; `gemini-3.6-flash` took its place (Approved
+  comment on #13).
+- Flash-Lite over 3.6 Flash: they differ on 2 of 18 answerable items; 3.6 Flash breaks NFR-006
+  (p95 21.1 s), NFR-007 from 2027 (0.0176 USD), and allows 20 free requests per day.
+- The pilot's wrong answers are all "not found" on answerable questions, mostly with the
+  expected articles in the top 8: left to prompt design (#15), not a model criterion.
+
+**Real state / warnings**
+
+- Verified 2026-11-16: 459 tests pass; `python -m src.main` reports `gemini-3.5-flash-lite`;
+  the API serves that id as version `3.5-flash-lite-07-2026`.
+- Free-tier limits, per project: Flash-Lite 15 per minute and 500 per day (owner, AI Studio
+  rate-limit page); 3.6 Flash 20 per day (429 response).
+- The 3.6 Flash pilot sent 24 requests, above its 20 per day, and finished after a 429 moved
+  to the next key.
+- AI Studio showed 17/15 per minute on `gemini-3.1-flash-lite`, which no code in the repos
+  calls; the source is unknown. Flash-Lite requests were not redirected (`model_version`
+  checked).
+- The pilot files do not record `model_version`; ADR-0003 asks results files to.
+- Pilot latency is generation alone, from the dev laptop; nothing measured on Spaces.
+- Correction to Session 5: choice 4A asked for ≥ 50 answerable turns and the set has 51; 29
+  of them are follow-ups, the turns EVAL-005 scores.
+- Correction to Session 5: the owner records that the step 1 and step 2 sessions of eval set
+  v2 ran Claude Opus 5.5; `eval-set.md` says so and is approved.
+
+---
+
 ## Session 5 — 2026-11-15 · Eval set v2 (#26, #28)
 
 **Done**
