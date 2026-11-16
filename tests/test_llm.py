@@ -62,6 +62,7 @@ class FakeClient:
     def generate_content(self, model, contents, config):
         self.requests.append({"model": model, "contents": contents, "config": config, "at": self.clock.now})
         self.clock.now += 1.5
+        assert self.replies, "a request this key has no reply for"
         reply = self.replies.pop(0)
         if isinstance(reply, Exception):
             raise reply
@@ -71,7 +72,15 @@ class FakeClient:
 def wrapper(*replies, model="gemini-3.5-flash-lite"):
     clock = FakeClock()
     client = FakeClient(replies, clock)
-    return LLM(model=model, api_key="dummy", client=client, sleep=clock.sleep, clock=clock.clock), client, clock
+    return LLM(model=model, api_keys=["dummy"], clients=[client], sleep=clock.sleep, clock=clock.clock), client, clock
+
+
+def rotating(*per_key: list):
+    """A wrapper over one fake client per key, each with its own replies."""
+    clock = FakeClock()
+    clients = [FakeClient(replies, clock) for replies in per_key]
+    keys = [f"dummy-{n}" for n in range(1, len(per_key) + 1)]
+    return LLM(api_keys=keys, clients=clients, sleep=clock.sleep, clock=clock.clock), clients, clock
 
 
 GOOD = {"words": ["một", "hai"]}
@@ -109,7 +118,7 @@ def test_the_constants_are_the_specified_ones():
 
 def test_a_model_without_a_price_is_refused():
     with pytest.raises(ValueError, match="gemini-9-unknown"):
-        LLM(model="gemini-9-unknown", api_key="dummy", client=FakeClient([], FakeClock()))
+        LLM(model="gemini-9-unknown", api_keys=["dummy"], clients=[FakeClient([], FakeClock())])
 
 
 # --- The call ------------------------------------------------------------------------------------
@@ -194,6 +203,76 @@ def test_the_latency_is_that_of_the_attempt_that_succeeded():
     call = llm.generate("answer", "system", "user", Reply)
     assert call.attempts == 2
     assert call.latency_s == pytest.approx(1.5)
+
+
+# --- Keys (choice 9B widened to 5xx, approved on #15) ------------------------------------------
+
+REFUSED = api_error(errors.ClientError, 429)
+BUSY = api_error(errors.ServerError, 503)
+
+
+def test_the_default_is_every_key_of_the_config():
+    from src.config import GOOGLE_API_KEYS
+
+    assert LLM().keys == len(GOOGLE_API_KEYS)
+    assert LLM(api_keys=["a", "b", "c"]).keys == 3
+
+
+@pytest.mark.parametrize("failure", [REFUSED, BUSY, api_error(errors.ServerError, 500)], ids=["429", "503", "500"])
+def test_a_429_or_a_5xx_moves_to_the_next_key_at_once(failure):
+    llm, clients, clock = rotating([failure], [response(GOOD)])
+    call = llm.generate("answer", "system", "user", Reply)
+    assert call.parsed == Reply(words=["một", "hai"])
+    assert call.attempts == 1
+    assert (len(clients[0].requests), len(clients[1].requests)) == (1, 1)
+    assert all(s < BACKOFF_S for s in clock.slept)  # pacing only, no backoff
+
+
+def test_the_new_key_stays_current_for_the_next_call():
+    llm, clients, _ = rotating([BUSY], [response(GOOD), response(GOOD)])
+    llm.generate("answer", "system", "user", Reply)
+    llm.generate("answer", "system", "user", Reply)
+    assert (len(clients[0].requests), len(clients[1].requests)) == (1, 2)
+
+
+def test_after_the_last_key_the_first_comes_again():
+    llm, clients, _ = rotating([REFUSED, response(GOOD)], [response(GOOD), BUSY], [REFUSED])
+    llm.generate("answer", "system", "user", Reply)  # key 1 refuses, key 2 answers
+    call = llm.generate("answer", "system", "user", Reply)  # key 2 is busy, key 3 refuses, key 1 answers
+    assert call.attempts == 1
+    assert [len(c.requests) for c in clients] == [2, 2, 1]
+
+
+def test_an_attempt_fails_only_when_every_key_refused_it_or_was_busy():
+    llm, clients, clock = rotating([REFUSED, response(GOOD)], [BUSY])
+    call = llm.generate("answer", "system", "user", Reply)
+    assert call.attempts == 2
+    assert [s for s in clock.slept if s >= BACKOFF_S] == [BACKOFF_S]
+    assert (len(clients[0].requests), len(clients[1].requests)) == (2, 1)
+
+
+@pytest.mark.parametrize("failure", [
+    httpx2.ConnectError("connection dropped"),
+    httpx2.ReadTimeout("timed out"),
+    response("not json at all"),
+], ids=["dropped", "timeout", "not-json"])
+def test_other_failures_retry_on_the_same_key_after_the_backoff(failure):
+    llm, clients, clock = rotating([failure, response(GOOD)], [response(GOOD)])
+    call = llm.generate("answer", "system", "user", Reply)
+    assert call.attempts == 2
+    assert (len(clients[0].requests), len(clients[1].requests)) == (2, 0)
+    assert BACKOFF_S in clock.slept
+
+
+def test_a_key_change_is_logged_by_position_with_its_reason(caplog):
+    caplog.set_level(logging.INFO, logger="src.llm")
+    llm, _, _ = rotating([BUSY], [response(GOOD)])
+    llm.generate("answer", "system", "user", Reply)
+    changes = [r.getMessage() for r in caplog.records if r.name == "src.llm" and "moving to key" in r.getMessage()]
+    assert len(changes) == 1
+    assert "503" in changes[0] and "key 1 of 2" in changes[0] and "key 2 of 2" in changes[0]
+    logged = " ".join(r.getMessage() for r in caplog.records if r.name == "src.llm")
+    assert "dummy-1" not in logged and "dummy-2" not in logged
 
 
 # --- Log -----------------------------------------------------------------------------------------

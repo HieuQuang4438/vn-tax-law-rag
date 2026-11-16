@@ -47,15 +47,19 @@ class _Retry(Exception):
 
 
 class LLM:
-    def __init__(self, model: str | None = None, api_key: str | None = None, client=None,
-                 sleep: Callable[[float], None] = time.sleep, clock: Callable[[], float] = time.monotonic):
+    def __init__(self, model: str | None = None, api_keys: tuple[str, ...] | list[str] | None = None,
+                 clients: list | None = None, sleep: Callable[[float], None] = time.sleep,
+                 clock: Callable[[], float] = time.monotonic):
         self.model = model or LLM_MODEL
         if self.model not in PRICES:
             raise ValueError(f"no price for model {self.model!r}; add it to src.llm.PRICES")
-        if client is None:
+        if clients is None:
             options = types.HttpOptions(timeout=TIMEOUT_S * 1000, retry_options=types.HttpRetryOptions(attempts=1))
-            client = genai.Client(api_key=api_key or GOOGLE_API_KEYS[0], http_options=options)
-        self._client, self._sleep, self._clock = client, sleep, clock
+            clients = [genai.Client(api_key=key, http_options=options) for key in (api_keys or GOOGLE_API_KEYS)]
+        self._clients = list(clients)
+        self.keys = len(self._clients)
+        self._client = self._clients[0]  # stub: key rotation not yet implemented
+        self._sleep, self._clock = sleep, clock
         self._last_start: float | None = None
 
     def _pace(self) -> None:

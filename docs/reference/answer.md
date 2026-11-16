@@ -20,14 +20,15 @@ Every call to the Gemini API goes through `src.llm.LLM`; nothing else imports go
 ```python
 from src.llm import LLM
 
-llm = LLM()                                       # LLM_MODEL, the first key of GOOGLE_API_KEYS
+llm = LLM()                                       # LLM_MODEL, every key of GOOGLE_API_KEYS
 call = llm.generate("answer", system, user, AnswerOutput)
 call.parsed                                       # an AnswerOutput
 ```
 
 | Name | What it is |
 |---|---|
-| `LLM(model=LLM_MODEL, api_key=None, client=None, sleep=time.sleep, clock=time.monotonic)` | `api_key` none means `GOOGLE_API_KEYS[0]`: one key, one quota (approved on #15, choice 9). `client` replaces the google-genai client, for tests. A model with no entry in `PRICES` raises `ValueError` naming it. |
+| `LLM(model=LLM_MODEL, api_keys=None, clients=None, sleep=time.sleep, clock=time.monotonic)` | `api_keys` none means `GOOGLE_API_KEYS`, every key, each with its own client (*Keys*). `clients`, for tests, replaces the google-genai clients, one per key. A model with no entry in `PRICES` raises `ValueError` naming it. |
+| `LLM.keys` | How many keys it holds. |
 | `LLM.generate(prompt, system, user, schema, validate=None)` | One call. `prompt` is the prompt's name, for the log; `system` its text; `user` the request; `schema` a pydantic model the reply must fit. `validate`, if given, is called with the parsed reply and raises `ValueError` when the reply does not fit the request. Returns a `Call`. |
 | `Call` | `parsed`, the reply as a `schema` instance; `model`; `prompt`; `input_tokens`; `output_tokens`, answer and thinking tokens together; `latency_s`, of the attempt that succeeded; `cost_usd`; `attempts`. |
 | `LLMError` | Raised when a call gets no usable reply. |
@@ -43,14 +44,24 @@ is the model's default, `minimal` for Flash-Lite. This is choice 8A of #15, as t
 **Pacing.** Two calls start at least `MIN_INTERVAL_S` = 4 s apart, under the free tier's 15
 requests per minute (ADR-0003). The wait uses `clock` and `sleep`.
 
-**Retries.** A 429, a 5xx, a dropped connection, a timeout, or a reply that is not valid JSON
-for `schema` or that `validate` refuses, is tried again after `BACKOFF_S` × 2^(n−1) seconds
-(`BACKOFF_S` = 10: 10, 20, 40, 80), up to `ATTEMPTS` = 5 attempts in all; after the fifth,
-`LLMError`. Any other 4xx raises `LLMError` at once.
+**Keys** (approved on #15: choice 9B, on 429 and 5xx). Each key of `GOOGLE_API_KEYS` belongs
+to its own project, with its own quota. The wrapper sends each request with its current key,
+the first one to begin with. A 429 or a 5xx moves it to the next key, in the order of
+`GOOGLE_API_KEYS` and back to the first after the last, and the request is sent again with that
+key at once: no backoff, only the pacing above. The new key stays current for the calls that
+follow. Only when every key has answered the same attempt with 429 or 5xx does the attempt
+fail.
+
+**Retries.** An attempt fails when every key answered it with 429 or 5xx, or on a dropped
+connection, a timeout, or a reply that is not valid JSON for `schema` or that `validate`
+refuses; these last three are tried again with the same key. A failed attempt is tried again
+after `BACKOFF_S` × 2^(n−1) seconds (`BACKOFF_S` = 10: 10, 20, 40, 80), up to `ATTEMPTS` = 5
+attempts in all; after the fifth, `LLMError`. Any other 4xx raises `LLMError` at once.
 
 **Log.** Logger `src.llm`: one `INFO` line per call with model, prompt name, input and output
-tokens, latency and cost; one `WARNING` line per retry with its reason. Neither carries the
-key, the request or the reply.
+tokens, latency and cost; one `WARNING` line per retry with its reason, and one per key
+change with its reason, naming the keys by position (`503 on key 1 of 4, moving to key 2 of
+4`). None carries a key, the request or the reply.
 
 **Cost** is `(input_tokens × input price + output_tokens × output price) / 1,000,000`.
 
