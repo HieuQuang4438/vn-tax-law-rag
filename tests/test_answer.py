@@ -269,6 +269,7 @@ def test_load_reads_the_documents_under_the_processed_folder(tmp_path):
                 "metadata": {"loai_van_ban": kind, "so_hieu": so_hieu, "trich_yeu": trich_yeu}, "blocks": []}
         (tmp_path / "processed" / f"{url.rsplit('/', 1)[1][:-5]}.json").write_bytes(
             json.dumps(page, ensure_ascii=False).encode("utf-8"))
+    (tmp_path / "processed" / "_index.json").write_bytes(b'{"documents": []}')  # the crawler's index, not a page
     llm = FakeLLM([{"text": "Câu một.", "citations": ["1"]}])
     answerer = Answerer.load(tmp_path, llm=llm)
     assert answerer.documents == documents()

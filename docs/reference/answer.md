@@ -67,7 +67,7 @@ answer.text                                        # what the reader sees
 | Name | What it is |
 |---|---|
 | `Answerer(assembler, llm, documents)` | `assembler`: an `src.context.Assembler`; `documents`: doc_id → `Document`. |
-| `Answerer.load(data_dir=Path("data"), llm=None)` | `Assembler.load(data_dir)` and the documents of `data_dir/processed/*.json`; `llm` none means `LLM()`. |
+| `Answerer.load(data_dir=Path("data"), llm=None)` | `Assembler.load(data_dir)` and the documents of `data_dir/processed/*.json`, names starting with `_` skipped as elsewhere; `llm` none means `LLM()`. |
 | `Answerer.answer(question, retrieval)` | Assembles the context and asks the model. An empty context gives the not-found answer without a call. |
 | `Document` | `label`: `<loai_van_ban> <so_hieu>`, e.g. `Luật 48/2024/QH15`; `url`: the page's `source_url`. The doc_id is the number in `-<id>-d1.html`. |
 | `Answer` | `sentences: list[Sentence]`; `citations: list[Citation]`, every distinct id cited, in first-use order, those not in the context included; `flagged: list[str]`, the ids not in the context, in first-use order; `not_found: bool`; `text: str`, as rendered below; `context: Context`; `call: Call` or none; `latency_s: dict[str, float]`, `assembly` and `generation`, the latter the call's `latency_s` (0 without a call), so pacing waits and retries are not counted. |

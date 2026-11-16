@@ -89,6 +89,8 @@ def markers(ids: tuple[str, ...]) -> str:
 def documents_of(processed_dir: Path) -> dict[str, "Document"]:
     documents = {}
     for path in sorted(processed_dir.glob("*.json")):
+        if path.name.startswith("_"):  # the crawler's own files, not pages
+            continue
         page = json.loads(path.read_text(encoding="utf-8"))
         match = DOC_ID.search(page["source_url"])
         if not match:
