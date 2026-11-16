@@ -61,7 +61,8 @@ An article passage also marks its clauses. A clause line is one the chunker woul
 clause at: it matches `^(\d+)\.\s` and does not start inside a quotation, with the quotation depth
 counted from the article's first line (chunk-schema.md, ADR-0001). Clause k of passage n is cited
 `[n.k]`. A clause number repeated in one article gets `.2`, `.3`, … from its second occurrence, as
-the chunker's ids do (`K3.2`), so it is cited `[n.3.2]`. `[n]` stays valid for the article's
+the chunker's ids do (`K3.2`), so it is cited `[n.3.2]`. On the corpus (2026-11-16) 660 of
+the 744 articles have clause lines, and none repeats a number. `[n]` stays valid for the article's
 intro lines or for the whole article.
 
 A clause chunk (`:K<k>`) of a split article is `[n.k]`; a whole-article chunk and a `:K0` intro
@@ -134,3 +135,18 @@ conversations not included), top 8, default `Fusion()`, bge-m3 `5617a9f6`, befor
 
 102 of the 240 had a retrieved chunk with an `amended_by` entry. The corpus has 33 links;
 their source chunks are 423 tokens in the median, 567 at most.
+
+**Assembled** on 2026-11-16, same setup, `Context.tokens` after the cut, with the 52 turns of
+the 22 conversations as well (each turn's own text, not rewritten):
+
+| | Questions (240) | Conversation turns (52) |
+|---|---|---|
+| Tokens, median / p95 / max | 12,851 / 23,213 / 23,902 | 15,929 / 23,587 / 23,819 |
+| Cut by the budget | 17 (24 articles dropped) | 7 (9 articles dropped) |
+| Amending passages | 222 | 33 |
+| Link lines | 384 | 53 |
+| Assembly time, median / max | 0.061 s / 0.625 s | 0.075 s / 0.357 s |
+
+More are cut than the 11 measured before: the context adds link lines, clause marks and the
+amending text of every amended chunk of an article, not only of the retrieved one. AC-008 holds
+on all 292 (`pytest -m corpus`, `test_ac008_on_the_eval_set`).

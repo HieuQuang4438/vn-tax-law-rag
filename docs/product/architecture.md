@@ -162,12 +162,15 @@ reranker in the first version: a cross-encoder took about 20 s per question on C
 takes 0.45 s per question (median) on the dev laptop, most of it embedding the question.
 — FR-CORE-008, [ADR-0002](../adr/0002-hybrid-retrieval-without-rerank.md)
 
-### 4. Context assembly — planned
+### 4. Context assembly — built
 
-The retrieved chunks become the passages the model reads: duplicates removed, a clause's whole
-parent article added so "khoản 1 Điều này" can be resolved, the amending text added next to an
-amended provision, each passage given a short citation id, all cut to a token budget.
-— FR-CORE-009
+The retrieved chunks become the passages the model reads. Each retrieved chunk brings its whole
+parent article, once, so "khoản 1 Điều này" can be resolved; the article's clauses are marked
+so a citation can name one (`[1.25]` is clause 25 of passage 1). The amending text of an
+amended provision follows the article, and a line in the article says which clause it changes
+and how. Articles are ordered by retrieval rank and dropped whole from the lowest-ranked up to
+fit 24,000 tokens; the median question's context is about 12,900 tokens. Rules and measurements
+in [context.md](../reference/context.md). — FR-CORE-009
 
 ### 5. Generation — planned
 

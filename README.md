@@ -48,7 +48,7 @@ flowchart LR
     kw --> hyb
 
     classDef planned stroke-dasharray: 5 5
-    class q,rw,aug,llm,out planned
+    class q,rw,llm,out planned
 ```
 
 Why it is built this way: chunking in [ADR-0001](docs/adr/0001-chunk-by-legal-structure.md),
@@ -135,5 +135,5 @@ bm25s; gemini-3.5-flash-lite on the Gemini API free tier.
 Early. The crawler fetches all 30 listed documents; every one has an unbroken run of articles
 from Điều 1 to its last article. Chunking (744 articles, 1,286 chunks), the context header,
 each chunk's effective date, the amendment links between documents (175) and both indexes
-over the chunks (vector and BM25), reference lookup and hybrid retrieval, and eval set v1 are
-built, with the eval runner scoring retrieval; the agent does not exist yet.
+over the chunks (vector and BM25), reference lookup and hybrid retrieval, context assembly, and
+eval set v2 are built, with the eval runner scoring retrieval; the agent does not exist yet.

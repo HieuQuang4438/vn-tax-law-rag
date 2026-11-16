@@ -91,6 +91,11 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 - Several Google API keys: `src.config` reads `GOOGLE_API_KEY_1`, `GOOGLE_API_KEY_2`, ... up to
   the first gap into `GOOGLE_API_KEYS`, and fails at startup without `GOOGLE_API_KEY_1`;
   `GOOGLE_API_KEY` is no longer read. #13.
+- Context assembly: `src.context` turns the top 8 chunks into the passages the model reads,
+  one per parent article in rank order, its clauses marked `[n.k]`, the amending text of every
+  amended chunk after it with a link line, cut by whole articles to 24,000 bge-m3 tokens; no
+  model, no network. AC-008 holds on the 240 questions and 52 turns of eval set v2, median
+  12,851 tokens per question (`context.md`). FR-CORE-009, AC-008, #14.
 
 ### Changed
 
