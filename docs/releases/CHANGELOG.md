@@ -98,7 +98,8 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   12,851 tokens per question (`context.md`). FR-CORE-009, AC-008, #14.
 - Cited answers: `src.answer` asks `gemini-3.5-flash-lite` for sentences that each carry
   citation ids, through `src.llm`, the one wrapper around the API (under 15 requests a minute,
-  retries with backoff, one log line per call with tokens and cost). Each id resolves to
+  retries with backoff, one log line per call with tokens and cost; a 429 or a 5xx moves to
+  the next key of `GOOGLE_API_KEYS` at once, each key its own project). Each id resolves to
   document, article and clause with a link to the source page; an id not in the context is
   listed apart, never as a source. `python -m src.eval.run --generate` also answers and judges:
   EVAL-002, EVAL-003, EVAL-006 and AC-015 from an LLM judge, checked by hand with

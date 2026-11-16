@@ -58,7 +58,7 @@ class LLM:
             clients = [genai.Client(api_key=key, http_options=options) for key in (api_keys or GOOGLE_API_KEYS)]
         self._clients = list(clients)
         self.keys = len(self._clients)
-        self._client = self._clients[0]  # stub: key rotation not yet implemented
+        self._current = 0  # the key requests go out with (answer.md, *Keys*)
         self._sleep, self._clock = sleep, clock
         self._last_start: float | None = None
 
@@ -69,22 +69,34 @@ class LLM:
                 self._sleep(wait)
         self._last_start = self._clock()
 
+    def _send(self, user: str, config) -> tuple[Any, float]:
+        """One attempt: the current key first; a 429 or a 5xx moves to the next key at once."""
+        for _ in range(self.keys):
+            self._pace()
+            started = self._clock()
+            try:
+                response = self._clients[self._current].models.generate_content(model=self.model, contents=user,
+                                                                                 config=config)
+                return response, self._clock() - started
+            except errors.ClientError as error:
+                if error.code != 429:
+                    raise LLMError(f"{self.model}: client error {error.code}") from error
+                reason, last = "429", error
+            except errors.ServerError as error:
+                reason, last = f"server error {error.code}", error
+            except httpx2.TransportError as error:
+                raise _Retry(type(error).__name__) from error
+            following = (self._current + 1) % self.keys
+            if self.keys > 1:
+                log.warning("%s: %s on key %d of %d, moving to key %d of %d",
+                            self.model, reason, self._current + 1, self.keys, following + 1, self.keys)
+            self._current = following
+        raise _Retry(reason if self.keys == 1 else f"429 or 5xx on every key, the last {reason}") from last
+
     def _attempt(self, system: str, user: str, schema: type, validate) -> tuple[Any, Any, float]:
         config = types.GenerateContentConfig(system_instruction=system, response_mime_type="application/json",
                                              response_schema=schema)
-        self._pace()
-        started = self._clock()
-        try:
-            response = self._client.models.generate_content(model=self.model, contents=user, config=config)
-        except errors.ClientError as error:
-            if error.code == 429:
-                raise _Retry("429") from error
-            raise LLMError(f"{self.model}: client error {error.code}") from error
-        except errors.ServerError as error:
-            raise _Retry(f"server error {error.code}") from error
-        except httpx2.TransportError as error:
-            raise _Retry(type(error).__name__) from error
-        seconds = self._clock() - started
+        response, seconds = self._send(user, config)
         parsed = response.parsed if isinstance(response.parsed, schema) else None
         if parsed is None:
             try:
