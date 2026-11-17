@@ -18,9 +18,11 @@ from src.answer.answerer import markers
 
 SAMPLE = 20
 SEED = 0
-LABELS = {"Cited supports": "cited", "Context supports": "supported", "Correct": "correct"}
-HEADING = re.compile(r"^## ([SA]\d+) · ")
-GRADE = re.compile(r"^(Cited supports|Context supports|Correct):\s*(\S*)\s*$")
+LABELS = {"Cited supports": "cited", "Context supports": "supported", "Correct": "correct",
+          "Says amended": "says_amended"}
+HEADING = re.compile(r"^## ([SAM]\d+) · ")
+GRADE = re.compile(r"^(Cited supports|Context supports|Correct|Says amended):\s*(\S*)\s*$")
+RULE = "Yes when the answer says that each of these provisions was amended, replaced or repealed."
 
 
 def _key_path(sheet_path: Path) -> Path:
@@ -46,6 +48,8 @@ def sheet(answers: Path, set_path: Path = Path("eval/questions.yaml"), out_dir: 
     rng = random.Random(SEED)
     chosen_sentences = rng.sample(sentences, min(SAMPLE, len(sentences)))
     chosen_answers = rng.sample(judged, min(SAMPLE, len(judged)))
+    amended = [r for r in judged if r["verdict"].get("says_amended") is not None and r.get("amended")]
+    chosen_amended = rng.sample(amended, min(SAMPLE, len(amended)))
 
     stem = answers.stem
     sheet_path, key_path = out_dir / f"{stem}-handcheck.me.md", out_dir / f"{stem}-handcheck-key.me.md"
@@ -74,6 +78,15 @@ def sheet(answers: Path, set_path: Path = Path("eval/questions.yaml"), out_dir: 
                   "**Key facts.**", "", *(f"{n}. {fact}" for n, fact in enumerate(facts, 1)), "",
                   "**Answer.**", "", _answer_text(record), "", "Correct:", ""]
         key[name] = {"id": record["id"], "correct": record["verdict"]["correct"]}
+    for number, record in enumerate(chosen_amended, 1):
+        name = f"M{number}"
+        passages = [p["text"] for p in record["passages"]]
+        lines += [f"## {name} · {record['id']}", "",
+                  f"**Question.** {questions.get(record['id'], {}).get('question', '')}", "",
+                  "**Amended provisions.** " + ", ".join(f"[{i}]" for i in record["amended"]), "",
+                  "<details><summary>Context</summary>", "", *("\n\n".join(passages).split("\n")), "", "</details>", "",
+                  "**Answer.**", "", _answer_text(record), "", RULE, "", "Says amended:", ""]
+        key[name] = {"id": record["id"], "says_amended": record["verdict"]["says_amended"]}
 
     out_dir.mkdir(parents=True, exist_ok=True)
     sheet_path.write_bytes("\n".join(lines).encode("utf-8"))
@@ -83,7 +96,7 @@ def sheet(answers: Path, set_path: Path = Path("eval/questions.yaml"), out_dir: 
 
 
 def score(sheet_path: Path) -> dict[str, tuple[int, int]]:
-    """Per line kind (`cited`, `supported`, `correct`): (agreeing with the judge, graded)."""
+    """Per line kind (`cited`, `supported`, `correct`, `says_amended`): (agreeing with the judge, graded)."""
     key = _read_key(_key_path(sheet_path))
     counts = {kind: [0, 0] for kind in LABELS.values()}
     current = None

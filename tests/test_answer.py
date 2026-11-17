@@ -151,7 +151,7 @@ def test_the_answer_carries_its_context_call_and_latency():
 
 def test_ids_as_written_are_trimmed_unbracketed_and_kept_once_per_sentence():
     answer, _ = ask([{"text": "Câu một.", "citations": [" [1.25] ", "2", "2"]}], "379409:D5:K25")
-    assert [(s.text, s.citations) for s in answer.sentences] == [("Câu một.", ("1.25", "2"))]
+    assert [(s.text, s.citations) for s in answer.sentences][:1] == [("Câu một.", ("1.25", "2"))]  # then a notice
 
 
 def test_ids_resolve_against_the_passages_and_the_rest_are_flagged():
@@ -191,7 +191,7 @@ def test_the_text_is_the_sentences_with_their_ids_then_the_sources():
     vat = VAT_URL + fragment("Điều 5. Đối tượng không chịu thuế")
     amending = AMENDING_URL + fragment("Điều 1. Sửa đổi, bổ sung một số điều của Luật Thuế giá trị gia tăng")
     assert answer.text == (
-        "Câu một. [1.25][2] Câu hai.\n\n"
+        f"Câu một. [1.25][2] Câu hai. {NOTICE} [1.25][2]\n\n"
         "Nguồn:\n"
         f"- [1.25] [Luật 48/2024/QH15, Điều 5, khoản 25]({vat})\n"
         f"- [2] [Luật 149/2025/QH15, Điều 1, khoản 2]({amending})"

@@ -257,11 +257,16 @@ def _generated(entry: dict, item: Item, answer, judge, chunks: dict[str, dict], 
     })
     answerable = item.unanswerable is None
     ac015 = _amended(item, answer, chunks, chunks_of) if answerable else None
+    # an asked id that a notice covers says "amended" without the judge (choice 1 on #15)
+    noticed_targets = {s.citations[0] for s in answer.sentences[len(answer.sentences) - answer.notices:]
+                       if s.citations} if answer.notices else set()
+    asked = ac015["ids"] if ac015 else ()
+    noticed = [i for i in asked if i in noticed_targets]
+    amended = tuple(i for i in asked if i not in noticed_targets)
     verdict = None
     if answerable and answer.not_found:
         entry["correct"] = False
     elif answerable and judge is not None:
-        amended = ac015["ids"] if ac015 else ()
         verdict = judge.judge(item.question, list(item.key_facts), answer, amended)
         entry.update({
             "cited_supported": sum(1 for value in verdict.cited if value),
@@ -274,24 +279,26 @@ def _generated(entry: dict, item: Item, answer, judge, chunks: dict[str, dict], 
         })
     if ac015 is not None:
         if not ac015["in_context"]:
-            entry["ac015"] = {"in_context": False, "asked": None, "cites_amending": None, "says_amended": None,
-                              "passes": None}
+            entry["ac015"] = {"in_context": False, "asked": None, "noticed": None, "cites_amending": None,
+                              "says_amended": None, "passes": None}
         elif not ac015["ids"]:  # uncited: the answer cites no amended clause of a listed article
-            entry["ac015"] = {"in_context": True, "asked": [], "cites_amending": None, "says_amended": None,
-                              "passes": None}
+            entry["ac015"] = {"in_context": True, "asked": [], "noticed": None, "cites_amending": None,
+                              "says_amended": None, "passes": None}
         else:
             passages = {p.id: p for p in context.passages}
             amending = any(c.in_context and ac015["sources"] & set(passages[c.id.split(".")[0]].chunk_ids)
                            for c in answer.citations if c.id.split(".")[0] in passages)
-            says = verdict.says_amended if verdict else None
-            entry["ac015"] = {"in_context": True, "asked": list(ac015["ids"]), "cites_amending": bool(amending),
-                              "says_amended": says, "passes": bool(not answer.not_found and amending and says is True)}
+            says = True if not amended else (verdict.says_amended if verdict else None)
+            entry["ac015"] = {"in_context": True, "asked": list(ac015["ids"]), "noticed": noticed,
+                              "cites_amending": bool(amending), "says_amended": says,
+                              "passes": bool(not answer.not_found and amending and says is True)}
     record = {
         "id": item.id,
         "passages": [{"id": p.id, "text": p.text} for p in context.passages],
         "sentences": [{"text": s.text, "citations": list(s.citations)} for s in answer.sentences],
         "flagged": list(answer.flagged),
         "not_found": answer.not_found,
+        "amended": list(amended) if verdict is not None else [],
         "verdict": None if verdict is None else {
             "cited": list(verdict.cited), "supported": list(verdict.supported), "facts": list(verdict.facts),
             "contradicts": verdict.contradicts, "says_amended": verdict.says_amended, "correct": verdict.correct},

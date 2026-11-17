@@ -139,13 +139,13 @@ class Answerer:
                       {"assembly": assembly, "generation": call.latency_s}, len(notices))
 
     def _notices(self, sentences: list[Sentence], passages: dict[str, Passage]) -> list[Sentence]:
-        """One sentence per link whose amended provision is cited and whose source is not (choice A2)."""
+        """One sentence per link whose amended provision is cited, its source cited or not (choices A2, 2')."""
         ids = dict.fromkeys(i for s in sentences for i in s.citations)
         cited = [i for i in ids if self._resolve(i, passages).in_context]
         notices = []
         for passage in passages.values():
             for link in passage.links:
-                if any(cites(i, link.target) for i in cited) and not any(cites(i, link.source) for i in cited):
+                if any(cites(i, link.target) for i in cited):
                     target, source = self._resolve(link.target, passages), self._resolve(link.source, passages)
                     text = f"{_named(target)} {LINK_WORDS[link.type]} {_named(source)}."
                     notices.append(Sentence(text[0].upper() + text[1:], (link.target, link.source)))
