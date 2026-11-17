@@ -101,9 +101,11 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   retries with backoff, one log line per call with tokens and cost; a 429 or a 5xx moves to
   the next key of `GOOGLE_API_KEYS` at once, each key its own project). Each id resolves to
   document, article and clause with a link to the source page; an id not in the context is
-  listed apart, never as a source. `python -m src.eval.run --generate` also answers and judges:
-  EVAL-002, EVAL-003, EVAL-006 and AC-015 from an LLM judge, checked by hand with
-  `python -m src.eval.handcheck`. FR-CORE-010, FR-CORE-011, AC-009, AC-015, EVAL-002, EVAL-003,
+  listed apart, never as a source. An answer that cites an amended provision without its
+  amending one gets a notice sentence naming both, built from the context's link lines.
+  `python -m src.eval.run --generate` also answers and judges: EVAL-002, EVAL-003, EVAL-006
+  and AC-015 from an LLM judge, checked by hand with `python -m src.eval.handcheck`; AC-015
+  asks about a listed article's amended clauses only when the answer cites them. FR-CORE-010, FR-CORE-011, AC-009, AC-015, EVAL-002, EVAL-003,
   EVAL-006, #15.
 
 ### Changed

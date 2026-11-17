@@ -178,7 +178,7 @@ def _not_run(eval_id: str, reason: str = NOT_RUN) -> dict:
 
 
 GENERATION_KEYS = ("generated", "context_tokens", "dropped", "not_found", "sentences", "cited_sentences", "citations",
-                   "flagged", "cited_supported", "supported", "correct", "ac015", "judge_latency_s", "judge_tokens",
+                   "flagged", "notices", "cited_supported", "supported", "correct", "ac015", "judge_latency_s", "judge_tokens",
                    "judge_cost_usd")
 
 
@@ -212,22 +212,33 @@ def _item(item: Item, kind: str, conversation: str | None, turn: int | None, out
 
 
 def _amended(item: Item, answer, chunks: dict[str, dict], chunks_of: dict[str, list[dict]]) -> dict | None:
-    """AC-015 for one answer: none when it does not apply; else whether its amended provision is in the
-    context, the ids of the amended chunks there, and the chunk ids of their amending sources."""
-    amended: dict[str, dict] = {}
+    """AC-015 for one answer (eval-results.md, choice B2): none when no listed provision has an amended chunk;
+    else whether one is in the context, the ids AC-015 asks about, and the chunk ids of their amending sources."""
+    from src.context import cites
+
+    amended: dict[str, bool] = {}  # amended chunk id -> listed as a clause
     for provision in item.provisions:
-        targets = [chunks[provision.chunk]] if provision.chunk in chunks else chunks_of.get(provision.article, [])
-        amended.update({chunk["id"]: chunk for chunk in targets if chunk["amended_by"]})
+        chunk = chunks.get(provision.chunk)
+        listed_clause = (provision.chunk != provision.article and chunk is not None
+                         and chunk["clause"] not in (None, "0"))
+        targets = [chunk] if listed_clause else chunks_of.get(provision.article, [])
+        for target in targets:
+            if target["amended_by"]:
+                amended[target["id"]] = amended.get(target["id"], False) or listed_clause
     if not amended:
         return None
-    ids, sources = [], set()
-    for chunk in amended.values():
+    cited = [c.id for c in answer.citations if c.in_context]
+    in_context, asked, sources = False, [], set()
+    for chunk_id, listed_clause in amended.items():
+        chunk = chunks[chunk_id]
         for passage in answer.context.passages:
-            if passage.kind == "article" and chunk["id"] in passage.chunk_ids:
-                clause = chunk["clause"]
-                ids.append(passage.id if clause in (None, "0") else f"{passage.id}.{chunk['id'].split(':K', 1)[1]}")
-                sources |= {link["source"] for link in chunk["amended_by"]}
-    return {"in_context": bool(ids), "ids": tuple(dict.fromkeys(ids)), "sources": sources}
+            if passage.kind == "article" and chunk_id in passage.chunk_ids:
+                in_context = True
+                own = passage.id if chunk["clause"] in (None, "0") else f"{passage.id}.{chunk_id.split(':K', 1)[1]}"
+                if listed_clause or any(cites(i, own) for i in cited):
+                    asked.append(own)
+                    sources |= {link["source"] for link in chunk["amended_by"]}
+    return {"in_context": in_context, "ids": tuple(dict.fromkeys(asked)), "sources": sources}
 
 
 def _generated(entry: dict, item: Item, answer, judge, chunks: dict[str, dict], chunks_of: dict[str, list[dict]]):
@@ -242,6 +253,7 @@ def _generated(entry: dict, item: Item, answer, judge, chunks: dict[str, dict], 
         "cited_sentences": sum(1 for s in answer.sentences if s.citations),
         "citations": [c.id for c in answer.citations],
         "flagged": list(answer.flagged),
+        "notices": answer.notices,
     })
     answerable = item.unanswerable is None
     ac015 = _amended(item, answer, chunks, chunks_of) if answerable else None
@@ -249,7 +261,7 @@ def _generated(entry: dict, item: Item, answer, judge, chunks: dict[str, dict], 
     if answerable and answer.not_found:
         entry["correct"] = False
     elif answerable and judge is not None:
-        amended = ac015["ids"] if ac015 and ac015["in_context"] else ()
+        amended = ac015["ids"] if ac015 else ()
         verdict = judge.judge(item.question, list(item.key_facts), answer, amended)
         entry.update({
             "cited_supported": sum(1 for value in verdict.cited if value),
@@ -262,14 +274,18 @@ def _generated(entry: dict, item: Item, answer, judge, chunks: dict[str, dict], 
         })
     if ac015 is not None:
         if not ac015["in_context"]:
-            entry["ac015"] = {"in_context": False, "cites_amending": None, "says_amended": None, "passes": None}
+            entry["ac015"] = {"in_context": False, "asked": None, "cites_amending": None, "says_amended": None,
+                              "passes": None}
+        elif not ac015["ids"]:  # uncited: the answer cites no amended clause of a listed article
+            entry["ac015"] = {"in_context": True, "asked": [], "cites_amending": None, "says_amended": None,
+                              "passes": None}
         else:
             passages = {p.id: p for p in context.passages}
-            cites = any(c.in_context and ac015["sources"] & set(passages[c.id.split(".")[0]].chunk_ids)
-                        for c in answer.citations if c.id.split(".")[0] in passages)
+            amending = any(c.in_context and ac015["sources"] & set(passages[c.id.split(".")[0]].chunk_ids)
+                           for c in answer.citations if c.id.split(".")[0] in passages)
             says = verdict.says_amended if verdict else None
-            entry["ac015"] = {"in_context": True, "cites_amending": bool(cites), "says_amended": says,
-                              "passes": bool(not answer.not_found and cites and says is True)}
+            entry["ac015"] = {"in_context": True, "asked": list(ac015["ids"]), "cites_amending": bool(amending),
+                              "says_amended": says, "passes": bool(not answer.not_found and amending and says is True)}
     record = {
         "id": item.id,
         "passages": [{"id": p.id, "text": p.text} for p in context.passages],
@@ -333,11 +349,13 @@ def _generation(items: list[dict], judge_model: str | None) -> dict:
 
 
 def _ac015(items: list[dict]) -> dict:
-    applies = [i for i in items if i["ac015"] is not None]
+    present = [i for i in items if i["ac015"] is not None]
+    applies = [i for i in present if i["ac015"]["asked"] != []]
     fails = [i["id"] for i in applies if i["ac015"]["passes"] is False]
     return {
         "applies": [i["id"] for i in applies],
         "retrieval_misses": [i["id"] for i in applies if not i["ac015"]["in_context"]],
+        "uncited": [i["id"] for i in present if i["ac015"]["asked"] == []],
         "passes": [i["id"] for i in applies if i["ac015"]["passes"] is True],
         "fails": fails,
         "green": (not fails) if applies else None,
@@ -537,7 +555,8 @@ def summary(results: dict, path: Path) -> str:
     if ac015:
         verdict = {True: "GREEN", False: "NOT GREEN", None: "nothing applies"}[ac015["green"]]
         lines.append(f"AC-015: {len(ac015['passes'])} pass, {len(ac015['fails'])} fail, "
-                     f"{len(ac015['retrieval_misses'])} retrieval misses, of {len(ac015['applies'])}: {verdict}")
+                     f"{len(ac015['retrieval_misses'])} retrieval misses, of {len(ac015['applies'])}; "
+                     f"{len(ac015.get('uncited', []))} uncited: {verdict}")
         if ac015["fails"]:
             lines.append(f"  fails: {', '.join(ac015['fails'])}")
     return "\n".join(lines)

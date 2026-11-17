@@ -934,7 +934,7 @@ def test_ac015_is_green_when_every_question_in_the_context_passes(connections):
     assert at(results, "ac015", "green") is False
     answers[QUESTIONS[1].question] = generated([ONLY_C, Passage("2", "amending", "999001", "1", ("999001:D1",), (),
                                                                 "[2] bãi bỏ")],
-                                               [("Bị bãi bỏ.", ("2",))])
+                                               [("Bị bãi bỏ.", ("1", "2"))])
     results = evaluate(small_set(), GeneratingPipeline(answers), PARENTS, judge=FakeJudge(), chunks=CHUNKS)
     assert at(results, "ac015", "passes") == ["q01", "q02"]
     assert at(results, "ac015", "green") is True

@@ -37,7 +37,7 @@ class Passage:
     chunk_ids: tuple[str, ...]
     clauses: tuple[str, ...]
     text: str
-    links: tuple[Link, ...] = ()  # stub: not yet filled
+    links: tuple[Link, ...] = ()  # the link lines, in order
 
 
 @dataclass
@@ -47,6 +47,16 @@ class Context:
     tokens: int = 0
     dropped: list[str] = field(default_factory=list)
     unresolved: list[Unresolved] = field(default_factory=list)
+
+
+def cites(citation_id: str, provision_id: str) -> bool:
+    """Whether a citation id cites a provision id: the same id, the whole article of a clause, or a clause of a
+    whole article (answer.md, *Amendment notices*)."""
+    if citation_id == provision_id:
+        return True
+    if "." in provision_id:
+        return citation_id == provision_id.split(".")[0]
+    return citation_id.split(".")[0] == provision_id
 
 
 def _read_jsonl(path: Path) -> list[dict]:
@@ -128,11 +138,11 @@ class Assembler:
         def cite(chunk_id: str) -> str:
             chunk = self.chunks[chunk_id]
             if chunk["parent_id"] not in in_context:
-                return f"[{ids[chunk_id]}]"
+                return ids[chunk_id]
             passage_id = ids[chunk["parent_id"]]
             if chunk["clause"] in (None, "0"):
-                return f"[{passage_id}]"
-            return f"[{passage_id}.{chunk_id.split(':K', 1)[1]}]"
+                return passage_id
+            return f"{passage_id}.{chunk_id.split(':K', 1)[1]}"
 
         passages = []
         for kind, key in order:
@@ -144,9 +154,10 @@ class Assembler:
             article, chunks = self.articles[key], self.chunks_of[key]
             header = CLAUSE_PART.sub("]", chunks[0]["header"])
             lines, clauses = _marked(article["text"], ids[key])
-            links = [f"{cite(chunk['id'])} {LINK_WORDS[link['type']]} {cite(link['source'])}."
-                     for chunk in chunks for link in chunk["amended_by"]]
+            links = tuple(Link(cite(chunk["id"]), link["type"], cite(link["source"]))
+                          for chunk in chunks for link in chunk["amended_by"])
+            link_lines = [f"[{link.target}] {LINK_WORDS[link.type]} [{link.source}]." for link in links]
             passages.append(Passage(ids[key], kind, article["doc_id"], article["article"],
                                     tuple(chunk["id"] for chunk in chunks), clauses,
-                                    "\n".join([f"[{ids[key]}] {header}", *lines, *links])))
+                                    "\n".join([f"[{ids[key]}] {header}", *lines, *link_lines]), links))
         return passages

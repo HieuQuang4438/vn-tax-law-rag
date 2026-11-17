@@ -14,7 +14,8 @@ from urllib.parse import quote
 
 from pydantic import BaseModel
 
-from src.context import Assembler, Context, Passage
+from src.context import Assembler, Context, Passage, cites
+from src.context.assembly import LINK_WORDS
 from src.llm import LLM, Call
 from src.retrieval import Retrieval
 
@@ -67,7 +68,7 @@ class Answer:
     context: Context = field(default_factory=Context)
     call: Call | None = None
     latency_s: dict[str, float] = field(default_factory=dict)
-    notices: int = 0  # the last `notices` sentences are amendment notices; stub: none are added yet
+    notices: int = 0  # the last `notices` sentences are amendment notices
 
 
 def _normalised(raw: str) -> str:
@@ -80,6 +81,11 @@ def _normalised(raw: str) -> str:
 def _fragment(article: str, title: str) -> str:
     heading = f"Điều {article}. {title}".strip() if title else f"Điều {article}."
     return "#:~:text=" + quote(heading, safe="").replace("-", "%2D")
+
+
+def _named(citation: "Citation") -> str:
+    article = f"Điều {citation.article} {citation.document}"
+    return f"khoản {citation.clause} {article}" if citation.clause else article
 
 
 def markers(ids: tuple[str, ...]) -> str:
@@ -124,11 +130,26 @@ class Answerer:
         not_found = not sentences or (len(sentences) == 1 and sentences[0].text.strip() == NOT_FOUND
                                       and not sentences[0].citations)
         passages = {p.id: p for p in context.passages}
+        notices = [] if not_found else self._notices(sentences, passages)
+        sentences += notices
         citations = [self._resolve(i, passages) for i in dict.fromkeys(i for s in sentences for i in s.citations)]
         flagged = [c.id for c in citations if not c.in_context]
         text = NOT_FOUND if not_found else self._render(sentences, citations, flagged)
         return Answer(sentences, citations, flagged, not_found, text, context, call,
-                      {"assembly": assembly, "generation": call.latency_s})
+                      {"assembly": assembly, "generation": call.latency_s}, len(notices))
+
+    def _notices(self, sentences: list[Sentence], passages: dict[str, Passage]) -> list[Sentence]:
+        """One sentence per link whose amended provision is cited and whose source is not (choice A2)."""
+        ids = dict.fromkeys(i for s in sentences for i in s.citations)
+        cited = [i for i in ids if self._resolve(i, passages).in_context]
+        notices = []
+        for passage in passages.values():
+            for link in passage.links:
+                if any(cites(i, link.target) for i in cited) and not any(cites(i, link.source) for i in cited):
+                    target, source = self._resolve(link.target, passages), self._resolve(link.source, passages)
+                    text = f"{_named(target)} {LINK_WORDS[link.type]} {_named(source)}."
+                    notices.append(Sentence(text[0].upper() + text[1:], (link.target, link.source)))
+        return notices
 
     def _resolve(self, citation_id: str, passages: dict[str, Passage]) -> Citation:
         match = ID.match(citation_id)
