@@ -858,17 +858,61 @@ def test_eval006_counts_a_not_found_answer_as_incorrect(generation):
     assert at(entry, "n") == 3
 
 
-def test_eval004_and_eval008_say_why_they_are_not_run(generation):
+def test_eval008_says_why_it_is_not_run(generation):
     results, *_ = generation
-    assert (at(score(results, "EVAL-004"), "value"), at(score(results, "EVAL-004"), "reason")) == (None, "scored by #16")
     assert (at(score(results, "EVAL-008"), "value"), at(score(results, "EVAL-008"), "reason")) == (None, "not scored")
+
+
+# --- EVAL-004, FR-CORE-012 (approved on #16) ---
+
+UNANSWERED = item("q05", "Câu hỏi năm không có đáp án?", "vat", "plain", unanswerable="out_of_scope")
+
+
+def unanswerable_run(judge) -> dict:
+    """q04 answered not found, q05 answered from the passages: both unanswerable."""
+    eval_set = EvalSet(version=1, as_of=date(2026, 11, 12), sha256="a" * 64,
+                       questions=[QUESTIONS[3], UNANSWERED], conversations=[])
+    answers = {QUESTIONS[3].question: ANSWERS[QUESTIONS[3].question], UNANSWERED.question: DEFAULT_ANSWER}
+    return evaluate(eval_set, GeneratingPipeline(answers), PARENTS, judge=judge, chunks=CHUNKS)
+
+
+def test_eval004_is_the_share_of_unanswerable_questions_answered_not_found(connections):
+    entry = score(unanswerable_run(FakeJudge()), "EVAL-004")
+    assert (at(entry, "value"), at(entry, "n"), at(entry, "target"), at(entry, "passes")) == (0.5, 2, 0.80, False)
+    assert at(entry, "interval") == pytest.approx(list(bootstrap_interval([1.0, 0.0])))
+    assert entry.get("reason") is None
+
+
+def test_eval004_needs_no_judge(connections):
+    entry = score(unanswerable_run(None), "EVAL-004")
+    assert (at(entry, "value"), at(entry, "n")) == (0.5, 2)
+    assert "judge" not in entry
+
+
+def test_eval004_is_over_unanswerable_questions_only(generation):
+    results, *_ = generation
+    entry = score(results, "EVAL-004")
+    assert (at(entry, "value"), at(entry, "n"), at(entry, "passes")) == (1.0, 1, True)
+
+
+def test_answerable_not_found_answers_are_split_by_recall(connections):
+    """q02 has recall 1, q03 0.5 and q06 0 (its hits default to article B; it expects C)."""
+    q06 = item("q06", "Câu hỏi sáu về thuế thu nhập cá nhân?", "pit", "plain", [C])
+    eval_set = EvalSet(version=1, as_of=date(2026, 11, 12), sha256="a" * 64,
+                       questions=[QUESTIONS[1], QUESTIONS[2], q06], conversations=[])
+    not_found = ANSWERS[QUESTIONS[1].question]
+    answers = {q.question: not_found for q in (QUESTIONS[1], QUESTIONS[2], q06)}
+    results = evaluate(eval_set, GeneratingPipeline(answers), PARENTS, judge=FakeJudge(), chunks=CHUNKS)
+    assert at(results, "generation", "not_found", "answerable") == 3
+    assert at(results, "generation", "not_found", "answerable_by_recall") == {"all": 1, "some": 1, "none": 1}
 
 
 def test_the_generation_summary_counts_not_found_flagged_and_judge_calls(generation):
     results, *_ = generation
     assert at(results, "generation", "answered") == 4
-    assert at(results, "generation", "not_found") == {"answerable": 1, "answerable_of": 3, "unanswerable": 1,
-                                                      "unanswerable_of": 1}
+    assert at(results, "generation", "not_found") == {"answerable": 1, "answerable_of": 3,
+                                                      "answerable_by_recall": {"all": 1, "some": 0, "none": 0},
+                                                      "unanswerable": 1, "unanswerable_of": 1}
     assert at(results, "generation", "flagged") == {"ids": 1, "items": 1}
     judge = at(results, "generation", "judge")
     assert (at(judge, "model"), at(judge, "calls")) == ("gemini-3.5-flash-lite", 2)
@@ -1020,6 +1064,9 @@ def test_the_summary_marks_judged_scores_as_not_hand_checked(generation, tmp_pat
     results, *_ = generation
     text = summary(results, tmp_path / "x.json")
     assert text.count("judge gemini-3.5-flash-lite, not hand-checked") == 3
+    assert "not found on 1 of 3 answerable (by recall@k: 1 all, 0 some, 0 none) and 1 of 1 unanswerable" in text
+    line = next((l for l in text.splitlines() if "EVAL-004" in l), "")
+    assert "1.000" in line and "n=1" in line and "PASS" in line and "judge" not in line
     assert "AC-015: 1 pass, 0 fail, 1 retrieval misses, of 2; 1 uncited: GREEN" in text
 
 

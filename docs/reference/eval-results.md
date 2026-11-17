@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-17
+updated: 2026-11-18
 owner: HieuQuang4438
 ---
 
@@ -190,7 +190,8 @@ Printed after the file is written:
 - the breakdown;
 - latency: median and p95 with the scope, against NFR-006;
 - cost: the average per item with the note, against NFR-007;
-- with `--generate`, the generation counts, then `AC-015: <passes> pass, <fails> fail,
+- with `--generate`, the generation counts, the answerable not-found ones followed by
+  `(by recall@k: <all> all, <some> some, <none> none)`, then `AC-015: <passes> pass, <fails> fail,
   <retrieval misses> retrieval misses, of <applies>; <uncited> uncited: GREEN` (or `NOT GREEN`,
   or `nothing applies`), and the failing ids.
 
@@ -234,21 +235,27 @@ per day (ADR-0003).
 | EVAL-002 | the sentences with at least one id, in the answers to answerable standalone questions | the share whose `cited` verdict is true: the sum over items of `cited_supported` over the sum of `cited_sentences`; `n` is that sum of sentences |
 | EVAL-003 | the answers to answerable standalone questions, not-found answers excluded | per answer, `supported / sentences`; the mean; `n` is the answers |
 | EVAL-006 | the answers to answerable standalone questions | 1 when `correct`, 0 otherwise, a not-found answer included as 0; the mean |
-| EVAL-004 | | not run: `scored by #16` |
+| EVAL-004 | the unanswerable standalone questions generated | 1 when `not_found`, 0 otherwise; the mean (approved on #16) |
 | EVAL-008 | | not run: `not scored` |
 
 EVAL-002's interval resamples items, as under *Interval*, and takes the ratio of the sums in each
 resample (`ratio_bootstrap_interval`), since sentences of one answer are not independent. The
 three judged scores carry `judge`, the judge's model, and the summary prints
 `judge <model>, not hand-checked` after them: a judged score stands only with the hand-check
-recorded beside it in *Generation runs*.
+recorded beside it in *Generation runs*. EVAL-004 reads `not_found` alone: it needs no judge,
+carries no `judge` and is scored without one.
+
+EVAL-004 does not see the cost of saying not found too often, which falls on answerable
+questions. The `not_found` key under `generation` counts those, split by the item's recall@k,
+so that a not-found answer with every expected article retrieved shows apart from one whose
+articles were not retrieved.
 
 **`generation`**, a top-level key after `cost`, null without `--generate`:
 
 | Key | Value |
 |---|---|
 | `answered` | items generated |
-| `not_found` | `{"answerable": …, "answerable_of": …, "unanswerable": …, "unanswerable_of": …}`, standalone questions answered not found, and how many were generated |
+| `not_found` | `{"answerable": …, "answerable_of": …, "answerable_by_recall": {"all": …, "some": …, "none": …}, "unanswerable": …, "unanswerable_of": …}`, standalone questions answered not found, and how many were generated; `answerable_by_recall` splits the answerable ones by recall@k: 1 (`all`), above 0 and below 1 (`some`), 0 (`none`) |
 | `flagged` | `{"ids": …, "items": …}`: citation ids not in the context, and the items with one (AC-009) |
 | `judge` | `{"model": …, "calls": …, "cost_usd": …}` |
 

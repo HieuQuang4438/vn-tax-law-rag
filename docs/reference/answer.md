@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-17
+updated: 2026-11-18
 owner: HieuQuang4438
 ---
 
@@ -8,9 +8,10 @@ owner: HieuQuang4438
 
 How a question's context ([context.md](context.md)) becomes a cited answer: the model call,
 the answer's form, how each citation id is resolved and shown, and the judge that scores the
-answers in the eval run. The rules are FR-CORE-010 and FR-CORE-011, their tests AC-009 and
-AC-015, and EVAL-002, EVAL-003 and EVAL-006 ([acceptance.md](../product/acceptance.md)). The
-model is ADR-0003's. The approach is the approved comment on #15.
+answers in the eval run. The rules are FR-CORE-010, FR-CORE-011 and FR-CORE-012, their tests
+AC-009 and AC-015, and EVAL-002, EVAL-003, EVAL-004 and EVAL-006
+([acceptance.md](../product/acceptance.md)). The model is ADR-0003's. The approach is the
+approved comment on #15; when an answer is not found, the approved comment on #16.
 
 ## The model call — `src.llm`
 
@@ -90,10 +91,11 @@ answer.text                                        # what the reader sees
 **Prompt.** `src/prompts/answer.md` is the system instruction. The user text is
 `Passages:\n\n<context.text>\n\nQuestion: <question>`, as in the pilot. The prompt asks for
 Vietnamese, sentences that each carry the ids of the passages they come from (`1`, or `1.25`
-for a clause), nothing beyond the passages, the `NOT_FOUND` sentence alone with no ids when the
-passages do not answer, and, when a provision used has a link line, to say it was amended,
+for a clause), nothing beyond the passages, an answer to the part of the question the passages
+answer, the `NOT_FOUND` sentence alone with no ids only when no passage bears on the question
+(FR-CORE-012, below), and, when a provision used has a link line, to say it was amended,
 replaced or repealed and to cite the passage named on that line (FR-CORE-010). The not-found
-wording is the pilot's; when to use it is #16's.
+wording is the pilot's.
 
 **Ids as written.** Each id the model gives is trimmed and stripped of one pair of brackets
 (`" [1.25] "` → `1.25`). Duplicates within one sentence are kept once.
@@ -110,6 +112,21 @@ A clause is shown by its number as written: `k` up to the first `.` (`3.2` is `k
 
 **Not found.** The answer is not found when it has no sentence, or exactly one sentence whose
 trimmed text is `NOT_FOUND` and which has no id.
+
+**When it is not found** (FR-CORE-012, approved on #16). The model alone decides, from the
+prompt's rule; an empty context gives the not-found answer without a call. The rule is narrowed
+(choice 2A): before #16 the prompt asked for `NOT_FOUND` whenever the passages did not answer;
+at `4091435` that gave not found on 33 of 184 answerable questions, 10 of them with every
+expected article in the top 8, and on 55 of 56 unanswerable ones. The prompt now asks for an
+answer to the part the passages answer, and `NOT_FOUND` only when no passage bears on the
+question. EVAL-004 measures the rule on the unanswerable questions
+([eval-results.md](eval-results.md), *Generation stage*).
+
+There is no floor on retrieval similarity below which the model is not called (choice 1A),
+though #16 first named one. The model alone already gave not found on 55 of the 56, so a floor
+could add at most one; every question gets a non-empty top 8, so a floor could only turn more
+answerable questions into not found; and it would be tuned and scored on the same 56 questions.
+Fused scores are not calibrated (ADR-0002), so a floor would rest on dense similarity alone.
 
 **Amendment notices** (approved on #15, choices A2 and 2'). The prompt's rule on link lines is
 not followed reliably, so the answerer adds what it leaves out. For each link of the context

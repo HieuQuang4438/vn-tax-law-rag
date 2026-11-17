@@ -132,6 +132,14 @@ def test_the_model_gets_the_prompt_file_and_the_assembled_context():
                              f"Passages:\n\n{context.text}\n\nQuestion: {question}", AnswerOutput)]
 
 
+def test_the_prompt_answers_the_part_the_passages_answer_and_keeps_not_found_for_none():
+    """FR-CORE-012, choice 2A on #16: not found only when no passage bears on the question."""
+    prompt = PROMPT.read_text(encoding="utf-8")
+    assert "answer only part of the question, answer that part" in prompt
+    assert "only when no passage bears on the question" in prompt
+    assert "If they do not answer the question" not in prompt
+
+
 def test_the_prompt_holds_the_not_found_sentence_and_the_link_line_rule():
     prompt = PROMPT.read_text(encoding="utf-8")
     assert NOT_FOUND == "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có."
