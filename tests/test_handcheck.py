@@ -137,7 +137,7 @@ def test_the_command_writes_the_sheet_and_prints_the_agreement(tmp_path, capsys)
         assert line in printed
 
 
-# --- says_amended (AC-015, choice 4 on #15) ------------------------------------------------------
+# --- says_amended (AC-015, choice 3 on #15) ------------------------------------------------------
 
 def test_the_sheet_samples_20_answers_graded_on_says_amended(tmp_path):
     records = ([record(n, amended=True) for n in range(1, 26)] + [record(26, amended=False)]

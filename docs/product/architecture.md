@@ -1,7 +1,8 @@
 ---
-status: in-review
-updated: 2026-11-16
+status: approved
+updated: 2026-11-17
 owner: HieuQuang4438
+approved-by: peer
 ---
 
 # Architecture — vn-tax-law-rag
@@ -112,7 +113,7 @@ local cache, with no network request. Format in [index.md](../reference/index.md
 ## Online: from a question to a cited answer
 
 Runs per question. The three letters of RAG map onto it as: retrieve (steps 1–3),
-augment (step 4), generate (steps 5–6). Steps 2 and 3 are built; the others are planned.
+augment (step 4), generate (steps 5–6). Steps 2 to 6 are built; step 1 is planned.
 
 ```mermaid
 flowchart LR
@@ -133,7 +134,7 @@ flowchart LR
     ans --> hist
 
     classDef planned stroke-dasharray: 5 5
-    class s1,s4,s5,s6 planned
+    class s1 planned
 ```
 
 ### 1. Follow-up rewrite — planned
@@ -175,7 +176,9 @@ in [context.md](../reference/context.md). — FR-CORE-009
 
 The model answers in Vietnamese from those passages only, as a list of sentences, each with the
 ids of the passages it comes from. When a provision it uses carries a link line, the prompt
-tells it to say the provision was amended and to cite the amending passage. If the passages do
+tells it to say the provision was amended and to cite the amending passage; since it does not
+do so reliably, the answerer adds a notice sentence for every amended provision the answer
+cites, naming it and its amending provision, built from the link line. If the passages do
 not answer the question, the reply is one fixed sentence saying the documents do not cover it;
 when it should be given is #16's. The model is `gemini-3.5-flash-lite` on the Gemini API free
 tier (ADR-0003), called through one wrapper that keeps under 15 requests a minute, retries and
@@ -189,7 +192,7 @@ anchor per article. A citation id that was not in the context is listed apart, n
 a source. The note that this is information, not advice, comes with the web interface (#17).
 — FR-CORE-011, FR-CORE-013
 
-## Measuring it — built for retrieval
+## Measuring it — built; not-found accuracy and answer relevancy planned
 
 A hand-written eval set, sized per version in acceptance.md (240 questions in version 2), some
 unanswerable and some multi-turn, each with its expected answer, key facts and supporting
