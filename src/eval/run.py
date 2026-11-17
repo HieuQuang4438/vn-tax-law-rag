@@ -343,9 +343,14 @@ def _generation(items: list[dict], judge_model: str | None) -> dict:
     answerable = [i for i in generated if i["answerable"]]
     unanswerable = [i for i in generated if not i["answerable"]]
     judged = [i for i in generated if i["judge_tokens"] is not None]
+    not_found = [i for i in answerable if i["not_found"]]
     return {
         "answered": len(generated),
-        "not_found": {"answerable": sum(1 for i in answerable if i["not_found"]), "answerable_of": len(answerable),
+        "not_found": {"answerable": len(not_found), "answerable_of": len(answerable),
+                      "answerable_by_recall": {"all": sum(1 for i in not_found if i["recall"] == 1),
+                                               "some": sum(1 for i in not_found
+                                                           if i["recall"] is not None and 0 < i["recall"] < 1),
+                                               "none": sum(1 for i in not_found if i["recall"] == 0)},
                       "unanswerable": sum(1 for i in unanswerable if i["not_found"]),
                       "unanswerable_of": len(unanswerable)},
         "flagged": {"ids": sum(len(i["flagged"]) for i in generated),
@@ -412,7 +417,10 @@ def evaluate(eval_set: EvalSet, pipeline: Pipeline, parents: dict[str, str], k: 
     }
     if generating:
         computed.update(_judged_scores(items, judge_model))
-    reasons = {"EVAL-004": "scored by #16", "EVAL-008": "not scored"} if generating else {}
+        unanswerable = [i for i in items if i["kind"] == "question" and i["generated"] and not i["answerable"]]
+        if unanswerable:  # FR-CORE-012, approved on #16: read from not_found, no judge
+            computed["EVAL-004"] = _score("EVAL-004", [1.0 if i["not_found"] else 0.0 for i in unanswerable])
+    reasons = {"EVAL-004": "no items", "EVAL-008": "not scored"} if generating else {}
     default_reason = ("no judge" if judge is None else "no items") if generating else NOT_RUN
     scores = {eval_id: computed.get(eval_id) or _not_run(eval_id, reasons.get(eval_id, default_reason))
               for eval_id in sorted(TARGETS)}
@@ -555,8 +563,10 @@ def summary(results: dict, path: Path) -> str:
     generation, ac015 = results.get("generation"), results.get("ac015")
     if generation:
         found, flagged, judge = generation["not_found"], generation["flagged"], generation["judge"]
+        by = found.get("answerable_by_recall")
+        split = f" (by recall@k: {by['all']} all, {by['some']} some, {by['none']} none)" if by else ""
         lines.append(f"Generation: {generation['answered']} answered; not found on {found['answerable']} of "
-                     f"{found['answerable_of']} answerable and {found['unanswerable']} of {found['unanswerable_of']} "
+                     f"{found['answerable_of']} answerable{split} and {found['unanswerable']} of {found['unanswerable_of']} "
                      f"unanswerable; {flagged['ids']} ids not in the context, in {flagged['items']} items (AC-009); "
                      f"judge {judge['model']}: {judge['calls']} calls, {judge['cost_usd']:.4f} USD")
     if ac015:

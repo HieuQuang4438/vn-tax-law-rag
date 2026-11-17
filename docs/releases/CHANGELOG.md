@@ -108,6 +108,10 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   `says_amended` verdicts included; AC-015 asks about a listed article's amended clauses only
   when the answer cites them, and takes a provision a notice covers as said to be amended. FR-CORE-010, FR-CORE-011, AC-009, AC-015, EVAL-002, EVAL-003,
   EVAL-006, #15.
+- Not-found reply: the model answers the part of a question the passages answer and replies
+  not found only when no passage bears on it, with no similarity floor. `--generate` scores
+  EVAL-004 from the not-found answers to unanswerable questions, and counts the not-found
+  answers to answerable ones by recall@k. FR-CORE-012, EVAL-004, #16.
 
 ### Changed
 

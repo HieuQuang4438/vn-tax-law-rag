@@ -1,8 +1,7 @@
 ---
-status: approved
-updated: 2026-11-17
+status: in-review
+updated: 2026-11-18
 owner: HieuQuang4438
-approved-by: peer
 ---
 
 # Architecture — vn-tax-law-rag
@@ -178,9 +177,10 @@ The model answers in Vietnamese from those passages only, as a list of sentences
 ids of the passages it comes from. When a provision it uses carries a link line, the prompt
 tells it to say the provision was amended and to cite the amending passage; since it does not
 do so reliably, the answerer adds a notice sentence for every amended provision the answer
-cites, naming it and its amending provision, built from the link line. If the passages do
-not answer the question, the reply is one fixed sentence saying the documents do not cover it;
-when it should be given is #16's. The model is `gemini-3.5-flash-lite` on the Gemini API free
+cites, naming it and its amending provision, built from the link line. When the passages
+answer part of the question, the model answers that part; when no passage bears on it, the
+reply is one fixed sentence saying the documents do not cover it, decided by the model alone,
+with no similarity floor. The model is `gemini-3.5-flash-lite` on the Gemini API free
 tier (ADR-0003), called through one wrapper that keeps under 15 requests a minute, retries and
 logs every call ([answer.md](../reference/answer.md)). — FR-CORE-010, FR-CORE-012
 
@@ -192,7 +192,7 @@ anchor per article. A citation id that was not in the context is listed apart, n
 a source. The note that this is information, not advice, comes with the web interface (#17).
 — FR-CORE-011, FR-CORE-013
 
-## Measuring it — built; not-found accuracy and answer relevancy planned
+## Measuring it — built; answer relevancy planned
 
 A hand-written eval set, sized per version in acceptance.md (240 questions in version 2), some
 unanswerable and some multi-turn, each with its expected answer, key facts and supporting
