@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-16
+updated: 2026-11-17
 owner: HieuQuang4438
 ---
 
@@ -372,3 +372,25 @@ as at `e2051f7`. A v2 score is not compared paired with a v1 score.
 - The 10 reference questions that name the wrong document (answered by the right one, step 2)
   score 0.600: q65, q72, q74, q84, q122, q185, q212, q213, q240, q242.
 - Retrieval latency is 0.38 s median and 0.90 s p95 over 292 items.
+
+### Generation runs
+
+Clean `--generate` runs, on the dev laptop, judge `gemini-3.5-flash-lite`. The hand-check is the
+owner's, blind, on the sheet `python -m src.eval.handcheck sheet` writes.
+
+| File | EVAL-002 | EVAL-003 | EVAL-006 | Not found | AC-015 | Hand-check |
+|---|---|---|---|---|---|---|
+| `eval/results/2026-11-16-6cbf23a.json` | 0.855 [0.782, 0.909], n = 345 | 0.990 [0.977, 1.000], n = 155 | 0.380 [0.310, 0.457], n = 184 | 29 of 184 answerable, 55 of 56 unanswerable | 3 pass, 30 fail, 15 retrieval misses, of 48: not green | cited 20 of 20, supported 20 of 20, correct 20 of 20 |
+
+`2026-11-16-6cbf23a`, eval set v2, commit `6cbf23a`, retrieval as at `b0cced1`:
+
+- EVAL-002 and EVAL-006 miss their targets (≥ 0.90, ≥ 0.80); EVAL-003 meets its (≥ 0.90).
+- The judge called 7 of the 20 sampled answers correct, and the owner agreed on all 20: the low
+  EVAL-006 is the answers', not the judge's.
+- All 20 sampled sentences were judged `cited` and `supported`, so the hand-check does not yet
+  show the judge catching an unsupported sentence.
+- 72 citation ids not in the context, in 39 items, were flagged (AC-009).
+- Latency is 2.28 s median and 4.84 s p95 over 240 items; cost is 0.0049 USD per item, the
+  judge's 155 calls 0.7651 USD.
+- The keys changed 109 times, 106 on a 503 and 3 on a 429; 7 attempts failed on every key and
+  succeeded after the backoff.
