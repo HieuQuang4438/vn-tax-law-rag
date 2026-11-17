@@ -111,10 +111,11 @@ A clause is shown by its number as written: `k` up to the first `.` (`3.2` is `k
 **Not found.** The answer is not found when it has no sentence, or exactly one sentence whose
 trimmed text is `NOT_FOUND` and which has no id.
 
-**Amendment notices** (approved on #15, choice A2). The prompt's rule on link lines is not
-followed reliably, so the answerer adds what it leaves out. For each link of the context
-(`Passage.links`, context.md) whose amended provision the answer cites and whose source it does
-not, one sentence is added after the model's, in the order of the links:
+**Amendment notices** (approved on #15, choices A2 and 2'). The prompt's rule on link lines is
+not followed reliably, so the answerer adds what it leaves out. For each link of the context
+(`Passage.links`, context.md) whose amended provision the answer cites, one sentence is added
+after the model's, in the order of the links. It is added whether or not the answer also cites
+the source: a sentence citing both may still not say that the provision was amended.
 
 - An id **cites** a provision when it equals the provision's id, or is `n` and the provision's
   id is `n.k`, or is an `n.k` and the provision's id is `n` (a whole article). Only ids in the

@@ -220,7 +220,7 @@ def test_a_link_to_an_article_without_a_title_names_the_article_alone():
     assert answer.citations and answer.citations[0].url == PIT_URL + "#:~:text=" + quote("Điều 3.", safe="")
 
 
-# --- Amendment notices (choice A2, approved on #15) --------------------------------------------
+# --- Amendment notices (choices A2 and 2', approved on #15) ------------------------------------
 
 NOTICE = "Khoản 25 Điều 5 Luật 48/2024/QH15 được sửa đổi, bổ sung bởi khoản 2 Điều 1 Luật 149/2025/QH15."
 
@@ -239,10 +239,11 @@ def test_an_amended_clause_cited_without_its_source_gets_a_notice():
     [{"text": "Câu một.", "citations": ["1.25", "2"]}],
     [{"text": "Câu một.", "citations": ["1.25"]}, {"text": "Câu hai.", "citations": ["2"]}],
 ], ids=["same-sentence", "another-sentence"])
-def test_no_notice_when_the_answer_cites_the_source(sentences):
+def test_a_notice_is_added_even_when_the_answer_cites_the_source(sentences):
+    """Choice 2': a sentence citing both may still not say the provision was amended (q16 at 4091435)."""
     answer, _ = ask(sentences, "379409:D5:K25")
-    assert answer.notices == 0
-    assert len(answer.sentences) == len(sentences)
+    assert said(answer)[len(sentences):] == [(NOTICE, ("1.25", "2"))]
+    assert answer.notices == 1
 
 
 def test_citing_the_whole_article_counts_as_citing_its_amended_clause():
@@ -266,8 +267,8 @@ def test_a_repealed_whole_article_gets_a_notice_naming_the_article():
 def test_a_source_whose_article_is_in_the_context_is_cited_by_its_clause():
     answer, _ = ask([{"text": "Câu một.", "citations": ["1.25"]}], "379409:D5:K25", "421739:D1:K2")
     assert said(answer)[1:] == [(NOTICE, ("1.25", "2.2"))]
-    covered, _ = ask([{"text": "Câu một.", "citations": ["1.25", "2"]}], "379409:D5:K25", "421739:D1:K2")
-    assert covered.notices == 0
+    both, _ = ask([{"text": "Câu một.", "citations": ["1.25", "2"]}], "379409:D5:K25", "421739:D1:K2")
+    assert said(both)[1:] == [(NOTICE, ("1.25", "2.2"))]
 
 
 def test_a_notice_is_rendered_and_its_ids_are_sources():

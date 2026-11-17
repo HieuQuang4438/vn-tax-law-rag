@@ -11,17 +11,21 @@ import yaml
 
 from src.eval.handcheck import main, score, sheet
 
-SECTION = re.compile(r"^## ([SA]\d+) · (q\d+)(?: · sentence (\d+))?$", re.MULTILINE)
+SECTION = re.compile(r"^## ([SAM]\d+) · (q\d+)(?: · sentence (\d+))?$", re.MULTILINE)
+RULE = "Yes when the answer says that each of these provisions was amended, replaced or repealed."
 
 
-def record(n: int, judged: bool = True) -> dict:
+def record(n: int, judged: bool = True, amended: bool | None = None) -> dict:
+    """An answers-file record; `amended` None writes a record from before #15's choice 1, with no `amended` key."""
+    extra = {} if amended is None else {"amended": ["1.25", "2"] if amended else []}
     return {"id": f"q{n:02d}",
             "passages": [{"id": "1", "text": f"[1] Đoạn một của câu {n}."}, {"id": "2", "text": f"[2] Đoạn hai {n}."}],
             "sentences": [{"text": f"Câu {n}-1.", "citations": ["1"]}, {"text": f"Câu {n}-2.", "citations": ["2", "9"]},
                           {"text": f"Câu {n}-3.", "citations": ["9"]}, {"text": f"Câu {n}-4.", "citations": []}],
-            "flagged": ["9"], "not_found": False,
+            "flagged": ["9"], "not_found": False, **extra,
             "verdict": {"cited": [True, n % 2 == 0, False, None], "supported": [True, True, False, n % 3 == 0],
-                        "facts": [True], "contradicts": False, "says_amended": None, "correct": n % 2 == 1}
+                        "facts": [True], "contradicts": False, "says_amended": n % 4 == 0 if amended else None,
+                        "correct": n % 2 == 1}
             if judged else None}
 
 
@@ -102,7 +106,8 @@ def grade(sheet_path: Path, key_path: Path, wrong: set[str], blank: set[str]) ->
         heading = SECTION.match(line)
         if heading:
             current = heading.group(1)
-        for label, field in (("Cited supports:", "cited"), ("Context supports:", "supported"), ("Correct:", "correct")):
+        for label, field in (("Cited supports:", "cited"), ("Context supports:", "supported"), ("Correct:", "correct"),
+                             ("Says amended:", "says_amended")):
             if line == label and current not in blank:
                 value = key[current][field] != (current in wrong)
                 line = f"{label} {'yes' if value else 'NO'}"
@@ -114,7 +119,8 @@ def test_score_counts_agreement_per_kind_and_skips_blanks(tmp_path):
     answers, set_path = write(tmp_path, [record(n) for n in range(1, 26)])
     sheet_path, key_path = sheet(answers, set_path, tmp_path / "eval")
     grade(sheet_path, key_path, wrong={"S1", "A2"}, blank={"S3", "A4", "A5"})
-    assert score(sheet_path) == {"cited": (18, 19), "supported": (18, 19), "correct": (17, 18)}
+    assert score(sheet_path) == {"cited": (18, 19), "supported": (18, 19), "correct": (17, 18),
+                                 "says_amended": (0, 0)}
 
 
 def test_the_command_writes_the_sheet_and_prints_the_agreement(tmp_path, capsys):
@@ -127,5 +133,49 @@ def test_the_command_writes_the_sheet_and_prints_the_agreement(tmp_path, capsys)
     capsys.readouterr()
     assert main(["score", str(sheet_path)]) == 0
     printed = capsys.readouterr().out
-    for line in ("cited: 20 of 20", "supported: 20 of 20", "correct: 20 of 20"):
+    for line in ("cited: 20 of 20", "supported: 20 of 20", "correct: 20 of 20", "says_amended: 0 of 0"):
         assert line in printed
+
+
+# --- says_amended (AC-015, choice 4 on #15) ------------------------------------------------------
+
+def test_the_sheet_samples_20_answers_graded_on_says_amended(tmp_path):
+    records = ([record(n, amended=True) for n in range(1, 26)] + [record(26, amended=False)]
+               + [record(27, judged=False, amended=True)])
+    answers, set_path = write(tmp_path, records)
+    sheet_path, _ = sheet(answers, set_path, tmp_path / "eval")
+    found = sections(text_of(sheet_path))
+    graded = [(kind, question) for kind, question, _ in found if kind.startswith("M")]
+    assert [kind for kind, _ in graded] == [f"M{n}" for n in range(1, 21)]
+    assert not {"q26", "q27"} & {question for _, question in graded}  # nothing asked, or not judged
+
+
+def test_the_says_amended_sample_leaves_the_other_samples_unchanged(tmp_path):
+    before = sections(text_of(sheet(*write(tmp_path / "old", [record(n) for n in range(1, 26)]), tmp_path / "a")[0]))
+    after = sections(text_of(sheet(*write(tmp_path / "new", [record(n, amended=True) for n in range(1, 26)]),
+                                   tmp_path / "b")[0]))
+    assert [s for s in after if not s[0].startswith("M")] == before
+
+
+def test_a_says_amended_section_shows_the_ids_the_context_and_the_answer(tmp_path):
+    answers, set_path = write(tmp_path, [record(n, amended=n == 2) for n in range(1, 4)])
+    sheet_path, key_path = sheet(answers, set_path, tmp_path / "eval")
+    text = text_of(sheet_path)
+    assert "## M1 · q02" in text
+    section = text.split("## M1 · q02", 1)[1]
+    assert "Câu hỏi q02?" in section
+    assert "**Amended provisions.** [1.25], [2]" in section
+    assert "[2] Đoạn hai 2." in section and "Câu 2-1. [1]" in section
+    lines = section.splitlines()
+    assert lines.count(RULE) == 1 and lines.count("Says amended:") == 1
+    assert sum(1 for kind, _, _ in sections(text) if kind.startswith("M")) == 1
+    assert "true" not in text.lower() and "false" not in text.lower()
+    key = json.loads(text_of(key_path).split("```json\n", 1)[1].split("\n```", 1)[0])
+    assert key["M1"] == {"id": "q02", "says_amended": False}
+
+
+def test_score_counts_agreement_on_says_amended(tmp_path):
+    answers, set_path = write(tmp_path, [record(n, amended=True) for n in range(1, 26)])
+    sheet_path, key_path = sheet(answers, set_path, tmp_path / "eval")
+    grade(sheet_path, key_path, wrong={"M1"}, blank={"M2"})
+    assert score(sheet_path).get("says_amended") == (18, 19)

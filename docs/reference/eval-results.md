@@ -224,7 +224,7 @@ per day (ADR-0003).
   rewrite (`generated: false`). The warm-up call only retrieves.
 - After its answer, each answerable standalone question that is not answered `not_found` is
   judged: one call, `Judge.judge(question, key_facts, answer, amended)`, with `amended` the ids
-  AC-015 asks about (below), empty when it asks about none. Unanswerable questions and not-found
+  AC-015 asks about that no notice covers (below), empty when there are none. Unanswerable questions and not-found
   answers get no judge call.
 
 **Scores** with `--generate`:
@@ -268,11 +268,16 @@ AC-015 **asks about** each amended chunk there of a listed clause, and each amen
 of a listed article that the answer **cites**: an id of the answer equals the chunk's id
 (`[n]` for a whole-article or `:K0` chunk, `[n.k]` for a clause chunk), or is `[n]` when the
 chunk's id is `[n.k]`, or is an `[n.k]` when the chunk's id is `[n]`. When it asks about none,
-the question is **uncited**: AC-015 does not apply to it. The ids passed to the judge are the
-ids of the chunks asked about. The question **passes** when its answer is not not-found, cites
-an id in the context whose passage holds an `amended_by` source of those chunks (the amending
-passage of that chunk, or the article passage that contains it), and the judge's
-`says_amended` is true (choice 6A).
+the question is **uncited**: AC-015 does not apply to it.
+
+An asked id is **noticed** when one of the answer's amendment notices (its last `notices`
+sentences, answer.md) has it as its first id, the link's `target`. A notice is built from the
+link line, so it always says the provision was amended: the judge is not asked about a noticed
+id (approved on #15, choice 1). The ids passed to the judge are the asked ids not noticed.
+`says_amended` is true when every asked id is noticed; otherwise it is the judge's. The question
+**passes** when its answer is not not-found, cites an id in the context whose passage holds an
+`amended_by` source of those chunks (the amending passage of that chunk, or the article passage
+that contains it), and `says_amended` is true (choice 6A).
 
 | Key | Value |
 |---|---|
@@ -296,7 +301,7 @@ the generated items only; the scope reads `full pipeline, dev laptop`. An item's
 | `notices` | `Answer.notices`: the amendment notices among `sentences` |
 | `cited_supported`, `supported` | sentences whose `cited`, and whose `supported`, verdict is true; null when not judged |
 | `correct` | the verdict's; false for a not-found answer to an answerable question; null for an unanswerable one |
-| `ac015` | null when the question has no amended chunk; else `{"in_context", "asked", "cites_amending", "says_amended", "passes"}`: `asked` the ids AC-015 asks about, null for a retrieval miss and empty for an uncited question; the last three null for both |
+| `ac015` | null when the question has no amended chunk; else `{"in_context", "asked", "noticed", "cites_amending", "says_amended", "passes"}`: `asked` the ids AC-015 asks about, null for a retrieval miss and empty for an uncited question; `noticed` the asked ids a notice covers, in the order of `asked`; the last four null for both |
 | `judge_latency_s`, `judge_tokens`, `judge_cost_usd` | the judge call's; null when not judged |
 
 **`configuration.pipeline`** with `--generate` adds, after the fusion settings: `model`,
@@ -306,7 +311,8 @@ the prompt files), `judge_model`, `context_budget`, and `google_genai`, the inst
 **Answers file.** The results file carries no answer text. The answers go to
 `data/eval-answers/<results file stem>.jsonl`, gitignored, since they
 quote the corpus (NFR-003): one line per generated item, `{"id", "passages": [{"id", "text"}], "sentences":
-[{"text", "citations"}], "flagged", "not_found", "verdict"}`, `verdict` being `{"cited",
+[{"text", "citations"}], "flagged", "not_found", "amended", "verdict"}`, `amended` being the ids
+passed to the judge as `amended` (empty when not judged), `verdict` `{"cited",
 "supported", "facts", "contradicts", "says_amended", "correct"}` or null.
 
 **Resume.** Each generated item is appended to `data/eval-answers/progress.jsonl` as it
@@ -326,16 +332,23 @@ python -m src.eval.handcheck score eval/<file>-handcheck.me.md      # prints the
   `<out>/<answers file stem>-handcheck.me.md` and `<out>/<answers file stem>-handcheck-key.me.md`,
   both untracked. It reads the questions and key facts from the set file's `questions` directly.
   With one `random.Random(0)`, it samples 20 sentences from the judged answers' sentences that
-  have an id in the context, then 20 judged answers; all of them when there are fewer.
+  have an id in the context, then 20 judged answers, then 20 answers whose verdict has a
+  `says_amended` that is not null; all of them when there are fewer. An answers file without
+  `amended` (before #15's choice 1) gives no answer of the last kind.
 - The sheet has one section per sentence, `## S<n> · <id> · sentence <i>` (i counted from 1 in
   its answer): the question, the sentence with its ids, its cited passages, the whole context
   in a folded `<details>` block, and the blank lines `Cited supports:` and `Context supports:`.
   Then one section per answer, `## A<n> · <id>`: the question, the key facts, the answer, and the
-  blank line `Correct:`. No verdict is on the sheet.
+  blank line `Correct:`. Then one section per answer graded on `says_amended` (AC-015, choice 4
+  on #15), `## M<n> · <id>`: the question, the line `**Amended provisions.**` with the record's
+  `amended` ids as `[1.25], [3]`, the whole context in a folded `<details>` block, the answer,
+  the rule `Yes when the answer says that each of these provisions was amended, replaced or
+  repealed.`, and the blank line `Says amended:`. No verdict is on the sheet.
 - The key is a JSON block: `{"S1": {"id", "sentence", "cited", "supported"}, "A1": {"id",
-  "correct"}, …}`, the judge's verdicts.
+  "correct"}, "M1": {"id", "says_amended"}, …}`, the judge's verdicts.
 - `score <sheet>` reads `yes` or `no`, in any case, after each of those labels, skips blank
-  ones, and prints `cited: <agreeing> of <graded>`, then `supported:` and `correct:`.
+  ones, and prints `cited: <agreeing> of <graded>`, then `supported:`, `correct:` and
+  `says_amended:`.
 
 **Generation runs.** Every clean `--generate` run is listed in a table under *Baseline*: its
 file, EVAL-002, EVAL-003, EVAL-006, the not-found counts, AC-015, and the hand-check agreement.

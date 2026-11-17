@@ -880,22 +880,74 @@ def test_ac015_passes_retrieval_misses_and_uncited(generation):
     results, *_ = generation
     assert at(results, "ac015") == {"applies": ["q01", "q03"], "retrieval_misses": ["q03"], "uncited": ["q02"],
                                     "passes": ["q01"], "fails": [], "green": True}
-    assert at(item_of(results, "q01"), "ac015") == {"in_context": True, "asked": ["1.25"], "cites_amending": True,
-                                                    "says_amended": True, "passes": True}
-    assert at(item_of(results, "q02"), "ac015") == {"in_context": True, "asked": [], "cites_amending": None,
-                                                    "says_amended": None, "passes": None}
-    assert at(item_of(results, "q03"), "ac015") == {"in_context": False, "asked": None, "cites_amending": None,
-                                                    "says_amended": None, "passes": None}
+    assert at(item_of(results, "q01"), "ac015") == {"in_context": True, "asked": ["1.25"], "noticed": [],
+                                                    "cites_amending": True, "says_amended": True, "passes": True}
+    assert at(item_of(results, "q02"), "ac015") == {"in_context": True, "asked": [], "noticed": None,
+                                                    "cites_amending": None, "says_amended": None, "passes": None}
+    assert at(item_of(results, "q03"), "ac015") == {"in_context": False, "asked": None, "noticed": None,
+                                                    "cites_amending": None, "says_amended": None, "passes": None}
     assert at(item_of(results, "q04"), "ac015") is None
 
 
-def one_question(provisions, answer) -> tuple[dict, "FakeJudge"]:
+def one_question(provisions, answer, judge=None, answers=None) -> tuple[dict, "FakeJudge"]:
     question = Item(id="q01", line=1, question=QUESTIONS[0].question, tax_type="vat", form="plain",
                     answer="Câu trả lời.", key_facts=["một sự kiện"], provisions=provisions)
     eval_set = EvalSet(version=1, as_of=date(2026, 11, 12), sha256="a" * 64, questions=[question], conversations=[])
-    judge = FakeJudge()
-    results = evaluate(eval_set, GeneratingPipeline({question.question: answer}), PARENTS, judge=judge, chunks=CHUNKS)
+    judge = judge or FakeJudge()
+    results = evaluate(eval_set, GeneratingPipeline({question.question: answer}), PARENTS, judge=judge, chunks=CHUNKS,
+                       answers=answers)
     return results, judge
+
+
+class SaysNotAmended(FakeJudge):
+    """A judge that finds no statement of an amendment."""
+
+    def judge(self, question, key_facts, answer, amended=()):
+        verdict = super().judge(question, key_facts, answer, amended)
+        return dataclasses.replace(verdict, says_amended=False if amended else None)
+
+
+LISTED_K25 = Provision(text="khoản 25 Điều 5", article=A, chunk="379409:D5:K25")
+ARTICLE_C_3 = Passage("3", "article", "421739", "1", ("421739:D1",), (), "[3] C")
+NOTICE_K25 = ("Khoản 25 Điều 5 Luật 48/2024/QH15 được sửa đổi, bổ sung bởi Điều 6 Nghị định 1.", ("1.25", "2"))
+
+
+def test_a_noticed_provision_says_amended_without_asking_the_judge(connections):
+    """Choice 1 on #15: the notice is built from the link line, so it says the provision was amended."""
+    answer = generated([ARTICLE_A, AMENDING_A], [("Câu một.", ("1.25",)), NOTICE_K25], notices=1)
+    results, judge = one_question([LISTED_K25], answer, judge=SaysNotAmended())
+    assert at(item_of(results, "q01"), "ac015") == {"in_context": True, "asked": ["1.25"], "noticed": ["1.25"],
+                                                    "cites_amending": True, "says_amended": True, "passes": True}
+    assert judge.calls[0][2] == ()
+    assert at(results, "ac015", "passes") == ["q01"]
+
+
+def test_a_model_sentence_citing_the_amended_provision_is_not_a_notice(connections):
+    answer = generated([ARTICLE_A, AMENDING_A], [("Câu một.", ("1.25", "2")), ("Câu hai.", ("1.1",))])
+    results, judge = one_question([LISTED_K25], answer, judge=SaysNotAmended())
+    assert at(item_of(results, "q01"), "ac015", "noticed") == []
+    assert at(item_of(results, "q01"), "ac015", "says_amended") is False
+    assert judge.calls[0][2] == ("1.25",)
+
+
+def test_the_judge_is_asked_only_about_the_provisions_no_notice_covers(connections):
+    answer = generated([ARTICLE_A, AMENDING_A, ARTICLE_C_3],
+                       [("Câu một.", ("1.25",)), ("Câu hai.", ("3",)), NOTICE_K25], notices=1)
+    results, judge = one_question([LISTED_K25, provision(C)], answer, judge=SaysNotAmended())
+    entry = at(item_of(results, "q01"), "ac015")
+    assert (at(entry, "asked"), at(entry, "noticed")) == (["1.25", "3"], ["1.25"])
+    assert judge.calls[0][2] == ("3",)
+    assert at(entry, "says_amended") is False and at(entry, "passes") is False
+    _, agreeing = one_question([LISTED_K25, provision(C)], answer)
+    assert agreeing.calls[0][2] == ("3",)
+
+
+def test_the_answers_record_holds_the_ids_the_judge_was_asked_about(connections):
+    answer = generated([ARTICLE_A, AMENDING_A, ARTICLE_C_3],
+                       [("Câu một.", ("1.25",)), ("Câu hai.", ("3",)), NOTICE_K25], notices=1)
+    answers = []
+    one_question([LISTED_K25, provision(C)], answer, answers=answers)
+    assert answers[0].get("amended") == ["3"]
 
 
 def test_a_listed_article_whose_answer_cites_another_clause_is_uncited(connections):
@@ -953,7 +1005,8 @@ def test_the_answers_list_gets_one_record_per_generated_item(generation):
     _, _, _, answers = generation
     assert [record.get("id") for record in answers] == ["q01", "q02", "q03", "q04"]
     q01 = answers[0]
-    assert list(q01) == ["id", "passages", "sentences", "flagged", "not_found", "verdict"]
+    assert list(q01) == ["id", "passages", "sentences", "flagged", "not_found", "amended", "verdict"]
+    assert (q01["amended"], answers[1]["amended"], answers[2]["amended"]) == (["1.25"], [], [])
     assert q01["passages"] == [{"id": "1", "text": "[1] A"}, {"id": "2", "text": "[2] sửa đổi A"},
                                {"id": "3", "text": "[3] B"}]
     assert q01["sentences"] == [{"text": "Câu một.", "citations": ["1.25", "2"]},
