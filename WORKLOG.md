@@ -12,6 +12,49 @@
 
 ---
 
+## Session 7 — 2026-11-16 to 2026-11-17 · Context assembly and cited answers (#14, #15)
+
+**Done**
+
+- #14: `src.context` assembles the model's context from retrieved chunks
+  (`docs/reference/context.md`): one passage per parent article, the amending source after the
+  article with a link line, a budget of 24,000 bge-m3 tokens. AC-008 green (`6ad3bba`).
+- #15: `src.llm`, the one google-genai wrapper; `src.answer`, sentences with citation ids, ids
+  not in the context flagged; `src.eval.judge`; `src.eval.run --generate`;
+  `src.eval.handcheck` (`8f53271`). Key rotation on 429 and 5xx, choice 9B (`6cbf23a`).
+- #15: first generation run `2026-11-16-6cbf23a`, hand-checked, recorded (`bef64ae`).
+- #15: amendment notices, choice A2, and AC-015 narrowed to cited amended clauses, choice B2
+  (`4091435`); run `2026-11-17-4091435` recorded, not hand-checked.
+- #15: a notice for every cited amended provision, its source cited or not (choice 2'); a
+  noticed provision counts as said amended without the judge (choice 1); `says_amended` in
+  the hand-check (choice 3) (`f4889e6`).
+- #15 closed with AC-015 not met (`db7bc04`). `acceptance.md` and `architecture.md` approved
+  by the owner.
+
+**Decided + why**
+
+- #15 closed without a new `--generate` run (owner, Approved comment on #15): the effect of
+  `f4889e6` on AC-015, estimated at about 19 pass and 8 fail of 27, is left to the next run of
+  a later issue, which also gives the first `says_amended` sheet.
+- Choice 2' over 2: q16 cites the amended clause and its source in one sentence, which 2 would
+  not reach.
+- Of the 12 AC-015 fails at `4091435`, 8 are answer quality and retrieval (6 do not cite the
+  listed amended clause, 2 not found), which no notice changes: left to a later issue.
+
+**Real state / warnings**
+
+- Verified 2026-11-17: 597 tests pass, 19 deselected; `develop` matches `origin/develop`; #15
+  is closed.
+- Assumed, not measured: `f4889e6` raises AC-015 passes.
+- At `4091435` EVAL-006 is 0.402 against a target of 0.80, and 33 of 184 answerable questions
+  got "not found".
+- At `6cbf23a` the owner agreed with the judge on all 20 sampled answers; all 20 sampled
+  sentences were judged supported, so the hand-check has not yet seen the judge catch an
+  unsupported one.
+- Free tier at `4091435`: 150 key changes, all on 503.
+- Correction: an Approved comment on #15 called the `says_amended` hand-check choice 4; a later
+  comment corrects it to choice 3.
+
 ## Session 6 — 2026-11-15 to 2026-11-16 · Re-checks on eval set v2 and the generation LLM (#28, #27, #13)
 
 **Done**
