@@ -21,6 +21,14 @@ LINK_WORDS = {"amends": "được sửa đổi, bổ sung bởi", "replaces": "�
 
 
 @dataclass(frozen=True)
+class Link:
+    """One link line: the amended chunk's id, the link type, the source's id; ids without brackets."""
+    target: str
+    type: str  # amends, replaces, repeals
+    source: str
+
+
+@dataclass(frozen=True)
 class Passage:
     id: str
     kind: str  # article, amending
@@ -29,6 +37,7 @@ class Passage:
     chunk_ids: tuple[str, ...]
     clauses: tuple[str, ...]
     text: str
+    links: tuple[Link, ...] = ()  # stub: not yet filled
 
 
 @dataclass

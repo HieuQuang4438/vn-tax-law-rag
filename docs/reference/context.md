@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-16
+updated: 2026-11-17
 owner: HieuQuang4438
 ---
 
@@ -28,7 +28,8 @@ context.passages    # list[Passage], in the order of context.text
 | `Assembler.load(data_dir=Path("data"), count_tokens=None, budget=BUDGET)` | The same, from `data_dir/enriched/chunks.jsonl` and `data_dir/chunks/articles.jsonl`. With no `count_tokens`, the bge-m3 tokenizer, loaded offline (`src.chunking.tokens.bge_m3_token_counter`). |
 | `Assembler.assemble(retrieval)` | A `Context` for one retrieval result. The same retrieval always gives an equal `Context`, with the same `text` byte for byte. |
 | `Context` | `passages: list[Passage]`; `text: str`, the passages' texts joined by one blank line (`"\n\n"`), `""` when there are none; `tokens: int`, `count_tokens(text)`; `dropped: list[str]`, the ids of the articles left out for the budget, in rank order; `unresolved: list[Unresolved]`, the retrieval's, unchanged. |
-| `Passage` | `id: str`, the citation number (`"1"`, `"2"`, …); `kind: str`, `article` or `amending`; `doc_id: str`; `article: str`; `chunk_ids: tuple[str, ...]`, every chunk of the article in file order for an `article` passage, the source chunk alone for an `amending` one; `clauses: tuple[str, ...]`, the clause ids marked in it, in order, empty for an `amending` passage; `text: str`, the passage as sent. |
+| `Passage` | `id: str`, the citation number (`"1"`, `"2"`, …); `kind: str`, `article` or `amending`; `doc_id: str`; `article: str`; `chunk_ids: tuple[str, ...]`, every chunk of the article in file order for an `article` passage, the source chunk alone for an `amending` one; `clauses: tuple[str, ...]`, the clause ids marked in it, in order, empty for an `amending` passage; `text: str`, the passage as sent; `links: tuple[Link, ...]`, its link lines, in order, empty for an `amending` passage. |
+| `Link` | One link line: `target: str`, the amended chunk's id; `type: str`, `amends`, `replaces` or `repeals`; `source: str`, the source's id. Ids without brackets: `1.25`, `3`. |
 | `BUDGET` | 24,000 tokens. |
 
 ## Passages

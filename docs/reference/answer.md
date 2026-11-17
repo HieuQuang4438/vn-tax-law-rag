@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-16
+updated: 2026-11-17
 owner: HieuQuang4438
 ---
 
@@ -79,9 +79,9 @@ answer.text                                        # what the reader sees
 |---|---|
 | `Answerer(assembler, llm, documents)` | `assembler`: an `src.context.Assembler`; `documents`: doc_id → `Document`. |
 | `Answerer.load(data_dir=Path("data"), llm=None)` | `Assembler.load(data_dir)` and the documents of `data_dir/processed/*.json`, names starting with `_` skipped as elsewhere; `llm` none means `LLM()`. |
-| `Answerer.answer(question, retrieval)` | Assembles the context and asks the model. An empty context gives the not-found answer without a call. |
+| `Answerer.answer(question, retrieval)` | Assembles the context, asks the model and adds the amendment notices. An empty context gives the not-found answer without a call. |
 | `Document` | `label`: `<loai_van_ban> <so_hieu>`, e.g. `Luật 48/2024/QH15`; `url`: the page's `source_url`. The doc_id is the number in `-<id>-d1.html`. |
-| `Answer` | `sentences: list[Sentence]`; `citations: list[Citation]`, every distinct id cited, in first-use order, those not in the context included; `flagged: list[str]`, the ids not in the context, in first-use order; `not_found: bool`; `text: str`, as rendered below; `context: Context`; `call: Call` or none; `latency_s: dict[str, float]`, `assembly` and `generation`, the latter the call's `latency_s` (0 without a call), so pacing waits and retries are not counted. |
+| `Answer` | `sentences: list[Sentence]`, the model's then the amendment notices; `citations: list[Citation]`, every distinct id cited, in first-use order, those not in the context included; `flagged: list[str]`, the ids not in the context, in first-use order; `not_found: bool`; `text: str`, as rendered below; `context: Context`; `call: Call` or none; `latency_s: dict[str, float]`, `assembly` and `generation`, the latter the call's `latency_s` (0 without a call), so pacing waits and retries are not counted; `notices: int`, how many of `sentences`, the last ones, are amendment notices. |
 | `Sentence` | `text: str`; `citations: tuple[str, ...]`, as normalised below. |
 | `Citation` | `id: str`; `in_context: bool`; and when in the context: `passage: str`, `document: str` (the label), `article: str`, `clause: str` or none, the clause number as shown (below), `url: str`. |
 | `AnswerOutput` | The reply schema: `{"sentences": [{"text": str, "citations": [str]}]}`. |
@@ -110,6 +110,28 @@ A clause is shown by its number as written: `k` up to the first `.` (`3.2` is `k
 
 **Not found.** The answer is not found when it has no sentence, or exactly one sentence whose
 trimmed text is `NOT_FOUND` and which has no id.
+
+**Amendment notices** (approved on #15, choice A2). The prompt's rule on link lines is not
+followed reliably, so the answerer adds what it leaves out. For each link of the context
+(`Passage.links`, context.md) whose amended provision the answer cites and whose source it does
+not, one sentence is added after the model's, in the order of the links:
+
+- An id **cites** a provision when it equals the provision's id, or is `n` and the provision's
+  id is `n.k`, or is an `n.k` and the provision's id is `n` (a whole article). Only ids in the
+  context count.
+- The sentence is `<amended> <link words> <source>.`, its ids the link's `target` and `source`.
+  Each side is written from its resolved citation: `khoản <clause> Điều <article> <label>`, or
+  `Điều <article> <label>` without a clause, the first letter of the sentence upper case. The
+  link words are those of the link line: `được sửa đổi, bổ sung bởi`, `được thay thế bởi`,
+  `bị bãi bỏ bởi`.
+
+```text
+Khoản 25 Điều 5 Luật 48/2024/QH15 được sửa đổi, bổ sung bởi khoản 2 Điều 1 Luật 149/2025/QH15. [1.25][2]
+```
+
+A not-found answer gets no notice. A notice makes no model call; it says that a provision was
+changed, not what it now says, so an answer may still state an amended clause's old wording
+(EVAL-006 measures the content).
 
 **Rendering.** `Answer.text`, Markdown:
 

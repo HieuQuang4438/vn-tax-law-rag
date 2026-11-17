@@ -43,6 +43,7 @@ ARTICLES = [  # id, title, text
      "2. Sửa đổi, bổ sung khoản 25 Điều 5 như sau: “25. Hàng hóa của hộ kinh doanh có doanh thu năm "
      "từ 1 tỷ đồng trở xuống.”"),
     ("422733:D3", "", "Thu nhập từ tiền lương, tiền công."),
+    ("379409:D9", "Thuế suất 5%", "Mức thuế suất 5% áp dụng đối với nước sạch."),
 ]
 CHUNKS = [  # id, clause, text (none: the whole article), amended_by
     ("379409:D5:K1", "1", "1. Sản phẩm trồng trọt chưa chế biến.", []),
@@ -56,6 +57,7 @@ CHUNKS = [  # id, clause, text (none: the whole article), amended_by
      "2. Sửa đổi, bổ sung khoản 25 Điều 5 như sau: “25. Hàng hóa của hộ kinh doanh có doanh thu năm "
      "từ 1 tỷ đồng trở xuống.”", []),
     ("422733:D3", None, None, []),
+    ("379409:D9", None, None, [{"type": "repeals", "source": "421739:D1:K1"}]),
 ]
 
 
@@ -197,12 +199,12 @@ def test_the_text_is_the_sentences_with_their_ids_then_the_sources():
 
 
 def test_a_flagged_id_is_listed_apart_and_is_never_a_source():
-    answer, _ = ask([{"text": "Câu một.", "citations": ["1", "7", "1.99"]}], "379409:D5:K25")
-    vat = VAT_URL + fragment("Điều 5. Đối tượng không chịu thuế")
+    answer, _ = ask([{"text": "Câu một.", "citations": ["1", "7", "1.99"]}], "379409:D7")
+    vat = VAT_URL + fragment("Điều 7. Thuế suất - mức thu")
     assert answer.text == (
         "Câu một. [1][7][1.99]\n\n"
         "Nguồn:\n"
-        f"- [1] [Luật 48/2024/QH15, Điều 5]({vat})\n\n"
+        f"- [1] [Luật 48/2024/QH15, Điều 7]({vat})\n\n"
         "Trích dẫn không có trong nguồn được cung cấp: [7] [1.99]"
     )
 
@@ -216,6 +218,75 @@ def test_a_link_fragment_encodes_the_hyphen():
 def test_a_link_to_an_article_without_a_title_names_the_article_alone():
     answer, _ = ask([{"text": "Câu một.", "citations": ["1"]}], "422733:D3")
     assert answer.citations and answer.citations[0].url == PIT_URL + "#:~:text=" + quote("Điều 3.", safe="")
+
+
+# --- Amendment notices (choice A2, approved on #15) --------------------------------------------
+
+NOTICE = "Khoản 25 Điều 5 Luật 48/2024/QH15 được sửa đổi, bổ sung bởi khoản 2 Điều 1 Luật 149/2025/QH15."
+
+
+def said(answer) -> list[tuple]:
+    return [(s.text, s.citations) for s in answer.sentences]
+
+
+def test_an_amended_clause_cited_without_its_source_gets_a_notice():
+    answer, _ = ask([{"text": "Câu một.", "citations": ["1.25"]}], "379409:D5:K25")
+    assert said(answer) == [("Câu một.", ("1.25",)), (NOTICE, ("1.25", "2"))]
+    assert answer.notices == 1
+
+
+@pytest.mark.parametrize("sentences", [
+    [{"text": "Câu một.", "citations": ["1.25", "2"]}],
+    [{"text": "Câu một.", "citations": ["1.25"]}, {"text": "Câu hai.", "citations": ["2"]}],
+], ids=["same-sentence", "another-sentence"])
+def test_no_notice_when_the_answer_cites_the_source(sentences):
+    answer, _ = ask(sentences, "379409:D5:K25")
+    assert answer.notices == 0
+    assert len(answer.sentences) == len(sentences)
+
+
+def test_citing_the_whole_article_counts_as_citing_its_amended_clause():
+    answer, _ = ask([{"text": "Câu một.", "citations": ["1"]}], "379409:D5:K25")
+    assert said(answer)[1:] == [(NOTICE, ("1.25", "2"))]
+    assert answer.notices == 1
+
+
+def test_citing_another_clause_of_the_article_gets_no_notice():
+    answer, _ = ask([{"text": "Câu một.", "citations": ["1.1"]}], "379409:D5:K25")
+    assert said(answer) == [("Câu một.", ("1.1",))]
+    assert answer.notices == 0
+
+
+def test_a_repealed_whole_article_gets_a_notice_naming_the_article():
+    answer, _ = ask([{"text": "Câu một.", "citations": ["1"]}], "379409:D9")
+    assert said(answer)[1:] == [
+        ("Điều 9 Luật 48/2024/QH15 bị bãi bỏ bởi khoản 1 Điều 1 Luật 149/2025/QH15.", ("1", "2"))]
+
+
+def test_a_source_whose_article_is_in_the_context_is_cited_by_its_clause():
+    answer, _ = ask([{"text": "Câu một.", "citations": ["1.25"]}], "379409:D5:K25", "421739:D1:K2")
+    assert said(answer)[1:] == [(NOTICE, ("1.25", "2.2"))]
+    covered, _ = ask([{"text": "Câu một.", "citations": ["1.25", "2"]}], "379409:D5:K25", "421739:D1:K2")
+    assert covered.notices == 0
+
+
+def test_a_notice_is_rendered_and_its_ids_are_sources():
+    answer, _ = ask([{"text": "Câu một.", "citations": ["1.25"]}], "379409:D5:K25")
+    vat = VAT_URL + fragment("Điều 5. Đối tượng không chịu thuế")
+    amending = AMENDING_URL + fragment("Điều 1. Sửa đổi, bổ sung một số điều của Luật Thuế giá trị gia tăng")
+    assert answer.text == (
+        f"Câu một. [1.25] {NOTICE} [1.25][2]\n\n"
+        "Nguồn:\n"
+        f"- [1.25] [Luật 48/2024/QH15, Điều 5, khoản 25]({vat})\n"
+        f"- [2] [Luật 149/2025/QH15, Điều 1, khoản 2]({amending})"
+    )
+    assert [c.id for c in answer.citations] == ["1.25", "2"]
+
+
+def test_a_not_found_answer_gets_no_notice():
+    answer, _ = ask([{"text": NOT_FOUND, "citations": []}], "379409:D5:K25")
+    assert answer.not_found is True and answer.notices == 0
+    assert answer.text == NOT_FOUND
 
 
 # --- Not found -----------------------------------------------------------------------------------

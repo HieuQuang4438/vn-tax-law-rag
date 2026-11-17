@@ -67,6 +67,7 @@ class Answer:
     context: Context = field(default_factory=Context)
     call: Call | None = None
     latency_s: dict[str, float] = field(default_factory=dict)
+    notices: int = 0  # the last `notices` sentences are amendment notices; stub: none are added yet
 
 
 def _normalised(raw: str) -> str:

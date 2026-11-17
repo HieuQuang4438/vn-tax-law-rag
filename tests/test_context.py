@@ -16,7 +16,7 @@ from pathlib import Path
 
 import pytest
 
-from src.context import BUDGET, Assembler, Context
+from src.context import BUDGET, Assembler, Context, Link
 from src.retrieval import Hit, Retrieval, Unresolved
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -247,6 +247,19 @@ def test_every_amended_chunk_of_the_article_gets_a_link_line():
     context = assemble("379409:D5:K25")
     lines = passage_of(context, "379409:D5").text.split("\n")
     assert lines[-2:] == ["[1.2] được thay thế bởi [2].", "[1.25] được sửa đổi, bổ sung bởi [3]."]
+
+
+def test_a_passage_carries_its_link_lines_as_links():
+    context = assemble("379409:D5:K25")
+    assert passage_of(context, "379409:D5").links == (Link("1.2", "replaces", "2"), Link("1.25", "amends", "3"))
+    assert [p.links for p in context.passages if p.kind == "amending"] == [(), ()]
+
+
+def test_a_link_names_the_source_as_its_line_does():
+    whole = assemble("379409:D9")
+    assert passage_of(whole, "379409:D9").links == (Link("1", "repeals", "2"),)
+    in_context = assemble("379409:D5:K25", "421739:D1:K1")
+    assert passage_of(in_context, "379409:D5").links[-1] == Link("1.25", "amends", "3.2")
 
 
 def test_an_amending_passage_is_the_source_chunk_alone():

@@ -1,8 +1,7 @@
 ---
-status: approved
-updated: 2026-11-16
+status: in-review
+updated: 2026-11-17
 owner: HieuQuang4438
-approved-by: peer
 ---
 
 # Acceptance — vn-tax-law-rag
@@ -29,7 +28,7 @@ over the eval set defined below.
 | AC-012 | Index build and retrieval run on the dev laptop (CPU, 16 GB RAM) with no paid service; median retrieval time over the eval set is under 2 s. | NFR-001, NFR-002 |
 | AC-013 | `git ls-files data/` lists nothing but `.gitkeep`; re-running the crawler on a full cache makes no network request; two index builds from the same cache produce identical chunk files. | NFR-003, NFR-004, NFR-005 |
 | AC-014 | On the eval set's conversations, every follow-up turn is rewritten into a standalone question before retrieval, and every first turn is passed through unchanged. | FR-CORE-016 |
-| AC-015 | For every answerable eval question whose listed provision has an `amended_by` link and is in the assembled context, the answer says the provision was amended and cites the amending provision. A question whose amended provision is not in the context is reported as a retrieval miss (approved on #15). | FR-CORE-010 |
+| AC-015 | For every answerable eval question whose listed provision has an `amended_by` link and is in the assembled context, the answer says the provision was amended and cites the amending provision. A listed clause counts as listed; for a listed whole article, only the amended clauses of it that the answer cites count, and a question whose answer cites none of them is reported as uncited, not judged. A question whose amended provision is not in the context is reported as a retrieval miss (approved on #15). | FR-CORE-010 |
 | AC-016 | The eval results file holds latency and token cost for every question, and the run reports median and p95 latency and the average cost per question against NFR-006 and NFR-007. | NFR-006, NFR-007 |
 
 ## Eval targets

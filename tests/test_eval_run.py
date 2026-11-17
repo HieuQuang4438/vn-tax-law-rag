@@ -677,7 +677,7 @@ from types import SimpleNamespace  # noqa: E402
 GEN_TOP_KEYS = ["format", "run", "configuration", "scores", "breakdown", "latency", "cost", "generation", "ac015",
                 "items"]
 GEN_ITEM_KEYS = ["generated", "context_tokens", "dropped", "not_found", "sentences", "cited_sentences", "citations",
-                 "flagged", "cited_supported", "supported", "correct", "ac015", "judge_latency_s", "judge_tokens",
+                 "flagged", "notices", "cited_supported", "supported", "correct", "ac015", "judge_latency_s", "judge_tokens",
                  "judge_cost_usd"]
 CHUNKS = {  # the enriched chunks AC-015 reads: id -> record
     "379409:D5:K1": {"id": "379409:D5:K1", "parent_id": A, "clause": "1", "amended_by": []},
@@ -696,21 +696,22 @@ ONLY_B = Passage("1", "article", "379409", "9", ("379409:D9",), ("1", "2"), "[1]
 ONLY_C = Passage("1", "article", "421739", "1", ("421739:D1",), (), "[1] C")
 
 
-def generated(passages, sentences, flagged=(), not_found=False) -> Answer:
+def generated(passages, sentences, flagged=(), not_found=False, notices=0) -> Answer:
     ids = list(dict.fromkeys(i for _, citations in sentences for i in citations))
     context = Context(passages=list(passages), text="\n\n".join(p.text for p in passages), tokens=100 * len(passages),
                       dropped=[])
     return Answer(sentences=[Sentence(text, citations) for text, citations in sentences],
                   citations=[Citation(i, i not in flagged) for i in ids], flagged=list(flagged), not_found=not_found,
                   text="", context=context, call=Call(None, "gemini-3.5-flash-lite", "answer", 9000, 100, 1.0, 0.003, 1),
-                  latency_s={"assembly": 0.01, "generation": 1.0})
+                  latency_s={"assembly": 0.01, "generation": 1.0}, notices=notices)
 
 
 ANSWERS = {
     QUESTIONS[0].question: generated([ARTICLE_A, AMENDING_A, ARTICLE_B],
                                      [("Câu một.", ("1.25", "2")), ("Câu hai.", ("7",))], flagged=("7",)),
     QUESTIONS[1].question: generated([ONLY_C], [(NOT_FOUND, ())], not_found=True),
-    QUESTIONS[2].question: generated([ONLY_B], [("Câu một.", ("1.2",)), ("Câu hai.", ()), ("Câu ba.", ("1",))]),
+    QUESTIONS[2].question: generated([ONLY_B], [("Câu một.", ("1.2",)), ("Câu hai.", ()), ("Câu ba.", ("1",))],
+                                     notices=1),
     QUESTIONS[3].question: generated([ONLY_B], [(NOT_FOUND, ())], not_found=True),
 }
 DEFAULT_ANSWER = generated([ONLY_B], [("Câu một.", ("1",))])
@@ -820,6 +821,7 @@ def test_an_item_records_its_answer_as_ids_and_counts(generation):
     q01 = item_of(results, "q01")
     assert (at(q01, "not_found"), at(q01, "sentences"), at(q01, "cited_sentences")) == (False, 2, 2)
     assert (at(q01, "citations"), at(q01, "flagged")) == (["1.25", "2", "7"], ["7"])
+    assert (at(q01, "notices"), at(item_of(results, "q03"), "notices")) == (0, 1)
     assert (at(q01, "cited_supported"), at(q01, "supported"), at(q01, "correct")) == (1, 2, True)
     assert (at(q01, "context_tokens"), at(q01, "dropped")) == (300, [])
     assert at(q01, "judge_tokens") == {"input": 15000, "output": 300}
@@ -873,17 +875,55 @@ def test_the_generation_summary_counts_not_found_flagged_and_judge_calls(generat
     assert at(judge, "cost_usd") == pytest.approx(0.0024)
 
 
-def test_ac015_passes_fails_and_retrieval_misses(generation):
+def test_ac015_passes_retrieval_misses_and_uncited(generation):
+    """q02 lists article C whole; its not-found answer cites nothing of it, so it is uncited (choice B2)."""
     results, *_ = generation
-    assert at(results, "ac015") == {"applies": ["q01", "q02", "q03"], "retrieval_misses": ["q03"],
-                                    "passes": ["q01"], "fails": ["q02"], "green": False}
-    assert at(item_of(results, "q01"), "ac015") == {"in_context": True, "cites_amending": True,
+    assert at(results, "ac015") == {"applies": ["q01", "q03"], "retrieval_misses": ["q03"], "uncited": ["q02"],
+                                    "passes": ["q01"], "fails": [], "green": True}
+    assert at(item_of(results, "q01"), "ac015") == {"in_context": True, "asked": ["1.25"], "cites_amending": True,
                                                     "says_amended": True, "passes": True}
-    assert at(item_of(results, "q02"), "ac015") == {"in_context": True, "cites_amending": False,
-                                                    "says_amended": None, "passes": False}
-    assert at(item_of(results, "q03"), "ac015") == {"in_context": False, "cites_amending": None,
+    assert at(item_of(results, "q02"), "ac015") == {"in_context": True, "asked": [], "cites_amending": None,
+                                                    "says_amended": None, "passes": None}
+    assert at(item_of(results, "q03"), "ac015") == {"in_context": False, "asked": None, "cites_amending": None,
                                                     "says_amended": None, "passes": None}
     assert at(item_of(results, "q04"), "ac015") is None
+
+
+def one_question(provisions, answer) -> tuple[dict, "FakeJudge"]:
+    question = Item(id="q01", line=1, question=QUESTIONS[0].question, tax_type="vat", form="plain",
+                    answer="Câu trả lời.", key_facts=["một sự kiện"], provisions=provisions)
+    eval_set = EvalSet(version=1, as_of=date(2026, 11, 12), sha256="a" * 64, questions=[question], conversations=[])
+    judge = FakeJudge()
+    results = evaluate(eval_set, GeneratingPipeline({question.question: answer}), PARENTS, judge=judge, chunks=CHUNKS)
+    return results, judge
+
+
+def test_a_listed_article_whose_answer_cites_another_clause_is_uncited(connections):
+    answer = generated([ARTICLE_A, AMENDING_A], [("Câu một.", ("1.1",))])
+    results, judge = one_question([provision(A)], answer)
+    assert at(results, "ac015", "uncited") == ["q01"]
+    assert at(results, "ac015", "applies") == []
+    assert at(results, "ac015", "green") is None
+    assert at(item_of(results, "q01"), "ac015", "asked") == []
+    assert judge.calls[0][2] == ()  # the judge is not asked about an amendment
+
+
+def test_a_listed_article_cited_whole_is_asked_about_its_amended_clause(connections):
+    answer = generated([ARTICLE_A, AMENDING_A], [("Câu một.", ("1",))])
+    results, judge = one_question([provision(A)], answer)
+    assert at(item_of(results, "q01"), "ac015", "asked") == ["1.25"]
+    assert at(results, "ac015", "fails") == ["q01"]  # it does not cite [2]
+    assert judge.calls[0][2] == ("1.25",)
+
+
+def test_a_listed_clause_is_asked_about_whether_or_not_the_answer_cites_it(connections):
+    listed = Provision(text="khoản 25 Điều 5", article=A, chunk="379409:D5:K25")
+    answer = generated([ARTICLE_A, AMENDING_A], [("Câu một.", ("1.1",))])
+    results, judge = one_question([listed], answer)
+    assert at(item_of(results, "q01"), "ac015", "asked") == ["1.25"]
+    assert at(results, "ac015", "fails") == ["q01"]
+    assert at(results, "ac015", "uncited") == []
+    assert judge.calls[0][2] == ("1.25",)
 
 
 def test_ac015_is_green_when_every_question_in_the_context_passes(connections):
@@ -927,6 +967,7 @@ def test_the_summary_marks_judged_scores_as_not_hand_checked(generation, tmp_pat
     results, *_ = generation
     text = summary(results, tmp_path / "x.json")
     assert text.count("judge gemini-3.5-flash-lite, not hand-checked") == 3
+    assert "AC-015: 1 pass, 0 fail, 1 retrieval misses, of 2; 1 uncited: GREEN" in text
 
 
 # --- Resume ---

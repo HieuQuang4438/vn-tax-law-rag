@@ -189,7 +189,10 @@ Printed after the file is written:
   not run;
 - the breakdown;
 - latency: median and p95 with the scope, against NFR-006;
-- cost: the average per item with the note, against NFR-007.
+- cost: the average per item with the note, against NFR-007;
+- with `--generate`, the generation counts, then `AC-015: <passes> pass, <fails> fail,
+  <retrieval misses> retrieval misses, of <applies>; <uncited> uncited: GREEN` (or `NOT GREEN`,
+  or `nothing applies`), and the failing ids.
 
 ## Comparing two runs
 
@@ -221,7 +224,8 @@ per day (ADR-0003).
   rewrite (`generated: false`). The warm-up call only retrieves.
 - After its answer, each answerable standalone question that is not answered `not_found` is
   judged: one call, `Judge.judge(question, key_facts, answer, amended)`, with `amended` the ids
-  AC-015 asks about (below). Unanswerable questions and not-found answers get no judge call.
+  AC-015 asks about (below), empty when it asks about none. Unanswerable questions and not-found
+  answers get no judge call.
 
 **Scores** with `--generate`:
 
@@ -248,21 +252,31 @@ recorded beside it in *Generation runs*.
 | `flagged` | `{"ids": …, "items": …}`: citation ids not in the context, and the items with one (AC-009) |
 | `judge` | `{"model": …, "calls": …, "cost_usd": …}` |
 
-**`ac015`**, a top-level key after `generation`, null without `--generate`. An answerable
-standalone question **applies** when one of its provisions' chunks has an `amended_by` entry: the
-provision's `chunk`, or, when that is not a chunk id (an article named whole in a split
-article), every chunk of the article. It is **in the context** when one of those amended chunks
-is in an article passage of its context; otherwise it is a **retrieval miss**, and AC-015 does
-not judge it (acceptance.md, approved on #15, choice 5A). The ids passed to the judge are the
-amended chunks' ids in the context: `[n]` for a whole-article or `:K0` chunk, `[n.k]` for a
-clause chunk. The question **passes** when its answer is not not-found, cites an id in the
-context whose passage holds an `amended_by` source of those chunks (the amending passage of
-that chunk, or the article passage that contains it), and the judge's `says_amended` is true
-(choice 6A).
+**`ac015`**, a top-level key after `generation`, null without `--generate`. AC-015 looks at an
+answerable standalone question's **amended chunks**: chunks with an `amended_by` entry, taken
+from each provision as follows (narrowed on #15, choice B2):
+
+- a **listed clause**, a provision whose `chunk` is a clause chunk (`:K<k>`, not `:K0`): that
+  chunk;
+- a **listed article**, any other provision (an article named whole, or a clause of an unsplit
+  article, whose `chunk` is the article's): every chunk of the article.
+
+With no amended chunk, AC-015 does not apply (`ac015` null). It is **in the context** when one
+of the amended chunks is in an article passage of its context; otherwise the question is a
+**retrieval miss**, and AC-015 does not judge it (acceptance.md, choice 5A). In the context,
+AC-015 **asks about** each amended chunk there of a listed clause, and each amended chunk there
+of a listed article that the answer **cites**: an id of the answer equals the chunk's id
+(`[n]` for a whole-article or `:K0` chunk, `[n.k]` for a clause chunk), or is `[n]` when the
+chunk's id is `[n.k]`, or is an `[n.k]` when the chunk's id is `[n]`. When it asks about none,
+the question is **uncited**: AC-015 does not apply to it. The ids passed to the judge are the
+ids of the chunks asked about. The question **passes** when its answer is not not-found, cites
+an id in the context whose passage holds an `amended_by` source of those chunks (the amending
+passage of that chunk, or the article passage that contains it), and the judge's
+`says_amended` is true (choice 6A).
 
 | Key | Value |
 |---|---|
-| `applies`, `retrieval_misses`, `passes`, `fails` | item ids, in run order |
+| `applies`, `retrieval_misses`, `uncited`, `passes`, `fails` | item ids, in run order; `applies` holds the retrieval misses and the questions asked about, not the uncited |
 | `green` | true when `fails` is empty and `applies` is not; null when nothing applies |
 
 **Latency and cost with `--generate`.** An item's `latency_s` has `retrieval`, `assembly` and
@@ -279,9 +293,10 @@ the generated items only; the scope reads `full pipeline, dev laptop`. An item's
 | `not_found` | as in answer.md |
 | `sentences`, `cited_sentences` | sentences, and those with at least one id |
 | `citations`, `flagged` | the distinct ids, in first-use order, and those not in the context |
+| `notices` | `Answer.notices`: the amendment notices among `sentences` |
 | `cited_supported`, `supported` | sentences whose `cited`, and whose `supported`, verdict is true; null when not judged |
 | `correct` | the verdict's; false for a not-found answer to an answerable question; null for an unanswerable one |
-| `ac015` | null when AC-015 does not apply; else `{"in_context", "cites_amending", "says_amended", "passes"}`, the last three null for a retrieval miss |
+| `ac015` | null when the question has no amended chunk; else `{"in_context", "asked", "cites_amending", "says_amended", "passes"}`: `asked` the ids AC-015 asks about, null for a retrieval miss and empty for an uncited question; the last three null for both |
 | `judge_latency_s`, `judge_tokens`, `judge_cost_usd` | the judge call's; null when not judged |
 
 **`configuration.pipeline`** with `--generate` adds, after the fusion settings: `model`,
