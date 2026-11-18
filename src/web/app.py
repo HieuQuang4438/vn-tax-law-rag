@@ -1,5 +1,7 @@
-"""The FastAPI app: the JSON API and, later, the static page (#30). Rules: `docs/reference/web.md`."""
+"""The FastAPI app: the static chat page and its JSON API (#30). Rules: `docs/reference/web.md`."""
 
+import html
+import json
 import logging
 import threading
 import time
@@ -10,15 +12,18 @@ from pathlib import Path
 from typing import Annotated, Any
 
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, StringConstraints, field_validator
 
 from src.conversation import ask
 from src.llm import LLMError
+from src.web import texts
 
 MAX_CHARS = 2000  # of a question, and of each earlier question
 MAX_EARLIER = 100  # earlier questions a request may carry
 DATA = Path("data")
+STATIC = Path(__file__).resolve().parent / "static"
 
 log = logging.getLogger(__name__)
 
@@ -36,6 +41,14 @@ class AskBody(BaseModel):
         if len(earlier) > MAX_EARLIER:
             raise ValueError(f"at most {MAX_EARLIER} earlier questions")
         return earlier
+
+
+def _page() -> str:
+    """index.html with the title and the texts of `src.web.texts` filled in."""
+    values = json.dumps({name: getattr(texts, name) for name in texts.NAMES}, ensure_ascii=False)
+    values = values.replace("</", "<\\/")  # JSON reads `<\/` as `</`; HTML does not end the script block there
+    page = (STATIC / "index.html").read_text(encoding="utf-8")
+    return page.replace("__TITLE__", html.escape(texts.TITLE)).replace("__TEXTS__", values)
 
 
 def _load_data() -> tuple[Any, Any]:
@@ -105,6 +118,12 @@ def create_app(load: Callable[[], tuple[Any, Any]] | None = None) -> FastAPI:
         yield
 
     app = FastAPI(title="vn-tax-law-rag", lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
+    page = _page()
+    app.mount("/static", StaticFiles(directory=STATIC), name="static")
+
+    @app.get("/", response_class=HTMLResponse)
+    def index() -> str:
+        return page
 
     @app.get("/api/status")
     def status() -> dict:
