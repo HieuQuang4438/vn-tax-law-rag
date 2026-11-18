@@ -127,6 +127,10 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   `LLMError.quota` marks a failure that was 429 on every key; `src.conversation.ask` answers one
   turn from the earlier questions without keeping a session. FR-CORE-010, FR-CORE-011,
   FR-CORE-016, #30.
+- Web app API: `python -m src.web` serves a FastAPI app that loads the index in the background
+  and answers `GET /api/status`, `POST /api/load`, `GET /api/documents` and `POST /api/ask`,
+  stateless, with the earlier questions sent by the page; a spent quota is told apart (429)
+  from other failures (500). FR-CORE-013, FR-CORE-014, AC-010, #30.
 
 ### Changed
 
