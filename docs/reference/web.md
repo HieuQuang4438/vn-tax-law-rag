@@ -1,7 +1,8 @@
 ---
-status: draft
+status: approved
 updated: 2026-11-18
 owner: HieuQuang4438
+approved-by: peer
 ---
 
 # Web interface
@@ -82,5 +83,23 @@ run; the missing-index case patches `Retriever.load` instead.
 
 ## The end-to-end run
 
-One manual run on the real index and model, 2 turns, a question and a follow-up (choice 4A):
-not done yet.
+One run on the real index and model, 2 turns, a question and a follow-up written for this run,
+not taken from the eval set (choice 4A). At commit `420aa3e`, on the dev laptop (CPU), through
+`AppTest` over `src/app.py` with nothing put in the session, so the page loaded the index and
+`LLM()` itself; `gemini-3.5-flash-lite`, rewriter `concat`.
+
+| | Seconds | What the page showed | Cost (USD) |
+|---|---|---|---|
+| Load | 30.8 | the chat input, no error: bge-m3 and both indexes loaded | |
+| Turn 1, on the revenue under which a household business pays no VAT | 5.8 | an answer, 3 sources as links, 1 flagged id, the notice, `DETAILS` with the query and the 3 passages | 0.0040 |
+| Turn 2, the follow-up "and personal income tax?" | 2.9 | the not-found answer, the notice, `DETAILS` with the `concat` query | 0.0049 |
+
+- No exception and no error in any run of the page. Generation took 2.41 s and 1.28 s of the
+  two turns.
+- `python -m streamlit run src/app.py` serves the page: `/_stcore/health` answers `ok` and the
+  page HTTP 200.
+- Beyond AC-010: in turn 1 the model cited an id that was not in the context, shown apart as
+  flagged (FR-CORE-011); the follow-up of turn 2 was answered as not found. Both are findings
+  on the answers (EVAL-002, EVAL-005), not on the page.
+- The error handling changed after the run (`be0c71c`: a failed retrieval shows `ERROR` too);
+  the path the run took is unchanged.
