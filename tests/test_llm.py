@@ -299,3 +299,37 @@ def test_the_wrapper_makes_no_network_request_with_a_fake_client(monkeypatch):
     llm.generate("answer", "system", "user", Reply)
     assert len(client.requests) == 1
     assert attempts == []
+
+
+# --- Quota (#30, choice 2A) ------------------------------------------------------------------------
+
+def raised_by(llm) -> LLMError:
+    with pytest.raises(LLMError) as raised:
+        llm.generate("answer", "system", "user", Reply)
+    return raised.value
+
+
+def test_a_429_on_the_one_key_at_every_attempt_is_a_quota_error():
+    llm, _, _ = wrapper(*[REFUSED] * ATTEMPTS)
+    assert raised_by(llm).quota is True
+
+
+def test_a_429_on_every_key_of_the_last_attempt_is_a_quota_error():
+    llm, _, _ = rotating([REFUSED] * ATTEMPTS, [REFUSED] * ATTEMPTS)
+    assert raised_by(llm).quota is True
+
+
+def test_a_5xx_on_any_key_of_the_last_attempt_is_not_a_quota_error():
+    llm, _, _ = rotating([REFUSED] * ATTEMPTS, [BUSY] * ATTEMPTS)
+    assert raised_by(llm).quota is False
+
+
+@pytest.mark.parametrize("failures", [
+    [api_error(errors.ServerError, 500)] * ATTEMPTS,
+    [httpx2.ReadTimeout("timed out")] * ATTEMPTS,
+    [REFUSED] * (ATTEMPTS - 1) + [response("not json at all")],
+    [api_error(errors.ClientError, 400)],
+], ids=["5xx", "timeout", "429-then-not-json", "400"])
+def test_any_other_failure_is_not_a_quota_error(failures):
+    llm, _, _ = wrapper(*failures)
+    assert raised_by(llm).quota is False

@@ -3,7 +3,8 @@
 from dataclasses import dataclass, field
 from typing import Any
 
-from src.conversation.rewrite import DEFAULT_REWRITER, Rewrite, rewriter
+from src.conversation import rewrite as rewrites
+from src.conversation.rewrite import DEFAULT_REWRITER, Rewrite
 from src.retrieval import TOP_K, Retrieval
 
 
@@ -13,6 +14,20 @@ class Turn:
     rewrite: Rewrite
     retrieval: Retrieval
     answer: Any  # a src.answer.Answer
+
+
+def ask(retriever: Any, answerer: Any, question: str, earlier: tuple[str, ...] | list[str] = (),
+        rewriter: Any = None, k: int = TOP_K) -> Turn:
+    """One turn without a session (#30, choice 6A): `docs/reference/conversation.md`, *Without a session*."""
+    if rewriter is None:
+        rewriter = rewrites.rewriter(DEFAULT_REWRITER)
+    rewrite = rewriter.rewrite(question, list(earlier))
+    if len(rewrite.queries) == 1:
+        retrieval = retriever.retrieve(rewrite.queries[0], k=k)
+    else:
+        retrieval = retriever.fuse(list(rewrite.queries), k=k)
+    # Choice 2A on #19: generation sees the rewritten question and the passages, no earlier turn.
+    return Turn(question, rewrite, retrieval, answerer.answer(rewrite.question, retrieval))
 
 
 @dataclass
@@ -25,15 +40,10 @@ class Session:
 
     def __post_init__(self):
         if self.rewriter is None:
-            self.rewriter = rewriter(DEFAULT_REWRITER)
+            self.rewriter = rewrites.rewriter(DEFAULT_REWRITER)
 
     def ask(self, question: str) -> Turn:
-        rewrite = self.rewriter.rewrite(question, [turn.question for turn in self.turns])
-        if len(rewrite.queries) == 1:
-            retrieval = self.retriever.retrieve(rewrite.queries[0], k=self.k)
-        else:
-            retrieval = self.retriever.fuse(list(rewrite.queries), k=self.k)
-        # Choice 2A on #19: generation sees the rewritten question and the passages, no earlier turn.
-        turn = Turn(question, rewrite, retrieval, self.answerer.answer(rewrite.question, retrieval))
+        turn = ask(self.retriever, self.answerer, question, [turn.question for turn in self.turns], self.rewriter,
+                   self.k)
         self.turns.append(turn)
         return turn

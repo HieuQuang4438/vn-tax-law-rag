@@ -122,7 +122,7 @@ python -m src.eval.run               # score it; writes eval/results/<date>-<com
 Chat with it in the browser, against the built index:
 
 ```bash
-python -m streamlit run src/app.py
+python -m src.web                    # http://127.0.0.1:8000
 ```
 
 ## Tests
@@ -134,7 +134,8 @@ pytest
 ## Built with
 
 Python 3.12, requests, BeautifulSoup + lxml; bge-m3 through sentence-transformers on CPU, Chroma,
-bm25s; gemini-3.5-flash-lite on the Gemini API free tier.
+bm25s; gemini-3.5-flash-lite on the Gemini API free tier; FastAPI serving a plain HTML, CSS and JS
+page.
 
 ## Status
 

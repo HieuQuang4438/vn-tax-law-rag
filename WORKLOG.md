@@ -12,6 +12,57 @@
 
 ---
 
+## Session 9 — 2026-11-18 · Web UI v2: FastAPI page from the prototype (#30)
+
+**Done**
+
+- Prototype of the new page, ten screens S1–S10 and its notes, in `docs/discovery/prototypes/`
+  (`2a1052e`, `7b015ed`); #30 opened on v0.3, its approach approved with choices 0A–8A and a
+  correction to 8A (the issue date beside the effective date). A note posted on #18; the
+  convention mismatch (docs with the red tests, not with the code) filed as git-repos#15.
+- Round 1, backend (`43ea383`, `9b634bf`): `Citation` carries `doc_id`, `heading`, `text`,
+  `effective`, `amended_by`; `Document` carries `kind`, `number`, `title`, `issued`;
+  `LLMError.quota`; `src.conversation.ask` without a session.
+- `google-genai` moved into `requirements.txt` (`0d06d8a`): `src.llm` imports it, so a fresh
+  install from `requirements.txt` alone could not run the app.
+- Round 2, API (`b83e1ca`, `9bf9f18`): `python -m src.web`, the index loaded in a background
+  thread; `/api/status`, `/api/load`, `/api/documents`, `/api/ask`; 429 for a spent quota.
+- Round 3, page (`e263694`, `9eb7823`): `src/web/static/`, the texts of `src.web.texts` put in
+  the page when served; the Streamlit page, its tests and `streamlit` removed.
+- Review changes: two welcome points and one focus ring (`3a9964e`); a top bar button as the
+  source panel's only control (`a80abb5`); renaming a conversation (`d4ebb3d`); the type
+  audited and set once (`3c6529b`). Each with its spec and failing tests first.
+- End-to-end run on the real index and model recorded in `web.md`; #30 closed by `c144d87`.
+
+**Decided + why**
+
+- 0A, FastAPI and plain HTML/CSS/JS: the prototype carries over as it is, no Node build.
+- 6A, a stateless API: `concat` needs only the earlier questions, so a conversation survives a
+  server restart and the server keeps no session.
+- 2A, a quota message of its own, told apart by `LLMError.quota`: the reader learns to wait.
+- 8A corrected: Decree 141/2026 and Law 09/2026/QH16 take effect before they were issued, as
+  they say; shown as "hồi tố", not filed as a data error.
+- The panel's × dropped once the top bar button existed; the drawer moved under the top bar so
+  the button stays in sight.
+- Type: serif for the documents' words and the answer, sans for the page's own words; no CSS
+  capitals, since small capitals stack the Vietnamese marks; every text box 16 px.
+
+**Real state / warnings**
+
+- Verified 2026-11-18 at `c144d87`: 705 tests pass, 16 skipped (`underthesea` and `pyvi` are
+  not in this worktree's `.venv`), 19 deselected. `feat/web-ui` is 9 commits ahead of
+  `origin/feat/web-ui`, not pushed. #30 stays open on GitHub until the close commit reaches
+  `main`.
+- The run at `3c6529b`: 26.7 s from the server's start to `ready`; turns of 10.0 s and 21.5 s,
+  0.0038 and 0.0033 USD. The follow-up was answered this time, its answer repeating turn 1's
+  rate first.
+- The worktree `vn-tax-law-rag-feat` has its own `.venv`, a copy of the root's `data/` (raw,
+  processed, chunks, enriched, index) and of `.env`; all gitignored.
+- Unpushed commits on `feat/web-ui` were rewritten twice on request (the panel button undone and
+  redone); nothing pushed was touched.
+- Assumed, not checked: the page on a real phone (the bottom sheet was checked by narrowing the
+  page's box in a desktop browser), and on Safari.
+
 ## Session 8 — 2026-11-17 to 2026-11-18 · Not-found reply, multi-turn conversation and the web page (#16, #19, #17)
 
 **Done**

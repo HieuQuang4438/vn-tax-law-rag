@@ -121,6 +121,21 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 - Web chat page: `python -m streamlit run src/app.py` keeps one conversation per browser
   session and shows each answer with its sources as links and the note that it is
   information, not advice. FR-CORE-013, FR-CORE-014, AC-010, #17.
+- What the new web page reads: each resolved citation carries its document id, article
+  heading, the cited article, clause or amending text, its effective date and the amendment
+  links of what it cites; each document carries its kind, number, title and issue date;
+  `LLMError.quota` marks a failure that was 429 on every key; `src.conversation.ask` answers one
+  turn from the earlier questions without keeping a session. FR-CORE-010, FR-CORE-011,
+  FR-CORE-016, #30.
+- Web app API: `python -m src.web` serves a FastAPI app that loads the index in the background
+  and answers `GET /api/status`, `POST /api/load`, `GET /api/documents` and `POST /api/ask`,
+  stateless, with the earlier questions sent by the page; a spent quota is told apart (429)
+  from other failures (500). FR-CORE-013, FR-CORE-014, AC-010, #30.
+- Web chat page: `python -m src.web` serves the static page built from the approved prototype:
+  sources numbered on the page with a panel that shows each one's text, issue and effective
+  dates and amendments, the not-advice notice under every answer, a quota message of its own,
+  and up to 50 conversations kept in the browser, each one renamable. FR-CORE-011, FR-CORE-013, FR-CORE-014,
+  AC-010, #30.
 
 ### Changed
 
@@ -145,6 +160,9 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 ### Deprecated
 
 ### Removed
+
+- The Streamlit page `src/app.py`, its tests and `streamlit`: replaced by the page of
+  `python -m src.web`. FR-CORE-013, FR-CORE-014, #30.
 
 ### Fixed
 
