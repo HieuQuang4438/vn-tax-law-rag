@@ -86,7 +86,8 @@ plain HTML, CSS and JS, no build step and no script from another origin; only th
 from Google Fonts. The design tokens and the ten screens are the prototype's at `7b015ed`
 (`docs/discovery/prototypes/web-ui.html`, notes `web-ui-notes.md`), with the changes asked on
 review: the welcome has two points, not three; the top bar has a button for the source panel;
-a text box shows one focus ring, its frame's, not a second one of its own. The page calls the
+a text box shows one focus ring, its frame's, not a second one of its own; a conversation can
+be renamed. The page calls the
 API by relative paths, so it also works under a path prefix.
 
 **Texts.** The texts that the Streamlit page had keep their wording; they and the quota message
@@ -143,11 +144,15 @@ the prototype's, in the page.
   loading and the question back to the box.
 - **Delete** (S9): the trash on a history row asks first; deleting the open conversation goes back
   to the welcome.
+- **Rename**: the pencil on a history row, shown as the trash is, turns its title into a text
+  box of at most 100 characters. Enter or leaving the box keeps the new title, trimmed; Esc, or
+  a title left empty, keeps the old one. A rename does not move the conversation in the history.
 - **Documents** (S10): `GET /api/documents` grouped by kind, filtered as one types.
 
 **History** (choices 3A, 4A, 7A). The conversations are kept in the browser's `localStorage`,
 newest first, at most 50: the oldest is dropped. Each keeps its questions, the API's answers and
-the votes; nothing goes to the server. Its title is its first question. A write that fails
+the votes; nothing goes to the server. Its title is its first question until it is renamed
+(*Rename* above). A write that fails
 (storage full or blocked) keeps the conversation for the open page only. Copy puts the answer
 with the page's numbers, its sources with their links, and `NOTICE` on the clipboard.
 

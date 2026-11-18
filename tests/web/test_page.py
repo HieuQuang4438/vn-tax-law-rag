@@ -124,6 +124,13 @@ def test_a_text_box_inside_a_framed_box_draws_no_focus_ring_of_its_own(client):
     assert ".search input:focus-visible" in selectors
 
 
+def test_a_history_row_offers_to_rename_its_conversation(client):
+    script = client.get("/static/app.js").text
+    assert 'data-act="rename"' in script
+    assert 'aria-label="Đổi tên hội thoại' in script
+    assert 'maxlength="100"' in script
+
+
 def test_a_text_with_a_closing_script_tag_cannot_end_the_texts_block(monkeypatch):
     def load():
         raise RuntimeError("not loaded in these tests")
