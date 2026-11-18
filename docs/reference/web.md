@@ -1,8 +1,7 @@
 ---
-status: approved
+status: draft
 updated: 2026-11-18
 owner: HieuQuang4438
-approved-by: peer
 ---
 
 # Web interface
@@ -12,6 +11,10 @@ the note that it is information, not advice. The rules are FR-CORE-013 and FR-CO
 test AC-010 ([acceptance.md](../product/acceptance.md)). The approach is the approved comment
 on #17. Deployment is #18.
 
+#30 replaces the Streamlit page with a FastAPI app, `src/web/`, that serves a static page and
+a JSON API (approved comment on #30, choice 0A). The API is below, *The API*; the Streamlit
+page stays until the static page replaces it.
+
 ## Running it
 
 ```bash
@@ -20,6 +23,70 @@ python -m streamlit run src/app.py
 
 From the repo root, with the index built ([index.md](index.md)) and `.env` filled in. A
 missing API key stops the page at start, as every entrypoint does (`src/config.py`).
+
+The FastAPI app:
+
+```bash
+python -m src.web                    # http://127.0.0.1:8000; --host and --port to change
+```
+
+## The API — `src/web/`
+
+`src.web.create_app(load)` makes the app; `python -m src.web` serves `create_app()` with
+uvicorn. `load` returns the retriever and the answerer; by default it is `Retriever.load()` and
+`Answerer.load()` over `data/`, with one `LLM()`, as the Streamlit page loads them.
+
+**Loading.** The app starts serving at once and loads in a background thread when it starts
+(the index takes about 30 s), so the page can show that it is loading rather than fail to
+connect. The load runs once per process; every request shares the retriever, the answerer and
+the wrapper's pacing of 15 requests a minute (ADR-0003). A load that raises is logged and
+leaves the app in `error`; it is retried only when asked (`POST /api/load`). Questions are
+answered one at a time: a lock holds each one from rewrite to answer, since the retriever and
+the wrapper's pacing are not made for threads.
+
+**Stateless** (choice 6A). The app keeps no conversation. The page sends the earlier questions
+of its conversation with each new one; `src.conversation.ask` rewrites with the default
+rewriter, `concat`, which reads the last two ([conversation.md](conversation.md)). A question
+that fails is not kept by the page, so it is never sent as an earlier question.
+
+Every body is JSON. Every error body is `{"error": <code>}`.
+
+| Endpoint | Answer |
+|---|---|
+| `GET /api/status` | `{"status": s}`, `s` one of `loading`, `ready`, `error` |
+| `POST /api/load` | In `error`, starts loading again; in any other state does nothing. Then as `GET /api/status` |
+| `GET /api/documents` | `{"documents": [...]}`: every document the answerer loaded, in its order, each `id`, `kind`, `number`, `title`, `url`, `issued` (choice 5A; [answer.md](answer.md), `Document`) |
+| `POST /api/ask` | Takes `{"question": str, "earlier": [str]}`; answers below |
+
+`POST /api/ask` takes `question`, stripped, of 1 to `MAX_CHARS` (2000) characters, and
+`earlier`, the earlier questions oldest first, at most `MAX_EARLIER` (100) of them, each of at
+most `MAX_CHARS` characters; `earlier` may be left out. A body that does not fit is refused
+with 422. Its answer:
+
+| Status | When | Body |
+|---|---|---|
+| 200 | answered | below |
+| 422 | the body does not fit | FastAPI's validation error |
+| 429 | `LLMError` with `quota` true ([answer.md](answer.md), *Retries*; choice 2A) | `{"error": "quota"}` |
+| 500 | any other failure, in rewrite, retrieval or the model call; logged | `{"error": "error"}` |
+| 503 | not loaded yet, or the load failed | `{"error": "loading"}`, `{"error": "load_error"}` |
+
+`/api/documents` answers 503 the same way. The 200 body of `/api/ask`:
+
+| Field | Value |
+|---|---|
+| `question` | the question as asked, stripped |
+| `sentences` | `Answer.sentences`, each `{"text", "citations"}`, the amendment notices last |
+| `notices` | `Answer.notices`: how many of the last sentences are notices |
+| `not_found` | `Answer.not_found` |
+| `sources` | the citations in the context, in `Answer.citations` order (below) |
+| `flagged` | `Answer.flagged`: the ids not in the context |
+| `seconds` | the time from the request read to the answer, for the page to show |
+
+Each source is one `Citation` joined to its `Document` by `doc_id`: `id`, `document` (the
+label), `kind`, `number`, `title`, `issued`, `article`, `clause`, `heading`, `url`, `text`,
+`effective`, and `amended_by` as `{"target", "type", "source"}` ([answer.md](answer.md),
+*For the page*). `Answer.text` is not sent: the page renders the sentences and the sources.
 
 ## The page — `src/app.py`
 
@@ -75,6 +142,10 @@ tries again.
 Streamlit's `AppTest` runs the page with no browser and no network (choice 4A). A `Session` over
 a fake retriever and a fake answerer is put in `st.session_state["session"]` before the first
 run; the missing-index case patches `Retriever.load` instead.
+
+The API's tests, `tests/web/test_api.py`, go through FastAPI's `TestClient` with a `load` that
+returns a fake retriever and a fake answerer, so nothing loads the index and nothing goes to the
+network (#30, *Risks*).
 
 ## The end-to-end run
 
