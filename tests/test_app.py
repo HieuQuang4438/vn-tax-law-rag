@@ -163,6 +163,18 @@ def test_a_failed_model_call_shows_the_error_and_keeps_no_turn():
     assert [m.name for m in app.chat_message] == []
 
 
+def test_a_failed_retrieval_shows_the_error_and_keeps_no_turn():
+    class BrokenRetriever(FakeRetriever):
+        def retrieve(self, query, k=8):
+            raise RuntimeError("the vector store could not be read")
+
+    session = Session(BrokenRetriever(), FakeAnswerer(cited()))
+    app = ask(page(session), Q1)
+    assert [e.value for e in app.exception] == []
+    assert [e.value for m in assistant(app) for e in m.error] == [ERROR]
+    assert session.turns == []
+
+
 def test_a_new_conversation_clears_the_turns_and_keeps_the_loaded_parts():
     retriever, answerer = FakeRetriever(), FakeAnswerer(cited(), cited())
     app = ask(page(Session(retriever, answerer)), Q1)

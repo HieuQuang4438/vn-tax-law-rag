@@ -52,10 +52,11 @@ From the top, on every run of the script:
      `[<id>] <label>, Điều <article>`, with `, khoản <clause>` for a clause, as in the
      `Nguồn:` list, and the passage as text.
 5. A chat input, `PLACEHOLDER`. A question sent is shown as a user message and asked of the
-   session under a spinner, `SPINNER`; its turn is then shown as in 4. When the answer's model
-   call fails (`LLMError`), the error is logged and `ERROR` is shown as an error in the
-   assistant message. `Session.ask` adds a turn only once it is answered, so a failed question
-   is not kept and is gone on the next run.
+   session under a spinner, `SPINNER`; its turn is then shown as in 4. When asking fails, in
+   retrieval or in the model call (`LLMError`, a spent quota included), the error is logged and
+   `ERROR` is shown as an error in the assistant message, not a stack trace. `Session.ask` adds
+   a turn only once it is answered, so a failed question is not kept and is gone on the next
+   run.
 
 The notice is the page's, not the answer's: `Answer.text` is unchanged, so the eval and the
 judge see the same answers as before #17 (choice 2A).
