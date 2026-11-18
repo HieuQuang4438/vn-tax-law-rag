@@ -10,7 +10,7 @@ import streamlit as st
 
 from src.answer import Answerer, Citation
 from src.conversation import Session, Turn
-from src.llm import LLM, LLMError
+from src.llm import LLM
 from src.retrieval import IndexNotReadyError, Retriever
 
 TITLE = "Hỏi đáp pháp luật thuế Việt Nam"
@@ -76,8 +76,8 @@ def _ask(session: Session, question: str) -> None:
         try:
             with st.spinner(SPINNER):
                 turn = session.ask(question)
-        except LLMError:
-            log.exception("the answer's model call failed")
+        except Exception:  # retrieval or the model call (LLMError): logged, the message shown
+            log.exception("the question could not be answered")
             st.error(ERROR)
             return
         _show_answer(turn)
