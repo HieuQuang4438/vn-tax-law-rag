@@ -1198,6 +1198,15 @@ def test_the_rewrite_option_reaches_the_pipeline_and_the_file(command, loads, na
     assert (at(pipeline, "rewrite"), at(pipeline, "stages")) == (name, ["rewrite", "retrieval"])
 
 
+def test_the_command_rewrites_with_concat_by_default(command, loads):
+    argv, out, _ = command
+    assert main(argv) == 0
+    files = sorted(out.glob("*.json")) if out.is_dir() else []
+    assert len(files) == 1
+    pipeline = at(json.loads(files[0].read_text(encoding="utf-8")), "configuration", "pipeline")
+    assert (at(pipeline, "rewrite"), at(pipeline, "stages")) == ("concat", ["rewrite", "retrieval"])
+
+
 def test_an_unknown_rewriter_stops_the_command(command, loads):
     argv, _, _ = command
     with pytest.raises(SystemExit) as stopped:

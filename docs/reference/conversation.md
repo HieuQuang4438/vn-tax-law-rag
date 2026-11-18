@@ -20,6 +20,7 @@ A rewriter takes a question and the earlier questions of its conversation and re
 |---|---|
 | `REWRITERS` | `("none", "concat", "fuse", "llm")` |
 | `EARLIER` | 2: how many earlier questions a rewriter reads, the last ones |
+| `DEFAULT_REWRITER` | `concat`: the rewriter chosen on #19, the session's and the eval run's default |
 | `rewriter(name, llm=None)` | The rewriter of that name. `llm` is used by `llm` only; none means `LLM()`. Raises `ValueError` for a name not in `REWRITERS`. |
 | `Rewriter.name` | Its name. |
 | `Rewriter.rewrite(question, earlier=())` | `earlier`: the earlier questions of the conversation, oldest first. Returns a `Rewrite`. |
@@ -86,7 +87,7 @@ two lists, which for a slot are near the top.
 
 | Name | What it is |
 |---|---|
-| `Session(retriever, answerer, rewriter, k=TOP_K)` | One conversation. |
+| `Session(retriever, answerer, rewriter=None, k=TOP_K)` | One conversation. `rewriter` none means `rewriter(DEFAULT_REWRITER)`, kept as `Session.rewriter`. |
 | `Session.turns` | `list[Turn]`, oldest first. |
 | `Session.ask(question)` | Rewrites the question with the questions of `turns` as `earlier`; retrieves with `retriever.retrieve(query, k)` for one query and `retriever.fuse(queries, k)` for two; answers with `answerer.answer(rewrite.question, retrieval)`; adds the turn and returns it. |
 | `Turn` | `question: str`, as asked; `rewrite: Rewrite`; `retrieval: Retrieval`; `answer: Answer`. |
@@ -98,9 +99,10 @@ citations are checked as for any answer (AC-009).
 ## In the eval run
 
 `python -m src.eval.run --rewrite <name>` ([eval-results.md](eval-results.md)) runs the
-conversation turns through that rewriter; `none` is the default and today's behaviour. Each
-rewriter is its own run, compared with a `none` run of the same commit by `--compare` and
-`--comparisons 3`.
+conversation turns through that rewriter; `DEFAULT_REWRITER` is the default, and `none`
+keeps each turn as written, as before #19. Each rewriter is its own run, compared with a `none`
+run of the same commit by `--compare` and `--comparisons 3`. `RetrievalPipeline` and
+`AnswerPipeline` built without a rewriter use `none`.
 
 - The earlier questions of a turn are the questions of the turns before it in its
   conversation, as written in the eval set.

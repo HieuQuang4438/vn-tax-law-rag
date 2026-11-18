@@ -40,6 +40,17 @@ def test_the_rewriters_and_how_many_earlier_questions_they_read():
     assert [rewriter(name, FakeLLM()).name for name in REWRITERS] == list(REWRITERS)
 
 
+def test_the_default_rewriter_is_concat_as_chosen_on_19():
+    import src.conversation as conversation
+
+    assert getattr(conversation, "DEFAULT_REWRITER", None) == "concat"
+
+
+def test_a_session_uses_the_default_rewriter_unless_given_another():
+    assert getattr(Session(FakeRetriever(), FakeAnswerer(), None).rewriter, "name", None) == "concat"
+    assert Session(FakeRetriever(), FakeAnswerer(), rewriter("fuse")).rewriter.name == "fuse"
+
+
 def test_an_unknown_rewriter_is_refused():
     with pytest.raises(ValueError):
         rewriter("rerank")

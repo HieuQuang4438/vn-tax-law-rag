@@ -30,7 +30,7 @@ python -m src.eval.run --compare eval/results/<file>    # also prints what chang
 | `--index` | `<data>/index` | the index folder, for a variant built with `python -m src.index --out` |
 | `--out` | `eval/results` | where the results file is written |
 | `--generate` | off | also assemble, generate and judge, as under *Generation stage*; spends API quota |
-| `--rewrite` | `none` | the rewriter of the conversation turns, one of `none`, `concat`, `fuse`, `llm` ([conversation.md](conversation.md), approved on #19); `llm` spends API quota, with or without `--generate` |
+| `--rewrite` | `concat` (`DEFAULT_REWRITER`) | the rewriter of the conversation turns, one of `none`, `concat`, `fuse`, `llm` ([conversation.md](conversation.md), approved on #19); `llm` spends API quota, with or without `--generate` |
 | `--compare` | none | an earlier results file to compare with |
 | `--comparisons` | 1 | how many variants are compared with the same baseline; above 1, `--compare` also prints the Bonferroni interval (#25) |
 | `--rrf-k` | `RRF_K` (60) | the fusion's `rrf_k` ([retrieval.md](retrieval.md#hybrid-search)) |
@@ -141,7 +141,7 @@ The file holds ids and numbers only: no question text, no answer text and no cor
 | `diff_sha256` | `sha256` of the output of `git diff HEAD` when dirty, else null |
 | `eval_set` | `path`, `version`, `sha256` of the set file |
 | `index` | from the index folder's `manifest.json`: `model`, `revision`, `chunks_sha256`, `chunk_count`, `bm25_tokenizer`, `chunking`, `input_limit`, `truncated` (each null for a manifest without it) |
-| `pipeline` | `stages` (`["retrieval"]`, with `rewrite` first when the rewriter is not `none`), `rewrite` (the rewriter's name, `none` by default), `top_k`, then the retriever's `Fusion.config()`: `rrf_k`, `candidates`, `keyword_weight`, `vector_weight`, `per_article`; with `llm`, then `rewrite_model` and `rewrite_prompt`, the `sha256` of `src/prompts/rewrite.md` |
+| `pipeline` | `stages` (`["retrieval"]`, with `rewrite` first when the rewriter is not `none`), `rewrite` (the rewriter's name), `top_k`, then the retriever's `Fusion.config()`: `rrf_k`, `candidates`, `keyword_weight`, `vector_weight`, `per_article`; with `llm`, then `rewrite_model` and `rewrite_prompt`, the `sha256` of `src/prompts/rewrite.md` |
 | `bootstrap` | `resamples` 1000, `seed` 0, `level` 0.95 |
 | `versions` | `python` and the installed `bm25s`, `chromadb`, `numpy`, `pyvi`, `sentence-transformers`, `torch`, `underthesea`; null for one not installed |
 | `machine` | `os` (`platform.platform()`), `cpu` (`platform.processor()`), `cpu_count`, `ram_gb` (null when it cannot be read) |
