@@ -13,7 +13,7 @@ import streamlit as st
 from streamlit.testing.v1 import AppTest
 
 from src.answer import NOT_FOUND, Answer, Citation, Sentence
-from src.app import DETAILS, ERROR, LOAD_ERROR, NOTICE, QUERY
+from src.app import ERROR, LOAD_ERROR, NOTICE
 from src.conversation import Session
 from src.llm import LLMError
 from src.retrieval import Hit, IndexNotReadyError, Retrieval, Retriever
@@ -23,12 +23,11 @@ Q1 = "Thuế suất thuế giá trị gia tăng đối với cửa hàng tạp h
 Q2 = "Còn hộ kinh doanh thì sao?"
 URL = "https://luatvietnam.vn/thue/luat-thue-gia-tri-gia-tang-379409-d1.html"
 LINK = f"[Luật 48/2024/QH15, Điều 5, khoản 25]({URL}#:~:text=%C4%90i%E1%BB%81u%205.)"
-PASSAGE = "25. Hàng hóa, dịch vụ của hộ, cá nhân kinh doanh có mức doanh thu hằng năm từ 200 triệu đồng trở xuống."
 SENTENCE = "Hộ kinh doanh có doanh thu năm từ 200 triệu đồng trở xuống không chịu thuế giá trị gia tăng."
 
 
 def cited() -> Answer:
-    citation = Citation("1.25", True, PASSAGE, "Luật 48/2024/QH15", "5", "25", f"{URL}#:~:text=%C4%90i%E1%BB%81u%205.")
+    citation = Citation("1.25", True, "1", "Luật 48/2024/QH15", "5", "25", f"{URL}#:~:text=%C4%90i%E1%BB%81u%205.")
     text = f"{SENTENCE} [1.25]\n\nNguồn:\n- [1.25] {LINK}"
     return Answer([Sentence(SENTENCE, ("1.25",))], [citation], [], False, text)
 
@@ -134,21 +133,11 @@ def test_every_turn_is_shown_again_on_the_next_run():
     assert [[c.value for c in m.caption] for m in assistant(app)] == [[NOTICE], [NOTICE]]
 
 
-# --- Details ------------------------------------------------------------------------------------
-
-def test_details_hold_the_query_searched_and_each_cited_passage():
-    app = ask(ask(page(Session(FakeRetriever(), FakeAnswerer(cited(), cited()))), Q1), Q2)
-    expanders = [e for m in assistant(app) for e in m.expander]
-    assert [e.label for e in expanders] == [DETAILS, DETAILS]
-    second = expanders[1]
-    assert markdowns(second) == [f"**{QUERY}**", "**[1.25] Luật 48/2024/QH15, Điều 5, khoản 25**"]
-    assert [t.value for t in second.text] == [f"{Q1} {Q2}", PASSAGE]
-
-
-def test_details_of_a_not_found_answer_hold_the_query_only():
-    app = ask(page(Session(FakeRetriever(), FakeAnswerer(not_found()))), Q1)
-    expanders = [e for m in assistant(app) for e in m.expander]
-    assert [(markdowns(e), [t.value for t in e.text]) for e in expanders] == [([f"**{QUERY}**"], [Q1])]
+def test_an_answer_shows_its_text_and_the_notice_only_with_no_details():
+    app = ask(ask(page(Session(FakeRetriever(), FakeAnswerer(cited(), not_found()))), Q1), Q2)
+    assert [[e.label for e in m.expander] for m in assistant(app)] == [[], []]
+    assert [(markdowns(m), [c.value for c in m.caption], [t.value for t in m.text]) for m in assistant(app)] == [
+        ([cited().text], [NOTICE], []), ([NOT_FOUND], [NOTICE], [])]
 
 
 # --- Errors and a new conversation --------------------------------------------------------------

@@ -31,8 +31,6 @@ A Streamlit script. Its texts are constants of `src.app`, in Vietnamese:
 | `PLACEHOLDER` | `Đặt câu hỏi về thuế…` |
 | `NOTICE` | `Đây là thông tin kèm nguồn, không phải tư vấn pháp lý hay tư vấn thuế.` |
 | `NEW_CONVERSATION` | `Cuộc hội thoại mới` |
-| `DETAILS` | `Chi tiết` |
-| `QUERY` | `Truy vấn tìm kiếm` |
 | `SPINNER` | `Đang tìm và trả lời…` |
 | `ERROR` | `Chưa trả lời được lúc này, vui lòng thử lại sau.` |
 | `LOAD_ERROR` | `Chưa tải được chỉ mục văn bản nên chưa thể trả lời.` |
@@ -47,11 +45,8 @@ From the top, on every run of the script:
    - **user**: the question as asked;
    - **assistant**: `Answer.text` as Markdown, which holds the sources as links and the
      flagged ids ([answer.md](answer.md), *Rendering*); then `NOTICE` as a caption, under every
-     answer, a not-found answer included (choice 2A); then a collapsed expander `DETAILS`
-     (choice 3A) holding `QUERY` in bold, each query retrieval got as text, one per query, and
-     for each citation in the context, in first-use order, a bold line
-     `[<id>] <label>, Điều <article>`, with `, khoản <clause>` for a clause, as in the
-     `Nguồn:` list, and the passage as text.
+     answer, a not-found answer included (choice 2A). Nothing more: each source's link opens
+     its page on the source site, at the article where the browser supports text fragments.
 5. A chat input, `PLACEHOLDER`. A question sent is shown as a user message and asked of the
    session under a spinner, `SPINNER`; its turn is then shown as in 4. When asking fails, in
    retrieval or in the model call (`LLMError`, a spent quota included), the error is logged and
@@ -103,3 +98,6 @@ not taken from the eval set (choice 4A). At commit `420aa3e`, on the dev laptop 
   on the answers (EVAL-002, EVAL-005), not on the page.
 - The error handling changed after the run (`be0c71c`: a failed retrieval shows `ERROR` too);
   the path the run took is unchanged.
+- After #17 was closed, the `DETAILS` expander was dropped (choice 3B instead of 3A): it showed
+  each cited passage's id, not its text (`Citation.passage` is the id), and the source links
+  already open the text. The run's other rows hold.
