@@ -1,7 +1,8 @@
 ---
-status: draft
+status: approved
 updated: 2026-11-18
 owner: HieuQuang4438
+approved-by: peer
 ---
 
 # Web interface
@@ -183,10 +184,34 @@ FastAPI's `TestClient` runs the app with no browser and no network (#30, *Risks*
 the index; `test_page.py` reads the page, its texts, its stylesheet and its script as served.
 The script itself is checked by hand in the end-to-end run, not by an automated browser.
 
+## The end-to-end run
+
+One run on the real index and model, 2 turns, a question and a follow-up written for this run,
+not taken from the eval set (#30, *Done when*). At commit `3c6529b`, on the dev laptop (CPU):
+`python -m src.web` with nothing faked, the page in Chrome, the questions typed in its box;
+`gemini-3.5-flash-lite`, rewriter `concat`.
+
+| | Seconds | What the page showed | Cost (USD) |
+|---|---|---|---|
+| Load, from the server's start to `GET /api/status` answering `ready` | 26.7 | the welcome, the box on | |
+| Turn 1, the personal income tax rate on lottery winnings | 10.0 | an answer, 1 source (Nghị định 253/2026/NĐ-CP, Điều 58, khoản 1) as a chip and a row with its link, the panel open on it with the clause's text and its dates, the notice | 0.0038 |
+| Turn 2, the follow-up "and income from royalties?" | 21.5 | an answer with both rates, 4 sources as chips and rows with their links, the notice | 0.0033 |
+
+- No error in the page's console or in the server's log; both `POST /api/ask` answered 200.
+  Generation took 7.91 s and 21.28 s of the two turns; the rest is retrieval and rewrite.
+- The conversation was kept in the browser and the page sent turn 1's question with turn 2
+  (choice 6A): `concat` gave retrieval both questions, so turn 2 was answered, not found as in
+  the Streamlit run below.
+- Beyond AC-010: turn 2's answer repeats turn 1's rate before the new one, since the answer
+  sees the rewritten question, both questions joined (#19, choice 2A); a finding on the answers
+  (EVAL-005), not on the page. Turn 2's generation, 21.28 s, is the slowest seen on the page.
+- Checked by hand before this run, on fakes or the real API: the quota message (a 429), a
+  reload keeping the history, the document list, the bottom sheet under 900 px, renaming, the
+  panel button, the type.
+
 ## The Streamlit page's end-to-end run
 
-Recorded on #17, before #30 replaced the page; the run of the page of #30 is recorded when #30
-closes. One run on the real index and model, 2 turns, a question and a follow-up written for this run,
+Recorded on #17, before #30 replaced the page. One run on the real index and model, 2 turns, a question and a follow-up written for this run,
 not taken from the eval set (choice 4A). At commit `420aa3e`, on the dev laptop (CPU), through
 `AppTest` over `src/app.py` with nothing put in the session, so the page loaded the index and
 `LLM()` itself; `gemini-3.5-flash-lite`, rewriter `concat`.
