@@ -15,7 +15,8 @@ from urllib.parse import quote
 import pytest
 
 from src.answer import NOT_FOUND, Answerer, AnswerOutput, Document
-from src.context import Assembler
+from src.answer.answerer import documents_of
+from src.context import Assembler, Link
 from src.llm import Call
 from src.retrieval import Hit, Retrieval
 
@@ -25,11 +26,13 @@ PROMPT = ROOT / "src" / "prompts" / "answer.md"
 VAT_URL = "https://luatvietnam.vn/thue/luat-thue-gia-tri-gia-tang-2024-so-48-2024-qh15-379409-d1.html"
 AMENDING_URL = "https://luatvietnam.vn/thue/luat-thue-gia-tri-gia-tang-sua-doi-2025-so-149-2025-qh15-421739-d1.html"
 PIT_URL = "https://luatvietnam.vn/thue/luat-thue-thu-nhap-ca-nhan-2025-so-109-2025-qh15-422733-d1.html"
-DOCUMENTS = {
-    "379409": ("Luật", "48/2024/QH15", "Thuế giá trị gia tăng", VAT_URL),
-    "421739": ("Luật", "149/2025/QH15", "Sửa đổi, bổ sung một số điều của Luật Thuế giá trị gia tăng", AMENDING_URL),
-    "422733": ("Luật", "109/2025/QH15", "Thuế thu nhập cá nhân", PIT_URL),
+DOCUMENTS = {  # loai_van_ban, so_hieu, trich_yeu, url, ngay_ban_hanh
+    "379409": ("Luật", "48/2024/QH15", "Thuế giá trị gia tăng", VAT_URL, "26/11/2024"),
+    "421739": ("Luật", "149/2025/QH15", "Sửa đổi, bổ sung một số điều của Luật Thuế giá trị gia tăng", AMENDING_URL,
+               "11/12/2025"),
+    "422733": ("Luật", "109/2025/QH15", "Thuế thu nhập cá nhân", PIT_URL, None),
 }
+EFFECTIVE = {"421739:D1:K2": "2026-07-01"}  # every other chunk takes effect on 2026-01-01
 ARTICLES = [  # id, title, text
     ("379409:D5", "Đối tượng không chịu thuế",
      "Các hàng hóa, dịch vụ sau đây không chịu thuế giá trị gia tăng:\n"
@@ -72,14 +75,14 @@ def chunk_records() -> list[dict]:
     for chunk_id, clause, text, amended_by in CHUNKS:
         parent = ":".join(chunk_id.split(":")[:2])
         doc_id, number = parent.split(":D")
-        kind, so_hieu, trich_yeu, _ = DOCUMENTS[doc_id]
+        kind, so_hieu, trich_yeu, _, _ = DOCUMENTS[doc_id]
         title = titles[parent][0]
         position = f"Điều {number}. {title}" if title else f"Điều {number}"
         header = f"[{kind} {so_hieu} — {trich_yeu}] [{position}" + (f" > Khoản {clause}]" if clause else "]")
         records.append({"id": chunk_id, "doc_id": doc_id, "chapter": None, "chapter_title": None,
                         "article": number, "clause": clause, "parent_id": parent,
                         "text": text if text is not None else titles[parent][1], "header": header,
-                        "effective_date": "2026-01-01", "amended_by": amended_by})
+                        "effective_date": EFFECTIVE.get(chunk_id, "2026-01-01"), "amended_by": amended_by})
     return records
 
 
@@ -87,8 +90,13 @@ def words(text: str) -> int:
     return len(text.split())
 
 
+def iso(day: str | None) -> str | None:
+    return "-".join(reversed(day.split("/"))) if day else None
+
+
 def documents() -> dict[str, Document]:
-    return {doc_id: Document(f"{kind} {so_hieu}", url) for doc_id, (kind, so_hieu, _, url) in DOCUMENTS.items()}
+    return {doc_id: Document(f"{kind} {so_hieu}", url, kind, so_hieu, trich_yeu, iso(issued))
+            for doc_id, (kind, so_hieu, trich_yeu, url, issued) in DOCUMENTS.items()}
 
 
 class FakeLLM:
@@ -335,6 +343,108 @@ def test_an_empty_context_is_not_found_without_a_call():
     assert answer.latency_s.get("generation") == 0
 
 
+# --- For the page (#30: choices 1A and 8A, and the issue date approved after them) --------------
+
+def cited(answer) -> dict:
+    return {c.id: c for c in answer.citations}
+
+
+def test_a_citation_carries_its_document_and_its_article_heading():
+    answer, _ = ask([{"text": "Câu một.", "citations": ["1.25", "2"]}], "379409:D5:K25")
+    by_id = cited(answer)
+    assert (by_id["1.25"].doc_id, by_id["1.25"].heading) == ("379409", "Điều 5. Đối tượng không chịu thuế")
+    assert (by_id["2"].doc_id, by_id["2"].heading) ==         ("421739", "Điều 1. Sửa đổi, bổ sung một số điều của Luật Thuế giá trị gia tăng")
+
+
+def test_the_heading_of_an_article_without_a_title_names_the_article_alone():
+    answer, _ = ask([{"text": "Câu một.", "citations": ["1"]}], "422733:D3")
+    assert answer.citations[0].heading == "Điều 3."
+
+
+def test_a_whole_article_citation_carries_the_article_text():
+    answer, _ = ask([{"text": "Câu một.", "citations": ["1"]}], "379409:D5:K25")
+    assert answer.citations[0].text == ARTICLES[0][2]
+
+
+def test_a_clause_citation_carries_that_clause_s_lines_only():
+    answer, _ = ask([{"text": "Câu một.", "citations": ["1.25", "1.1"]}], "379409:D5:K25")
+    by_id = cited(answer)
+    assert by_id["1.25"].text == "25. Hàng hóa, dịch vụ của hộ kinh doanh có doanh thu năm từ 500 triệu đồng trở xuống."
+    assert by_id["1.1"].text == "1. Sản phẩm trồng trọt chưa chế biến."
+
+
+def test_a_repeated_clause_number_carries_the_lines_of_that_occurrence():
+    answer, _ = ask([{"text": "Câu một.", "citations": ["1.2", "1.2.2"]}], "379409:D11")
+    by_id = cited(answer)
+    assert by_id["1.2"].text == "2. Khấu trừ thuế theo chứng từ."
+    assert by_id["1.2.2"].text == "2. Khấu trừ thuế theo bảng kê."
+
+
+def test_an_amending_passage_citation_carries_the_source_chunk_text():
+    answer, _ = ask([{"text": "Câu một.", "citations": ["2"]}], "379409:D5:K25")
+    assert cited(answer)["2"].text == CHUNKS[5][2]
+
+
+def test_a_clause_citation_carries_its_own_chunk_s_effective_date():
+    answer, _ = ask([{"text": "Câu một.", "citations": ["1.2", "1.1"]}], "421739:D1:K2")
+    by_id = cited(answer)
+    assert (by_id["1.2"].effective, by_id["1.1"].effective) == ("2026-07-01", "2026-01-01")
+
+
+def test_a_whole_article_carries_the_date_its_chunks_share_or_none():
+    shared, _ = ask([{"text": "Câu một.", "citations": ["1"]}], "379409:D5:K25")
+    assert shared.citations[0].effective == "2026-01-01"
+    differing, _ = ask([{"text": "Câu một.", "citations": ["1"]}], "421739:D1:K2")
+    assert differing.citations[0].effective is None
+
+
+def test_a_clause_of_an_article_kept_whole_carries_the_article_s_date():
+    answer, _ = ask([{"text": "Câu một.", "citations": ["1.2.2"]}], "379409:D11")
+    assert answer.citations[0].effective == "2026-01-01"
+
+
+def test_an_amending_passage_citation_carries_its_source_chunk_s_date():
+    answer, _ = ask([{"text": "Câu một.", "citations": ["2"]}], "379409:D5:K25")
+    assert cited(answer)["2"].effective == "2026-07-01"
+
+
+def test_a_cited_amended_provision_carries_its_links():
+    clause, _ = ask([{"text": "Câu một.", "citations": ["1.25"]}], "379409:D5:K25")
+    assert cited(clause)["1.25"].amended_by == (Link("1.25", "amends", "2"),)
+    article, _ = ask([{"text": "Câu một.", "citations": ["1"]}], "379409:D5:K25")
+    assert cited(article)["1"].amended_by == (Link("1.25", "amends", "2"),)
+
+
+def test_a_citation_that_cites_no_amended_provision_carries_no_link():
+    answer, _ = ask([{"text": "Câu một.", "citations": ["1.1"]}], "379409:D5:K25")
+    assert cited(answer)["1.1"].amended_by == ()
+    notice, _ = ask([{"text": "Câu một.", "citations": ["1.25"]}], "379409:D5:K25")
+    assert cited(notice)["2"].amended_by == ()  # an amending passage
+
+
+def test_a_flagged_citation_carries_none_of_the_page_fields():
+    answer, _ = ask([{"text": "Câu một.", "citations": ["1", "7"]}], "379409:D7")
+    flagged = cited(answer)["7"]
+    assert (flagged.doc_id, flagged.heading, flagged.text, flagged.effective, flagged.amended_by) ==         (None, None, None, None, ())
+
+
+def test_a_document_carries_its_kind_number_title_and_issue_date(tmp_path):
+    pages = {"379409": {"loai_van_ban": "Luật", "so_hieu": "48/2024/QH15", "trich_yeu": "Thuế giá trị gia tăng",
+                        "ngay_ban_hanh": "26/11/2024"},
+             "421739": {"loai_van_ban": "Luật", "so_hieu": "149/2025/QH15", "trich_yeu": "Sửa đổi",
+                        "ngay_ban_hanh": "tháng 12 năm 2025"},
+             "422733": {"loai_van_ban": "Luật", "so_hieu": "109/2025/QH15", "trich_yeu": "Thuế thu nhập cá nhân"}}
+    for doc_id, metadata in pages.items():
+        url = DOCUMENTS[doc_id][3]
+        page = {"source_url": url, "metadata": metadata, "blocks": []}
+        (tmp_path / f"{doc_id}.json").write_bytes(json.dumps(page, ensure_ascii=False).encode("utf-8"))
+    found = documents_of(tmp_path)
+    assert found["379409"] == Document("Luật 48/2024/QH15", VAT_URL, "Luật", "48/2024/QH15", "Thuế giá trị gia tăng",
+                                       "2024-11-26")
+    assert found["421739"].issued is None  # not dd/mm/yyyy
+    assert found["422733"].issued is None  # missing
+
+
 # --- Loading -------------------------------------------------------------------------------------
 
 def test_load_reads_the_documents_under_the_processed_folder(tmp_path):
@@ -344,9 +454,11 @@ def test_load_reads_the_documents_under_the_processed_folder(tmp_path):
         (tmp_path / folder / name).write_bytes(
             "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in records).encode("utf-8"))
     (tmp_path / "processed").mkdir()
-    for doc_id, (kind, so_hieu, trich_yeu, url) in DOCUMENTS.items():
-        page = {"source_url": url, "crawled_at": "2026-11-12T14:17:19+00:00",
-                "metadata": {"loai_van_ban": kind, "so_hieu": so_hieu, "trich_yeu": trich_yeu}, "blocks": []}
+    for doc_id, (kind, so_hieu, trich_yeu, url, issued) in DOCUMENTS.items():
+        metadata = {"loai_van_ban": kind, "so_hieu": so_hieu, "trich_yeu": trich_yeu}
+        if issued:
+            metadata["ngay_ban_hanh"] = issued
+        page = {"source_url": url, "crawled_at": "2026-11-12T14:17:19+00:00", "metadata": metadata, "blocks": []}
         (tmp_path / "processed" / f"{url.rsplit('/', 1)[1][:-5]}.json").write_bytes(
             json.dumps(page, ensure_ascii=False).encode("utf-8"))
     (tmp_path / "processed" / "_index.json").write_bytes(b'{"documents": []}')  # the crawler's index, not a page

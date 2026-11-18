@@ -15,6 +15,12 @@ class Turn:
     answer: Any  # a src.answer.Answer
 
 
+def ask(retriever: Any, answerer: Any, question: str, earlier: tuple[str, ...] | list[str] = (),
+        rewriter: Any = None, k: int = TOP_K) -> Turn:
+    """One turn without a session (#30, choice 6A): `docs/reference/conversation.md`, *Without a session*."""
+    raise NotImplementedError("#30: not implemented yet")
+
+
 @dataclass
 class Session:
     retriever: Any

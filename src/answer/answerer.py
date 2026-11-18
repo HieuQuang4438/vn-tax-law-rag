@@ -14,7 +14,7 @@ from urllib.parse import quote
 
 from pydantic import BaseModel
 
-from src.context import Assembler, Context, Passage, cites
+from src.context import Assembler, Context, Link, Passage, cites
 from src.context.assembly import LINK_WORDS
 from src.llm import LLM, Call
 from src.retrieval import Retrieval
@@ -39,6 +39,10 @@ class AnswerOutput(BaseModel):
 class Document:
     label: str  # <loai_van_ban> <so_hieu>
     url: str
+    kind: str = ""  # loai_van_ban
+    number: str = ""  # so_hieu
+    title: str = ""  # trich_yeu
+    issued: str | None = None  # ngay_ban_hanh as YYYY-MM-DD
 
 
 @dataclass(frozen=True)
@@ -56,6 +60,12 @@ class Citation:
     article: str | None = None
     clause: str | None = None  # the clause number as shown
     url: str | None = None
+    # For the web page (answer.md, *For the page*, #30).
+    doc_id: str | None = None
+    heading: str | None = None
+    text: str | None = None
+    effective: str | None = None
+    amended_by: tuple[Link, ...] = ()
 
 
 @dataclass

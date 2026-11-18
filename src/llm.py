@@ -39,7 +39,11 @@ class Call:
 
 
 class LLMError(RuntimeError):
-    """No usable reply."""
+    """No usable reply. `quota`: the last attempt failed with 429 on every key (answer.md, *Retries*)."""
+
+    def __init__(self, message: str = "", quota: bool = False):
+        super().__init__(message)
+        self.quota = quota
 
 
 class _Retry(Exception):

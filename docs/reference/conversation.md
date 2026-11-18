@@ -89,8 +89,14 @@ two lists, which for a slot are near the top.
 |---|---|
 | `Session(retriever, answerer, rewriter=None, k=TOP_K)` | One conversation. `rewriter` none means `rewriter(DEFAULT_REWRITER)`, kept as `Session.rewriter`. |
 | `Session.turns` | `list[Turn]`, oldest first. |
-| `Session.ask(question)` | Rewrites the question with the questions of `turns` as `earlier`; retrieves with `retriever.retrieve(query, k)` for one query and `retriever.fuse(queries, k)` for two; answers with `answerer.answer(rewrite.question, retrieval)`; adds the turn and returns it. |
+| `Session.ask(question)` | `ask(retriever, answerer, question, earlier, rewriter, k)` with the questions of `turns` as `earlier`; adds the turn and returns it. |
+| `ask(retriever, answerer, question, earlier=(), rewriter=None, k=TOP_K)` | One turn, keeping nothing: rewrites the question with `earlier`, the conversation's earlier questions oldest first; retrieves with `retriever.retrieve(query, k)` for one query and `retriever.fuse(queries, k)` for two; answers with `answerer.answer(rewrite.question, retrieval)`; returns the `Turn`. `rewriter` none means `rewriter(DEFAULT_REWRITER)`. |
 | `Turn` | `question: str`, as asked; `rewrite: Rewrite`; `retrieval: Retrieval`; `answer: Answer`. |
+
+**Without a session** (#30, choice 6A). The web page keeps its conversations itself and sends
+the earlier questions with each new one, so the server keeps no session: `ask` gives the turn a
+`Session` holding the same earlier questions would give. Every rewriter reads the earlier
+questions only, never the answers, so nothing else need be sent.
 
 **What generation sees** (choice 2A): the rewritten question and the passages, as for a
 standalone question; no earlier turn. An answer cannot refer back to an earlier one, and the
