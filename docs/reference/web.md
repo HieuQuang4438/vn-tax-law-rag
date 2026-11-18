@@ -84,8 +84,10 @@ label), `kind`, `number`, `title`, `issued`, `article`, `clause`, `heading`, `ur
 `GET /` serves `index.html`, its stylesheet and script under `/static/` (`app.css`, `app.js`):
 plain HTML, CSS and JS, no build step and no script from another origin; only the fonts come
 from Google Fonts. The design tokens and the ten screens are the prototype's at `7b015ed`
-(`docs/discovery/prototypes/web-ui.html`, notes `web-ui-notes.md`). The page calls the API by
-relative paths, so it also works under a path prefix.
+(`docs/discovery/prototypes/web-ui.html`, notes `web-ui-notes.md`), with the changes asked on
+review: the welcome has two points, not three; a text box shows one focus ring, its frame's,
+not a second one of its own. The page calls the
+API by relative paths, so it also works under a path prefix.
 
 **Texts.** The texts that the Streamlit page had keep their wording; they and the quota message
 are constants of `src.web.texts`, put in the page as JSON when it is served, so the script holds
@@ -111,7 +113,9 @@ the prototype's, in the page.
   it is `loading`. With no conversation open it shows the loading card, or on `error` the
   `LOAD_ERROR` card with "Thử lại", which sends `POST /api/load` and goes back to loading. The
   question box is off until `ready`; the history can be read meanwhile.
-- **New conversation** (S3): the welcome and `NOTICE`. `NEW_CONVERSATION` always comes back here,
+- **New conversation** (S3): the welcome, with two points (each statement has its source; an
+  amended provision is said to be amended, with the amending document), and `NOTICE`.
+  `NEW_CONVERSATION` always comes back here,
   with no confirmation, since the old conversation stays in the history.
 - **Answering** (S4): the question at once, then `SPINNER` with the seconds counted. One question
   at a time: the send button is off until the answer.

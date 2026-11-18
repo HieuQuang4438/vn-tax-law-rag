@@ -95,6 +95,20 @@ def test_the_script_holds_no_copy_of_the_texts(client):
         assert getattr(texts, name) not in script
 
 
+def test_the_welcome_has_two_points(client):
+    script = client.get("/static/app.js").text
+    assert "Điều khoản đã bị sửa đổi được nêu rõ, kèm văn bản sửa đổi." in script
+    assert "Hỏi tiếp trong cùng hội thoại" not in script
+
+
+def test_a_text_box_inside_a_framed_box_draws_no_focus_ring_of_its_own(client):
+    css = client.get("/static/app.css").text
+    rule = re.search(r"([^{}]*)\{\s*box-shadow:\s*none;?\s*\}", css.replace("\n", " "))
+    selectors = rule.group(1) if rule else ""
+    assert ".composer textarea:focus-visible" in selectors
+    assert ".search input:focus-visible" in selectors
+
+
 def test_a_text_with_a_closing_script_tag_cannot_end_the_texts_block(monkeypatch):
     def load():
         raise RuntimeError("not loaded in these tests")
