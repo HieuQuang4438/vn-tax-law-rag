@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-15
+updated: 2026-11-18
 owner: HieuQuang4438
 ---
 
@@ -41,6 +41,7 @@ result.unresolved   # list[Unresolved], in question order
 | `Fusion(rrf_k=RRF_K, keyword_weight=1.0, vector_weight=1.0, per_article=True, candidates=None)` | How the lists are fused and cut, as described under *Fusion* (approved on #25). `candidates` none means `CANDIDATES`, read when the retriever searches. It raises `ValueError` for `rrf_k` below 1, a weight of 0 or less, or `candidates` below 1. |
 | `Fusion.config()` | `{"rrf_k", "candidates", "keyword_weight", "vector_weight", "per_article"}`, with `candidates` as a number, for the results files. |
 | `Retriever.retrieve(question, k=TOP_K)` | A `Retrieval` for one question. |
+| `Retriever.fuse(questions, k=TOP_K)` | A `Retrieval` for several questions searched as one: their uncut lists joined by `rrf`, as described in [conversation.md](conversation.md#fusing-two-queries--retrieverfuse) (approved on #19). |
 | `Retriever.rankings(question)` | A `Rankings` for one question: the orders `retrieve` cuts from, uncut, for *Cut diagnosis* (approved on #24). |
 | `Rankings` | `keyword: list[str]`, every chunk with a BM25 score above 0, best first; `vector: list[str]`, every chunk, best first; `final: list[str]`, every reference slot, then the fused list; `unresolved: list[Unresolved]`, as `retrieve` reports them; `candidates: int`, how many of `keyword` and of `vector` were fused. Each list is in the order `retrieve` uses. |
 | `Retrieval` | `hits: list[Hit]`, `unresolved: list[Unresolved]`. |

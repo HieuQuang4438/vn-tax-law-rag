@@ -24,8 +24,10 @@ import yaml
 
 from src.eval.dataset import TAX_TYPES, Conversation, EvalSet, Item, Provision
 from src.eval.metrics import bootstrap_interval, context_precision_at_k, paired_bootstrap_interval, recall_at_k
+from src.conversation import rewriter
 from src.eval.run import (
     TARGETS,
+    AnswerPipeline,
     Outcome,
     RetrievalPipeline,
     compare,
@@ -158,9 +160,11 @@ class FakePipeline:
     def __init__(self, hits=HITS, default=None):
         self.hits, self.default = hits, default
         self.calls: list[str] = []
+        self.seen: list[tuple] = []  # (question, earlier questions)
 
-    def answer(self, question: str) -> Outcome:
+    def answer(self, question: str, earlier: tuple[str, ...] = ()) -> Outcome:
         self.calls.append(question)
+        self.seen.append((question, tuple(earlier)))
         chunk_ids = self.hits.get(question, self.default or [])
         seconds = 100.0 if len(self.calls) == 1 else 0.1 * len(self.calls)  # the first call is the warm-up
         unresolved = [Unresolved("Nghị định 117/2025", "unknown_document")] if "149/2025" in question else []
@@ -578,6 +582,9 @@ class FusionRetriever:
     def retrieve(self, question: str, k: int = TOP_K) -> Retrieval:
         return Retrieval([Hit("379409:D9", ("keyword",), 0.5)], [])
 
+    def fuse(self, questions: list[str], k: int = TOP_K) -> Retrieval:
+        return Retrieval([Hit("379409:D9", ("keyword",), 0.5)], [])
+
 
 @pytest.fixture
 def loads(monkeypatch) -> list:
@@ -762,7 +769,7 @@ class GeneratingPipeline:
         return Outcome(hits=self._hits(question), latency={"retrieval": 0.1, **answer.latency_s},
                        tokens={"input": 9000, "output": 100}, cost_usd=0.003, answer=answer)
 
-    def retrieve(self, question: str) -> Outcome:
+    def retrieve(self, question: str, earlier: tuple[str, ...] = ()) -> Outcome:
         self.retrieved.append(question)
         return Outcome(hits=self._hits(question), latency={"retrieval": 0.1})
 
@@ -1068,6 +1075,134 @@ def test_the_summary_marks_judged_scores_as_not_hand_checked(generation, tmp_pat
     line = next((l for l in text.splitlines() if "EVAL-004" in l), "")
     assert "1.000" in line and "n=1" in line and "PASS" in line and "judge" not in line
     assert "AC-015: 1 pass, 0 fail, 1 retrieval misses, of 2; 1 uncited: GREEN" in text
+
+
+# --- Conversation turns through a rewriter (FR-CORE-016, AC-014, approved on #19) ---------------
+
+class RecordingRetriever:
+    """Finds HITS for every question it is given, and records each call."""
+
+    fusion = Fusion()
+
+    def __init__(self):
+        self.calls: list[tuple] = []
+
+    def retrieve(self, question, k=TOP_K):
+        self.calls.append(("retrieve", question))
+        return Retrieval([Hit(c, ("keyword",), 0.5) for c in HITS.get(question, ["999001:D1"])], [])
+
+    def fuse(self, questions, k=TOP_K):
+        self.calls.append(("fuse", tuple(questions)))
+        return Retrieval([Hit("379409:D9", ("keyword", "vector"), 0.03)], [])
+
+
+class RewriteLLM:
+    model = "gemini-3.5-flash-lite"
+
+    def generate(self, prompt, system, user, schema, validate=None):
+        return Call(schema.model_validate({"question": "Câu hỏi đã viết lại?"}), self.model, prompt, 300, 40, 0.8,
+                    0.0001, 1)
+
+
+FIRST, SECOND = TURNS[0].question, TURNS[1].question
+
+
+def test_turns_get_the_questions_of_the_turns_before_them(connections):
+    pipeline = FakePipeline()
+    evaluate(small_set(), pipeline, PARENTS)
+    assert pipeline.seen[1:] == [(q.question, ()) for q in QUESTIONS] + [
+        (FIRST, ()), (SECOND, (FIRST,)), (TURNS[2].question, (FIRST, SECOND))]
+
+
+def test_the_pipeline_retrieves_a_follow_up_with_its_rewrite():
+    retriever = RecordingRetriever()
+    pipeline = RetrievalPipeline(retriever, rewriter=rewriter("concat"))
+    first, follow_up = pipeline.answer(FIRST, ()), pipeline.answer(SECOND, (FIRST,))
+    assert retriever.calls == [("retrieve", FIRST), ("retrieve", f"{FIRST} {SECOND}")]
+    assert (getattr(first, "rewritten", None), getattr(follow_up, "rewritten", None)) == (False, True)
+    assert list(first.latency) == ["retrieval"] and list(follow_up.latency) == ["rewrite", "retrieval"]
+
+
+def test_the_pipeline_fuses_the_two_queries_of_fuse():
+    retriever = RecordingRetriever()
+    RetrievalPipeline(retriever, rewriter=rewriter("fuse")).answer(SECOND, (FIRST,))
+    assert retriever.calls == [("fuse", (SECOND, f"{FIRST} {SECOND}"))]
+
+
+def test_none_keeps_today_s_pipeline():
+    retriever = RecordingRetriever()
+    pipeline = RetrievalPipeline(retriever)
+    outcome = pipeline.answer(SECOND, (FIRST,))
+    assert retriever.calls == [("retrieve", SECOND)]
+    assert getattr(outcome, "rewritten", None) is False and list(outcome.latency) == ["retrieval"]
+    assert (pipeline.config["stages"], pipeline.config["rewrite"]) == (["retrieval"], "none")
+
+
+def test_the_pipeline_records_its_rewriter():
+    config = RetrievalPipeline(RecordingRetriever(), rewriter=rewriter("concat")).config
+    assert (config["stages"], config["rewrite"]) == (["rewrite", "retrieval"], "concat")
+    assert "rewrite_model" not in config
+
+
+def test_an_llm_rewrite_records_its_model_prompt_tokens_and_cost():
+    from src.conversation import PROMPT as REWRITE_PROMPT
+
+    pipeline = RetrievalPipeline(RecordingRetriever(), rewriter=rewriter("llm", RewriteLLM()))
+    assert pipeline.config["rewrite"] == "llm"
+    assert pipeline.config.get("rewrite_model") == "gemini-3.5-flash-lite"
+    assert pipeline.config.get("rewrite_prompt") == hashlib.sha256(REWRITE_PROMPT.read_bytes()).hexdigest()
+    outcome = pipeline.answer(SECOND, (FIRST,))
+    assert outcome.tokens == {"input": 300, "output": 40}
+    assert outcome.cost_usd == pytest.approx(0.0001)
+    assert outcome.latency.get("rewrite") == pytest.approx(0.8)
+
+
+def test_the_answer_pipeline_rewrites_the_turns_it_retrieves():
+    answerer = SimpleNamespace(llm=SimpleNamespace(model="gemini-3.5-flash-lite"), assembler=SimpleNamespace(budget=24000))
+    retriever = RecordingRetriever()
+    pipeline = AnswerPipeline(retriever, answerer, rewriter=rewriter("fuse"))
+    assert (pipeline.config["stages"], pipeline.config["rewrite"]) == (
+        ["rewrite", "retrieval", "assembly", "generation"], "fuse")
+    pipeline.retrieve(SECOND, (FIRST,))
+    assert retriever.calls == [("fuse", (SECOND, f"{FIRST} {SECOND}"))]
+
+
+def test_an_item_records_whether_its_query_was_rewritten(connections):
+    results = evaluate(small_set(), RetrievalPipeline(RecordingRetriever(), rewriter=rewriter("concat")), PARENTS)
+    assert [at(item_of(results, i), "rewritten") for i in ("q01", "q04", "c01.1", "c01.2", "c01.3")] == \
+        [None, None, False, True, True]
+    keys = list(item_of(results, "c01.2"))
+    assert keys[keys.index("turn") + 1] == "rewritten"
+
+
+def test_a_rewrite_stage_is_still_retrieval_only(connections):
+    results = evaluate(small_set(), RetrievalPipeline(RecordingRetriever(), rewriter=rewriter("concat")), PARENTS)
+    assert at(results, "latency", "stages") == ["rewrite", "retrieval"]
+    assert at(results, "latency", "scope") == "retrieval only, dev laptop"
+
+
+def test_standalone_questions_never_go_through_the_rewriter(connections):
+    retriever = RecordingRetriever()
+    evaluate(small_set(), RetrievalPipeline(retriever, rewriter=rewriter("concat")), PARENTS)
+    assert ("retrieve", QUESTIONS[0].question) in retriever.calls  # the warm-up and q01, as written
+    assert [c for c in retriever.calls if c[0] == "retrieve" and c[1].startswith(QUESTIONS[0].question + " ")] == []
+
+
+@pytest.mark.parametrize("name", ["concat", "fuse"])
+def test_the_rewrite_option_reaches_the_pipeline_and_the_file(command, loads, name):
+    argv, out, _ = command
+    assert main(argv + ["--rewrite", name]) == 0
+    files = sorted(out.glob("*.json")) if out.is_dir() else []
+    assert len(files) == 1
+    pipeline = at(json.loads(files[0].read_text(encoding="utf-8")), "configuration", "pipeline")
+    assert (at(pipeline, "rewrite"), at(pipeline, "stages")) == (name, ["rewrite", "retrieval"])
+
+
+def test_an_unknown_rewriter_stops_the_command(command, loads):
+    argv, _, _ = command
+    with pytest.raises(SystemExit) as stopped:
+        main(argv + ["--rewrite", "rerank"])
+    assert stopped.value.code == 2 and loads == []
 
 
 # --- Resume ---

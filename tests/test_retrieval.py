@@ -825,3 +825,69 @@ def test_load_gives_the_retriever_its_fusion(data_dir):
     fusion = Fusion(rrf_k=20, per_article=True)
     assert Retriever.load(data_dir, embedder=TopicEmbedder(), fusion=fusion).fusion == fusion
     assert Retriever.load(data_dir, embedder=TopicEmbedder()).fusion == Fusion()
+
+
+# --- Several questions searched as one (#19) ----------------------------------------------------
+
+FUSED = ["Hộ kinh doanh khai thuế theo quý?", "Mã số thuế có bao nhiêu chữ số?"]
+
+
+def parent_of(chunk_id: str) -> str:
+    return ":".join(chunk_id.split(":")[:2])
+
+
+def fused_by_hand(retriever: Retriever, questions: list[str], k: int, per_article: bool = True) -> list[tuple]:
+    """(chunk_id, score) of `fuse`, written out from conversation.md."""
+    finals = [retriever.rankings(q).final for q in questions]
+    kept, above = [], set()
+    for chunk_id, score in rrf(finals, retriever.fusion.rrf_k):
+        if per_article and parent_of(chunk_id) in above:
+            continue
+        kept.append((chunk_id, score))
+        above.add(parent_of(chunk_id))
+    return kept[:k]
+
+
+def test_fuse_joins_the_uncut_lists_by_rrf_with_one_hit_per_article(retriever):
+    expected = fused_by_hand(retriever, FUSED, TOP_K)
+    hits = retriever.fuse(FUSED).hits
+    assert [h.chunk_id for h in hits] == [c for c, _ in expected] and len(hits) == TOP_K
+    assert [h.score for h in hits] == pytest.approx([s for _, s in expected])
+
+
+def test_fuse_without_per_article_keeps_every_chunk(data_dir):
+    retriever = fused_retriever(data_dir, per_article=False)
+    expected = fused_by_hand(retriever, FUSED, TOP_K, per_article=False)
+    assert ids(retriever.fuse(FUSED)) == [c for c, _ in expected]
+
+
+def test_fuse_takes_k(retriever):
+    assert ids(retriever.fuse(FUSED, k=3)) == ids(retriever.fuse(FUSED))[:3]
+
+
+def test_a_fused_hit_is_found_by_every_way_any_search_found_it(retriever):
+    questions = ["Điều 9 Luật 48/2024 thuế suất", "Hộ kinh doanh khai thuế theo quý?"]
+    ways: dict[str, set] = {}
+    for question in questions:
+        for hit in retriever.retrieve(question, k=10_000).hits:
+            ways.setdefault(hit.chunk_id, set()).update(hit.found_by)
+    hits = retriever.fuse(questions).hits
+    assert hits and "379409:D9" in ids(retriever.fuse(questions))
+    for hit in hits:
+        assert list(hit.found_by) == [w for w in FOUND_BY if w in ways[hit.chunk_id]], hit
+
+
+def test_fuse_with_one_question_gives_the_chunks_of_retrieve(retriever):
+    for question in ("Điều 9 Luật 48/2024 thuế suất", "Hộ kinh doanh khai thuế theo quý?", "mã số thuế"):
+        assert ids(retriever.fuse([question])) == ids(retriever.retrieve(question)), question
+
+
+def test_fuse_keeps_each_unresolved_reference_once_in_question_order(retriever):
+    questions = ["Điều 9 Nghị định 117/2025 quy định gì?", "Điều 9 Nghị định 117/2025 và Điều 99 Luật 48/2024?"]
+    assert reasons(retriever.fuse(questions)) == [("Điều 9 Nghị định 117/2025", "unknown_document"),
+                                                  ("Điều 99 Luật 48/2024", "no_article")]
+
+
+def test_fuse_gives_the_same_result_twice(retriever):
+    first = retriever.fuse(FUSED)
+    assert first.hits and first == retriever.fuse(FUSED)

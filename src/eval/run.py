@@ -72,11 +72,11 @@ class Pipeline(Protocol):
 class RetrievalPipeline:
     """Today's pipeline: one stage, retrieval, each question as written (`rewrite: none`)."""
 
-    def __init__(self, retriever, k: int = TOP_K):
-        self._retriever, self._k = retriever, k
+    def __init__(self, retriever, k: int = TOP_K, rewriter=None):
+        self._retriever, self._k = retriever, k  # rewriter: stub, not used yet (#19)
         self.config = {"stages": ["retrieval"], "rewrite": "none", "top_k": k, **retriever.fusion.config()}
 
-    def answer(self, question: str) -> Outcome:
+    def answer(self, question: str, earlier: tuple[str, ...] = ()) -> Outcome:
         started = time.perf_counter()
         result = self._retriever.retrieve(question, k=self._k)
         return Outcome(result.hits, result.unresolved, {"retrieval": time.perf_counter() - started})
@@ -87,7 +87,7 @@ class AnswerPipeline:
 
     generates = True
 
-    def __init__(self, retriever, answerer, judge_model: str | None = None, k: int = TOP_K):
+    def __init__(self, retriever, answerer, judge_model: str | None = None, k: int = TOP_K, rewriter=None):
         from src.answer.answerer import PROMPT as ANSWER_PROMPT
         from src.eval.judge import PROMPT as JUDGE_PROMPT
         from src.llm import PRICES, PRICES_READ
@@ -108,7 +108,7 @@ class AnswerPipeline:
         result = self._retriever.retrieve(question, k=self._k)
         return result, time.perf_counter() - started
 
-    def retrieve(self, question: str) -> Outcome:
+    def retrieve(self, question: str, earlier: tuple[str, ...] = ()) -> Outcome:
         result, seconds = self._retrieval(question)
         return Outcome(result.hits, result.unresolved, {"retrieval": seconds})
 
@@ -669,6 +669,8 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None, judge=
     parser.add_argument("--out", default="eval/results", help="where the results file is written")
     parser.add_argument("--generate", action="store_true",
                         help="also assemble, generate and judge; spends API quota (#15)")
+    parser.add_argument("--rewrite", default="none", choices=("none", "concat", "fuse", "llm"),
+                        help="the rewriter of the conversation turns (#19); llm spends API quota")
     parser.add_argument("--compare", help="an earlier results file to compare with")
     parser.add_argument("--comparisons", type=int, default=1,
                         help="variants compared with the same baseline; above 1, also the Bonferroni interval")

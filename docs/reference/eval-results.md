@@ -30,6 +30,7 @@ python -m src.eval.run --compare eval/results/<file>    # also prints what chang
 | `--index` | `<data>/index` | the index folder, for a variant built with `python -m src.index --out` |
 | `--out` | `eval/results` | where the results file is written |
 | `--generate` | off | also assemble, generate and judge, as under *Generation stage*; spends API quota |
+| `--rewrite` | `none` | the rewriter of the conversation turns, one of `none`, `concat`, `fuse`, `llm` ([conversation.md](conversation.md), approved on #19); `llm` spends API quota, with or without `--generate` |
 | `--compare` | none | an earlier results file to compare with |
 | `--comparisons` | 1 | how many variants are compared with the same baseline; above 1, `--compare` also prints the Bonferroni interval (#25) |
 | `--rrf-k` | `RRF_K` (60) | the fusion's `rrf_k` ([retrieval.md](retrieval.md#hybrid-search)) |
@@ -48,8 +49,9 @@ The command:
 1. loads the eval set with `load_eval_set`, which stops on any checker error;
 2. loads the pipeline, the model included, before any timing starts;
 3. makes one warm-up call with the first question, not recorded;
-4. runs every standalone question, then every conversation turn, in file order, each turn as
-   written (`rewrite: none`) until #19 adds the rewrite;
+4. runs every standalone question as written, then every conversation turn through the
+   rewriter, in file order, a turn's earlier questions being those of the turns before it in its
+   conversation (conversation.md, *In the eval run*);
 5. writes the results file and prints the summary.
 
 It exits with 0 once the file is written, whether or not the targets are met: a baseline that
@@ -87,14 +89,18 @@ file, when the two runs used different eval sets.
 
 ## Latency and cost
 
-- **Latency** per item is per stage, in seconds, as the pipeline measures it: today one stage,
-  `retrieval`, the time of one `retrieve` call. The item's total is the sum of its stages.
+- **Latency** per item is per stage, in seconds, as the pipeline measures it: `retrieval`, the
+  time of the `retrieve` call, or of the `fuse` call for two queries; and, with a rewriter other
+  than `none`, for a follow-up turn `rewrite` first, the time of the rewrite, which for `llm` is
+  its call's `latency_s`, so pacing waits and retries are not counted. The item's total is the
+  sum of its stages.
 - The run reports the median and the 95th percentile (`statistics.quantiles(totals, n=20)[-1]`)
   of the totals over every item, against NFR-006 (median ≤ 10 s, p95 ≤ 20 s). The scope is
-  written with them: `retrieval only, dev laptop`, while NFR-006 is measured with generation on
-  the demo hardware.
-- **Cost** per item is its input and output tokens and their price in USD. With no LLM in the
-  pipeline both token counts and the price are 0, and the run says `no LLM in the pipeline`.
+  written with them: `retrieval only, dev laptop` when the stages hold no `generation`, while
+  NFR-006 is measured with generation on the demo hardware.
+- **Cost** per item is its input and output tokens and their price in USD: for a follow-up turn
+  under `llm`, those of its rewrite call. With no LLM in the pipeline both token counts and the
+  price are 0, and the run says `no LLM in the pipeline`.
   The average cost per item is reported against NFR-007 (≤ 0.01 USD).
 
 ## The results file
@@ -135,7 +141,7 @@ The file holds ids and numbers only: no question text, no answer text and no cor
 | `diff_sha256` | `sha256` of the output of `git diff HEAD` when dirty, else null |
 | `eval_set` | `path`, `version`, `sha256` of the set file |
 | `index` | from the index folder's `manifest.json`: `model`, `revision`, `chunks_sha256`, `chunk_count`, `bm25_tokenizer`, `chunking`, `input_limit`, `truncated` (each null for a manifest without it) |
-| `pipeline` | `stages` (`["retrieval"]`), `rewrite` (`none`), `top_k`, then the retriever's `Fusion.config()`: `rrf_k`, `candidates`, `keyword_weight`, `vector_weight`, `per_article` |
+| `pipeline` | `stages` (`["retrieval"]`, with `rewrite` first when the rewriter is not `none`), `rewrite` (the rewriter's name, `none` by default), `top_k`, then the retriever's `Fusion.config()`: `rrf_k`, `candidates`, `keyword_weight`, `vector_weight`, `per_article`; with `llm`, then `rewrite_model` and `rewrite_prompt`, the `sha256` of `src/prompts/rewrite.md` |
 | `bootstrap` | `resamples` 1000, `seed` 0, `level` 0.95 |
 | `versions` | `python` and the installed `bm25s`, `chromadb`, `numpy`, `pyvi`, `sentence-transformers`, `torch`, `underthesea`; null for one not installed |
 | `machine` | `os` (`platform.platform()`), `cpu` (`platform.processor()`), `cpu_count`, `ram_gb` (null when it cannot be read) |
@@ -168,6 +174,7 @@ each a mapping from the group to
 | `id` | `q01`, or `c01.2` for a turn |
 | `kind` | `question` or `turn` |
 | `conversation`, `turn` | the conversation id and the turn number, or null for a question |
+| `rewritten` | for a turn, true when a query its rewriter gave differs from its question; null for a question |
 | `tax_type`, `form` | as in the set |
 | `added_in` | the set version that added the item, as in the set; 1 when the set gives none |
 | `answerable` | false when the set gives `unanswerable` |
@@ -219,10 +226,12 @@ makes 240 generation calls and at most 184 judge calls, within the free tier's 5
 per day (ADR-0003).
 
 - The pipeline is `AnswerPipeline(retriever, answerer)`: `generates` is true, `answer(question)`
-  retrieves, assembles and generates, and `retrieve(question)` only retrieves. Its stages are
-  `retrieval`, `assembly`, `generation`.
-- Standalone questions are generated; conversation turns are only retrieved until #19 adds the
-  rewrite (`generated: false`). The warm-up call only retrieves.
+  retrieves, assembles and generates, and `retrieve(question, earlier=())` rewrites and
+  retrieves. Its stages are `retrieval`, `assembly`, `generation`, with `rewrite` first when the
+  rewriter is not `none`.
+- Standalone questions are generated; conversation turns are only retrieved, through the
+  rewriter (`generated: false`; choice 2A on #19 leaves their generation out of the scores).
+  The warm-up call only retrieves.
 - After its answer, each answerable standalone question that is not answered `not_found` is
   judged: one call, `Judge.judge(question, key_facts, answer, amended)`, with `amended` the ids
   AC-015 asks about that no notice covers (below), empty when there are none. Unanswerable questions and not-found

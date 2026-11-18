@@ -280,6 +280,10 @@ class Retriever:
             hits.append(Hit(chunk_id, ways, search.score.get(chunk_id, 0.0)))
         return Retrieval(hits, search.unresolved)
 
+    def fuse(self, questions: list[str], k: int = TOP_K) -> Retrieval:
+        """Stub (#19): no hits."""
+        return Retrieval()
+
     def _search(self, question: str) -> "_Search":
         """Everything `retrieve` and `rankings` read, before any cut at k."""
         articles: list[_Article] = []
