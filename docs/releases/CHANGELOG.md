@@ -119,9 +119,8 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   chosen on EVAL-005, is the default of the session and of the run. FR-CORE-016, AC-014,
   EVAL-005, #19.
 - Web chat page: `python -m streamlit run src/app.py` keeps one conversation per browser
-  session and shows each answer with its sources as links, the note that it is information,
-  not advice, and a collapsed "Chi tiết" with the query searched and each cited passage.
-  FR-CORE-013, FR-CORE-014, AC-010, #17.
+  session and shows each answer with its sources as links and the note that it is
+  information, not advice. FR-CORE-013, FR-CORE-014, AC-010, #17.
 
 ### Changed
 

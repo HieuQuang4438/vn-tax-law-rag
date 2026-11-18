@@ -8,7 +8,7 @@ from pathlib import Path
 
 import streamlit as st
 
-from src.answer import Answerer, Citation
+from src.answer import Answerer
 from src.conversation import Session, Turn
 from src.llm import LLM
 from src.retrieval import IndexNotReadyError, Retriever
@@ -17,8 +17,6 @@ TITLE = "Hỏi đáp pháp luật thuế Việt Nam"
 PLACEHOLDER = "Đặt câu hỏi về thuế…"
 NOTICE = "Đây là thông tin kèm nguồn, không phải tư vấn pháp lý hay tư vấn thuế."
 NEW_CONVERSATION = "Cuộc hội thoại mới"
-DETAILS = "Chi tiết"
-QUERY = "Truy vấn tìm kiếm"
 SPINNER = "Đang tìm và trả lời…"
 ERROR = "Chưa trả lời được lúc này, vui lòng thử lại sau."
 LOAD_ERROR = "Chưa tải được chỉ mục văn bản nên chưa thể trả lời."
@@ -44,22 +42,9 @@ def _session() -> Session | None:
     return st.session_state["session"]
 
 
-def _source(citation: Citation) -> str:
-    clause = f", khoản {citation.clause}" if citation.clause else ""
-    return f"**[{citation.id}] {citation.document}, Điều {citation.article}{clause}**"
-
-
 def _show_answer(turn: Turn) -> None:
     st.markdown(turn.answer.text)
     st.caption(NOTICE)
-    with st.expander(DETAILS):
-        st.markdown(f"**{QUERY}**")
-        for query in turn.rewrite.queries:
-            st.text(query)
-        for citation in turn.answer.citations:
-            if citation.in_context:
-                st.markdown(_source(citation))
-                st.text(citation.passage)
 
 
 def _show(turn: Turn) -> None:
