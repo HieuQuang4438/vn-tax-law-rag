@@ -95,6 +95,21 @@ def test_the_script_holds_no_copy_of_the_texts(client):
         assert getattr(texts, name) not in script
 
 
+def test_the_top_bar_has_a_button_for_the_source_panel(client):
+    html = client.get("/").text
+    topbar = re.search(r'<header class="topbar">(.*?)</header>', html, re.S).group(1)
+    button = re.search(r'<button[^>]*id="panel-toggle"[^>]*>', topbar)
+    assert button, "the top bar carries #panel-toggle"
+    assert 'aria-controls="panel"' in button.group(0)
+    assert 'aria-expanded="false"' in button.group(0)
+
+
+def test_the_panel_head_has_its_title_alone(client):
+    html = client.get("/").text
+    head = re.search(r'<div class="panel-head">(.*?)</div>', html, re.S).group(1)
+    assert re.sub(r"\s+", " ", head).strip() == '<h2 id="panel-h">Nguồn của câu trả lời</h2>'
+
+
 def test_the_welcome_has_two_points(client):
     script = client.get("/static/app.js").text
     assert "Điều khoản đã bị sửa đổi được nêu rõ, kèm văn bản sửa đổi." in script

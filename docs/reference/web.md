@@ -85,8 +85,8 @@ label), `kind`, `number`, `title`, `issued`, `article`, `clause`, `heading`, `ur
 plain HTML, CSS and JS, no build step and no script from another origin; only the fonts come
 from Google Fonts. The design tokens and the ten screens are the prototype's at `7b015ed`
 (`docs/discovery/prototypes/web-ui.html`, notes `web-ui-notes.md`), with the changes asked on
-review: the welcome has two points, not three; a text box shows one focus ring, its frame's,
-not a second one of its own. The page calls the
+review: the welcome has two points, not three; the top bar has a button for the source panel;
+a text box shows one focus ring, its frame's, not a second one of its own. The page calls the
 API by relative paths, so it also works under a path prefix.
 
 **Texts.** The texts that the Streamlit page had keep their wording; they and the quota message
@@ -129,8 +129,14 @@ the prototype's, in the page.
   effective date, "hồi tố, trước ngày ban hành" when the effective date comes first (#30,
   correction to choice 8), one line per amendment link with "Xem nguồn [n]" when its source is
   among the sources, the heading and the text, and a link to the source page. On a page 1280 px
-  wide or more it opens on the first source of a new answer; under 1280 px it is a drawer,
-  under 900 px a bottom sheet.
+  wide or more it opens on the first source of a new answer; under 1280 px it is a drawer
+  under the top bar, under 900 px a bottom sheet. A button at the right of the top bar,
+  `#panel-toggle` (`aria-controls="panel"`, `aria-expanded` while the panel is open), closes it
+  or opens it again: on the source last shown in this conversation, else on the first source
+  of its last answer that has one; the button is off when the conversation has no source, and
+  its icon shows which it will do. It is the panel's only button: the panel's head has its
+  title alone, no close button and no icon. Esc closes the panel too, and so does the shade
+  behind a drawer or a sheet.
 - **Not found** (S6): `NOT_FOUND` as the answer, tips on asking again, a link to the documents.
 - **Error** (S7): `ERROR`, or `QUOTA` on a 429, with "Thử lại" (the same question again) and
   "Sửa câu hỏi" (back to the box). The failed question is not kept. A 503 sends the page back to
