@@ -115,3 +115,9 @@ or `fuse`, with the higher EVAL-005; `llm` instead only if its paired change ove
 has a Bonferroni lower bound above 0 (3 comparisons), since it puts a model call on the
 retrieval path (NFR-006, NFR-007), and then with an ADR. The sample is the 29 answerable
 follow-ups of eval set v2 (choice 4A).
+
+**The choice.** `concat`, under 3A, at `6e9ee24`: EVAL-005 0.526 against 0.480 for `fuse` and
+0.494 for `none`; `llm` scored 0.629, but its Bonferroni lower bound over `concat` is −0.009.
+No rewriter separates from `none`, so under 4A the four are re-measured on eval set v3, which
+adds conversations (approved on #19). The runs are in [eval-results.md](eval-results.md),
+*Follow-up rewriters*.

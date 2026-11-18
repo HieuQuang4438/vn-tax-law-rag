@@ -1,7 +1,8 @@
 ---
-status: in-review
+status: approved
 updated: 2026-11-18
 owner: HieuQuang4438
+approved-by: peer
 ---
 
 # Architecture — vn-tax-law-rag
@@ -140,7 +141,8 @@ A conversation is kept per session. A follow-up such as "còn hộ kinh doanh th
 topic of its own, so before retrieval it is turned into a query using the earlier questions,
 not the answers; a first turn is used as written. Four rewriters are built: none, the earlier
 questions joined to the follow-up, the follow-up and that join retrieved apart and fused, and
-an LLM rewrite into one standalone question. Which one the session uses is decided by EVAL-005
+an LLM rewrite into one standalone question. The session uses the join (`concat`), chosen on
+EVAL-005 and to be re-measured on a larger eval set
 ([conversation.md](../reference/conversation.md)). The answer to a follow-up sees the rewritten
 question and the passages only. — FR-CORE-016
 

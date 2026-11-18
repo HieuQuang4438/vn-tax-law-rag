@@ -1,6 +1,6 @@
 ---
 status: approved
-updated: 2026-11-16
+updated: 2026-11-18
 owner: HieuQuang4438
 approved-by: peer
 ---
@@ -46,7 +46,7 @@ Nothing is released yet, so `Since` is `—` everywhere until the first release 
 
 | ID | Requirement | Since | Until | Status | Note |
 |---|---|---|---|---|---|
-| FR-CORE-016 | Keep the conversation of a session. Before retrieval, rewrite a follow-up question into a standalone question using the earlier turns; a question that needs no context is left unchanged. | — | — | approved | Design open: LLM rewrite or LLM-free (concatenate / fuse both queries), decided by EVAL-005 |
+| FR-CORE-016 | Keep the conversation of a session. Before retrieval, rewrite a follow-up question into a standalone question using the earlier turns; a question that needs no context is left unchanged. | — | — | approved | `concat`, chosen on EVAL-005 (#19): it joins every follow-up to the earlier questions, so only the `llm` rewriter leaves a standalone follow-up unchanged (choice 5A); re-measured on eval set v3 |
 | FR-CORE-007 | Resolve explicit document and article references in a question directly from chunk metadata. | — | — | approved | ADR-0002 |
 | FR-CORE-008 | Retrieve chunks by fusing keyword and vector results and keep the top 8. | — | — | approved | ADR-0002. k = 8 matches EVAL-001 |
 | FR-CORE-009 | Assemble the model's context from retrieved chunks: deduplicate, add the parent article of a clause, add the amending text of an amended chunk, give each passage a citation id, fit a token budget. | — | — | approved | |
