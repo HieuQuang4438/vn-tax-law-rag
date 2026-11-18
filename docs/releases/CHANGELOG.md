@@ -121,6 +121,12 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 - Web chat page: `python -m streamlit run src/app.py` keeps one conversation per browser
   session and shows each answer with its sources as links and the note that it is
   information, not advice. FR-CORE-013, FR-CORE-014, AC-010, #17.
+- What the new web page reads: each resolved citation carries its document id, article
+  heading, the cited article, clause or amending text, its effective date and the amendment
+  links of what it cites; each document carries its kind, number, title and issue date;
+  `LLMError.quota` marks a failure that was 429 on every key; `src.conversation.ask` answers one
+  turn from the earlier questions without keeping a session. FR-CORE-010, FR-CORE-011,
+  FR-CORE-016, #30.
 
 ### Changed
 
