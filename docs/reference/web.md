@@ -6,35 +6,26 @@ owner: HieuQuang4438
 
 # Web interface
 
-The chat page: one conversation per browser session, each answer with its linked sources and
+The chat page: conversations kept in the browser, each answer with its linked sources and
 the note that it is information, not advice. The rules are FR-CORE-013 and FR-CORE-014, their
 test AC-010 ([acceptance.md](../product/acceptance.md)). The approach is the approved comment
-on #17. Deployment is #18.
-
-#30 replaces the Streamlit page with a FastAPI app, `src/web/`, that serves a static page and
-a JSON API (approved comment on #30, choice 0A). The API is below, *The API*; the Streamlit
-page stays until the static page replaces it.
+on #17, and on #30 for the FastAPI app that replaced the Streamlit page (choice 0A): a static
+page and a JSON API, `src/web/`. Deployment is #18.
 
 ## Running it
-
-```bash
-python -m streamlit run src/app.py
-```
-
-From the repo root, with the index built ([index.md](index.md)) and `.env` filled in. A
-missing API key stops the page at start, as every entrypoint does (`src/config.py`).
-
-The FastAPI app:
 
 ```bash
 python -m src.web                    # http://127.0.0.1:8000; --host and --port to change
 ```
 
+From the repo root, with the index built ([index.md](index.md)) and `.env` filled in. A
+missing API key stops the app at start, as every entrypoint does (`src/config.py`).
+
 ## The API — `src/web/`
 
 `src.web.create_app(load)` makes the app; `python -m src.web` serves `create_app()` with
 uvicorn. `load` returns the retriever and the answerer; by default it is `Retriever.load()` and
-`Answerer.load()` over `data/`, with one `LLM()`, as the Streamlit page loads them.
+`Answerer.load()` over `data/`, with one `LLM()`, as the Streamlit page loaded them.
 
 **Loading.** The app starts serving at once and loads in a background thread when it starts
 (the index takes about 30 s), so the page can show that it is loading rather than fail to
@@ -88,68 +79,82 @@ label), `kind`, `number`, `title`, `issued`, `article`, `clause`, `heading`, `ur
 `effective`, and `amended_by` as `{"target", "type", "source"}` ([answer.md](answer.md),
 *For the page*). `Answer.text` is not sent: the page renders the sentences and the sources.
 
-## The page — `src/app.py`
+## The page — `src/web/static/`
 
-A Streamlit script. Its texts are constants of `src.app`, in Vietnamese:
+`GET /` serves `index.html`, its stylesheet and script under `/static/` (`app.css`, `app.js`):
+plain HTML, CSS and JS, no build step and no script from another origin; only the fonts come
+from Google Fonts. The design tokens and the ten screens are the prototype's at `7b015ed`
+(`docs/discovery/prototypes/web-ui.html`, notes `web-ui-notes.md`). The page calls the API by
+relative paths, so it also works under a path prefix.
+
+**Texts.** The texts that the Streamlit page had keep their wording; they and the quota message
+are constants of `src.web.texts`, put in the page as JSON when it is served, so the script holds
+no copy of them:
 
 | Name | Text |
 |---|---|
-| `TITLE` | `Hỏi đáp pháp luật thuế Việt Nam` |
+| `TITLE` | `Hỏi đáp pháp luật thuế Việt Nam` (the browser tab, after the conversation's title) |
 | `PLACEHOLDER` | `Đặt câu hỏi về thuế…` |
 | `NOTICE` | `Đây là thông tin kèm nguồn, không phải tư vấn pháp lý hay tư vấn thuế.` |
 | `NEW_CONVERSATION` | `Cuộc hội thoại mới` |
 | `SPINNER` | `Đang tìm và trả lời…` |
 | `ERROR` | `Chưa trả lời được lúc này, vui lòng thử lại sau.` |
 | `LOAD_ERROR` | `Chưa tải được chỉ mục văn bản nên chưa thể trả lời.` |
+| `QUOTA` | `Đang có nhiều câu hỏi, vui lòng thử lại sau một phút.` (choice 2A) |
 
-From the top, on every run of the script:
+The other texts (the welcome, the tips after a not-found answer, the dialogs, the toasts) are
+the prototype's, in the page.
 
-1. The title, `TITLE`.
-2. The session (below). When it cannot be made, `LOAD_ERROR` as an error and nothing more.
-3. A button `NEW_CONVERSATION`, key `new`. It replaces the session with a new one over the same
-   retriever, answerer, rewriter and `k`, so the conversation starts again with no reload.
-4. Every turn of the session, oldest first, as two chat messages:
-   - **user**: the question as asked;
-   - **assistant**: `Answer.text` as Markdown, which holds the sources as links and the
-     flagged ids ([answer.md](answer.md), *Rendering*); then `NOTICE` as a caption, under every
-     answer, a not-found answer included (choice 2A). Nothing more: each source's link opens
-     its page on the source site, at the article where the browser supports text fragments.
-5. A chat input, `PLACEHOLDER`. A question sent is shown as a user message and asked of the
-   session under a spinner, `SPINNER`; its turn is then shown as in 4. When asking fails, in
-   retrieval or in the model call (`LLMError`, a spent quota included), the error is logged and
-   `ERROR` is shown as an error in the assistant message, not a stack trace. `Session.ask` adds
-   a turn only once it is answered, so a failed question is not kept and is gone on the next
-   run.
+**Screens.**
 
-The notice is the page's, not the answer's: `Answer.text` is unchanged, so the eval and the
-judge see the same answers as before #17 (choice 2A).
+- **Loading and load error** (S1, S2). The page asks `GET /api/status` at once and every 2 s while
+  it is `loading`. With no conversation open it shows the loading card, or on `error` the
+  `LOAD_ERROR` card with "Thử lại", which sends `POST /api/load` and goes back to loading. The
+  question box is off until `ready`; the history can be read meanwhile.
+- **New conversation** (S3): the welcome and `NOTICE`. `NEW_CONVERSATION` always comes back here,
+  with no confirmation, since the old conversation stays in the history.
+- **Answering** (S4): the question at once, then `SPINNER` with the seconds counted. One question
+  at a time: the send button is off until the answer.
+- **Answer** (S5, S8): the sentences, the amendment notices as a paragraph of their own. Each
+  source gets a number, 1…n in the order of `sources`, shown as a chip after the sentences that
+  cite it; a flagged id is a `?` chip, and a note names the flagged ids (FR-CORE-011). Under it
+  the sources: document, article and clause, its title, "Đã sửa đổi" when it has
+  `amended_by`, and a link to the source page in a new tab (AC-010). Then `NOTICE`, under every
+  answer, a not-found one included (FR-CORE-013). Then copy, 👍/👎 and the seconds.
+- **Source panel**: a chip or a source row opens it. Kind, document, title, place, issue date,
+  effective date, "hồi tố, trước ngày ban hành" when the effective date comes first (#30,
+  correction to choice 8), one line per amendment link with "Xem nguồn [n]" when its source is
+  among the sources, the heading and the text, and a link to the source page. On a page 1280 px
+  wide or more it opens on the first source of a new answer; under 1280 px it is a drawer,
+  under 900 px a bottom sheet.
+- **Not found** (S6): `NOT_FOUND` as the answer, tips on asking again, a link to the documents.
+- **Error** (S7): `ERROR`, or `QUOTA` on a 429, with "Thử lại" (the same question again) and
+  "Sửa câu hỏi" (back to the box). The failed question is not kept. A 503 sends the page back to
+  loading and the question back to the box.
+- **Delete** (S9): the trash on a history row asks first; deleting the open conversation goes back
+  to the welcome.
+- **Documents** (S10): `GET /api/documents` grouped by kind, filtered as one types.
 
-## The session
+**History** (choices 3A, 4A, 7A). The conversations are kept in the browser's `localStorage`,
+newest first, at most 50: the oldest is dropped. Each keeps its questions, the API's answers and
+the votes; nothing goes to the server. Its title is its first question. A write that fails
+(storage full or blocked) keeps the conversation for the open page only. Copy puts the answer
+with the page's numbers, its sources with their links, and `NOTICE` on the clipboard.
 
-Kept in `st.session_state["session"]`, one `src.conversation.Session` per browser session,
-with the default rewriter, `concat` ([conversation.md](conversation.md)): a follow-up costs no
-model call beyond its answer.
+**Safety.** Every text from the API or the corpus is escaped before it is put in the page; a
+link is used only when it starts with `http://` or `https://`.
 
-When there is none, it is made over the retriever and the answerer of the process, loaded once
-by a function cached with `st.cache_resource`: `Retriever.load()` and `Answerer.load()` over
-`data/`, with one `LLM()`. Every browser session shares them, and so shares the wrapper's
-pacing of 15 requests a minute (ADR-0003). An index that is missing or not finished
-(`IndexNotReadyError`) is logged and shows `LOAD_ERROR`; it is not cached, so the next run
-tries again.
+## Tests — `tests/web/`
 
-## Tests — `tests/test_app.py`
+FastAPI's `TestClient` runs the app with no browser and no network (#30, *Risks*):
+`test_api.py` with a `load` that returns a fake retriever and a fake answerer, so nothing loads
+the index; `test_page.py` reads the page, its texts, its stylesheet and its script as served.
+The script itself is checked by hand in the end-to-end run, not by an automated browser.
 
-Streamlit's `AppTest` runs the page with no browser and no network (choice 4A). A `Session` over
-a fake retriever and a fake answerer is put in `st.session_state["session"]` before the first
-run; the missing-index case patches `Retriever.load` instead.
+## The Streamlit page's end-to-end run
 
-The API's tests, `tests/web/test_api.py`, go through FastAPI's `TestClient` with a `load` that
-returns a fake retriever and a fake answerer, so nothing loads the index and nothing goes to the
-network (#30, *Risks*).
-
-## The end-to-end run
-
-One run on the real index and model, 2 turns, a question and a follow-up written for this run,
+Recorded on #17, before #30 replaced the page; the run of the page of #30 is recorded when #30
+closes. One run on the real index and model, 2 turns, a question and a follow-up written for this run,
 not taken from the eval set (choice 4A). At commit `420aa3e`, on the dev laptop (CPU), through
 `AppTest` over `src/app.py` with nothing put in the session, so the page loaded the index and
 `LLM()` itself; `gemini-3.5-flash-lite`, rewriter `concat`.
