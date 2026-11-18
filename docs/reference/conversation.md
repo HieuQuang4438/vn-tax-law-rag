@@ -71,7 +71,9 @@ into its query under `concat`; `fuse` keeps the follow-up's own list beside it.
 `Retriever.fuse(questions, k=TOP_K)` ([retrieval.md](retrieval.md)) searches each question as
 `retrieve` does and joins their uncut lists (`Rankings.final`) by `rrf` with the retriever's
 `rrf_k`, each list weighing 1. With `per_article`, a chunk whose parent article already has a
-chunk above it is skipped, as in `retrieve`. The first k are the hits. A hit's `found_by` holds
+chunk above it is skipped, as in `retrieve`, unless it is a reference slot of one of the
+searches: `retrieve` never skips a slot, so one question keeps its two named clauses of one
+article. The first k are the hits. A hit's `found_by` holds
 every way any of the searches found it, in the fixed order (`reference` when it is a reference
 slot of any of them), and its `score` is its score in this fusion. `unresolved` holds each
 search's, in question order, an entry with the same text and reason as an earlier one kept

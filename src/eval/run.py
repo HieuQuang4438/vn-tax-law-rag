@@ -18,6 +18,8 @@ from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import Any, Protocol
 
+from src.conversation import PROMPT as REWRITE_PROMPT
+from src.conversation import rewriter as make_rewriter
 from src.eval.dataset import EvalSet, Item, load_eval_set
 from src.eval.metrics import (
     BOOTSTRAP_LEVEL,
@@ -60,6 +62,7 @@ class Outcome:
     tokens: dict[str, int] = field(default_factory=lambda: {"input": 0, "output": 0})
     cost_usd: float = 0.0
     answer: Any = None  # a src.answer.Answer when the item was generated (#15)
+    rewritten: bool | None = None  # a query differs from the question (#19)
 
 
 class Pipeline(Protocol):
@@ -69,17 +72,47 @@ class Pipeline(Protocol):
         ...
 
 
+def _rewrite_stages(rewriter) -> list[str]:
+    return [] if rewriter.name == "none" else ["rewrite"]
+
+
+def _rewrite_config(rewriter) -> dict:
+    if rewriter.name != "llm":
+        return {}
+    return {"rewrite_model": rewriter.llm.model,
+            "rewrite_prompt": hashlib.sha256(REWRITE_PROMPT.read_bytes()).hexdigest()}
+
+
+def _rewritten(retriever, rewriter, question: str, earlier: tuple[str, ...], k: int) -> Outcome:
+    """A turn through its rewriter, then retrieval: `retrieve` for one query, `fuse` for two (#19)."""
+    latency: dict[str, float] = {}
+    started = time.perf_counter()
+    rewrite = rewriter.rewrite(question, earlier)
+    if earlier and rewriter.name != "none":
+        latency["rewrite"] = rewrite.latency_s if rewrite.call else time.perf_counter() - started
+    started = time.perf_counter()
+    if len(rewrite.queries) == 1:
+        result = retriever.retrieve(rewrite.queries[0], k=k)
+    else:
+        result = retriever.fuse(list(rewrite.queries), k=k)
+    latency["retrieval"] = time.perf_counter() - started
+    call = rewrite.call
+    tokens = {"input": call.input_tokens, "output": call.output_tokens} if call else {"input": 0, "output": 0}
+    return Outcome(result.hits, result.unresolved, latency, tokens, call.cost_usd if call else 0.0,
+                   rewritten=rewrite.queries != (question,))
+
+
 class RetrievalPipeline:
-    """Today's pipeline: one stage, retrieval, each question as written (`rewrite: none`)."""
+    """Retrieval only, each turn through its rewriter (#19); `none`, the default, keeps it as written."""
 
     def __init__(self, retriever, k: int = TOP_K, rewriter=None):
-        self._retriever, self._k = retriever, k  # rewriter: stub, not used yet (#19)
-        self.config = {"stages": ["retrieval"], "rewrite": "none", "top_k": k, **retriever.fusion.config()}
+        self._retriever, self._k = retriever, k
+        self._rewriter = rewriter or make_rewriter("none")
+        self.config = {"stages": _rewrite_stages(self._rewriter) + ["retrieval"], "rewrite": self._rewriter.name,
+                       "top_k": k, **retriever.fusion.config(), **_rewrite_config(self._rewriter)}
 
     def answer(self, question: str, earlier: tuple[str, ...] = ()) -> Outcome:
-        started = time.perf_counter()
-        result = self._retriever.retrieve(question, k=self._k)
-        return Outcome(result.hits, result.unresolved, {"retrieval": time.perf_counter() - started})
+        return _rewritten(self._retriever, self._rewriter, question, tuple(earlier), self._k)
 
 
 class AnswerPipeline:
@@ -93,15 +126,17 @@ class AnswerPipeline:
         from src.llm import PRICES, PRICES_READ
 
         self._retriever, self._answerer, self._k = retriever, answerer, k
+        self._rewriter = rewriter or make_rewriter("none")
         model = answerer.llm.model
         price_in, price_out = PRICES[model]
-        self.config = {"stages": ["retrieval", "assembly", "generation"], "rewrite": "none", "top_k": k,
+        self.config = {"stages": _rewrite_stages(self._rewriter) + ["retrieval", "assembly", "generation"],
+                       "rewrite": self._rewriter.name, "top_k": k,
                        **retriever.fusion.config(), "model": model,
                        "prices": {"read": PRICES_READ, "input": price_in, "output": price_out},
                        "prompts": {"answer": hashlib.sha256(ANSWER_PROMPT.read_bytes()).hexdigest(),
                                    "judge": hashlib.sha256(JUDGE_PROMPT.read_bytes()).hexdigest()},
                        "judge_model": judge_model or model, "context_budget": answerer.assembler.budget,
-                       "google_genai": _version("google-genai")}
+                       "google_genai": _version("google-genai"), **_rewrite_config(self._rewriter)}
 
     def _retrieval(self, question: str):
         started = time.perf_counter()
@@ -109,8 +144,7 @@ class AnswerPipeline:
         return result, time.perf_counter() - started
 
     def retrieve(self, question: str, earlier: tuple[str, ...] = ()) -> Outcome:
-        result, seconds = self._retrieval(question)
-        return Outcome(result.hits, result.unresolved, {"retrieval": seconds})
+        return _rewritten(self._retriever, self._rewriter, question, tuple(earlier), self._k)
 
     def answer(self, question: str) -> Outcome:
         result, seconds = self._retrieval(question)
@@ -192,6 +226,7 @@ def _item(item: Item, kind: str, conversation: str | None, turn: int | None, out
         "kind": kind,
         "conversation": conversation,
         "turn": turn,
+        "rewritten": outcome.rewritten if kind == "turn" else None,
         "tax_type": item.tax_type,
         "form": item.form,
         "added_in": item.added_in,
@@ -384,12 +419,13 @@ def evaluate(eval_set: EvalSet, pipeline: Pipeline, parents: dict[str, str], k: 
     chunks_of: dict[str, list[dict]] = {}
     for chunk in chunks.values():
         chunks_of.setdefault(chunk["parent_id"], []).append(chunk)
-    runs = [(q, "question", None, None) for q in eval_set.questions]
-    runs += [(t, "turn", c.id, n) for c in eval_set.conversations for n, t in enumerate(c.turns, start=1)]
+    runs = [(q, "question", None, None, ()) for q in eval_set.questions]
+    runs += [(t, "turn", c.id, n, tuple(e.question for e in c.turns[:n - 1]))
+             for c in eval_set.conversations for n, t in enumerate(c.turns, start=1)]
     if runs:
         retrieve(runs[0][0].question)  # warm-up, not recorded
     items, judge_model = [], getattr(getattr(judge, "llm", None), "model", None)
-    for item, kind, conversation, turn in runs:
+    for item, kind, conversation, turn, earlier in runs:
         if generating and kind == "question":
             stored = progress.items.get(item.id) if progress else None
             if stored:
@@ -405,7 +441,8 @@ def evaluate(eval_set: EvalSet, pipeline: Pipeline, parents: dict[str, str], k: 
             if answers is not None:
                 answers.append(record)
         else:
-            entry = _item(item, kind, conversation, turn, retrieve(item.question), parents, k)
+            outcome = retrieve(item.question, earlier) if kind == "turn" else retrieve(item.question)
+            entry = _item(item, kind, conversation, turn, outcome, parents, k)
         items.append(entry)
 
     standalone = [i for i in items if i["kind"] == "question" and i["recall"] is not None]
@@ -433,7 +470,7 @@ def evaluate(eval_set: EvalSet, pipeline: Pipeline, parents: dict[str, str], k: 
         "median_s": statistics.median(totals) if totals else None,
         "p95_s": statistics.quantiles(totals, n=20)[-1] if len(totals) > 1 else (totals[0] if totals else None),
         "stages": stages,
-        "scope": f"{'retrieval only' if stages == ['retrieval'] else 'full pipeline'}, dev laptop",
+        "scope": f"{'retrieval only' if 'generation' not in stages else 'full pipeline'}, dev laptop",
         "nfr006": dict(NFR006),
     }
     no_llm = all(i["tokens"].get("input", 0) == 0 and i["tokens"].get("output", 0) == 0 for i in timed)
@@ -691,14 +728,17 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None, judge=
         from src.retrieval import Retriever
 
         retriever = Retriever.load(data, index_dir=index_dir, enriched_dir=enriched, fusion=fusion)
-        if args.generate:
-            from src.answer import Answerer
+        if args.generate or args.rewrite == "llm":
             from src.llm import LLM
 
-            llm = LLM()  # one wrapper for answers and judge: one pacing over one key
-            pipeline = AnswerPipeline(retriever, Answerer.load(data, llm=llm))
+            llm = LLM()  # one wrapper for answers, rewrites and judge: one pacing over the keys
+        turn_rewriter = make_rewriter(args.rewrite, llm)
+        if args.generate:
+            from src.answer import Answerer
+
+            pipeline = AnswerPipeline(retriever, Answerer.load(data, llm=llm), rewriter=turn_rewriter)
         else:
-            pipeline = RetrievalPipeline(retriever)
+            pipeline = RetrievalPipeline(retriever, rewriter=turn_rewriter)
     progress, records, chunks = None, None, None
     if args.generate:
         if judge is None:

@@ -28,15 +28,38 @@ class Rewrite:
     latency_s: float = 0.0
 
 
-class Rewriter:
-    """Stub: every question as written."""
+def _validate(parsed: RewriteOutput) -> None:
+    if not parsed.question.strip():
+        raise ValueError("the rewritten question is empty")
 
+
+class Rewriter:
     def __init__(self, name: str, llm=None):
         self.name, self.llm = name, llm
+        self.prompt = PROMPT.read_text(encoding="utf-8") if name == "llm" else None
 
     def rewrite(self, question: str, earlier: Sequence[str] = ()) -> Rewrite:
-        return Rewrite(question, (question,))
+        earlier = list(earlier)[-EARLIER:]
+        if not earlier or self.name == "none":  # a first turn, or no rewrite (AC-014)
+            return Rewrite(question, (question,))
+        joined = " ".join([*earlier, question])
+        if self.name == "concat":
+            return Rewrite(joined, (joined,))
+        if self.name == "fuse":
+            return Rewrite(joined, (question, joined))
+        numbered = "\n".join(f"{n}. {q}" for n, q in enumerate(earlier, start=1))
+        user = f"Earlier questions:\n{numbered}\n\nFollow-up: {question}"
+        call = self.llm.generate("rewrite", self.prompt, user, RewriteOutput, _validate)
+        text = call.parsed.question.strip()
+        return Rewrite(text, (text,), call, call.latency_s)
 
 
 def rewriter(name: str, llm=None) -> Rewriter:
+    """The rewriter of that name; `llm` none means `LLM()` for `llm`."""
+    if name not in REWRITERS:
+        raise ValueError(f"unknown rewriter {name!r}; one of {', '.join(REWRITERS)}")
+    if name == "llm" and llm is None:
+        from src.llm import LLM
+
+        llm = LLM()
     return Rewriter(name, llm)

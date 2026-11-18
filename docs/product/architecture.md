@@ -1,8 +1,7 @@
 ---
-status: approved
+status: in-review
 updated: 2026-11-18
 owner: HieuQuang4438
-approved-by: peer
 ---
 
 # Architecture — vn-tax-law-rag
@@ -113,7 +112,7 @@ local cache, with no network request. Format in [index.md](../reference/index.md
 ## Online: from a question to a cited answer
 
 Runs per question. The three letters of RAG map onto it as: retrieve (steps 1–3),
-augment (step 4), generate (steps 5–6). Steps 2 to 6 are built; step 1 is planned.
+augment (step 4), generate (steps 5–6). Steps 1 to 6 are built.
 
 ```mermaid
 flowchart LR
@@ -133,16 +132,17 @@ flowchart LR
     s6 --> ans[/"answer + linked citations<br/>+ not-advice notice"/]
     ans --> hist
 
-    classDef planned stroke-dasharray: 5 5
-    class s1 planned
 ```
 
-### 1. Follow-up rewrite — planned
+### 1. Follow-up rewrite — built
 
 A conversation is kept per session. A follow-up such as "còn hộ kinh doanh thì sao?" has no
-topic of its own, so before retrieval it is turned into a standalone question using the earlier
-turns. Whether an LLM does the rewrite, or the earlier question is simply added to the search,
-is decided by measurement. — FR-CORE-016
+topic of its own, so before retrieval it is turned into a query using the earlier questions,
+not the answers; a first turn is used as written. Four rewriters are built: none, the earlier
+questions joined to the follow-up, the follow-up and that join retrieved apart and fused, and
+an LLM rewrite into one standalone question. Which one the session uses is decided by EVAL-005
+([conversation.md](../reference/conversation.md)). The answer to a follow-up sees the rewritten
+question and the passages only. — FR-CORE-016
 
 ### 2. Reference lookup — built
 

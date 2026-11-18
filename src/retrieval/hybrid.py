@@ -281,8 +281,32 @@ class Retriever:
         return Retrieval(hits, search.unresolved)
 
     def fuse(self, questions: list[str], k: int = TOP_K) -> Retrieval:
-        """Stub (#19): no hits."""
-        return Retrieval()
+        """Several questions searched as one (#19): their uncut lists joined by rrf, one hit per article.
+
+        A reference slot of any search is never skipped, so one question gives `retrieve`'s chunks.
+        """
+        searches = [self._search(question) for question in questions]
+        finals = [set(search.final) for search in searches]
+        slots = {chunk_id for search in searches for chunk_id in search.slots}
+        hits: list[Hit] = []
+        above: set[str] = set()
+        for chunk_id, score in rrf([search.final for search in searches], self.fusion.rrf_k):
+            if len(hits) >= k:
+                break
+            parent = self._parent[chunk_id]
+            if self.fusion.per_article and parent in above and chunk_id not in slots:
+                continue
+            above.add(parent)
+            ways = {"reference"} if chunk_id in slots else set()
+            for search, final in zip(searches, finals):
+                if chunk_id in final:
+                    ways.update(way for way in ("keyword", "vector", "document") if chunk_id in search.lists[way])
+            hits.append(Hit(chunk_id, tuple(w for w in ("reference", "keyword", "vector", "document") if w in ways),
+                            score))
+        unresolved: list[Unresolved] = []
+        for search in searches:
+            unresolved += [u for u in search.unresolved if u not in unresolved]
+        return Retrieval(hits, unresolved)
 
     def _search(self, question: str) -> "_Search":
         """Everything `retrieve` and `rankings` read, before any cut at k."""
