@@ -1,8 +1,7 @@
 ---
-status: approved
+status: in-review
 updated: 2026-11-18
 owner: HieuQuang4438
-approved-by: peer
 ---
 
 # Architecture — vn-tax-law-rag
@@ -187,13 +186,14 @@ with no similarity floor. The model is `gemini-3.5-flash-lite` on the Gemini API
 tier (ADR-0003), called through one wrapper that keeps under 15 requests a minute, retries and
 logs every call ([answer.md](../reference/answer.md)). — FR-CORE-010, FR-CORE-012
 
-### 6. Citations — built, the notice planned
+### 6. Citations — built
 
 Each citation id becomes document, article and clause with a link to the source page; the
 link scrolls to the article where the browser supports text fragments, since the page has no
 anchor per article. A citation id that was not in the context is listed apart, never shown as
-a source. The note that this is information, not advice, comes with the web interface (#17).
-— FR-CORE-011, FR-CORE-013
+a source. The web chat page shows under every answer the note that it is information, not
+advice, and keeps one conversation per browser session ([web.md](../reference/web.md)).
+— FR-CORE-011, FR-CORE-013, FR-CORE-014
 
 ## Measuring it — built; answer relevancy planned
 

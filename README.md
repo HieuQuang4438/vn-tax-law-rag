@@ -119,6 +119,12 @@ python -m src.eval.check             # check eval/questions.yaml against the cor
 python -m src.eval.run               # score it; writes eval/results/<date>-<commit>.json
 ```
 
+Chat with it in the browser, against the built index:
+
+```bash
+python -m streamlit run src/app.py
+```
+
 ## Tests
 
 ```bash
@@ -136,5 +142,6 @@ Early. The crawler fetches all 30 listed documents; every one has an unbroken ru
 from Điều 1 to its last article. Chunking (744 articles, 1,286 chunks), the context header,
 each chunk's effective date, the amendment links between documents (175) and both indexes
 over the chunks (vector and BM25), reference lookup and hybrid retrieval, context assembly,
-cited answers and eval set v2 are built, with the eval runner scoring retrieval and, with
-`--generate`, the answers; there is no interface yet.
+cited answers, multi-turn conversation, the web chat page and eval set v2 are built, with
+the eval runner scoring retrieval and, with `--generate`, the answers; the demo is not deployed
+yet.
