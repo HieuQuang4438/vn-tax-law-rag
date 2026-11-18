@@ -259,6 +259,7 @@ kbd { font-family: var(--font-mono); font-size: 11px; padding: 0 4px; border: 1p
 .facts { display: grid; grid-template-columns: auto 1fr; gap: var(--s-2) var(--s-4); margin: 0; font-size: var(--fs-14); padding: var(--s-3) var(--s-4); background: var(--surface-2); border-radius: var(--r-md); }
 .facts dt { color: var(--muted); }
 .facts dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.facts .retro { display: inline-block; margin-left: var(--s-1); font-size: var(--fs-12); font-weight: 500; color: var(--warn-ink); }
 .excerpt { margin: 0; padding: var(--s-4) var(--s-4) var(--s-4) var(--s-5); border-left: 3px solid var(--accent); background: var(--excerpt-bg); border-radius: 0 var(--r-md) var(--r-md) 0; font-family: var(--font-doc); font-size: var(--fs-16); line-height: 1.7; color: var(--ink-2); }
 .excerpt .loc { display: block; font-family: var(--font-ui); font-size: var(--fs-12); font-weight: 600; color: var(--muted); margin-bottom: var(--s-2); }
 .excerpt mark { background: var(--mark); color: var(--ink); padding: 0 2px; border-radius: 2px; }
@@ -289,10 +290,9 @@ kbd { font-family: var(--font-mono); font-size: 11px; padding: 0 4px; border: 1p
 .docs { flex: 1; overflow-y: auto; padding: 0 var(--s-6) var(--s-5); border-top: 1px solid var(--line); }
 .docs h3 { position: sticky; top: 0; margin: 0; padding: var(--s-3) 0 var(--s-2); background: var(--surface); font-size: var(--fs-12); font-weight: 600; color: var(--subtle); text-transform: uppercase; letter-spacing: .06em; }
 .docs ul { list-style: none; margin: 0; padding: 0; }
-.doc-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: var(--s-3); align-items: center; padding: var(--s-2) 0; border-bottom: 1px solid var(--line); }
+.doc-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s-3); align-items: center; padding: var(--s-2) 0; border-bottom: 1px solid var(--line); }
 .doc-row b { display: block; font-size: var(--fs-14); }
 .doc-row span { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: var(--fs-12); color: var(--muted); }
-.doc-row time { font-size: var(--fs-12); color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .docs-none { padding: var(--s-6) 0; text-align: center; color: var(--muted); font-size: var(--fs-14); }
 .toast { position: absolute; left: 50%; bottom: 100px; z-index: var(--z-toast); transform: translate(-50%, 8px); opacity: 0; pointer-events: none; display: flex; align-items: center; gap: var(--s-2); padding: var(--s-2) var(--s-4); border-radius: var(--r-md); background: var(--ink); color: #fff; font-size: var(--fs-14); box-shadow: var(--shadow-2); white-space: nowrap; transition: opacity var(--t-base) var(--ease-out), transform var(--t-base) var(--ease-out); }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
@@ -328,8 +328,6 @@ kbd { font-family: var(--font-mono); font-size: 11px; padding: 0 4px; border: 1p
   .dlg.wide { height: 90%; }
   .dlg-head, .dlg-body, .dlg-foot, .docs-tools, .docs { padding-left: var(--s-4); padding-right: var(--s-4); }
   .dlg-foot .btn { flex: 1; }
-  .doc-row { grid-template-columns: minmax(0, 1fr) auto; }
-  .doc-row time { display: none; }
   .status { padding: var(--s-8) var(--s-5); }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -530,7 +528,7 @@ const SRC = {
   nd68_d3: {
     doc_id: "427630", kind: "Nghị định", document: "Nghị định 68/2026/NĐ-CP", where: "Điều 3",
     desc: "Quy định về chính sách thuế và quản lý thuế đối với hộ kinh doanh, cá nhân kinh doanh",
-    loc: "Chương II › Điều 3. Thuế giá trị gia tăng", effective: "05/03/2026",
+    loc: "Chương II › Điều 3. Thuế giá trị gia tăng", issued: "05/03/2026", effective: "05/03/2026",
     amended_by: { doc_id: "433387", text: "Nghị định 141/2026/NĐ-CP, Điều 1, khoản 1 sửa “500 triệu đồng” thành “01 tỷ đồng” tại điều này." },
     excerpt: ["1. Hộ kinh doanh, cá nhân kinh doanh có hoạt động sản xuất, kinh doanh có mức doanh thu năm từ <mark>500 triệu đồng trở xuống thuộc đối tượng không chịu thuế giá trị gia tăng</mark>.",
               "2. Hộ kinh doanh, cá nhân kinh doanh có hoạt động sản xuất, kinh doanh có mức doanh thu năm trên 500 triệu đồng thuộc đối tượng chịu thuế giá trị gia tăng và áp dụng phương pháp tính trực tiếp theo doanh thu bằng tỷ lệ % nhân (x) doanh thu. …"],
@@ -539,7 +537,7 @@ const SRC = {
   nd68_d4: {
     doc_id: "427630", kind: "Nghị định", document: "Nghị định 68/2026/NĐ-CP", where: "Điều 4",
     desc: "Quy định về chính sách thuế và quản lý thuế đối với hộ kinh doanh, cá nhân kinh doanh",
-    loc: "Chương II › Điều 4. Thuế thu nhập cá nhân", effective: "05/03/2026",
+    loc: "Chương II › Điều 4. Thuế thu nhập cá nhân", issued: "05/03/2026", effective: "05/03/2026",
     amended_by: { doc_id: "433387", text: "Nghị định 141/2026/NĐ-CP, Điều 1, khoản 1 sửa “500 triệu đồng” thành “01 tỷ đồng” tại điều này." },
     excerpt: ["1. Cá nhân cư trú có hoạt động sản xuất, kinh doanh, bao gồm cả cá nhân đăng ký thành lập hộ kinh doanh hoặc người được các thành viên hộ gia đình ủy quyền làm người đại diện hộ kinh doanh (sau đây gọi là cá nhân kinh doanh) có mức doanh thu năm từ <mark>500 triệu đồng trở xuống không phải nộp thuế thu nhập cá nhân</mark>.",
               "2. Cá nhân kinh doanh có doanh thu năm trên mức doanh thu quy định tại khoản 1 Điều này thực hiện nộp thuế theo quy định tại <mark>Điều 7 Luật Thuế thu nhập cá nhân số 109/2025/QH15</mark>. …"],
@@ -548,14 +546,14 @@ const SRC = {
   nd141_d1k1: {
     doc_id: "433387", kind: "Nghị định", document: "Nghị định 141/2026/NĐ-CP", where: "Điều 1, khoản 1",
     desc: "Sửa đổi, bổ sung một số điều của Nghị định 68/2026/NĐ-CP và Nghị định 320/2025/NĐ-CP",
-    loc: "Điều 1 › Khoản 1", effective: "01/01/2026",
+    loc: "Điều 1 › Khoản 1", issued: "29/04/2026", effective: "01/01/2026",
     excerpt: ["1. Sửa đổi cụm từ <mark>“500 triệu đồng” thành “01 tỷ đồng” tại Điều 3, Điều 4</mark>, khoản 1 Điều 8, Điều 9, Điều 10, khoản 3 Điều 11, khoản 1 và khoản 2 Điều 12, khoản 4 Điều 17, khoản 3 Điều 18 Nghị định số 68/2026/NĐ-CP."],
     url: "https://luatvietnam.vn/thue/nghi-dinh-141-2026-nd-cp-sua-doi-chinh-sach-thue-cho-ho-kinh-doanh-va-ca-nhan-kinh-doanh-433387-d1.html"
   },
   l09_d2: {
     doc_id: "434729", kind: "Luật", document: "Luật 09/2026/QH16", where: "Điều 2",
     desc: "Sửa đổi, bổ sung Luật Thuế TNCN, Luật Thuế GTGT, Luật Thuế TNDN và Luật Thuế TTĐB",
-    loc: "Điều 2 › sửa khoản 25 Điều 5 Luật Thuế giá trị gia tăng", effective: "01/01/2026",
+    loc: "Điều 2 › sửa khoản 25 Điều 5 Luật Thuế giá trị gia tăng", issued: "24/04/2026", effective: "01/01/2026",
     excerpt: ["“25. Hàng hóa, dịch vụ của hộ, cá nhân sản xuất, kinh doanh có <mark>doanh thu năm từ mức quy định của Chính phủ trở xuống</mark>; tài sản của tổ chức, cá nhân không kinh doanh, không phải là người nộp thuế giá trị gia tăng bán ra; … Căn cứ các chỉ số kinh tế vĩ mô, khả năng cân đối ngân sách, Chính phủ quy định mức doanh thu năm tại khoản này phù hợp với bối cảnh kinh tế - xã hội trong từng thời kỳ.”"],
     url: "https://luatvietnam.vn/thue/luat-thue-sua-doi-2026-so-09-2026-qh16-434729-d1.html"
   }
@@ -650,7 +648,7 @@ const SCREENS = [
   { id: "S5", name: "Câu trả lời + nguồn", turns: [T_VAT], history: "full", current: T_VAT.question, composer: "ready", panel: [0, 1],
     notes: ["Câu trả lời dạng văn bản (serif); chip trích dẫn hổ phách đánh số 1…n theo thứ tự xuất hiện. Mã gốc của mô hình (<code>1</code>, <code>1.25</code>) không hiện ra.",
             "Danh sách nguồn: văn bản, điều, khoản, mô tả, nhãn “Đã sửa đổi”, link sang luatvietnam (tab mới). Bấm chip hoặc dòng nguồn để mở panel.",
-            "Panel: loại, số hiệu, vị trí, ngày hiệu lực, cảnh báo sửa đổi kèm nút sang nguồn sửa đổi, trích đoạn có tô sáng. <b>Cần backend trả nội dung đoạn</b> (Q1).",
+            "Panel: loại, số hiệu, vị trí, ngày ban hành, ngày hiệu lực của chính điều khoản (nhãn “hồi tố” khi sớm hơn ngày ban hành, như NĐ 141/2026), cảnh báo sửa đổi kèm nút sang nguồn sửa đổi, trích đoạn có tô sáng. <b>Cần backend trả nội dung đoạn</b> (Q1).",
             "Trích dẫn bị gắn cờ: chip “?” viền đứt và dòng vàng giải thích (FR-CORE-011). Ghi chú không phải tư vấn nằm dưới mọi câu trả lời (FR-CORE-013).",
             "Sao chép: chép văn bản kèm danh sách nguồn. 👍/👎: đánh dấu tại chỗ (Q3)."] },
   { id: "S6", name: "Không tìm thấy", turns: [T_NF], history: "full", current: T_NF.question, composer: "ready",
@@ -671,7 +669,7 @@ const SCREENS = [
             "Xóa xong thì hiện toast “Đã xóa hội thoại”. Xóa hội thoại đang mở thì về màn chào."] },
   { id: "S10", name: "Danh sách văn bản", turns: [T_VAT], history: "full", current: T_VAT.question, composer: "ready", dialog: "docs",
     notes: ["Mở từ “Xem danh sách” ở chân thanh bên, và từ màn không tìm thấy (S6).",
-            "30 văn bản theo ba nhóm Luật / Nghị định / Thông tư: số hiệu, tên, ngày hiệu lực sớm nhất trong corpus, link gốc. Ô lọc theo số hiệu hoặc tên chạy được.",
+            "30 văn bản theo ba nhóm Luật / Nghị định / Thông tư: số hiệu, tên, link gốc. Không có cột ngày (lựa chọn 8A trên #30). Ô lọc theo số hiệu hoặc tên chạy được.",
             "Dữ liệu lấy từ <code>data/processed/_index.json</code> và các chunk; API trả về khi trang mở (Q5)."] }
 ];
 
@@ -825,7 +823,7 @@ function openPanel(ti, n) {
   const by = s.amended_by ? t.sources.findIndex(x => x.doc_id === s.amended_by.doc_id) + 1 : 0;
   $("#panel-body").innerHTML = `
     <div><div class="doc-kind">${s.kind}</div><h3 class="doc-title">${s.document}</h3><p class="doc-desc">${s.desc}</p></div>
-    <dl class="facts"><dt>Vị trí</dt><dd>${s.where}</dd><dt>Hiệu lực từ</dt><dd>${s.effective}</dd></dl>
+    <dl class="facts"><dt>Vị trí</dt><dd>${s.where}</dd><dt>Ban hành</dt><dd>${s.issued}</dd><dt>Hiệu lực từ</dt><dd>${s.effective}${retro(s) ? ` <span class="retro">hồi tố, trước ngày ban hành</span>` : ""}</dd></dl>
     ${s.amended_by ? `<div class="amend">${ic("history")}<div><b>Đã được sửa đổi.</b> ${s.amended_by.text}${by ? ` <button type="button" data-turn="${ti}" data-src="${by}">Xem nguồn [${by}]</button>` : ""}</div></div>` : ""}
     <blockquote class="excerpt"><span class="loc">${s.loc}</span>${s.excerpt.map(p => `<p>${p}</p>`).join("")}</blockquote>`;
   $("#panel-body").scrollTop = 0;
@@ -833,6 +831,8 @@ function openPanel(ti, n) {
   document.querySelectorAll(".a-body .cite[data-src]").forEach(c => c.setAttribute("aria-current", c.dataset.turn == ti && c.dataset.src == n));
   document.querySelectorAll(".src").forEach(li => li.classList.toggle("active", li.dataset.turn == ti && li.dataset.row == n));
 }
+const dmy = d => d.split("/").reverse().join("");
+const retro = s => dmy(s.effective) < dmy(s.issued);
 function closePanel() {
   state.panel = null;
   app.classList.add("panel-closed");
@@ -851,7 +851,7 @@ function drawDocs(q) {
   const rows = DOCS.filter(d => !q || (d[0] + " " + d[1] + " " + d[2]).toLowerCase().includes(q));
   const html = ["Luật", "Nghị định", "Thông tư"].map(k => {
     const g = rows.filter(d => d[0] === k); if (!g.length) return "";
-    return `<h3>${k} · ${g.length}</h3><ul>` + g.map(d => `<li class="doc-row"><div><b>${d[0]} ${d[1]}</b><span>${d[2]}</span></div><time>${d[3]}</time>
+    return `<h3>${k} · ${g.length}</h3><ul>` + g.map(d => `<li class="doc-row"><div><b>${d[0]} ${d[1]}</b><span>${d[2]}</span></div>
       <a class="src-ext" href="https://luatvietnam.vn/thue/${d[4]}.html" target="_blank" rel="noopener" aria-label="Mở ${d[0]} ${d[1]} trên luatvietnam.vn (tab mới)">${ic("ext")}</a></li>`).join("") + `</ul>`;
   }).join("");
   $("#docs").innerHTML = html || `<div class="docs-none">Không có văn bản nào khớp “${esc(q)}”.</div>`;

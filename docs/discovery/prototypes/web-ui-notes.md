@@ -67,12 +67,12 @@ Token nằm trong khối `:root` đầu file HTML. Stylesheet của sản phẩm
 | S2 · Lỗi tải chỉ mục | Thẻ đỏ, giữ nguyên văn `LOAD_ERROR`, thêm một dòng cho người vận hành và nút "Thử lại" | "Thử lại" gọi lại API trạng thái và quay về S1. Không hiện stack trace |
 | S3 · Hội thoại mới | Màn chào: tiêu đề, một câu về phạm vi, ba điểm (mỗi ý có nguồn · báo khi luật đã bị sửa · hỏi tiếp), ghi chú `NOTICE`. Không có câu hỏi gợi ý. Lịch sử trống thì hiện một ô viền đứt | "Cuộc hội thoại mới" luôn về màn này, không hỏi xác nhận vì hội thoại cũ còn trong lịch sử |
 | S4 · Đang trả lời | Câu hỏi hiện ngay; phần trả lời là khung xám, `SPINNER` "Đang tìm và trả lời…" và bộ đếm giây | Vẫn gõ được câu tiếp theo nhưng nút gửi tắt. Hội thoại hiện ngay ở đầu lịch sử. Không chia bước vì server không báo tiến độ |
-| S5 · Câu trả lời và nguồn | Câu trả lời dạng serif với chip 1…n. Danh sách nguồn: văn bản, điều, khoản, mô tả, nhãn "Đã sửa đổi", link mở tab mới. Dòng vàng cho trích dẫn bị gắn cờ (chip "?"). `NOTICE` dưới mọi câu trả lời. Hàng nút sao chép / 👍 / 👎, thời gian trả lời, số nguồn | Bấm chip hoặc dòng nguồn để mở panel: loại văn bản, số hiệu, vị trí, ngày hiệu lực, cảnh báo sửa đổi kèm nút "Xem nguồn [n]", trích đoạn có tô sáng, nút mở văn bản gốc. Nguồn đầu tiên tự mở trên desktop rộng |
+| S5 · Câu trả lời và nguồn | Câu trả lời dạng serif với chip 1…n. Danh sách nguồn: văn bản, điều, khoản, mô tả, nhãn "Đã sửa đổi", link mở tab mới. Dòng vàng cho trích dẫn bị gắn cờ (chip "?"). `NOTICE` dưới mọi câu trả lời. Hàng nút sao chép / 👍 / 👎, thời gian trả lời, số nguồn | Bấm chip hoặc dòng nguồn để mở panel: loại văn bản, số hiệu, vị trí, ngày ban hành, ngày hiệu lực của chính điều khoản (nhãn "hồi tố, trước ngày ban hành" khi sớm hơn), cảnh báo sửa đổi kèm nút "Xem nguồn [n]", trích đoạn có tô sáng, nút mở văn bản gốc. Nguồn đầu tiên tự mở trên desktop rộng |
 | S6 · Không tìm thấy | Nguyên văn `NOT_FOUND` màu nhạt hơn; khung "Thử hỏi lại" gồm ba gợi ý và link tới danh sách văn bản; `NOTICE` | Không có nguồn, không có panel |
 | S7 · Lỗi khi trả lời | Khung đỏ có icon, nguyên văn `ERROR`, câu "Câu hỏi chưa được lưu vào hội thoại", nút "Thử lại" và "Sửa câu hỏi" | "Thử lại" gửi lại đúng câu đó. "Sửa câu hỏi" đưa câu hỏi về ô nhập. Hết quota hoặc vượt nhịp cũng hiện thông báo này (Q2) |
 | S8 · Hội thoại nhiều lượt | Hai lượt: thuế GTGT, rồi "Còn thuế thu nhập cá nhân thì sao?" | Mỗi câu trả lời có danh sách nguồn riêng, đánh số lại từ 1. Tiêu đề panel ghi "Nguồn · câu trả lời 2". Tiêu đề hội thoại là câu hỏi đầu tiên |
 | S9 · Xóa hội thoại | Icon thùng rác ở dòng lịch sử (hiện khi rê chuột hoặc focus, luôn hiện ở dòng đang mở). Hộp xác nhận: "… sẽ bị xóa khỏi trình duyệt này. Không khôi phục được.", nút "Hủy" và "Xóa" (đỏ) | Esc hoặc bấm nền để hủy. Xóa xong hiện toast "Đã xóa hội thoại"; nếu xóa hội thoại đang mở thì về S3 |
-| S10 · Danh sách văn bản | Hộp thoại lớn: 30 văn bản chia ba nhóm Luật (7) / Nghị định (11) / Thông tư (12), mỗi dòng có số hiệu, tên, ngày hiệu lực, link gốc; ô lọc | Mở từ "Xem danh sách" ở chân thanh bên và từ S6. Lọc theo số hiệu hoặc tên ngay khi gõ |
+| S10 · Danh sách văn bản | Hộp thoại lớn: 30 văn bản chia ba nhóm Luật (7) / Nghị định (11) / Thông tư (12), mỗi dòng có số hiệu, tên, link gốc; ô lọc. Không có cột ngày (lựa chọn 8A trên #30) | Mở từ "Xem danh sách" ở chân thanh bên và từ S6. Lọc theo số hiệu hoặc tên ngay khi gõ |
 
 **Chữ của app:** giữ nguyên các hằng số hiện có của `src.app`: `TITLE`, `PLACEHOLDER`, `NOTICE`, `NEW_CONVERSATION`, `SPINNER`, `ERROR`, `LOAD_ERROR`. Các chữ mới (màn chào, gợi ý hỏi lại, hộp xác nhận, toast) lấy theo prototype.
 
@@ -85,12 +85,12 @@ Prototype dựng màn từ dữ liệu có cấu trúc (`TURNS` / `SRC` trong sc
 | Endpoint | Trả về |
 |---|---|
 | `GET /api/status` | `loading` · `ready` · `error` (S1, S2) |
-| `POST /api/ask` | Vào: câu hỏi và các câu hỏi trước của hội thoại. Ra: `sentences[{text, citations}]`, `sources[]`, `flagged[]`, `not_found`, `latency_s`. Mỗi phần tử `sources[]` có `document`, `kind`, `article`, `clause`, `desc`, `url`, `effective`, `excerpt`, `amended_by` |
+| `POST /api/ask` | Vào: câu hỏi và các câu hỏi trước của hội thoại. Ra: `sentences[{text, citations}]`, `sources[]`, `flagged[]`, `not_found`, `latency_s`. Mỗi phần tử `sources[]` có `document`, `kind`, `article`, `clause`, `desc`, `url`, `issued`, `effective`, `excerpt`, `amended_by` |
 | `GET /api/documents` | 30 văn bản cho S10, hoặc một file JSON tĩnh (Q5) |
 
 **Ngoài phạm vi trang** (backend phải bổ sung):
 - `Citation` chưa có nội dung đoạn: `passage` hiện chỉ là id (Q1).
-- `Answer` chưa có mô tả văn bản, ngày hiệu lực, quan hệ sửa đổi ở dạng có cấu trúc. Các dữ liệu này có sẵn trong chunk (`effective_date`, `amended_by`) và trong header.
+- `Answer` chưa có mô tả văn bản, ngày ban hành, ngày hiệu lực, quan hệ sửa đổi ở dạng có cấu trúc. Các dữ liệu này có sẵn trong chunk (`effective_date`, `amended_by`), trong header và trong metadata văn bản (`ngay_ban_hanh`).
 
 **Phía trang**
 - Đánh số lại trích dẫn thành 1…n theo thứ tự xuất hiện. Mã bị gắn cờ hiện chip "?" và nêu mã gốc trong dòng cảnh báo.
@@ -108,4 +108,4 @@ Prototype dựng màn từ dữ liệu có cấu trúc (`TURNS` / `SRC` trong sc
 - **Q5** (S10): danh sách văn bản lấy qua API, hay xuất một file JSON tĩnh lúc dựng chỉ mục?
 - **Q6**: API không giữ trạng thái, trang gửi kèm các câu hỏi trước; nhờ vậy mở lại hội thoại cũ sau khi server khởi động lại vẫn hỏi tiếp được. Hay giữ session phía server theo id?
 - **Q7** (S9): lịch sử chỉ nằm trên một trình duyệt, không đồng bộ giữa các máy. Có cần giới hạn số hội thoại (ví dụ 50, xóa cái cũ nhất) không?
-- **Q8** (S5, S10): ngày hiệu lực lấy ngày sớm nhất trong chunk của văn bản. Một số ngày trông lạ (ví dụ Nghị định 141/2026 có ngày 01/01/2026, sớm hơn Nghị định 68/2026 mà nó sửa). Vẫn hiện, hay ẩn cho tới khi kiểm tra lại dữ liệu?
+- **Q8** (S5, S10): ngày hiệu lực. **Đã chốt** trên #30 (8A, cộng phần đính chính): panel hiện ngày hiệu lực của chính điều khoản được trích và ngày ban hành của văn bản; S10 không có cột ngày. Ngày 01/01/2026 của Nghị định 141/2026 (ban hành 29/04/2026) và của Luật 09/2026/QH16 (ban hành 24/04/2026) là hiệu lực hồi tố do chính văn bản quy định, không phải lỗi dữ liệu.
