@@ -134,7 +134,7 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 - Web chat page: `python -m src.web` serves the static page built from the approved prototype:
   sources numbered on the page with a panel that shows each one's text, issue and effective
   dates and amendments, the not-advice notice under every answer, a quota message of its own,
-  and up to 50 conversations kept in the browser. FR-CORE-011, FR-CORE-013, FR-CORE-014,
+  and up to 50 conversations kept in the browser, each one renamable. FR-CORE-011, FR-CORE-013, FR-CORE-014,
   AC-010, #30.
 
 ### Changed

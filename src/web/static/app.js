@@ -26,6 +26,7 @@ let panel = null;            // [turn index, source number]
 let shown = null;            // [conversation id, turn index, source number]: the source last shown
 let documents = null;
 let timer = null, lastFocus = null, toDelete = null;
+let renaming = null;         // the id of the conversation whose title is being edited
 
 function read() {
   try {
@@ -200,10 +201,27 @@ function renderHistory() {
     if (!items.length) return "";
     return `<h2>${name}</h2><ul>` + items.map(c => {
       const open = c.id === openId;
+      if (c.id && c.id === renaming) {
+        return `<li class="hist-row${open ? " current" : ""}"><input class="hist-input" id="rename-input" type="text" maxlength="100" value="${esc(c.title)}" aria-label="Tên hội thoại"></li>`;
+      }
       return `<li class="hist-row${open ? " current" : ""}"><button class="hist-item" type="button" data-act="open" data-id="${esc(c.id)}"${open ? ' aria-current="page"' : ""}><span>${esc(c.title)}</span></button>` +
-        (c.id ? `<button class="btn btn-ghost btn-icon sm hist-del" type="button" data-act="ask-del" data-id="${esc(c.id)}" aria-label="Xóa hội thoại “${esc(c.title)}”" title="Xóa">${ic("trash")}</button>` : "") + `</li>`;
+        (c.id ? `<button class="btn btn-ghost btn-icon sm hist-ren" type="button" data-act="rename" data-id="${esc(c.id)}" aria-label="Đổi tên hội thoại “${esc(c.title)}”" title="Đổi tên">${ic("edit")}</button>` +
+                `<button class="btn btn-ghost btn-icon sm hist-del" type="button" data-act="ask-del" data-id="${esc(c.id)}" aria-label="Xóa hội thoại “${esc(c.title)}”" title="Xóa">${ic("trash")}</button>` : "") + `</li>`;
     }).join("") + `</ul>`;
   }).join("");
+  const box = $("#rename-input");
+  if (box) { box.focus(); box.select(); }
+}
+
+/* ---------- rename ---------- */
+function startRename(id) { renaming = id; renderHistory(); }
+function finishRename(keep) {
+  const box = $("#rename-input");
+  if (!renaming || !box) return;
+  const c = conversations.find(x => x.id === renaming), title = box.value.trim();
+  renaming = null;  // first: removing the box fires focusout again
+  if (keep && c && title && title !== c.title) { c.title = title.slice(0, 100); save(); }
+  render();
 }
 
 function setComposer() {
@@ -381,6 +399,7 @@ document.addEventListener("click", e => {
     "copy": () => copy(+a.dataset.turn),
     "docs": () => { app.classList.remove("side-open"); openDocs(); },
     "ask-del": () => openDelete(a.dataset.id),
+    "rename": () => startRename(a.dataset.id),
     "dlg-close": closeDialogs,
     "dlg-bg": closeDialogs,
     "del-confirm": () => {
@@ -394,6 +413,7 @@ document.addEventListener("click", e => {
   })[act]?.();
 });
 $("#docs-q").addEventListener("input", e => drawDocs(e.target.value));
+$("#history").addEventListener("focusout", e => { if (e.target.id === "rename-input") finishRename(true); });
 $("#composer").addEventListener("submit", e => {
   e.preventDefault();
   const question = input.value.trim();
@@ -405,6 +425,11 @@ function resize() { input.style.height = "auto"; input.style.height = Math.min(i
 input.addEventListener("input", resize);
 input.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); $("#composer").requestSubmit(); } });
 document.addEventListener("keydown", e => {
+  if (e.target.id === "rename-input") {
+    if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); finishRename(true); }
+    if (e.key === "Escape") { e.preventDefault(); finishRename(false); }
+    return;
+  }
   if (e.key !== "Escape") return;
   if ([...document.querySelectorAll(".dlg-layer")].some(d => !d.hidden)) closeDialogs();
   else { closePanel(); app.classList.remove("side-open"); }

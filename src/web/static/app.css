@@ -113,7 +113,12 @@ a { color: var(--primary); text-underline-offset: 2px; }
 .hist-item { flex: 1; min-width: 0; display: flex; align-items: center; min-height: 40px; padding: var(--s-2) var(--s-2) var(--s-2) var(--s-3); border: 0; border-radius: var(--r-sm); background: transparent; text-align: left; font-size: var(--fs-14); color: var(--ink-2); }
 .hist-item span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hist-del { opacity: 0; color: var(--subtle); margin-right: 4px; }
-.hist-row:hover .hist-del, .hist-row:focus-within .hist-del, .hist-row.current .hist-del { opacity: 1; }
+.hist-ren { opacity: 0; color: var(--subtle); }
+.hist-row:hover .hist-del, .hist-row:focus-within .hist-del, .hist-row.current .hist-del,
+.hist-row:hover .hist-ren, .hist-row:focus-within .hist-ren, .hist-row.current .hist-ren { opacity: 1; }
+.hist-ren:hover { color: var(--primary); background: var(--primary-soft); }
+.hist-input { flex: 1; min-width: 0; height: 36px; margin: 2px; padding: 0 var(--s-2); border: 1px solid var(--primary); border-radius: var(--r-sm); background: var(--surface); font-size: var(--fs-14); outline: 0; }
+.hist-input:focus-visible { box-shadow: 0 0 0 3px rgb(30 58 138 / .15); }
 .hist-del:hover { color: var(--bad-ink); background: var(--bad-bg); }
 .hist-row.current { background: var(--surface); box-shadow: var(--shadow-1); }
 .hist-row.current .hist-item { color: var(--ink); font-weight: 600; }
