@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import Any
 
-from src.conversation.rewrite import Rewrite
+from src.conversation.rewrite import DEFAULT_REWRITER, Rewrite, rewriter
 from src.retrieval import TOP_K, Retrieval
 
 
@@ -19,9 +19,13 @@ class Turn:
 class Session:
     retriever: Any
     answerer: Any
-    rewriter: Any
+    rewriter: Any = None  # none: rewriter(DEFAULT_REWRITER)
     k: int = TOP_K
     turns: list[Turn] = field(default_factory=list)
+
+    def __post_init__(self):
+        if self.rewriter is None:
+            self.rewriter = rewriter(DEFAULT_REWRITER)
 
     def ask(self, question: str) -> Turn:
         rewrite = self.rewriter.rewrite(question, [turn.question for turn in self.turns])

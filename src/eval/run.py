@@ -18,6 +18,7 @@ from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import Any, Protocol
 
+from src.conversation import DEFAULT_REWRITER
 from src.conversation import PROMPT as REWRITE_PROMPT
 from src.conversation import rewriter as make_rewriter
 from src.eval.dataset import EvalSet, Item, load_eval_set
@@ -706,8 +707,9 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None, judge=
     parser.add_argument("--out", default="eval/results", help="where the results file is written")
     parser.add_argument("--generate", action="store_true",
                         help="also assemble, generate and judge; spends API quota (#15)")
-    parser.add_argument("--rewrite", default="none", choices=("none", "concat", "fuse", "llm"),
-                        help="the rewriter of the conversation turns (#19); llm spends API quota")
+    parser.add_argument("--rewrite", default=DEFAULT_REWRITER, choices=("none", "concat", "fuse", "llm"),
+                        help=f"the rewriter of the conversation turns (#19), default {DEFAULT_REWRITER}; "
+                             "llm spends API quota")
     parser.add_argument("--compare", help="an earlier results file to compare with")
     parser.add_argument("--comparisons", type=int, default=1,
                         help="variants compared with the same baseline; above 1, also the Bonferroni interval")

@@ -13,6 +13,7 @@ from src.llm import Call
 
 REWRITERS = ("none", "concat", "fuse", "llm")
 EARLIER = 2  # how many earlier questions a rewriter reads, the last ones
+DEFAULT_REWRITER = "concat"  # chosen on #19 by EVAL-005, choice 3A
 PROMPT = Path(__file__).resolve().parent.parent / "prompts" / "rewrite.md"
 
 

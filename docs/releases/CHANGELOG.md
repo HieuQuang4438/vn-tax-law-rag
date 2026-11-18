@@ -115,8 +115,8 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 - Multi-turn conversation: `src.conversation.Session` keeps the turns of one conversation and
   turns each follow-up into a query from the earlier questions before retrieval, through one of
   four rewriters (`none`, `concat`, `fuse`, `llm`); `Retriever.fuse` searches several queries as
-  one. `python -m src.eval.run --rewrite <name>` scores a rewriter on EVAL-005. FR-CORE-016,
-  AC-014, EVAL-005, #19.
+  one. `python -m src.eval.run --rewrite <name>` scores a rewriter on EVAL-005; `concat`,
+  chosen on EVAL-005, is the default of the session and of the run. FR-CORE-016, AC-014, EVAL-005, #19.
 
 ### Changed
 
