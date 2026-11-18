@@ -12,6 +12,60 @@
 
 ---
 
+## Session 8 — 2026-11-17 to 2026-11-18 · Not-found reply, multi-turn conversation and the web page (#16, #19, #17)
+
+**Done**
+
+- #16: the answer prompt narrowed: `NOT_FOUND` only when no passage bears on the question, a
+  partial answer otherwise; no similarity floor (choices 1A, 2A) (`271adae`). EVAL-004 read from
+  `not_found` alone, with no judge; the not-found answers to answerable questions counted by
+  recall@k (`answerable_by_recall`).
+- #16: run `271adae` recorded and hand-checked; #16 closed (`2a10b8c`).
+- #19: `src.conversation`: four rewriters (`none`, `concat`, `fuse`, `llm`), `Session`,
+  `Retriever.fuse`; `src.eval.run --rewrite` (`6e9ee24`). Four retrieval-only runs at `6e9ee24`
+  recorded; `concat` made the default of the session and of the run (`fa72e25`); #19 closed
+  (`5fdfcc3`).
+- #17: `src/app.py`, a Streamlit chat page over `Session`, the not-advice notice under every
+  answer, `docs/reference/web.md` (`420aa3e`); a failed retrieval shows the error message too
+  (`be0c71c`); one end-to-end run recorded; #17 closed (`68231f8`).
+- #17 after the close: the "Chi tiết" expander dropped, choice 3B (`dbc8a66`), posted as an
+  Approved comment on #17.
+- `acceptance.md`, `requirements.md`, `architecture.md` and `web.md` approved by the owner.
+
+**Decided + why**
+
+- #16, 1A over a similarity floor: the not-found decision stays with the model, so no
+  threshold has to be tuned on the eval set it is scored on.
+- #19, `concat` under rule 3A: the LLM-free rewriter with the higher EVAL-005; `llm` scored
+  higher (0.629 against 0.526) but its Bonferroni lower bound over `concat` is −0.009. No
+  rewriter separates from `none` (4A), so eval set v3, adding conversations, was approved on
+  #19; not started.
+- #17, the notice in the page, not in `Answer.text` (2A): the eval and the judge see the same
+  answers as before.
+- #17, 3B after the close: the expander showed each passage's id, not its text
+  (`Citation.passage` is the id; the test's fake put text there), and the source links already
+  open the text.
+
+**Real state / warnings**
+
+- Verified 2026-11-18: 654 tests pass, 19 deselected; `develop` matches `origin/develop`; #16,
+  #19 and #17 are closed; `main` is 116 commits behind `origin/develop`.
+- At `271adae`: EVAL-004 0.982 [0.946, 1.000] (n=56); EVAL-002 0.774, down from 0.868, the
+  paired change not significant; EVAL-006 0.402 against a target of 0.80; AC-015 21 pass,
+  7 fail. 30 of 184 answerable questions got "not found" (8 all, 14 some, 8 none by recall@k).
+- At `6e9ee24`: EVAL-005 is 0.494 (`none`), 0.526 (`concat`), 0.480 (`fuse`), 0.629 (`llm`);
+  every rewriter misses the target of 0.70.
+- The page's run at `420aa3e`: 30.8 s to load bge-m3 and both indexes, loaded on the first
+  page open, not at server start; turns of 5.8 s and 2.9 s. The follow-up under `concat` was
+  answered "not found", and turn 1 cited an id not in the context.
+- Assumed, not measured: the judge misgrades the amendment notice sentences, a cause of the
+  EVAL-002 drop; no issue for it.
+- Correction: the Approved comment on #17 for 3B speaks of the run's "`DETAILS` column"; the
+  table has no such column, `DETAILS` was named in its "What the page showed" cells. Not
+  corrected on the issue.
+- Open in v0.3: #18 (deploy) and #22 (ask back). The owner asked about replacing Streamlit
+  with a static HTML page over a FastAPI backend; nothing decided, no issue.
+
 ## Session 7 — 2026-11-16 to 2026-11-17 · Context assembly and cited answers (#14, #15)
 
 **Done**
