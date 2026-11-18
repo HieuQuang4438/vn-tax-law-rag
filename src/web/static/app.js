@@ -23,6 +23,7 @@ let conversations = read();  // newest first; each {id, title, updated, turns: [
 let current = null;          // the open conversation, or null for a new one
 let pending = null;          // {question, started, failed: null | "error" | "quota"}
 let panel = null;            // [turn index, source number]
+let shown = null;            // [conversation id, turn index, source number]: the source last shown
 let documents = null;
 let timer = null, lastFocus = null, toDelete = null;
 
@@ -234,6 +235,7 @@ function render() {
   clearInterval(timer);
   if (showPending && !pending.failed) timer = setInterval(() => { const e = $("#elapsed"); if (e && pending) e.textContent = elapsed(); }, 1000);
   if (panel) openPanel(...panel);
+  syncToggle();
 }
 function scrollDown() { const th = $("#thread"); th.scrollTop = th.scrollHeight; }
 
@@ -250,6 +252,7 @@ function openPanel(ti, n) {
   if (!turn || !turn.answer.sources[n - 1]) { closePanel(); return; }
   const a = turn.answer, s = a.sources[n - 1], by = numbers(a);
   panel = [ti, n];
+  shown = [current.id, ti, n];
   app.classList.remove("panel-closed");
   $("#panel-h").textContent = current.turns.length > 1 ? `Nguồn · câu trả lời ${ti + 1}` : "Nguồn của câu trả lời";
   $("#panel-tabs").innerHTML = a.sources.map((_, k) => `<button class="cite" role="tab" type="button" data-turn="${ti}" data-src="${k + 1}" aria-selected="${k + 1 === n}" aria-current="${k + 1 === n}" aria-label="Nguồn ${k + 1}">${k + 1}</button>`).join("");
@@ -269,10 +272,31 @@ function openPanel(ti, n) {
   $("#panel-link").href = safeUrl(s.url);
   document.querySelectorAll(".a-body .cite[data-src]").forEach(c => c.setAttribute("aria-current", String(+c.dataset.turn === ti && +c.dataset.src === n)));
   document.querySelectorAll(".src").forEach(li => li.classList.toggle("active", +li.dataset.turn === ti && +li.dataset.row === n));
+  syncToggle();
+}
+function sourceToShow() {  // the source last shown in this conversation, else the first of its last answer with one
+  if (!current) return null;
+  if (shown && shown[0] === current.id && current.turns[shown[1]]?.answer.sources[shown[2] - 1]) return [shown[1], shown[2]];
+  for (let i = current.turns.length - 1; i >= 0; i--) if (current.turns[i].answer.sources.length) return [i, 1];
+  return null;
+}
+function syncToggle() {
+  const button = $("#panel-toggle"), open = !!panel, label = open ? "Ẩn nguồn" : "Hiện nguồn";
+  button.disabled = !open && !sourceToShow();
+  button.setAttribute("aria-expanded", String(open));
+  button.setAttribute("aria-label", label);
+  button.title = label;
+  button.querySelector("use").setAttribute("href", open ? "#i-panel-close" : "#i-panel-open");
+}
+function togglePanel() {
+  if (panel) { closePanel(); return; }
+  const source = sourceToShow();
+  if (source) openPanel(...source);
 }
 function closePanel() {
   panel = null;
   app.classList.add("panel-closed");
+  syncToggle();
   document.querySelectorAll(".a-body .cite[aria-current]").forEach(c => c.setAttribute("aria-current", "false"));
   document.querySelectorAll(".src").forEach(li => li.classList.remove("active"));
 }
@@ -353,7 +377,7 @@ document.addEventListener("click", e => {
     "open-side": () => app.classList.add("side-open"),
     "close-side": () => app.classList.remove("side-open"),
     "scrim": () => { closePanel(); app.classList.remove("side-open"); },
-    "close-panel": closePanel,
+    "toggle-panel": togglePanel,
     "copy": () => copy(+a.dataset.turn),
     "docs": () => { app.classList.remove("side-open"); openDocs(); },
     "ask-del": () => openDelete(a.dataset.id),

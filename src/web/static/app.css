@@ -283,7 +283,7 @@ kbd { font-family: var(--font-mono); font-size: 11px; padding: 0 4px; border: 1p
 /* ---------- responsive: container queries on the app's box ---------- */
 @container app (max-width: 1279px) {
   .app, .app.panel-closed { grid-template-columns: var(--w-sidebar) minmax(0, 1fr); }
-  .panel { position: absolute; top: 0; right: 0; bottom: 0; width: min(var(--w-panel), 92%); z-index: var(--z-drawer); box-shadow: var(--shadow-2); transition: transform var(--t-base) var(--ease-out); }
+  .panel { position: absolute; top: 57px; right: 0; bottom: 0; width: min(var(--w-panel), 92%); z-index: var(--z-drawer); box-shadow: var(--shadow-2); transition: transform var(--t-base) var(--ease-out); }  /* under the top bar: its panel button stays in sight */
   .app.panel-closed .panel { transform: translateX(100%); }
   .app:not(.panel-closed) .scrim { display: block; }
 }
@@ -322,3 +322,4 @@ kbd { font-family: var(--font-mono); font-size: 11px; padding: 0 4px; border: 1p
 .a-body p.notices { font-size: var(--fs-16); color: var(--ink-2); }
 /* one focus ring on a text box: its frame's (:focus-within), not a second one of its own */
 .composer textarea:focus-visible, .search input:focus-visible { box-shadow: none; }
+#panel-toggle[aria-expanded="true"] { color: var(--primary); background: var(--primary-soft); }
