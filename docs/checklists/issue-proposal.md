@@ -11,9 +11,10 @@ an approach. The rule it implements is in `CONVENTIONS.md` §7.
 - [ ] Draft the proposal in chat, using the template below. **Nothing posted, nothing coded.** Write it as rendered markdown, not inside a code block: the reviewer has to read it, and a fenced block shows raw `**` and `###` instead of formatting. The code block is only for the exact text being posted, once approved, if it is needed at all.
 - [ ] A human approves or edits it in chat.
 - [ ] Post the approved version as an issue comment, keeping **every** option that was raised and marking the one chosen.
+- [ ] Write what the tests will encode into the owning document, in the **same commit as the failing test** — not after the implementation. A comment is not a source of truth.
+- [ ] Leave the approach itself and the options that lost in the comment. They are the record, not a file waiting to be written.
 - [ ] Implement. Where the work departs from what was approved, record it in the owning document with the reason — never by editing the comment.
 - [ ] Each new decision approved mid-work — how to handle a measurement, a scope change, a parameter — is posted as a **new** comment before it is acted on, using the second template.
-- [ ] What is settled goes into the owning document or an ADR. A comment is not a source of truth.
 - [ ] The PR body says `Closes #N`. No summary comment at the end; the commits and the close are the record.
 
 ## Comment template — proposing an approach
