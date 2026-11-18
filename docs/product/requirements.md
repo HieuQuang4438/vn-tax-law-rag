@@ -1,6 +1,6 @@
 ---
 status: approved
-updated: 2026-11-04
+updated: 2026-11-18
 owner: HieuQuang4438
 approved-by: peer
 ---
@@ -36,7 +36,7 @@ Nothing is released yet, so `Since` is `—` everywhere until the first release 
 | ID | Requirement | Since | Until | Status | Note |
 |---|---|---|---|---|---|
 | FR-CORE-001 | Crawl every document listed in the source summary articles — the 2026 tax document list and the personal income tax list — once each; cache each page; extract document metadata and the full text as ordered blocks. | — | — | approved | Built: `scripts/crawl_index.py` |
-| FR-CORE-002 | Split each document into chunks along its legal structure: one article per chunk; an article over 800 tokens is split into its clauses (Khoản); an article over 800 tokens with no clauses stays whole. Only article text is chunked: the heading block, the preamble ("Căn cứ…"), chapter titles, the signature block and appendix forms are not. Every chunk records document, chapter, article, clause and its parent article. | — | — | approved | ADR-0001. 800 is a starting value, set by #12 |
+| FR-CORE-002 | Split each document into chunks along its legal structure: one article per chunk; an article over 1,600 tokens is split into its clauses (Khoản); an article over 1,600 tokens with no clauses stays whole. Only article text is chunked: the heading block, the preamble ("Căn cứ…"), chapter titles, the signature block and appendix forms are not. Every chunk records document, chapter, article, clause and its parent article. | — | — | approved | ADR-0001. 1,600 set by #12 from the starting value 800: [chunk-schema.md](../reference/chunk-schema.md#threshold-experiment) |
 | FR-CORE-003 | Give every chunk a context header naming its document number, document title (trích yếu), chapter, article and — for a clause chunk — clause, stored apart from the chunk text. Header + text is what gets indexed; text alone is what is shown and cited. | — | — | approved | ADR-0001 |
 | FR-CORE-004 | Record the effective date of every chunk, read from its document's own effectiveness article: the document's date by default, and the specific date where that article sets one for particular articles or clauses. | — | — | approved | ADR-0001 |
 | FR-CORE-005 | Record amends / amended-by, replaces and repeals links at article or clause level. A link whose target document is not in the corpus is kept, with the target identified by document number, article and clause, and marked out-of-corpus. | — | — | approved | ADR-0001 |
@@ -46,11 +46,11 @@ Nothing is released yet, so `Since` is `—` everywhere until the first release 
 
 | ID | Requirement | Since | Until | Status | Note |
 |---|---|---|---|---|---|
-| FR-CORE-016 | Keep the conversation of a session. Before retrieval, rewrite a follow-up question into a standalone question using the earlier turns; a question that needs no context is left unchanged. | — | — | approved | Design open: LLM rewrite or LLM-free (concatenate / fuse both queries), decided by EVAL-005 |
+| FR-CORE-016 | Keep the conversation of a session. Before retrieval, rewrite a follow-up question into a standalone question using the earlier turns; a question that needs no context is left unchanged. | — | — | approved | `concat`, chosen on EVAL-005 (#19): it joins every follow-up to the earlier questions, so only the `llm` rewriter leaves a standalone follow-up unchanged (choice 5A); re-measured on eval set v3 |
 | FR-CORE-007 | Resolve explicit document and article references in a question directly from chunk metadata. | — | — | approved | ADR-0002 |
 | FR-CORE-008 | Retrieve chunks by fusing keyword and vector results and keep the top 8. | — | — | approved | ADR-0002. k = 8 matches EVAL-001 |
 | FR-CORE-009 | Assemble the model's context from retrieved chunks: deduplicate, add the parent article of a clause, add the amending text of an amended chunk, give each passage a citation id, fit a token budget. | — | — | approved | |
-| FR-CORE-010 | Answer in Vietnamese using only the assembled passages, citing a passage for every claim. When a cited provision has been amended, say so and cite the amending provision. | — | — | approved | LLM not chosen |
+| FR-CORE-010 | Answer in Vietnamese using only the assembled passages, citing a passage for every claim. When a cited provision has been amended, say so and cite the amending provision. | — | — | approved | ADR-0003 |
 | FR-CORE-011 | Show each citation as document, article and clause with a link to the source page; flag any citation id that was not in the context. | — | — | approved | |
 | FR-CORE-012 | Reply that the documents do not cover the question when retrieval finds nothing relevant or the passages do not answer it. | — | — | approved | Threshold set by eval |
 | FR-CORE-013 | State with every answer that it is information with sources, not legal or tax advice. | — | — | approved | |
@@ -72,7 +72,7 @@ Nothing is released yet, so `Since` is `—` everywhere until the first release 
 | NFR-004 | The crawler waits at least 3 s between live requests and never re-fetches a cached page. | — | — | approved | Built |
 | NFR-005 | Rebuilding the index from cached pages is one command and gives the same chunks every time. | — | — | approved | |
 | NFR-006 | From question to complete answer: median ≤ 10 s and p95 ≤ 20 s on the demo hardware (Hugging Face Spaces CPU Basic), measured over the eval set. | — | — | approved | Provisional until the first measurement |
-| NFR-007 | Average model cost per question ≤ 0.01 USD, computed from recorded token usage at the provider's list price on the day of the run. | — | — | approved | Provisional until the LLM is chosen (#13) |
+| NFR-007 | Average model cost per question ≤ 0.01 USD, computed from recorded token usage at the provider's list price on the day of the run. | — | — | approved | 0.0024 USD per question on the LLM pilot (ADR-0003) |
 
 ## Traceability
 
@@ -84,11 +84,11 @@ Test column is filled in as tests are written; a requirement with no AC is not s
 | GOAL-001 | FR-CORE-002, FR-CORE-003 | AC-002, AC-003 | — |
 | GOAL-002 | FR-CORE-004 | AC-004 | — |
 | GOAL-002 | FR-CORE-005 | AC-005 | — |
-| GOAL-001 | FR-CORE-006, FR-CORE-008 | AC-006, EVAL-001 | — |
+| GOAL-001 | FR-CORE-006, FR-CORE-008 | AC-006, EVAL-001, EVAL-007 | — |
 | GOAL-001 | FR-CORE-016 | AC-014, EVAL-005 | — |
 | GOAL-001 | FR-CORE-007 | AC-007 | — |
 | GOAL-002, GOAL-003 | FR-CORE-009 | AC-008 | — |
-| GOAL-002, GOAL-003 | FR-CORE-010, FR-CORE-011 | AC-009, AC-015, EVAL-002, EVAL-003 | — |
+| GOAL-002, GOAL-003 | FR-CORE-010, FR-CORE-011 | AC-009, AC-015, EVAL-002, EVAL-003, EVAL-006, EVAL-008 | — |
 | GOAL-003 | FR-CORE-012 | EVAL-004 | — |
 | GOAL-003 | FR-CORE-013, FR-CORE-014 | AC-010 | — |
 | GOAL-004 | FR-CORE-015 | AC-011 | — |

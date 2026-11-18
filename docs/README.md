@@ -1,6 +1,6 @@
 ---
 status: living
-updated: 2026-11-04
+updated: 2026-11-16
 owner: HieuQuang4438
 ---
 
@@ -56,7 +56,7 @@ Only folders with real content exist. The rest are created when their first file
 | `product/` | product-wide state: brief, architecture, requirements, acceptance | yes |
 | `services/` | one folder per deployable unit | when there are 2+ |
 | `features/` | only a feature spanning 2+ services | when one exists |
-| `reference/` | data dictionary, schemas, glossary | when written |
+| `reference/` | glossary, corpus, chunk schema, index format, retrieval, context assembly, cited answers, conversation, web interface, eval set format, eval results | yes |
 | `guides/` | tutorials and how-tos | when written |
 | `discovery/` | unofficial: drafts, option analysis, prototypes. No status, no CI | yes |
 | `milestones/` | execution state per version. Only with no GitHub remote | if no remote |

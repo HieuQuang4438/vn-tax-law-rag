@@ -1,6 +1,6 @@
 ---
 status: approved
-updated: 2026-11-04
+updated: 2026-11-18
 owner: HieuQuang4438
 approved-by: peer
 ---
@@ -17,7 +17,8 @@ and both outrank this page. Steps marked **Planned** are not built yet.
 ## Offline: from source pages to two indexes
 
 Runs once, and again whenever the corpus or the chunking changes. Nothing here runs per
-question. Numbers match the sections below; solid steps are built, dashed are planned.
+question. Numbers match the sections below; every step is built. Once the pages are cached,
+`python scripts/rebuild.py` runs steps 2–5 in one command and makes no network request (NFR-005).
 
 ```mermaid
 flowchart LR
@@ -25,15 +26,12 @@ flowchart LR
     s1 --> raw[("data/raw/<br/>page HTML")]
     raw --> s2[2. Parse]
     s2 --> proc[("data/processed/<br/>metadata + blocks")]
-    proc -.-> s3[3. Chunk<br/>article / clause]
-    s3 -.-> s4[4. Enrich<br/>header, effective date,<br/>amendment links]
-    s4 -.-> chunks[("chunks<br/>header + text + metadata")]
-    chunks -.-> s5[5. Index]
-    s5 -.-> vec[("vector index<br/>bge-m3, Chroma")]
-    s5 -.-> kw[("keyword index<br/>BM25")]
-
-    classDef planned stroke-dasharray: 5 5
-    class s3,s4,chunks,s5,vec,kw planned
+    proc --> s3[3. Chunk<br/>article / clause]
+    s3 --> s4[4. Enrich<br/>header, effective date,<br/>amendment links]
+    s4 --> chunks[("data/enriched/<br/>header + text + metadata")]
+    chunks --> s5[5. Index]
+    s5 --> vec[("data/index/<br/>vector index<br/>bge-m3, Chroma")]
+    s5 --> kw[("data/index/<br/>keyword index<br/>BM25")]
 ```
 
 ### 1. Crawl — built
@@ -48,23 +46,27 @@ steps can be re-run without touching the site. — FR-CORE-001, NFR-004
 
 The cached page is reduced to what the document itself says: metadata from the page's overview
 table (number, type, issuer, issue date, signer, title) and the text as ordered blocks, in
-`data/processed/`. Site menus, ads and buttons are dropped. Effective dates are not on the free
+`data/processed/`. Site menus, ads and buttons are dropped, and so is what the site writes
+inside the text: its "Bổ sung" labels on amended provisions and its comment blocks between
+provisions (#21). Effective dates are not on the free
 page; they come from the text in step 4. — FR-CORE-001
 
-### 3. Chunk — planned
+### 3. Chunk — built
 
 Each document is cut along its legal structure, because an answer has to cite one provision:
 
 - one article (Điều) per chunk;
-- an article over 800 tokens is split into its clauses (Khoản) — about a third of articles,
-  since articles run from a few lines to 8k tokens;
+- an article over 1,600 tokens is split into its clauses (Khoản) — 98 of 744 articles,
+  since articles run from a few lines to 8k tokens (threshold set by #12);
 - only article text is chunked; the heading block, the preamble ("Căn cứ…"), chapter titles,
   the signature block and appendix forms are not.
 
 Every chunk keeps its place — document, chapter, article, clause — and a clause chunk keeps a
-link to its parent article. — FR-CORE-002, [ADR-0001](../adr/0001-chunk-by-legal-structure.md)
+link to its parent article. `python -m src.chunking` writes them to `data/chunks/`; the format
+is [chunk-schema.md](../reference/chunk-schema.md). — FR-CORE-002,
+[ADR-0001](../adr/0001-chunk-by-legal-structure.md)
 
-### 4. Enrich — planned
+### 4. Enrich — built
 
 A chunk alone often cannot be understood. Take clause 1 of Article 5 of Circular 90/2026:
 
@@ -73,36 +75,45 @@ A chunk alone often cannot be understood. Take clause 1 of Article 5 of Circular
 
 Nothing in it says it belongs to a circular on tax registration. Enrichment adds:
 
-- **Context header** — where the chunk sits, built from metadata. Illustrative form (the exact
-  format is set with the chunk schema):
-  `[Thông tư 90/2026/TT-BTC — Quy định về đăng ký thuế] [Chương I > Điều 5. Cấu trúc mã số thuế > Khoản 1]`.
+- **Context header** — where the chunk sits, built from metadata by `python -m src.enrich`
+  (exact rules in [chunk-schema.md](../reference/chunk-schema.md)):
+  `[Thông tư 90/2026/TT-BTC — Quy định về đăng ký thuế] [Chương I. QUY ĐỊNH CHUNG > Điều 5. Cấu trúc mã số thuế > Khoản 1]`.
   Header + text is what gets indexed; the text alone is what a reader sees in a citation.
   — FR-CORE-003
 - **Effective date** — read from the document's own effectiveness article, per chunk, because
   one document can set different dates for different articles: Law 09/2026/QH16 puts
-  articles 1–3 in force from 01/01/2026 and the rest from its adoption on 24/04/2026.
-  — FR-CORE-004
+  articles 1–3 in force from 01/01/2026 and the rest from its adoption on 24/04/2026. A date
+  that holds for only part of a chunk, an application rule ("áp dụng từ kỳ tính thuế…") and an
+  end date are reported rather than guessed; rules in
+  [chunk-schema.md](../reference/chunk-schema.md#effective-date). — FR-CORE-004
 - **Amendment links** — Law 149/2025/QH15, Article 1, rewrites clause 25 of Article 5 of the
   VAT Law 48/2024/QH15 (the revenue threshold for household businesses). The amending text
   says so; the original does not. So the link is read from the amending side (`amends`) and
   inverted across the corpus (`amended_by`). Without it, retrieval can return the original
   clause and the answer would quote superseded wording. A target outside the corpus is kept
-  and marked as such. — FR-CORE-005
+  and marked as such. The corpus holds 175 links, 37 of them onto its own chunks; amendments
+  made by documents outside the corpus are not seen
+  ([corpus.md](../reference/corpus.md#amendments-from-outside-the-corpus)). Rules in
+  [chunk-schema.md](../reference/chunk-schema.md#amendment-links). — FR-CORE-005
 
-### 5. Index — planned
+### 5. Index — built
 
-Two indexes over the same chunk ids:
+`python -m src.index` builds two indexes over the same chunk ids, from header + text:
 
 - **Vector index** — bge-m3 embeddings in a local Chroma collection; finds chunks by meaning.
-- **Keyword index** — BM25; finds exact terms such as "mã số thuế" or "khoản 25".
+- **Keyword index** — BM25 over lowercased syllables; finds exact terms such as "mã số thuế"
+  or a document number such as `48/2024/QH15`, which stays one token.
 
-The corpus is embedded once (about an hour and a half on the dev laptop's CPU) and saved; the
-demo only embeds questions. — FR-CORE-006, [ADR-0002](../adr/0002-hybrid-retrieval-without-rerank.md)
+Each index holds only ids; everything else is read back from the enriched chunks. The corpus
+is embedded once (82 minutes on the dev laptop's CPU) and the vectors are cached by text, so a
+rebuild embeds only what changed; the demo only embeds questions. The model loads from the
+local cache, with no network request. Format in [index.md](../reference/index.md).
+— FR-CORE-006, NFR-005, [ADR-0002](../adr/0002-hybrid-retrieval-without-rerank.md)
 
 ## Online: from a question to a cited answer
 
 Runs per question. The three letters of RAG map onto it as: retrieve (steps 1–3),
-augment (step 4), generate (steps 5–6). All steps are planned.
+augment (step 4), generate (steps 5–6). Steps 1 to 6 are built.
 
 ```mermaid
 flowchart LR
@@ -122,53 +133,83 @@ flowchart LR
     s6 --> ans[/"answer + linked citations<br/>+ not-advice notice"/]
     ans --> hist
 
-    classDef planned stroke-dasharray: 5 5
-    class s1,s2,s3,s4,s5,s6 planned
 ```
 
-### 1. Follow-up rewrite — planned
+### 1. Follow-up rewrite — built
 
 A conversation is kept per session. A follow-up such as "còn hộ kinh doanh thì sao?" has no
-topic of its own, so before retrieval it is turned into a standalone question using the earlier
-turns. Whether an LLM does the rewrite, or the earlier question is simply added to the search,
-is decided by measurement. — FR-CORE-016
+topic of its own, so before retrieval it is turned into a query using the earlier questions,
+not the answers; a first turn is used as written. Four rewriters are built: none, the earlier
+questions joined to the follow-up, the follow-up and that join retrieved apart and fused, and
+an LLM rewrite into one standalone question. The session uses the join (`concat`), chosen on
+EVAL-005 and to be re-measured on a larger eval set
+([conversation.md](../reference/conversation.md)). The answer to a follow-up sees the rewritten
+question and the passages only. — FR-CORE-016
 
-### 2. Reference lookup — planned
+### 2. Reference lookup — built
 
-A question that names a provision — "Điều 9 Luật 48/2024" — is caught by a pattern and that
-article is fetched straight from chunk metadata. Keyword search is poor at this: "Điều 9"
-occurs in hundreds of chunks. — FR-CORE-007
+A question that names a provision — "Điều 9 Luật 48/2024", "khoản 2 Điều 9 Luật Thuế GTGT" —
+is caught by a pattern and that article is fetched straight from chunk metadata; it takes the
+first of the 8 slots. Keyword search is poor at this: "Điều 9" occurs in hundreds of chunks. A
+document named without an article ("Nghị định 68/2026 quy định gì …") lifts that document's
+chunks in the ranking without hiding the others. A reference to a document outside the corpus
+is reported, so the answer can say so. Forms and rules in
+[retrieval.md](../reference/retrieval.md). — FR-CORE-007
 
-### 3. Hybrid retrieval — planned
+### 3. Hybrid retrieval — built
 
 The question goes to both indexes. Their result lists are merged by rank — reciprocal rank
 fusion — because their raw scores are on different scales, and the top 8 are kept. There is no
-reranker in the first version: a cross-encoder took about 20 s per question on CPU.
+reranker in the first version: a cross-encoder took about 20 s per question on CPU. Retrieval
+takes 0.45 s per question (median) on the dev laptop, most of it embedding the question.
 — FR-CORE-008, [ADR-0002](../adr/0002-hybrid-retrieval-without-rerank.md)
 
-### 4. Context assembly — planned
+### 4. Context assembly — built
 
-The retrieved chunks become the passages the model reads: duplicates removed, a clause's whole
-parent article added so "khoản 1 Điều này" can be resolved, the amending text added next to an
-amended provision, each passage given a short citation id, all cut to a token budget.
-— FR-CORE-009
+The retrieved chunks become the passages the model reads. Each retrieved chunk brings its whole
+parent article, once, so "khoản 1 Điều này" can be resolved; the article's clauses are marked
+so a citation can name one (`[1.25]` is clause 25 of passage 1). The amending text of an
+amended provision follows the article, and a line in the article says which clause it changes
+and how. Articles are ordered by retrieval rank and dropped whole from the lowest-ranked up to
+fit 24,000 tokens; the median question's context is about 12,900 tokens. Rules and measurements
+in [context.md](../reference/context.md). — FR-CORE-009
 
-### 5. Generation — planned
+### 5. Generation — built
 
-The model answers in Vietnamese from those passages only, citing a passage for every claim,
-and says when a cited provision has been amended. If retrieval found nothing relevant, or the
-passages do not answer the question, the reply says the documents do not cover it.
-— FR-CORE-010, FR-CORE-012. The model is not chosen yet.
+The model answers in Vietnamese from those passages only, as a list of sentences, each with the
+ids of the passages it comes from. When a provision it uses carries a link line, the prompt
+tells it to say the provision was amended and to cite the amending passage; since it does not
+do so reliably, the answerer adds a notice sentence for every amended provision the answer
+cites, naming it and its amending provision, built from the link line. When the passages
+answer part of the question, the model answers that part; when no passage bears on it, the
+reply is one fixed sentence saying the documents do not cover it, decided by the model alone,
+with no similarity floor. The model is `gemini-3.5-flash-lite` on the Gemini API free
+tier (ADR-0003), called through one wrapper that keeps under 15 requests a minute, retries and
+logs every call ([answer.md](../reference/answer.md)). — FR-CORE-010, FR-CORE-012
 
-### 6. Citations — planned
+### 6. Citations — built
 
-Each citation id becomes document, article and clause with a link to the source page, plus a
-note that this is information, not advice. A citation id that was not in the context is
-flagged rather than shown as a source. — FR-CORE-011, FR-CORE-013
+Each citation id becomes document, article and clause with a link to the source page; the
+link scrolls to the article where the browser supports text fragments, since the page has no
+anchor per article. A citation id that was not in the context is listed apart, never shown as
+a source. The web chat page shows under every answer the note that it is information, not
+advice, and keeps one conversation per browser session ([web.md](../reference/web.md)).
+— FR-CORE-011, FR-CORE-013, FR-CORE-014
 
-## Measuring it — planned
+## Measuring it — built; answer relevancy planned
 
-A hand-written eval set of 30–50 questions, some unanswerable and some multi-turn, each with
-its expected articles, is run through the whole pipeline by one command. It records retrieval
-recall, citation correctness, faithfulness, not-found accuracy, latency and cost. Definitions
-and targets are in [acceptance.md](acceptance.md). — FR-CORE-015
+A hand-written eval set, sized per version in acceptance.md (240 questions in version 2), some
+unanswerable and some multi-turn, each with its expected answer, key facts and supporting
+articles, is run through the whole pipeline by one command, `python -m src.eval.run`. It
+records retrieval recall and context precision, answer correctness, citation correctness,
+faithfulness, answer relevancy, not-found accuracy, latency and cost. Definitions and targets
+are in [acceptance.md](acceptance.md). The set lives in `eval/questions.yaml`;
+`python -m src.eval.check` checks it against the corpus while it is written
+([eval-set.md](../reference/eval-set.md)).
+
+By default the run stops at retrieval, so it scores recall and context precision and records
+the answer metrics as not run. With `--generate` it also answers every standalone question and
+an LLM judge scores citation correctness, faithfulness and answer correctness, each run checked
+by hand on a sample. Each run writes a results file to `eval/results/`, with
+the commit and the configuration, and can be compared with an earlier one
+([eval-results.md](../reference/eval-results.md)). — FR-CORE-015

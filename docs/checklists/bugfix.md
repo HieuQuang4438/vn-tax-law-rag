@@ -1,6 +1,6 @@
 # Checklist: bug fix
 
-Copy into `docs/checklists/`. Tick every time a bug is fixed.
+Tick every time a bug is fixed.
 The universal gate is `CONVENTIONS.md` §10 — this file only adds what is specific to a bug fix.
 
 - [ ] Reproduced the bug, and written down the exact input and the wrong output.

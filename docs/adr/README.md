@@ -1,6 +1,6 @@
 ---
 status: living
-updated: 2026-11-03
+updated: 2026-11-16
 owner: HieuQuang4438
 ---
 
@@ -15,6 +15,7 @@ free number is shared state — `CONVENTIONS.md` §9.
 
 | ID | Title | Status | Date | Supersedes |
 |---|---|---|---|---|
+| [ADR-0003](0003-gemini-flash-lite-free-tier.md) | Gemini 3.5 Flash-Lite on the free tier generates answers | approved | 2026-11-16 | |
 | [ADR-0002](0002-hybrid-retrieval-without-rerank.md) | Hybrid retrieval with local models, no reranker in v1 | approved | 2026-11-03 | |
 | [ADR-0001](0001-chunk-by-legal-structure.md) | Chunk by legal structure and enrich each chunk with its context | approved | 2026-11-04 | |
 

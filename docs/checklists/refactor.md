@@ -1,6 +1,6 @@
 # Checklist: refactor
 
-Copy into `docs/checklists/`. Tick every time code is restructured without changing what it does.
+Tick every time code is restructured without changing what it does.
 The universal gate is `CONVENTIONS.md` §10 — this file only adds what is specific to a refactor.
 
 - [ ] Recorded the full test result **before** starting: how many passed, which failed.

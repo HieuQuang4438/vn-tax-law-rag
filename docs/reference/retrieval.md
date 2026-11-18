@@ -1,0 +1,483 @@
+---
+status: draft
+updated: 2026-11-18
+owner: HieuQuang4438
+---
+
+# Retrieval
+
+What `src.retrieval` returns for a question, and how it is found. It reads the indexes in
+`data/index/` ([index.md](index.md)), the enriched chunks ([chunk-schema.md](chunk-schema.md)) and
+the documents' metadata in `data/processed/`. The rules are FR-CORE-007, FR-CORE-008, NFR-002 and
+[ADR-0002](../adr/0002-hybrid-retrieval-without-rerank.md). The approach is the approved comment
+on #8.
+
+Two steps run for every question:
+
+1. **References.** Explicit references to a document or an article ("Điều 9 Luật 48/2024") are
+   found by pattern and resolved from metadata (FR-CORE-007).
+2. **Hybrid search.** The whole question goes to the keyword index and the vector index. Their
+   ranked lists are merged by reciprocal rank fusion (FR-CORE-008).
+
+Resolved articles take the first slots, and the fused list fills the rest, up to k = 8. There
+is no reranker (ADR-0002). Dates and `amended_by` are not used here. Context assembly (#14)
+reads them from the enriched chunks.
+
+## Interface
+
+```python
+from src.retrieval import Retriever
+
+retriever = Retriever.load()                  # the index's model from the local cache, once per process
+result = retriever.retrieve("Điều 9 Luật 48/2024 áp dụng cho hộ kinh doanh không?")
+result.hits         # list[Hit], at most k, best first
+result.unresolved   # list[Unresolved], in question order
+```
+
+| Name | What it is |
+|---|---|
+| `Retriever(index_dir, enriched_dir, processed_dir, embedder, fusion=None)` | Reads both indexes, the chunks and the documents' metadata. The embedder embeds the question, as at build time. `fusion` is a `Fusion`; none means `Fusion()`. The retriever keeps it as `Retriever.fusion`. |
+| `Retriever.load(data_dir=Path("data"), embedder=None, index_dir=None, enriched_dir=None, fusion=None)` | The same, from `enriched_dir`, `data_dir/processed` and `index_dir`, which are `data_dir/enriched` and `data_dir/index` when not given. With no embedder, the model and input limit the index's manifest names are loaded offline by `src.index.load_embedder` (approved on #11); a manifest without `input_limit` gets the model's maximum. |
+| `Fusion(rrf_k=RRF_K, keyword_weight=1.0, vector_weight=1.0, per_article=True, candidates=None)` | How the lists are fused and cut, as described under *Fusion* (approved on #25). `candidates` none means `CANDIDATES`, read when the retriever searches. It raises `ValueError` for `rrf_k` below 1, a weight of 0 or less, or `candidates` below 1. |
+| `Fusion.config()` | `{"rrf_k", "candidates", "keyword_weight", "vector_weight", "per_article"}`, with `candidates` as a number, for the results files. |
+| `Retriever.retrieve(question, k=TOP_K)` | A `Retrieval` for one question. |
+| `Retriever.fuse(questions, k=TOP_K)` | A `Retrieval` for several questions searched as one: their uncut lists joined by `rrf`, as described in [conversation.md](conversation.md#fusing-two-queries--retrieverfuse) (approved on #19). |
+| `Retriever.rankings(question)` | A `Rankings` for one question: the orders `retrieve` cuts from, uncut, for *Cut diagnosis* (approved on #24). |
+| `Rankings` | `keyword: list[str]`, every chunk with a BM25 score above 0, best first; `vector: list[str]`, every chunk, best first; `final: list[str]`, every reference slot, then the fused list; `unresolved: list[Unresolved]`, as `retrieve` reports them; `candidates: int`, how many of `keyword` and of `vector` were fused. Each list is in the order `retrieve` uses. |
+| `Retrieval` | `hits: list[Hit]`, `unresolved: list[Unresolved]`. |
+| `Hit` | `chunk_id: str`, `found_by: tuple[str, ...]`, `score: float`. |
+| `Unresolved` | `text: str`, the reference as written in the question; `reason: str`, one of the reasons below. |
+| `find_references(question)` | The `Reference`s in the question, in order, before any corpus lookup. |
+| `Reference` | `text`, `kind`, `number`, `article`, `clause`, as described under *References*. |
+| `rrf(lists, constant=RRF_K, weights=None)` | Reciprocal rank fusion of ranked lists of chunk ids, as described under *Fusion*. `weights` holds one weight per list; none means 1 for each. Raises `ValueError` when it is not as long as `lists`. |
+| `IndexNotReadyError` | Raised by the constructor when the index cannot be used, as described under *Loading*. |
+| `TOP_K`, `RRF_K`, `CANDIDATES` | 8, 60, 50. |
+
+`retrieve(question, k).hits` are always the first k of `rankings(question).final`, for every k
+and every question, including one that names more than k articles: the slots are filled in
+question order, so a smaller cut keeps the first of them. This holds for every `Fusion`. The
+keyword list is the first `Rankings.candidates` of `Rankings.keyword`, and the vector list the
+first `Rankings.candidates` of `Rankings.vector`.
+
+`found_by` lists every way the chunk was found, in this order: `reference` (it fills a reference
+slot), `keyword` (it is in the keyword list), `vector` (it is in the vector list), `document` (it
+is in the document list). `score` is the chunk's fused score. A reference slot whose chunk is in
+no list has score 0.
+
+## Loading
+
+The constructor checks that the index fits what it is asked to search. It raises
+`IndexNotReadyError`, with a message naming the problem and `python -m src.index`, when:
+
+- `index_dir/manifest.json` is missing, which means the build is missing or did not finish;
+- the manifest's `chunks_sha256` is not the `sha256` of `enriched_dir/chunks.jsonl`, which means
+  the index is older than the chunks;
+- the manifest's `model` or `revision` differs from the embedder's, which means the question
+  would be embedded by another model than the chunks;
+- the manifest's `bm25_tokenizer` is not one of `syllable`, `underthesea`, `pyvi`.
+
+`Retriever.load` with no embedder raises the same error, before loading any model, when the
+manifest is missing or its `model` is not in `EMBEDDING_MODELS` ([index.md](index.md)).
+
+The model is loaded once, by `Retriever.load`, and every `retrieve` call reuses it. Nothing goes
+to the network: the model comes from the local cache, as at build time ([index.md](index.md)),
+and both indexes are local.
+
+## References
+
+`find_references` reads the question in Unicode NFC, ignoring case, and finds two kinds of
+reference: documents and articles.
+
+**Documents.**
+
+| Written | Example | Resolves to |
+|---|---|---|
+| a full number | `48/2024/QH15`, `252/2026/NĐ-CP` | the document with that `so_hieu` |
+| a kind word, optionally `số`, then a number | `Luật 48/2024`, `Luật số 48/2024`, `Nghị định 68/2026`, `NĐ 68/2026`, `Thông tư số 89/2026/TT-BTC`, `TT 89/2026` | the document whose `so_hieu` is that number, or starts with it followed by `/` |
+| the name of a base law | `Luật Thuế GTGT`, `Luật Quản lý thuế` | that law, from the alias list below |
+
+- The kind words are `Luật`, `Nghị định` and `NĐ`, and `Thông tư` and `TT`. A kind word must
+  match the document's `loai_van_ban`: `Luật` a Luật, `Nghị định`/`NĐ` a Nghị định,
+  `Thông tư`/`TT` a Thông tư.
+- A number with no kind word and no suffix (`68/2026`) is not a reference. It may be a month
+  ("tháng 12/2025"). A number that is part of a longer one (`12/2025` in `15/12/2025`) is not a
+  reference either.
+- A base-law name followed by `số <number>` is one reference, by that number.
+
+The alias list, fixed. Every name may be written with or without `Thuế` after `Luật`, and in
+either case:
+
+| Name | Law |
+|---|---|
+| `Luật Thuế giá trị gia tăng`, `Luật Thuế GTGT` | 48/2024/QH15 |
+| `Luật Thuế thu nhập cá nhân`, `Luật Thuế TNCN` | 109/2025/QH15 |
+| `Luật Thuế thu nhập doanh nghiệp`, `Luật Thuế TNDN` | 67/2025/QH15 |
+| `Luật Thuế tiêu thụ đặc biệt`, `Luật Thuế TTĐB` | 66/2025/QH15 |
+| `Luật Quản lý thuế` | 108/2025/QH15 |
+
+A name resolves to the base law, never to a law that amends it. A law name not in the list is
+not a reference, and the question still goes to hybrid search.
+
+**Articles.** `Điều <n>`, `khoản <m> Điều <n>` or `Điều <n> khoản <m>`, where a number may carry
+a letter (`Điều 5a`, `khoản 1a`). A point in front (`điểm a khoản 2 Điều 9`) is read as its
+clause. An article is bound to one document:
+
+1. the document reference right after it, optionally after `,`, `của`, `tại` or `thuộc`
+   ("Điều 9 Luật 48/2024", "khoản 2 Điều 9 của Nghị định 68/2026");
+2. otherwise, the document reference right before it, optionally after `,`
+   ("Nghị định 68/2026, Điều 5");
+3. otherwise, the only document the question names ("Theo Nghị định 68/2026 thì … quy định tại
+   Điều 5 là gì?");
+4. otherwise, none. The article is reported `no_document`. Carrying a document over from an
+   earlier turn is #19's work.
+
+A document with no article bound to it is a document reference on its own.
+
+A `Reference` holds the reference as written: `text` is the span of the question it covers,
+`kind` is `Luật`, `Nghị định`, `Thông tư` or None, `number` is the number as written (the law's
+`so_hieu` for a name), and `article` and `clause` are the numbers as written, or None.
+
+**Resolution.** Against the corpus, compared without regard to case:
+
+| Case | Outcome |
+|---|---|
+| the number matches no document | unresolved, `unknown_document` |
+| a partial number matches more than one document of the kind written (of any kind, when no kind word is written) | unresolved, `ambiguous` |
+| the kind word contradicts the document's type ("Thông tư 68/2026", a decree) | unresolved, `kind_mismatch` |
+| the article is not in the document | unresolved, `no_article` |
+| an article bound to no document | unresolved, `no_document` |
+| a document with no article | resolved to the document: a document list, below |
+| an article | resolved to the article: a reference slot, below |
+
+A clause missing from a split article resolves as if no clause were named. An unresolved
+reference changes nothing else: the question is searched as if it were not there.
+
+## Hybrid search
+
+Three ranked lists of chunk ids, each at most the fusion's `candidates` (`CANDIDATES`, 50, by
+default) long:
+
+- **Keyword list.** The question's tokens, by the tokenizer the index was built with
+  (`bm25_tokenizer` in its manifest, [index.md](index.md)), scored by the BM25 index.
+  Tokens not in the vocabulary are dropped. Chunks scoring 0 are not in the list. Equal scores
+  keep `chunks.jsonl` order. The full `so_hieu` of each document referenced without an article
+  is added to the tokens: a user writes `68/2026`, the index holds the token `68/2026/nđ-cp`.
+- **Vector list.** The question embedded by the same model as the chunks, compared by cosine
+  similarity with every chunk's vector. The vectors are read from the Chroma collection once,
+  at load, and the comparison is exact over all chunks rather than through Chroma's approximate
+  search: at 1,286 chunks it takes under a millisecond, equal scores keep `chunks.jsonl` order,
+  and the Chroma files are not held open while the retriever lives.
+- **Document list.** Only when the question references a document without an article. Every
+  chunk of the documents so referenced, ranked by `rrf` of their keyword rank and vector rank
+  among those chunks alone. Chunks from other documents can still win over them, so a wrong
+  document in the question does not hide the right answer.
+
+**Fusion.** `rrf(lists, constant, weights)` scores each chunk as the sum, over the lists that
+hold it, of weight / (constant + rank), rank counted from 1. It returns `(chunk_id, score)`
+pairs, best first. Ties keep the order in which chunks first appear when the lists are read rank
+by rank: rank 1 of every list in turn, then rank 2, and so on. The lists are passed in the order
+keyword, vector, document. The retriever passes its `Fusion`'s `rrf_k` as the constant, and its
+`keyword_weight` and `vector_weight` for the first two lists. The document list always weighs 1;
+the `rrf` that ranks it uses the same constant and weighs its two lists 1 each. The defaults of `Fusion()` are `RRF_K` 60, `CANDIDATES` 50, both
+weights 1 and `per_article` on. `per_article` was adopted on #25 (*Fusion tuning*); the others
+are the starting values of #8. Each is changed only through a recorded experiment.
+
+## The k hits
+
+1. **Reference slots.** One per resolved article reference, in question order. Its chunk is:
+   - for a named clause of a split article, that clause's chunk;
+   - for an article that is not split, the article chunk, whether or not a clause is named;
+   - for a split article with no clause named, its chunk ranked best in the fused list, or its
+     first chunk in `chunks.jsonl` if none of its chunks is in the fused list.
+
+   A chunk already in a slot does not take a second one. Context assembly (#14) adds the whole
+   parent article, so one slot brings in the article.
+2. **Fused hits.** The fused list, in order, skipping chunks already in a slot, until there are
+   k hits. With `per_article` on, the default since #25, a fused chunk is also skipped when its
+   parent article already has a chunk above it: in a slot or as an earlier fused hit. The slots
+   themselves are kept as they are, so two named clauses of one article keep both slots. The
+   skip is applied to `Rankings.final` itself, before any cut, so the hits are still its first
+   k. A hit's `found_by` and `score` do not change.
+
+When more than k articles are referenced, the first k take the slots. The same question against
+the same index always gives the same result.
+
+## Acceptance
+
+**AC-007.** For each eval-set question and conversation turn with `form: reference`, every
+article it names is among the parents of its hits. This is the article the question names,
+which is not always the expected provision: some questions name the wrong one on purpose. The
+corpus test checks it two ways:
+
+- independently of the resolver: when the text holds exactly one corpus document number and
+  some `Điều <n>` that exists in that document, that article is among the hits' parents;
+- through the resolver: on an answerable question or turn, every reference is resolved, or is
+  reported `unknown_document` because it names a document outside the corpus.
+
+**AC-012.** The median `retrieve` time over every question and conversation turn of the eval
+set is under 2 s on the dev laptop, with the model loaded beforehand and no network. The test
+prints the median and the 95th percentile, and both are recorded here with the machine.
+
+## Measured
+
+On the dev laptop (i7-10610U, 16 GB RAM, CPU only; torch 2.15.0+cpu, sentence-transformers
+6.3.0), eval set v1, the index of 1,923 chunks, the code that closes #8, 2026-11-13:
+
+- **AC-012.** 66 questions and turns, one warm-up call not timed: median 0.448 s, 95th
+  percentile 0.775 s. Nearly all of it is embedding the question.
+- **AC-007.** 13 items have `form: reference`. 4 name an article of a corpus document by number,
+  and all 4 articles are retrieved. The other 9 name a document without an article and get a
+  document list. No reference in an answerable item is unresolved.
+
+## Cut diagnosis
+
+Of the expected articles missing from the top 8, how many are retrieved but ranked below the
+cut, and how many no list retrieves at all? The question is #24. The approach is the approved
+comment on #24. ADR-0002 reopens the reranker question only if the misses are ranked below the cut.
+
+```bash
+python -m src.eval.diagnose      # eval/questions.yaml, data/, writes to eval/results/diagnostics/
+```
+
+Its options are `--set`, `--data`, `--enriched`, `--index`, `--out` and the fusion options
+`--rrf-k`, `--keyword-weight`, `--vector-weight`, `--per-article` and `--candidates`, as for
+`python -m src.eval.run` ([eval-results.md](eval-results.md#running-it)). `--out` defaults to
+`eval/results/diagnostics`.
+
+**What it does.** It loads the eval set and the retriever as the runner does, then calls
+`rankings` once for every standalone question and every conversation turn, in file order, each
+turn as written (`rewrite: none`). `TOP_K` stays 8. The measurement only reads further down
+`final`. Nothing is timed.
+
+**Scored items.** The items EVAL-001 and EVAL-005 score: answerable standalone questions
+(`standalone`), and answerable follow-up turns (`follow_up`). They are reported apart.
+
+**Recall at each cut.** For k = 8, 12, 16, 20, 30 and 50 (`CUTS`), recall@k on the parent
+articles of the first k of `final`, as defined in [acceptance.md](../product/acceptance.md#measurement-definitions),
+with the bootstrap interval of the runner. Recall cannot drop as k grows, since each cut holds
+the smaller ones. recall@8 equals the runner's EVAL-001 and EVAL-005 on the same index.
+
+**Misses.** A miss is an expected article of a scored item that is not among the parents of the
+first 8 of `final`. For each miss:
+
+| Field | Meaning |
+|---|---|
+| `article` | the article id |
+| `final_rank` | the rank, from 1, of its best chunk in `final`; null if no chunk of it is in `final` |
+| `keyword_rank` | the rank of its best chunk in `Rankings.keyword`; null if no chunk of it scores above 0 |
+| `vector_rank` | the rank of its best chunk in `Rankings.vector` |
+| `place` | `below_cut` if `final_rank` is 9 to 50; `beyond_50` if it is above 50; `not_in_pool` if it is null |
+| `lists` | the lists whose first `Rankings.candidates` hold a chunk of it, out of `keyword` and `vector`, in that order |
+| `split` | true if the article has more than one chunk |
+
+An item with an unresolved reference keeps its reasons, as in the runner's items, and its misses
+are counted apart as `unresolved`, since such a miss may come from reference lookup rather than
+from the ranking.
+
+**Decision rule** (approved on #24). Over the misses of the standalone questions: if at least
+half are `below_cut`, the verdict is `ranking`, and the next issue tunes the fusion. Otherwise
+it is `retrieval`, and the next issue changes the embedding, BM25 or the chunks. The verdict is
+`borderline` when moving two misses across the line would change it, and is then reported, not
+acted on. With no misses there is no verdict: `result` is null. The follow-up turns are reported
+but do not decide.
+
+**The file.** One JSON file per run, named and never overwritten as the runner's results file
+is ([eval-results.md](eval-results.md#the-results-file)), committed under the same rule. It holds
+ids and numbers only.
+
+```json
+{
+  "format": 1,
+  "run": {"started": "…", "command": "python -m src.eval.diagnose", "seconds": 30.1},
+  "configuration": {…},
+  "recall": {"standalone": {"8": {"value": …, "n": …, "interval": […]}, "12": {…}}, "follow_up": {…}},
+  "misses": {"standalone": {…}, "follow_up": {…}},
+  "verdict": {"result": "ranking", "below_cut": …, "misses": …, "borderline": false},
+  "items": [{…}]
+}
+```
+
+- `configuration` is the runner's, with `pipeline` holding `top_k` 8, `rewrite: none`, the
+  fusion's `config()` (`rrf_k`, `candidates`, `keyword_weight`, `vector_weight`,
+  `per_article`), `depth` 50 and `cuts`.
+- `misses` gives, per group, `articles` (the number of misses), `below_cut`, `beyond_50`,
+  `not_in_pool`, the share `below_cut` / `articles` as `share_below_cut`, `lists` as counts of
+  `both`, `keyword`, `vector` and `neither`, `split` and `unresolved`.
+- `items` holds one entry per scored item, in run order, with `id`, `kind`, `conversation`,
+  `turn`, `expected`, `recall` (per cut), `misses` (the table above) and `unresolved` (reasons only).
+
+**The summary.** Printed after the file is written: the path, and `DIRTY` as the runner prints
+it; recall at each cut per group; the miss counts per group; the verdict.
+
+### Result
+
+Run on 2026-11-15 at commit `20e8896`, clean, eval set v1. The index was today's `data/index`
+(bge-m3@8192, `syllable` BM25, 1,286 chunks), and the run was on the dev laptop (i7-10610U,
+16 GB RAM, CPU only). The file is `eval/results/diagnostics/2026-11-15-20e8896.json`.
+
+| k | Standalone recall@k (n = 39) | Follow-up recall@k (n = 10) |
+|---|---|---|
+| 8 | 0.678 [0.592, 0.764] | 0.575 [0.333, 0.817] |
+| 12 | 0.748 [0.664, 0.826] | 0.600 [0.333, 0.867] |
+| 16 | 0.778 [0.702, 0.848] | 0.600 [0.333, 0.867] |
+| 20 | 0.850 [0.778, 0.915] | 0.687 [0.440, 0.933] |
+| 30 | 0.898 [0.836, 0.953] | 0.687 [0.440, 0.933] |
+| 50 | 0.922 [0.865, 0.971] | 0.757 [0.567, 0.933] |
+
+- **Verdict: `ranking`, not borderline.** 30 of the 43 standalone misses (70%) are ranked 9 to
+  50. 5 are beyond 50, and 8 are not in the pool. The misses come from 25 of the 39 questions.
+- **Most misses sit just below the cut.** Of the 30, 21 are at ranks 9 to 20 (10 of them at 9
+  to 12), 6 at 21 to 30, and 3 at 31 to 50. recall@20 is 0.850, above the EVAL-001 target of
+  0.80. recall@8 is 0.678.
+- **Both lists usually find them.** 22 of the 43 misses are in the top 50 of both the BM25 and
+  the vector list, 7 in BM25 only and 6 in vector only. 8 are in neither.
+- **The 8 not in the pool are far from either cut.** Their best BM25 rank is 55 to 713, and
+  their best vector rank is 52 to 827.
+- **Split articles and references.** 6 misses are split articles. None comes from an
+  unresolved reference.
+- **Follow-up turns,** as written, have 14 misses: 6 below the cut, 5 beyond 50 and 3 not in
+  the pool. They do not decide.
+- **The check passes.** recall@8 equals the runner's EVAL-001 and EVAL-005 on the same index
+  (0.678 and 0.575, as in the #11 run).
+
+ADR-0002's condition for reconsidering a reranker is now met: the right article is retrieved
+but ranked below the cut. A cross-encoder still costs 19–28 s per 20 pairs on this laptop
+(ADR-0002), so the next issue tunes the fusion, as the decision rule says. Its options are left
+to that issue's proposal.
+
+## Fusion tuning
+
+Which fusion setting raises recall@8, given that 30 of the 43 missed articles sit at ranks 9 to
+50 (*Cut diagnosis*, *Result*)? The question is #25. The approach is the approved comment on
+#25. Only the fusion changes. Everything else is fixed: eval set v1, today's index
+(bge-m3@8192, `syllable` BM25, 1,286 chunks), `TOP_K` 8, `rewrite: none`, the dev laptop,
+bootstrap seed 0, one commit for every run.
+
+**Variants.** Each changes one knob of the setting before #25, `per_article` off. Everything
+else stays as it was. Since #25 `per_article` is on by default, so the baseline is reproduced
+with `--no-per-article` and every other variant with `--no-per-article` added.
+
+| Variant | Options | Why, from *Cut diagnosis* |
+|---|---|---|
+| Baseline | none | the current setting, re-run at the same commit; it must give recall@8 0.678, or the work stops |
+| V1 | `--per-article` | the top 8 holds 6.82 distinct articles on average |
+| V2 | `--rrf-k 20` | a smaller constant lifts chunks ranked high in one list |
+| V3 | `--rrf-k 120` | a larger constant lifts chunks found by both lists; 22 of the 43 misses are in both |
+| V4 | `--keyword-weight 2` | 7 misses are in the BM25 list only |
+| V5 | `--vector-weight 2` | 6 misses are in the vector list only |
+| V6 | `--candidates 100` | a chunk ranked 51 to 100 in one list still adds to its fused score |
+
+Each variant is scored with `python -m src.eval.run <options> --compare <baseline file>
+--comparisons 6`, and placed with `python -m src.eval.diagnose <options>`.
+
+**Decision rule** (approved on #25):
+
+1. **Winner.** A variant wins when the paired 95% interval of its EVAL-001 change against the
+   baseline lies entirely above 0, as on #10 to #12.
+2. **Multiplicity.** Each winner's Bonferroni interval (`--comparisons 6`, *Comparing two runs*
+   in [eval-results.md](eval-results.md#comparing-two-runs)) is reported. A winner whose
+   Bonferroni interval includes 0 is still adopted, marked "re-check on eval set v2".
+3. **Guard.** A winner is not adopted when the paired interval of its EVAL-007 change lies
+   entirely below 0, or when its median latency (AC-012) is above 2 s. EVAL-005 is reported, but
+   with n = 10 it does not decide.
+4. **More than one winner.** The winner with the largest mean change is the candidate. One more
+   run combines every winner's options. It is adopted only if it passes rules 1 and 3 against
+   the baseline and its mean change beats the candidate's. Otherwise the candidate is adopted.
+5. **No winner.** `Fusion()` stays the default.
+
+The adopted setting becomes the defaults of `Fusion()`, and the *Fusion* paragraph above gets the
+new values. ADR-0002 is edited only if the setting contradicts it; none of the variants does.
+
+**Ceiling.** 13 of the 43 misses are beyond rank 50 or in no list, out of the fusion's reach. A
+perfect order of today's top 50 reaches recall@8 no higher than recall@50, 0.922.
+
+### Result
+
+Run on 2026-11-15 at commit `c22d922`, clean, eval set v1, before `per_article` became the
+default. The index was today's `data/index` (bge-m3@8192, `syllable` BM25, 1,286 chunks), and the
+runs were on the dev laptop (i7-10610U, 16 GB RAM, CPU only). The baseline is
+`eval/results/2026-11-15-c22d922.json`, and V1 to V6 are `-2` to `-7`. The diagnoses have the
+same names under `eval/results/diagnostics/`.
+
+| Variant | EVAL-001 recall@8 | Paired change [95%] | Bonferroni [99.2%] | EVAL-007 paired | Median latency |
+|---|---|---|---|---|---|
+| Baseline | 0.678 [0.592, 0.764] | — | — | — | 0.252 s |
+| **V1 `per_article`** | **0.714** | **+0.036 [+0.006, +0.071]** | [0.000, +0.092] | [−0.002, +0.035] | 0.209 s |
+| V2 `rrf_k` 20 | 0.695 | +0.017 [0.000, +0.043] | [0.000, +0.051] | [−0.001, +0.035] | 0.180 s |
+| V3 `rrf_k` 120 | 0.678 | 0.000 [0.000, 0.000] | [0.000, 0.000] | [−0.007, +0.002] | 0.216 s |
+| V4 `keyword_weight` 2 | 0.694 | +0.017 [−0.026, +0.059] | [−0.045, +0.078] | [−0.043, +0.002] | 0.219 s |
+| V5 `vector_weight` 2 | 0.672 | −0.006 [−0.044, +0.027] | [−0.059, +0.043] | [−0.024, +0.050] | 0.180 s |
+| V6 `candidates` 100 | 0.667 | −0.011 [−0.051, +0.019] | [−0.068, +0.026] | [−0.012, −0.001] | 0.186 s |
+
+- **V1 is the only winner, and it is adopted.** Its paired interval starts at +0.006. It raises
+  recall on 4 questions and lowers it on none. V2 raises it on 2, but its interval starts at
+  exactly 0, so it does not win.
+- **Re-check on eval set v2.** V1's Bonferroni interval starts at exactly 0 (rule 2). Done on
+  #28: kept (*Re-check on eval set v2*, below).
+- **The guard passes.** V1's EVAL-007 interval includes 0, and its median latency is 0.209 s.
+  EVAL-005 goes from 0.575 to 0.600 [0.000, +0.075].
+- **No combined run.** There is one winner, so rule 4 does not apply.
+- **The weights and V6 do not help.** V4 raises recall on 5 questions and lowers it on 2, and
+  V5 raises it on 2 and lowers it on 3; neither interval excludes 0. V6 lowers EVAL-007, with a
+  paired interval entirely below 0.
+- **Where the misses moved (V1).** 39 standalone misses instead of 43: 28 below the cut, 3
+  beyond 50 and 8 not in the pool. recall@20 is 0.870 and recall@50 0.939.
+- **The new default reproduces V1.** At commit `e2051f7`, with no options, EVAL-001 is 0.714
+  [0.634, 0.791], EVAL-005 0.600 and EVAL-007 0.701, with every per-item change 0 against V1
+  (`eval/results/2026-11-15-e2051f7.json`, and its diagnosis).
+
+recall@8 is still below the EVAL-001 target of 0.80. 28 of the remaining misses are ranked 9 to
+50, so the order of the top 50 is still the gap. No fusion knob in the grid closes it.
+
+### Re-check on eval set v2
+
+Does one hit per article still raise recall@8 on eval set v2? The question is #28; the
+approach is the approved comment on #28. Only `per_article` changes. Everything else is as at
+the v2 baseline (`eval/results/2026-11-15-b0cced1.json`, [eval-results.md](eval-results.md#baseline)):
+eval set v2, today's index (bge-m3@8192, `syllable` BM25, 1,286 chunks), `TOP_K` 8, `RRF_K` 60,
+50 candidates, weights 1 and 1, `rewrite: none`, bootstrap seed 0, the dev laptop, one clean
+commit for both runs.
+
+**Runs.**
+
+1. `python -m src.eval.run --no-per-article`, the setting before #25.
+2. `python -m src.eval.run --compare <run 1 file>`, the default: its paired changes are the
+   change that `per_article` brings. Against `b0cced1`, every per-item score must be the same,
+   or the work stops.
+
+**Decision rule** (approved on #28). One comparison, so no Bonferroni interval:
+
+1. **Keep** `per_article` when the paired 95% interval of its EVAL-001 change lies entirely above
+   0 and the guard of #25 holds: the EVAL-007 paired interval not entirely below 0, the median
+   latency (AC-012) at most 2 s.
+2. **Turn it off** when the interval lies entirely below 0.
+3. **Otherwise keep it**, recorded as inconclusive.
+
+EVAL-005 (n = 29) is reported, but does not decide. The mean change on the items with
+`added_in` 1 and 2 is read from each run's breakdown, without an interval: `per_article` was
+chosen on the version 1 questions, so a larger change there hints at tuning bias, without
+proving it.
+
+#### Result
+
+Run on 2026-11-15 at commit `4d2fda4`, clean, eval set v2, on the dev laptop (i7-10610U, 16 GB
+RAM, CPU only), with the index as above. Run 1 is `eval/results/2026-11-15-4d2fda4.json`, run 2
+`-2`. Run 2 gives every item the same score as `b0cced1`.
+
+| Run | EVAL-001 recall@8 | EVAL-005 recall@8 | EVAL-007 precision@8 | Median latency |
+|---|---|---|---|---|
+| 1 `--no-per-article` | 0.756 [0.703, 0.802] | 0.486 [0.333, 0.635] | 0.646 [0.597, 0.693] | 0.248 s |
+| 2 default | 0.769 [0.715, 0.813] | 0.494 [0.339, 0.644] | 0.678 [0.626, 0.728] | 0.266 s |
+| Paired change | **+0.012 [+0.004, +0.023]** | +0.009 [0.000, +0.026] | +0.032 [+0.021, +0.045] | |
+
+- **`per_article` stays on (rule 1).** Its paired EVAL-001 interval lies entirely above 0. It
+  raises recall on 6 questions and lowers it on none.
+- **The guard passes.** The EVAL-007 interval lies above 0, and the median latency is 0.266 s.
+- **The gain sits on the version 1 questions.** The mean change is +0.036 on the 39 with
+  `added_in` 1, the same as on eval set v1, and +0.006 on the 145 with `added_in` 2. 4 of the 6
+  raised questions are from version 1. This hints that the change measured on #25 was partly
+  tuned to those questions; on the new ones it is small.
+- **The paired interval is 0.019 wide**, against 0.065 on eval set v1 (#25), so v2 separates a
+  change of this size from 0.
+
+This resolves the "re-check on eval set v2" of *Result* above.

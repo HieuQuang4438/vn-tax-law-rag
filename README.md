@@ -29,10 +29,10 @@ flowchart LR
     subgraph offline["Offline — build the index"]
         direction LR
         src[2 summary articles<br/>30 documents] --> crawl[Crawl + parse]
-        crawl -.-> chunk[Chunk by<br/>article / clause]
-        chunk -.-> enrich[Enrich<br/>context header,<br/>amendment links,<br/>effective date]
-        enrich -.-> vec[(Vector index<br/>bge-m3 + Chroma)]
-        enrich -.-> kw[(Keyword index<br/>BM25)]
+        crawl --> chunk[Chunk by<br/>article / clause]
+        chunk --> enrich[Enrich<br/>context header,<br/>effective date,<br/>amendment links]
+        enrich --> vec[(Vector index<br/>bge-m3 + Chroma)]
+        enrich --> kw[(Keyword index<br/>BM25)]
     end
     subgraph online["Online — answer a question"]
         direction LR
@@ -44,11 +44,11 @@ flowchart LR
         aug -.-> llm[LLM answers from<br/>context only]
         llm -.-> out[Answer with citations,<br/>or not found]
     end
-    vec -.-> hyb
-    kw -.-> hyb
+    vec --> hyb
+    kw --> hyb
 
     classDef planned stroke-dasharray: 5 5
-    class chunk,enrich,vec,kw,q,rw,ref,hyb,aug,llm,out planned
+    class q,rw planned
 ```
 
 Why it is built this way: chunking in [ADR-0001](docs/adr/0001-chunk-by-legal-structure.md),
@@ -62,12 +62,16 @@ All project documents: [docs/README.md](docs/README.md).
    runs `scripts/crawl_one.py` on each: fetch the page, cache the raw HTML, extract metadata plus
    the full text as ordered blocks.
 2. **Chunk** — split along the legal structure (chapter / article / clause), not by token count,
-   so each retrieved unit is something a citation can point to. *Not built yet.*
+   so each retrieved unit is something a citation can point to; each chunk then gets a context
+   header naming its document, chapter, article and clause.
 3. **Retrieve** — hybrid keyword + embedding search, because users ask both in prose and by
-   document number. *Not built yet.*
+   document number, and explicit references ("Điều 9 Luật 48/2024") are looked up directly.
+   Built: `src.retrieval`, 0.45 s per question (median) on CPU.
 4. **Answer** — an LLM answers only from the retrieved articles and cites them. *Not built yet.*
-5. **Evaluate** — a hand-written question set with expected articles, scored on retrieval recall
-   and citation correctness. *Not built yet.*
+5. **Evaluate** — a hand-written question set with expected answers, key facts and articles,
+   scored on retrieval and on the answers. The set (v1, 50 questions and 6 conversations), its
+   checker (`python -m src.eval.check`) and the runner (`python -m src.eval.run`) are built; the
+   runner scores retrieval today, and the answers once generation exists.
 
 ## Data
 
@@ -76,6 +80,10 @@ luatvietnam.vn:
 
 - [Tổng hợp danh sách luật thuế và nghị định, thông tư thuế mới nhất 2026](https://luatvietnam.vn/thue-phi-le-phi/tong-hop-danh-sach-luat-thue-va-nghi-dinh-thong-tu-thue-moi-nhat-2026-565-110892-article.html) — 27 documents
 - [Luật Thuế TNCN mới nhất 2026 và văn bản hướng dẫn](https://luatvietnam.vn/thue-phi-le-phi/tong-hop-van-ban-huong-dan-ve-thue-tncn-moi-nhat-565-96172-article.html) — adds the personal income tax law, decree and circular
+
+Every document, how they relate and what is irregular in them:
+[docs/reference/corpus.md](docs/reference/corpus.md). Vietnamese legal terms used throughout:
+[docs/reference/glossary.md](docs/reference/glossary.md).
 
 The crawler reads its list from `INDEX_URLS` in `scripts/crawl_index.py`. Vietnamese legal
 normative documents are not protected by copyright (Law on Intellectual Property, Article 15),
@@ -92,6 +100,29 @@ python -m venv .venv
 pip install -r requirements.txt
 cp .env.example .env              # then fill in the real values
 python scripts/crawl_index.py        # all listed documents; or crawl_one.py <document-url>
+python scripts/rebuild.py            # from the cache: parse, chunk, enrich, index; first run ~82 min on CPU
+```
+
+`rebuild.py` runs these steps in order; each can also be run alone:
+
+```bash
+python scripts/crawl_index.py        # data/raw/ -> data/processed/ (no request on a full cache)
+python -m src.chunking               # data/processed/ -> data/chunks/
+python -m src.enrich                 # data/chunks/ -> data/enriched/: header, effective date, amendment links
+python -m src.index                  # data/enriched/ -> data/index/: bge-m3 + Chroma and BM25, offline
+```
+
+Score the eval set against the built index:
+
+```bash
+python -m src.eval.check             # check eval/questions.yaml against the corpus
+python -m src.eval.run               # score it; writes eval/results/<date>-<commit>.json
+```
+
+Chat with it in the browser, against the built index:
+
+```bash
+python -m streamlit run src/app.py
 ```
 
 ## Tests
@@ -102,9 +133,15 @@ pytest
 
 ## Built with
 
-Python 3.12, requests, BeautifulSoup + lxml. LLM, embedding model and vector store not chosen yet.
+Python 3.12, requests, BeautifulSoup + lxml; bge-m3 through sentence-transformers on CPU, Chroma,
+bm25s; gemini-3.5-flash-lite on the Gemini API free tier.
 
 ## Status
 
 Early. The crawler fetches all 30 listed documents; every one has an unbroken run of articles
-from Điều 1 to its last article. Chunking, retrieval, the agent and evaluation do not exist yet.
+from Điều 1 to its last article. Chunking (744 articles, 1,286 chunks), the context header,
+each chunk's effective date, the amendment links between documents (175) and both indexes
+over the chunks (vector and BM25), reference lookup and hybrid retrieval, context assembly,
+cited answers, multi-turn conversation, the web chat page and eval set v2 are built, with
+the eval runner scoring retrieval and, with `--generate`, the answers; the demo is not deployed
+yet.

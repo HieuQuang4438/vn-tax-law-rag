@@ -14,7 +14,7 @@ Both files are this repo's own. A rule that does not fit this project gets chang
 ## Project facts
 
 - Visibility: private — to be flipped to public as a portfolio piece, so written as if public from the first commit. `CONVENTIONS.md` §3 and §8 key off this line: a public repo carries no internal identifiers, and a private repo that may ever be flipped to public is written as if it already were.
-- Stack: Python 3.12, requests, BeautifulSoup + lxml. LLM, embedding model and vector store not chosen yet.
+- Stack: Python 3.12, requests, BeautifulSoup + lxml; bge-m3 via sentence-transformers (CPU), Chroma, bm25s (ADR-0002); gemini-3.5-flash-lite on the Gemini API free tier through google-genai (ADR-0003).
 - Entrypoint: `src/main.py` — run with `python -m src.main`
 - Config: `src/config.py` — every env read happens here, nowhere else
 - Test: `pytest`
@@ -28,3 +28,4 @@ Both files are this repo's own. A rule that does not fit this project gets chang
 | `tests/` | `pytest` tests, mirroring `src/` |
 | `scripts/` | one-off and ops scripts, never imported by `src/` |
 | `data/` | inputs; raw data gitignored, samples committed |
+| `eval/` | the hand-written eval set, versioned (`docs/reference/eval-set.md`); `eval/results/` holds the committed results of clean runs (`docs/reference/eval-results.md`) |

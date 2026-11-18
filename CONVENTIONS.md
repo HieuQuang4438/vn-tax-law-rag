@@ -26,7 +26,8 @@ Every code repo uses this skeleton. Do not invent a new shape per project.
   .gitignore           # required
   .gitattributes       # required: `* text=auto eol=lf`
   .github/
-    ISSUE_TEMPLATE/    # feature.md, bug.md, experiment.md, config.yml — §7
+    ISSUE_TEMPLATE/    # feature.md, bug.md, experiment.md, convention-change.md,
+                       # config.yml — §7
   requirements.txt     # or pyproject.toml — pick ONE per repo
   src/                 # all importable code (package with __init__.py)
     config.py          # single place that reads env vars
@@ -73,9 +74,13 @@ Rules:
           raise RuntimeError(f"Missing required env var: {name}")
       return value
 
-  GOOGLE_API_KEY = required("GOOGLE_API_KEY")
-  LLM_MODEL = os.getenv("LLM_MODEL", "gemini-2.5-flash")
+  GOOGLE_API_KEYS = required_numbered("GOOGLE_API_KEY")
+  LLM_MODEL = os.getenv("LLM_MODEL", "gemini-3.5-flash-lite")
   ```
+- Several keys for one service are numbered from 1: `GOOGLE_API_KEY_1`, `GOOGLE_API_KEY_2`, …
+  `required_numbered(name)` reads them in order up to the first one missing or empty, and fails
+  loud if `<name>_1` is. A client tries them in that order and moves to the next on a 429
+  (approved on #13).
 - Never print or log a key, even truncated. Never paste keys into chat, issues, or commit messages.
 - Loose key files (e.g. a plain `keys.txt`) do not belong anywhere in this repo, gitignored or not. Keep secrets in `.env` only.
 - **Internal identifiers do not go in a public repo**: machine and VM names, cloud project IDs and resource names, deploy hostnames, client or employer names, documents issued to you by someone else. One public demo link is the exception. These are not secrets — there is nothing to rotate — so none of the rules above reach them; they leak **context** rather than access, and that is still a leak. If `AGENTS.md` says `private` but the repo may ever be flipped to public, this rule applies **from the first commit**, because history is permanent: a name removed later is still in the history, and taking it out means rewriting history, not deleting a file.
@@ -109,7 +114,10 @@ These matter more than general style — most repos here are AI projects.
 
 - `pytest`. Tests in `tests/`, mirroring `src/`. Files `test_*.py`, functions `test_<behavior>`.
 - Test names state behavior: `test_missing_api_key_raises`, not `test_config_2`.
-- Every bug fix ships with a test that fails before the fix.
+- **The test comes before the implementation, for every change in behavior** — a new feature, a bug fix, a changed default, a changed error. Not only bug fixes. A test written after the code encodes *what the code does* instead of *what was asked for*, and once both exist nobody can tell those apart any more, least of all at review time, which is exactly when it matters.
+- **Confirm the test fails for the real reason.** Read the failure. An `ImportError`, a missing fixture, a collection error or a typo in the test name is not a red test — it is a broken test, and implementing against it proves nothing.
+- **An agent stops at the red test.** It reports three things — the test, the line of spec the test encodes, and the failure — and then does nothing further until a human says to implement. The human may waive the stop, but a waiver is **explicit and per assignment**: silence is not a waiver, and a waiver on one task does not carry to the next. The stop exists because this is the last moment the test can still be compared against the *requirement*; by the time a PR is reviewed the test and the code agree with each other, and whether either agrees with the spec is no longer visible.
+- **Measurement work is exempt from the ordering, and only from the ordering.** An experiment answers with a number, not with behavior, so there is nothing to encode as a test first. Its equivalent gate lives in `.github/ISSUE_TEMPLATE/experiment.md`: the metric, the threshold and the whole configuration are fixed **before** the run. When code that started as an experiment becomes behavior something depends on, it comes back under the rule above.
 - No network in unit tests. Mock the LLM/HTTP boundary. Live-API tests go behind a marker:
   ```python
   @pytest.mark.live  # run with: pytest -m live
@@ -131,6 +139,7 @@ These matter more than general style — most repos here are AI projects.
   ```
   `<area>` is the top-level directory touched — `docs`, `src`, `tests`, `scripts`, `data` — or `repo` for a file at the root. Body, when there is one, explains *why*, wrapped at ~72 chars.
 - **Conventional Commits** (`feat(rag):`, `fix(config):`) is a valid alternative. Pick one form per repo and say which here; a repo that releases from its commit history has a reason to prefer it.
+- **This repo uses `<area>: <what changed>`**, the form above. Conventional Commits is not used here: releases are cut from the milestone (see the release block below), not from the commit history, so its type prefixes would carry no weight. Two early commits, `feat:` and `test:`, predate this declaration and are left as they are.
 - One logical change per commit. Do not mix a refactor with a feature.
 - Never commit: `.env`, real data dumps, `node_modules/`, `.venv/`, model weights, `*.zip` outputs.
 - Branch/push/merge/PR/delete are **human actions**. An agent performs one only when explicitly told to, and does not chain a follow-up git action after it. Committing does not imply permission to push.
@@ -154,9 +163,17 @@ Body:  Spec:         docs/services/auth/requirements.md#fr-auth-011
        Out of scope: device fingerprinting — separate issue if needed
 ```
 
-Those five labels are fixed, and the three templates in `.github/ISSUE_TEMPLATE/` carry them: `feature.md`, `bug.md` and `experiment.md`. A bug adds `Seen in`, `Cases` and `Until fixed`; an experiment adds `Question`, `Setup`, `Where it runs` and `Metric`. `config.yml` sets `blank_issues_enabled: false`, so every new issue starts from one of the three — the alternative is what happens without them, which is a different body shape per week.
+Those five labels are fixed, and the four templates in `.github/ISSUE_TEMPLATE/` carry them: `feature.md`, `bug.md`, `experiment.md` and `convention-change.md`. A bug adds `Seen in`, `Cases` and `Until fixed`; an experiment adds `Question`, `Setup`, `Where it runs` and `Metric`; a convention change adds `Why` and `Now false`. `config.yml` sets `blank_issues_enabled: false`, so every new issue starts from one of the four — the alternative is what happens without them, which is a different body shape per week.
+
+`convention-change.md` is the only one whose sections are headings instead of bold labels. The other three are built to stay short — `Work:` is one or two sentences pointing at the spec — so a heading would cost three lines for a path. A convention change has no document to point at and runs long, and headings there get anchors worth linking to.
 
 `Spec:` is a path with an anchor, never a place to write the spec. One fact has one owning file (§8), and an issue is not it.
+
+**`Spec:` has an answer at every tier, including a repo with no `docs/`.** FR and AC identifiers and a traceability matrix arrive at Tier 2 of `DOCS-CONVENTIONS.md` §10, so a Tier 0 or Tier 1 repo has nothing to cite yet — and the issue templates are mandatory, because `config.yml` sets `blank_issues_enabled: false`. Point `Spec:` at the narrowest anchor that already exists: a heading in `README.md`, an ADR, a file under `docs/` if the repo has one. If nothing covers it, **the first step of the issue** is writing those few lines into the file that owns them — not moving the spec into the issue body. The spec has to exist outside the issue before any test can claim to encode it; a test written against an issue body encodes something no one reviewed.
+
+The exception is an issue whose work **is** a change to `CONVENTIONS.md` or `DOCS-CONVENTIONS.md`. The owning file is then the file being changed, so "write the spec into the owning file first" would be the entire task. There, `Spec:` points at the section about to change — `CONVENTIONS.md#6-testing` — and the issue body may carry the reasoning for the change, because no other file owns it. `convention-change.md` is the template for that case: it adds `Why` for the reasoning and `Now false` for the sentences elsewhere the change makes wrong.
+
+**A long body does not license renaming the fields.** `Spec`, `Work`, `Done when`, `Depends on` and `Out of scope` keep those exact names in every template, whatever language the prose around them is written in, because the audit step above reads them **by name** before `Closes #N` is written. Rename them and the audit has nothing to take one line at a time, and whoever performs it has to invent a mapping that exists nowhere — which is a claim about the issue that no one can check.
 
 Execution, per issue:
 
@@ -165,7 +182,19 @@ gh issue list --milestone v1.3 --state open   # what is left
 gh issue view 42                              # then open the spec it points to
 ```
 
-Then branch, write the failing test for the AC first, implement, update the docs in the same commit, add the version annotation and changelog line, and open a PR whose body says `Closes #42`.
+Then branch and write the failing test for the AC. **Stop there and report it** — §6 — because an agent does not run on from a red test to an implementation on its own. Once the test is cleared or the stop is explicitly waived: implement, update the docs in the same commit, add the version annotation and changelog line, and open a PR whose body says `Closes #42`.
+
+**A branch and a PR are the default; working straight on the integration branch is the human's call, taken when the work is assigned.** An agent never picks the path and never proposes one — §9. There is no threshold, because no threshold cuts in the right place: the judgment is about volume, not about kind, so a large documentation change earns a branch exactly as a large code change does. On the direct path the audit below is the only gate.
+
+**Before writing `Closes #N` — in a PR body, a PR title, or a commit message — re-read the issue and diff it against what was done.** Take the issue's `Spec:`, `Work:`, `Done when:` and `Out of scope:` lines one at a time and say, for each, whether the work matches it. Anything that diverged — a different approach, a dropped item, an acceptance line that turned out to be wrong, scope that grew — is a decision taken after the issue was filed, and it goes in an **issue comment first**, before the closing phrase is written anywhere. The comment carries the reasoning; a PR does not restate it, because a decision only reads correctly next to the body it departed from, and a PR closing several issues would otherwise carry pointers into all of them.
+
+The audit is reported, not assumed: an agent states the result line by line, **including the lines that matched**. "No divergence" is a claim about every line, so it is made explicitly or not at all.
+
+The anchor is the moment the closing phrase is **written**, not the moment it fires. It fires on merge, or on a direct push to the integration branch, and the author may not be the one who merges. `.github/workflows/close-issues-on-develop.yml` matches `close`, `closes`, `closed`, `fix`, `fixes`, `fixed`, `resolve`, `resolves` and `resolved`, so a commit message can arm the close without anyone intending one.
+
+On a direct push there is no PR and therefore no review, so the audit is the only gate on that path: a PR review checklist, where the repo has one, cannot back it up.
+
+Like the subagent bans in §9, this step is **enforced by the prompt, not by the tooling**. No workflow can tell a reasoned deviation from an unreasoned one: that comparison is against the intent in the issue body, which is prose. A CI job here would be a gate in name only, which is worse than none.
 
 **An issue carrying a design choice gets a proposal before any code.** The agent drafts the approach in chat, the human approves or edits it there, and only then is the approved version posted as a comment on the issue. Mechanical work skips this. A new decision taken mid-work — how to handle a measurement, a scope change, a parameter — is posted as a **new** comment before it is acted on; earlier comments are never edited.
 
@@ -173,7 +202,7 @@ A comment is not a source of truth. What is settled goes into the owning documen
 
 Two reasons this is worth the step. A proposal in chat is cheap to reject; a proposal already implemented is not. And the comment thread is the only record of the options that were *not* chosen, which is exactly what is missing when the same question comes back three months later.
 
-**Never close an issue directly.** Let the merge close it through `Closes #`, so "done" is tied to merged, tested code rather than to somebody's claim. This is the same rule as §4 of DOCS-CONVENTIONS.md, where a document cannot be approved by the person asserting it is finished.
+**Never close an issue directly.** Let a merge, or a push to the integration branch, close it through `Closes #`, so "done" is tied to committed, tested code rather than to somebody's claim. This is the same rule as §4 of DOCS-CONVENTIONS.md, where a document cannot be approved by the person asserting it is finished.
 
 In this repo work merges into `develop`, while `main` stays the default branch, so GitHub's own `Closes #` handling would wait for the release merge. `.github/workflows/close-issues-on-develop.yml` closes the issue when the PR or commit lands on `develop` instead. Same rule, earlier branch.
 
@@ -187,7 +216,15 @@ gh issue list --milestone v1.3 --state closed --json number,title
 
 That file tracks *progress*. It is not `docs/checklists/`, which holds the fixed procedure for each kind of work and is ticked afresh every time — see DOCS-CONVENTIONS.md §3.
 
-**On a non-GitHub remote**, read `gh`, PR and `Closes #` throughout this file as whatever that host calls the same thing — on GitLab, `glab`, merge request, and `Closes #` in the MR description. The rules do not change; only the tool names do. Issue templates move to `.gitlab/issue_templates/`. State the substitution once in this file rather than restating every rule.
+**On a non-GitHub remote**, read `gh`, PR and `Closes #` throughout this file as whatever that host calls the same thing — on GitLab, `glab`, merge request, and `Closes #` in the MR description. The rules do not change; only the tool names do. Issue templates move to `.gitlab/issue_templates/` and the PR template to `.gitlab/merge_request_templates/`. Both move or neither works: a template left in `.github/` is not read and nothing says so — it just stops appearing. State the substitution once in this file rather than restating every rule.
+
+### Review
+
+**An agent opening the PR means a human reviews it.** That is the common case here, and it is the only configuration in which review catches anything: the author of the code is not the one judging it.
+
+**A human opening the PR has no reviewer**, and §10 is then the whole gate. Say that plainly rather than staging a review to look like one happened — a self-approval records that the step was performed while establishing nothing, which is worse than an honest gap, because later it reads like evidence.
+
+What blocks a merge: a red test, a test that does not encode the spec, a result nobody re-ran, a behavior change with no doc change, and a divergence from the issue that no issue comment covers. Nothing else blocks: an opinion about style becomes a comment and the branch merges anyway. `docs/checklists/pr-review.md` holds the procedure, for a repo that carries it.
 
 ## 8. Documentation
 
@@ -290,11 +327,15 @@ An agent with `gh` available can read, create, edit and close issues, so the tem
 
 | Action | Default | With an explicit assignment |
 |---|---|---|
-| Read issues, pick up an assigned one, implement, open a PR | yes | — |
+| Read issues, pick up an assigned one, write the failing test | yes | — |
+| Implement after the test is red | no — stop, report, wait (§6) | may implement the step that was cleared |
+| Open a PR once the implementation is cleared | yes | — |
+| Push straight to the integration branch | no | may push exactly the work the human put on that path |
 | Comment progress or findings on an issue | yes | — |
 | Create an issue | propose in chat, human files it | may file exactly the ones named |
 | Edit an issue | no | may make exactly the edit described |
-| Close an issue | no — the PR closes it via `Closes #` | may close exactly the issue named |
+| Close an issue | no — a merge or a push closes it via `Closes #` | may close exactly the issue named |
+| Write `Closes #N` without reporting the issue audit line by line | no | — |
 | Set priority, milestone or scope | no, that is a product decision | may apply exactly what was specified |
 
 **"Explicitly assigned" means one named step on named issues** — "close #42", "file the two issues we just discussed". It is not a standing grant. Doing the assigned step ends the authority: no follow-up issue action, no follow-up git action, no extending the same treatment to similar issues found along the way.
@@ -384,9 +425,10 @@ The cloud ban covers reads too, for three reasons: a "read-only" command still p
 A change is done when **all** hold:
 
 - [ ] Code follows sections 4–5 (types, config-driven models, wrapped LLM calls).
-- [ ] Tests written and actually run; result reported honestly.
+- [ ] A test for this change existed and failed before the implementation, failed for the real reason, and was run again after; result reported honestly (§6).
+- [ ] The test was reviewed against the spec before implementing, or the stop was explicitly waived (§6).
 - [ ] No secret added; `.env.example` updated if a new variable exists.
 - [ ] Dependencies declared in the same commit.
 - [ ] README/docs updated if behavior or setup changed.
-- [ ] Commit message follows Conventional Commits.
+- [ ] Commit message follows the form stated in §7.
 - [ ] Nothing generated or private is staged.

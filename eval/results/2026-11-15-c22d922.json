@@ -1,0 +1,6729 @@
+{
+  "format": 1,
+  "run": {
+    "started": "2026-11-15T10:21:56+07:00",
+    "command": "python -m src.eval.run",
+    "seconds": 50.0
+  },
+  "configuration": {
+    "commit": "c22d922175752fa4f8ed6de98a49d0c363fa977e",
+    "dirty": false,
+    "diff_sha256": null,
+    "eval_set": {
+      "path": "eval/questions.yaml",
+      "version": 1,
+      "sha256": "d33b390e48942e0a54714a639529f0f58d0d5cb2b13013907de09aef0e2a8f32"
+    },
+    "index": {
+      "model": "BAAI/bge-m3",
+      "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+      "chunks_sha256": "f46aee0d2d3388fd74a3325afe6662fc52eaadd4bbf7047eedf024095937469a",
+      "chunk_count": 1286,
+      "bm25_tokenizer": "syllable",
+      "chunking": {
+        "max_tokens": 1600,
+        "min_intro_tokens": 100
+      },
+      "input_limit": 8192,
+      "truncated": 0
+    },
+    "pipeline": {
+      "stages": [
+        "retrieval"
+      ],
+      "rewrite": "none",
+      "top_k": 8,
+      "rrf_k": 60,
+      "candidates": 50,
+      "keyword_weight": 1.0,
+      "vector_weight": 1.0,
+      "per_article": false
+    },
+    "bootstrap": {
+      "resamples": 1000,
+      "seed": 0,
+      "level": 0.95
+    },
+    "versions": {
+      "python": "3.12.10",
+      "bm25s": "0.3.16",
+      "chromadb": "1.5.9",
+      "numpy": "2.5.4",
+      "pyvi": "0.1.1",
+      "sentence-transformers": "6.3.0",
+      "torch": "2.15.0+cpu",
+      "underthesea": "9.5.0"
+    },
+    "machine": {
+      "os": "Windows-11-10.0.26100-SP0",
+      "cpu": "Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",
+      "cpu_count": 8,
+      "ram_gb": 15.8
+    }
+  },
+  "scores": {
+    "EVAL-001": {
+      "name": "recall@k, answerable standalone questions",
+      "value": 0.6777777777777778,
+      "n": 39,
+      "interval": [
+        0.5918162393162393,
+        0.764113247863248
+      ],
+      "target": 0.8,
+      "passes": false
+    },
+    "EVAL-002": {
+      "name": "citation correctness",
+      "value": null,
+      "n": 0,
+      "interval": null,
+      "target": 0.9,
+      "passes": null,
+      "reason": "no generation stage"
+    },
+    "EVAL-003": {
+      "name": "faithfulness",
+      "value": null,
+      "n": 0,
+      "interval": null,
+      "target": 0.9,
+      "passes": null,
+      "reason": "no generation stage"
+    },
+    "EVAL-004": {
+      "name": "not-found accuracy, unanswerable questions",
+      "value": null,
+      "n": 0,
+      "interval": null,
+      "target": 0.8,
+      "passes": null,
+      "reason": "no generation stage"
+    },
+    "EVAL-005": {
+      "name": "recall@k, answerable follow-up turns",
+      "value": 0.575,
+      "n": 10,
+      "interval": [
+        0.33333333333333337,
+        0.8166666666666667
+      ],
+      "target": 0.7,
+      "passes": false
+    },
+    "EVAL-006": {
+      "name": "answer correctness",
+      "value": null,
+      "n": 0,
+      "interval": null,
+      "target": 0.8,
+      "passes": null,
+      "reason": "no generation stage"
+    },
+    "EVAL-007": {
+      "name": "context precision@k, answerable standalone questions",
+      "value": 0.6862179487179487,
+      "n": 39,
+      "interval": [
+        0.5901077279202279,
+        0.7797362128612128
+      ],
+      "target": 0.6,
+      "passes": true
+    },
+    "EVAL-008": {
+      "name": "answer relevancy",
+      "value": null,
+      "n": 0,
+      "interval": null,
+      "target": null,
+      "passes": null,
+      "reason": "no generation stage"
+    }
+  },
+  "breakdown": {
+    "form": {
+      "plain": {
+        "n": 27,
+        "EVAL-001": 0.6179012345679012,
+        "EVAL-007": 0.6125
+      },
+      "reference": {
+        "n": 12,
+        "EVAL-001": 0.8125,
+        "EVAL-007": 0.8520833333333333
+      }
+    },
+    "tax_type": {
+      "administration": {
+        "n": 6,
+        "EVAL-001": 0.7083333333333334,
+        "EVAL-007": 0.7631944444444444
+      },
+      "cit": {
+        "n": 9,
+        "EVAL-001": 0.7666666666666667,
+        "EVAL-007": 0.6825396825396824
+      },
+      "household": {
+        "n": 7,
+        "EVAL-001": 0.5857142857142856,
+        "EVAL-007": 0.5463718820861678
+      },
+      "pit": {
+        "n": 7,
+        "EVAL-001": 0.6214285714285713,
+        "EVAL-007": 0.7763605442176871
+      },
+      "sct": {
+        "n": 4,
+        "EVAL-001": 0.375,
+        "EVAL-007": 0.6423611111111112
+      },
+      "vat": {
+        "n": 6,
+        "EVAL-001": 0.8888888888888888,
+        "EVAL-007": 0.701984126984127
+      }
+    }
+  },
+  "latency": {
+    "n": 66,
+    "median_s": 0.2515007500187494,
+    "p95_s": 0.3694118949933909,
+    "stages": [
+      "retrieval"
+    ],
+    "scope": "retrieval only, dev laptop",
+    "nfr006": {
+      "median_s": 10,
+      "p95_s": 20
+    }
+  },
+  "cost": {
+    "average_usd": 0.0,
+    "note": "no LLM in the pipeline",
+    "nfr007": {
+      "average_usd": 0.01
+    }
+  },
+  "items": [
+    {
+      "id": "q01",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "household",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "427630:D3",
+        "427630:D4",
+        "427630:D8",
+        "427630:D11",
+        "427630:D12",
+        "433387:D1"
+      ],
+      "hits": [
+        {
+          "chunk_id": "427630:D8:K1",
+          "article": "427630:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029273504273504274
+        },
+        {
+          "chunk_id": "427630:D11",
+          "article": "427630:D11",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028588564574170333
+        },
+        {
+          "chunk_id": "439303:D50:K3",
+          "article": "439303:D50",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02736498731424429
+        },
+        {
+          "chunk_id": "422733:D7",
+          "article": "422733:D7",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02690501986276634
+        },
+        {
+          "chunk_id": "427630:D17",
+          "article": "427630:D17",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025910931174089068
+        },
+        {
+          "chunk_id": "427630:D4",
+          "article": "427630:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025827404887101765
+        },
+        {
+          "chunk_id": "439303:D67",
+          "article": "439303:D67",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02513227513227513
+        },
+        {
+          "chunk_id": "379409:D5:K25",
+          "article": "379409:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.024007908487501763
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.5,
+      "context_precision": 0.8333333333333334,
+      "latency_s": {
+        "retrieval": 0.22328999999444932
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q02",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "pit",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "422733:D8",
+        "422733:D9",
+        "422733:D10",
+        "439303:D46",
+        "439303:D47"
+      ],
+      "hits": [
+        {
+          "chunk_id": "422733:D10",
+          "article": "422733:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03131881575727918
+        },
+        {
+          "chunk_id": "439303:D46",
+          "article": "439303:D46",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03128054740957967
+        },
+        {
+          "chunk_id": "421582:D10:K4",
+          "article": "421582:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02938045560996381
+        },
+        {
+          "chunk_id": "439303:D50:K2",
+          "article": "439303:D50",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028205128205128206
+        },
+        {
+          "chunk_id": "439303:D50:K3",
+          "article": "439303:D50",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028125
+        },
+        {
+          "chunk_id": "422733:D8",
+          "article": "422733:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02786377708978328
+        },
+        {
+          "chunk_id": "439303:D47",
+          "article": "439303:D47",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02782608695652174
+        },
+        {
+          "chunk_id": "422733:D4",
+          "article": "422733:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027799227799227798
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.8,
+      "context_precision": 0.7678571428571428,
+      "latency_s": {
+        "retrieval": 0.3730869999853894
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q03",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "administration",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "421539:D14",
+        "421539:D16",
+        "439382:D10",
+        "439382:D26"
+      ],
+      "hits": [
+        {
+          "chunk_id": "421539:D14",
+          "article": "421539:D14",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030330882352941176
+        },
+        {
+          "chunk_id": "439660:D9",
+          "article": "439660:D9",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029551337359792925
+        },
+        {
+          "chunk_id": "439382:D24",
+          "article": "439382:D24",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02889344262295082
+        },
+        {
+          "chunk_id": "439382:D26",
+          "article": "439382:D26",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027236652236652236
+        },
+        {
+          "chunk_id": "421539:D16",
+          "article": "421539:D16",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02699859747545582
+        },
+        {
+          "chunk_id": "440483:D39",
+          "article": "440483:D39",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026878868258178604
+        },
+        {
+          "chunk_id": "427630:D10",
+          "article": "427630:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0264808362369338
+        },
+        {
+          "chunk_id": "379409:D14",
+          "article": "379409:D14",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.024687641125997292
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.75,
+      "context_precision": 0.7000000000000001,
+      "latency_s": {
+        "retrieval": 0.30212999996729195
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q04",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "vat",
+      "form": "reference",
+      "answerable": true,
+      "expected": [
+        "379409:D9"
+      ],
+      "hits": [
+        {
+          "chunk_id": "379409:D9",
+          "article": "379409:D9",
+          "found_by": [
+            "reference",
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03200204813108039
+        },
+        {
+          "chunk_id": "379409:D5:K27",
+          "article": "379409:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030679156908665108
+        },
+        {
+          "chunk_id": "404357:D19",
+          "article": "404357:D19",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02938045560996381
+        },
+        {
+          "chunk_id": "404357:D31",
+          "article": "404357:D31",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028577260665441927
+        },
+        {
+          "chunk_id": "379409:D5:K9",
+          "article": "379409:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02792120864410021
+        },
+        {
+          "chunk_id": "404357:D17:K3",
+          "article": "404357:D17",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027730294396961064
+        },
+        {
+          "chunk_id": "404357:D17:K5",
+          "article": "404357:D17",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026553280111072546
+        },
+        {
+          "chunk_id": "404357:D4:K16",
+          "article": "404357:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025932953826691967
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 1.0,
+      "latency_s": {
+        "retrieval": 0.2723670999985188
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q05",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "cit",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "404386:D10",
+        "404386:D4",
+        "434729:D3",
+        "421582:D4",
+        "433387:D2"
+      ],
+      "hits": [
+        {
+          "chunk_id": "421582:D11",
+          "article": "421582:D11",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.032266458495966696
+        },
+        {
+          "chunk_id": "404386:D10",
+          "article": "404386:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031054405392392875
+        },
+        {
+          "chunk_id": "433387:D2",
+          "article": "433387:D2",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030798389007344232
+        },
+        {
+          "chunk_id": "427630:D4",
+          "article": "427630:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02761904761904762
+        },
+        {
+          "chunk_id": "422733:D7",
+          "article": "422733:D7",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026916221033868093
+        },
+        {
+          "chunk_id": "404386:D13",
+          "article": "404386:D13",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026856524873828405
+        },
+        {
+          "chunk_id": "404386:D18",
+          "article": "404386:D18",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025978407557354925
+        },
+        {
+          "chunk_id": "440483:D21:K1",
+          "article": "440483:D21",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025937081659973226
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.4,
+      "context_precision": 0.5833333333333333,
+      "latency_s": {
+        "retrieval": 0.2832211999921128
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q06",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "sct",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "405694:D2",
+        "405694:D8",
+        "434729:D4"
+      ],
+      "hits": [
+        {
+          "chunk_id": "405694:D6",
+          "article": "405694:D6",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03128054740957967
+        },
+        {
+          "chunk_id": "422910:D8",
+          "article": "422910:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030621785881252923
+        },
+        {
+          "chunk_id": "405694:D9",
+          "article": "405694:D9",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03047794966520434
+        },
+        {
+          "chunk_id": "422910:D5:K5",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030090497737556562
+        },
+        {
+          "chunk_id": "422910:D5:K1",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029910714285714284
+        },
+        {
+          "chunk_id": "422910:D3",
+          "article": "422910:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029910714285714284
+        },
+        {
+          "chunk_id": "440483:D20",
+          "article": "440483:D20",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029850746268656716
+        },
+        {
+          "chunk_id": "422910:D5:K6",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028381642512077296
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.0,
+      "context_precision": 0.0,
+      "latency_s": {
+        "retrieval": 0.25287440000101924
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q08",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "pit",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "439303:D8",
+        "439303:D67",
+        "427630:D4",
+        "433387:D1"
+      ],
+      "hits": [
+        {
+          "chunk_id": "440483:D31",
+          "article": "440483:D31",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029551337359792925
+        },
+        {
+          "chunk_id": "439382:D40",
+          "article": "439382:D40",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02821869488536155
+        },
+        {
+          "chunk_id": "439303:D67",
+          "article": "439303:D67",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.024799311926605505
+        },
+        {
+          "chunk_id": "439382:D60",
+          "article": "439382:D60",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.019294990723562153
+        },
+        {
+          "chunk_id": "428454:D7:K4",
+          "article": "428454:D7",
+          "found_by": [
+            "keyword"
+          ],
+          "score": 0.01639344262295082
+        },
+        {
+          "chunk_id": "422733:D4",
+          "article": "422733:D4",
+          "found_by": [
+            "keyword"
+          ],
+          "score": 0.016129032258064516
+        },
+        {
+          "chunk_id": "439382:D41",
+          "article": "439382:D41",
+          "found_by": [
+            "vector"
+          ],
+          "score": 0.016129032258064516
+        },
+        {
+          "chunk_id": "439613:D5",
+          "article": "439613:D5",
+          "found_by": [
+            "keyword"
+          ],
+          "score": 0.015873015873015872
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.25,
+      "context_precision": 0.3333333333333333,
+      "latency_s": {
+        "retrieval": 0.26888260000851005
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q09",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "pit",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "427630:D3",
+        "427630:D4",
+        "433387:D1",
+        "422733:D7",
+        "434729:D1"
+      ],
+      "hits": [
+        {
+          "chunk_id": "427630:D4",
+          "article": "427630:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03278688524590164
+        },
+        {
+          "chunk_id": "422733:D7",
+          "article": "422733:D7",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03076923076923077
+        },
+        {
+          "chunk_id": "439303:D50:K2",
+          "article": "439303:D50",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028985507246376812
+        },
+        {
+          "chunk_id": "439382:D21:K3",
+          "article": "439382:D21",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028258706467661692
+        },
+        {
+          "chunk_id": "404357:D7",
+          "article": "404357:D7",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026862026862026864
+        },
+        {
+          "chunk_id": "421582:D12:K4",
+          "article": "421582:D12",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02603002235707442
+        },
+        {
+          "chunk_id": "427630:D8:K1",
+          "article": "427630:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02581612258494337
+        },
+        {
+          "chunk_id": "427630:D18",
+          "article": "427630:D18",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025779967159277502
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.4,
+      "context_precision": 1.0,
+      "latency_s": {
+        "retrieval": 0.24086309992708266
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q10",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "administration",
+      "form": "reference",
+      "answerable": true,
+      "expected": [
+        "421539:D14",
+        "439382:D25"
+      ],
+      "hits": [
+        {
+          "chunk_id": "421539:D14",
+          "article": "421539:D14",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04669647292598113
+        },
+        {
+          "chunk_id": "421539:D39:K1",
+          "article": "421539:D39",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04534011967810716
+        },
+        {
+          "chunk_id": "421539:D22:K3",
+          "article": "421539:D22",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.043656153052255696
+        },
+        {
+          "chunk_id": "421539:D17:K1",
+          "article": "421539:D17",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.0378738038277512
+        },
+        {
+          "chunk_id": "439660:D6:K2",
+          "article": "439660:D6",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031009615384615385
+        },
+        {
+          "chunk_id": "439660:D6:K5",
+          "article": "439660:D6",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028068137824235385
+        },
+        {
+          "chunk_id": "421539:D48",
+          "article": "421539:D48",
+          "found_by": [
+            "vector",
+            "document"
+          ],
+          "score": 0.027432808155699723
+        },
+        {
+          "chunk_id": "421539:D39:K15",
+          "article": "421539:D39",
+          "found_by": [
+            "vector",
+            "document"
+          ],
+          "score": 0.027417840375586856
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.5,
+      "context_precision": 1.0,
+      "latency_s": {
+        "retrieval": 0.23793169995769858
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q11",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "household",
+      "form": "plain",
+      "answerable": false,
+      "expected": [],
+      "hits": [
+        {
+          "chunk_id": "427630:D18",
+          "article": "427630:D18",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0315136476426799
+        },
+        {
+          "chunk_id": "427630:D17",
+          "article": "427630:D17",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03047794966520434
+        },
+        {
+          "chunk_id": "406967:D1",
+          "article": "406967:D1",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029850746268656716
+        },
+        {
+          "chunk_id": "427630:D8:K1",
+          "article": "427630:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02738970588235294
+        },
+        {
+          "chunk_id": "439382:D16",
+          "article": "439382:D16",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02701252236135957
+        },
+        {
+          "chunk_id": "427630:D9",
+          "article": "427630:D9",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02619736419157827
+        },
+        {
+          "chunk_id": "439303:D54",
+          "article": "439303:D54",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02552166934189406
+        },
+        {
+          "chunk_id": "406967:D5",
+          "article": "406967:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0251661918328585
+        }
+      ],
+      "unresolved": [],
+      "recall": null,
+      "context_precision": null,
+      "latency_s": {
+        "retrieval": 0.20175319991540164
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q12",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "vat",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "379409:D14",
+        "404357:D26"
+      ],
+      "hits": [
+        {
+          "chunk_id": "404357:D26",
+          "article": "404357:D26",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03252247488101534
+        },
+        {
+          "chunk_id": "433921:D4",
+          "article": "433921:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03252247488101534
+        },
+        {
+          "chunk_id": "379409:D14",
+          "article": "379409:D14",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030776515151515152
+        },
+        {
+          "chunk_id": "404357:D23:K16",
+          "article": "404357:D23",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030158730158730156
+        },
+        {
+          "chunk_id": "404357:D23:K11",
+          "article": "404357:D23",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029877369007803793
+        },
+        {
+          "chunk_id": "404357:D28",
+          "article": "404357:D28",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029411764705882353
+        },
+        {
+          "chunk_id": "404357:D24",
+          "article": "404357:D24",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029030910609857977
+        },
+        {
+          "chunk_id": "404357:D27:K3",
+          "article": "404357:D27",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02797339593114241
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 0.8333333333333333,
+      "latency_s": {
+        "retrieval": 0.23856059997342527
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q13",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "cit",
+      "form": "reference",
+      "answerable": true,
+      "expected": [
+        "404386:D9"
+      ],
+      "hits": [
+        {
+          "chunk_id": "404386:D9",
+          "article": "404386:D9",
+          "found_by": [
+            "reference",
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030886196246139225
+        },
+        {
+          "chunk_id": "421582:D9:K1",
+          "article": "421582:D9",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03057889822595705
+        },
+        {
+          "chunk_id": "421582:D10:K9",
+          "article": "421582:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03007688828584351
+        },
+        {
+          "chunk_id": "428454:D3:K7",
+          "article": "428454:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029571646010002173
+        },
+        {
+          "chunk_id": "428454:D3:K13",
+          "article": "428454:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029513888888888888
+        },
+        {
+          "chunk_id": "439613:D16",
+          "article": "439613:D16",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029051670471052088
+        },
+        {
+          "chunk_id": "421582:D10:K8",
+          "article": "421582:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02877846790890269
+        },
+        {
+          "chunk_id": "428454:D3:K14",
+          "article": "428454:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02871794871794872
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 1.0,
+      "latency_s": {
+        "retrieval": 0.23337320005521178
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q14",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "pit",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "422733:D2",
+        "422733:D21",
+        "439303:D4",
+        "439303:D64",
+        "439303:D50"
+      ],
+      "hits": [
+        {
+          "chunk_id": "421582:D12:K2",
+          "article": "421582:D12",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028985507246376812
+        },
+        {
+          "chunk_id": "422733:D2",
+          "article": "422733:D2",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028782894736842105
+        },
+        {
+          "chunk_id": "428454:D7:K4",
+          "article": "428454:D7",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02821939586645469
+        },
+        {
+          "chunk_id": "421582:D12:K3",
+          "article": "421582:D12",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028068137824235385
+        },
+        {
+          "chunk_id": "421582:D10:K4",
+          "article": "421582:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027443609022556388
+        },
+        {
+          "chunk_id": "439303:D4",
+          "article": "439303:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026742581090407176
+        },
+        {
+          "chunk_id": "433387:D2",
+          "article": "433387:D2",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025195618153364633
+        },
+        {
+          "chunk_id": "440483:D44:K2",
+          "article": "440483:D44",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02501516070345664
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.4,
+      "context_precision": 0.41666666666666663,
+      "latency_s": {
+        "retrieval": 0.26515880005899817
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q16",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "sct",
+      "form": "reference",
+      "answerable": true,
+      "expected": [
+        "405694:D8",
+        "434729:D4"
+      ],
+      "hits": [
+        {
+          "chunk_id": "405694:D8:K1",
+          "article": "405694:D8",
+          "found_by": [
+            "reference",
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029957522915269395
+        },
+        {
+          "chunk_id": "405694:D2",
+          "article": "405694:D2",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03177805800756621
+        },
+        {
+          "chunk_id": "422910:D8",
+          "article": "422910:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0315136476426799
+        },
+        {
+          "chunk_id": "422910:D5:K4",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03149801587301587
+        },
+        {
+          "chunk_id": "422910:D1",
+          "article": "422910:D1",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028949545078577336
+        },
+        {
+          "chunk_id": "422910:D5:K6",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028612012987012988
+        },
+        {
+          "chunk_id": "422908:D5",
+          "article": "422908:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028021349599695006
+        },
+        {
+          "chunk_id": "422910:D3",
+          "article": "422910:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02786377708978328
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.5,
+      "context_precision": 1.0,
+      "latency_s": {
+        "retrieval": 0.3625867000082508
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q17",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "household",
+      "form": "reference",
+      "answerable": true,
+      "expected": [
+        "427630:D8",
+        "433387:D1",
+        "439381:D6"
+      ],
+      "hits": [
+        {
+          "chunk_id": "427630:D8:K5",
+          "article": "427630:D8",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.048915917503966164
+        },
+        {
+          "chunk_id": "427630:D8:K1",
+          "article": "427630:D8",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.043561840413764236
+        },
+        {
+          "chunk_id": "427630:D11",
+          "article": "427630:D11",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.039446216865571704
+        },
+        {
+          "chunk_id": "427630:D1",
+          "article": "427630:D1",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.037905232022879085
+        },
+        {
+          "chunk_id": "433387:D1",
+          "article": "433387:D1",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03252247488101534
+        },
+        {
+          "chunk_id": "439381:D6:K1",
+          "article": "439381:D6",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03149801587301587
+        },
+        {
+          "chunk_id": "439780:D8:K1",
+          "article": "439780:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03149801587301587
+        },
+        {
+          "chunk_id": "421539:D26",
+          "article": "421539:D26",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030090497737556562
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 0.8166666666666667,
+      "latency_s": {
+        "retrieval": 0.23446109995711595
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q18",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "administration",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "421539:D10",
+        "439382:D6"
+      ],
+      "hits": [
+        {
+          "chunk_id": "439827:D5:K2",
+          "article": "439827:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03009207275993712
+        },
+        {
+          "chunk_id": "439827:D13:K2",
+          "article": "439827:D13",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028068137824235385
+        },
+        {
+          "chunk_id": "440483:D76",
+          "article": "440483:D76",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027912386121341344
+        },
+        {
+          "chunk_id": "440483:D80",
+          "article": "440483:D80",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02782608695652174
+        },
+        {
+          "chunk_id": "439827:D4",
+          "article": "439827:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02749719416386083
+        },
+        {
+          "chunk_id": "440483:D31",
+          "article": "440483:D31",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026263297872340427
+        },
+        {
+          "chunk_id": "440483:D81",
+          "article": "440483:D81",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025657894736842105
+        },
+        {
+          "chunk_id": "439382:D6:K3",
+          "article": "439382:D6",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025603392041748205
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.5,
+      "context_precision": 0.125,
+      "latency_s": {
+        "retrieval": 0.272044499986805
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q20",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "vat",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "379409:D9",
+        "404357:D18",
+        "379409:D14"
+      ],
+      "hits": [
+        {
+          "chunk_id": "404357:D18",
+          "article": "404357:D18",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03252247488101534
+        },
+        {
+          "chunk_id": "404453:D4",
+          "article": "404453:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03177805800756621
+        },
+        {
+          "chunk_id": "379409:D9",
+          "article": "379409:D9",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031746031746031744
+        },
+        {
+          "chunk_id": "404357:D17:K3",
+          "article": "404357:D17",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031009615384615385
+        },
+        {
+          "chunk_id": "404357:D17:K1",
+          "article": "404357:D17",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03021353930031804
+        },
+        {
+          "chunk_id": "404357:D17:K4",
+          "article": "404357:D17",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029857397504456328
+        },
+        {
+          "chunk_id": "404357:D17:K2",
+          "article": "404357:D17",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029513888888888888
+        },
+        {
+          "chunk_id": "404357:D28",
+          "article": "404357:D28",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02803921568627451
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.6666666666666666,
+      "context_precision": 0.8333333333333333,
+      "latency_s": {
+        "retrieval": 0.2855606999946758
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q21",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "cit",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "404386:D12",
+        "404386:D13",
+        "404386:D14"
+      ],
+      "hits": [
+        {
+          "chunk_id": "421582:D21",
+          "article": "421582:D21",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.032018442622950824
+        },
+        {
+          "chunk_id": "421582:D20",
+          "article": "421582:D20",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03128054740957967
+        },
+        {
+          "chunk_id": "404386:D14",
+          "article": "404386:D14",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030886196246139225
+        },
+        {
+          "chunk_id": "404386:D15",
+          "article": "404386:D15",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030536130536130537
+        },
+        {
+          "chunk_id": "433387:D2",
+          "article": "433387:D2",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030017921146953404
+        },
+        {
+          "chunk_id": "404386:D4",
+          "article": "404386:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029138513513513514
+        },
+        {
+          "chunk_id": "422733:D5",
+          "article": "422733:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02900988017658188
+        },
+        {
+          "chunk_id": "404386:D13",
+          "article": "404386:D13",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0288981288981289
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.6666666666666666,
+      "context_precision": 0.29166666666666663,
+      "latency_s": {
+        "retrieval": 0.3878287000115961
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q22",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "pit",
+      "form": "reference",
+      "answerable": true,
+      "expected": [
+        "422733:D9"
+      ],
+      "hits": [
+        {
+          "chunk_id": "422733:D9",
+          "article": "422733:D9",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04918032786885246
+        },
+        {
+          "chunk_id": "422733:D26",
+          "article": "422733:D26",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.03896245208162445
+        },
+        {
+          "chunk_id": "422733:D19",
+          "article": "422733:D19",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.03680500484624196
+        },
+        {
+          "chunk_id": "422733:D7",
+          "article": "422733:D7",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.03679255793226381
+        },
+        {
+          "chunk_id": "422733:D8",
+          "article": "422733:D8",
+          "found_by": [
+            "keyword",
+            "document"
+          ],
+          "score": 0.02976190476190476
+        },
+        {
+          "chunk_id": "422733:D25",
+          "article": "422733:D25",
+          "found_by": [
+            "keyword",
+            "document"
+          ],
+          "score": 0.029030910609857977
+        },
+        {
+          "chunk_id": "422733:D17",
+          "article": "422733:D17",
+          "found_by": [
+            "keyword",
+            "document"
+          ],
+          "score": 0.027972027972027972
+        },
+        {
+          "chunk_id": "422733:D4",
+          "article": "422733:D4",
+          "found_by": [
+            "vector",
+            "document"
+          ],
+          "score": 0.027425373134328357
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 1.0,
+      "latency_s": {
+        "retrieval": 0.305588599992916
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q23",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "administration",
+      "form": "plain",
+      "answerable": false,
+      "expected": [],
+      "hits": [
+        {
+          "chunk_id": "439780:D16",
+          "article": "439780:D16",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03278688524590164
+        },
+        {
+          "chunk_id": "439381:D44",
+          "article": "439381:D44",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03021353930031804
+        },
+        {
+          "chunk_id": "439381:D9:K4",
+          "article": "439381:D9",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030090497737556562
+        },
+        {
+          "chunk_id": "439381:D16",
+          "article": "439381:D16",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02964426877470356
+        },
+        {
+          "chunk_id": "439780:D24",
+          "article": "439780:D24",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02862400327131466
+        },
+        {
+          "chunk_id": "439780:D6:K3",
+          "article": "439780:D6",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028068137824235385
+        },
+        {
+          "chunk_id": "439780:D15",
+          "article": "439780:D15",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026262626262626265
+        },
+        {
+          "chunk_id": "439780:D6:K2",
+          "article": "439780:D6",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02542892156862745
+        }
+      ],
+      "unresolved": [],
+      "recall": null,
+      "context_precision": null,
+      "latency_s": {
+        "retrieval": 0.3540884000249207
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q24",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "sct",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "405694:D6",
+        "405694:D9",
+        "422910:D5",
+        "422910:D8"
+      ],
+      "hits": [
+        {
+          "chunk_id": "422910:D5:K1",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.032266458495966696
+        },
+        {
+          "chunk_id": "405694:D8:K1",
+          "article": "405694:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03055037313432836
+        },
+        {
+          "chunk_id": "422910:D4:K6",
+          "article": "422910:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03028233151183971
+        },
+        {
+          "chunk_id": "422910:D3",
+          "article": "422910:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03007688828584351
+        },
+        {
+          "chunk_id": "405694:D3",
+          "article": "405694:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029709507042253523
+        },
+        {
+          "chunk_id": "405694:D6",
+          "article": "405694:D6",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02964254577157803
+        },
+        {
+          "chunk_id": "405694:D2",
+          "article": "405694:D2",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029411764705882353
+        },
+        {
+          "chunk_id": "422910:D5:K6",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029273504273504274
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.5,
+      "context_precision": 0.5694444444444444,
+      "latency_s": {
+        "retrieval": 0.26905719994101673
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q27",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "vat",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "379409:D5",
+        "404357:D4",
+        "406967:D4"
+      ],
+      "hits": [
+        {
+          "chunk_id": "421582:D14",
+          "article": "421582:D14",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.032266458495966696
+        },
+        {
+          "chunk_id": "439303:D50:K3",
+          "article": "439303:D50",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03128054740957967
+        },
+        {
+          "chunk_id": "439303:D55",
+          "article": "439303:D55",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02900988017658188
+        },
+        {
+          "chunk_id": "379409:D5:K9",
+          "article": "379409:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028474711270410194
+        },
+        {
+          "chunk_id": "404357:D4:K4",
+          "article": "404357:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02844163539403516
+        },
+        {
+          "chunk_id": "406967:D3",
+          "article": "406967:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028370221327967807
+        },
+        {
+          "chunk_id": "421582:D3:K3",
+          "article": "421582:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027031963470319637
+        },
+        {
+          "chunk_id": "439303:D52",
+          "article": "439303:D52",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026736111111111113
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.6666666666666666,
+      "context_precision": 0.325,
+      "latency_s": {
+        "retrieval": 0.24020730005577207
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q28",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "administration",
+      "form": "reference",
+      "answerable": true,
+      "expected": [
+        "439381:D9"
+      ],
+      "hits": [
+        {
+          "chunk_id": "439381:D9:K1",
+          "article": "439381:D9",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04918032786885246
+        },
+        {
+          "chunk_id": "439381:D9:K4",
+          "article": "439381:D9",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04788306451612903
+        },
+        {
+          "chunk_id": "439381:D9:K2",
+          "article": "439381:D9",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04628776241679467
+        },
+        {
+          "chunk_id": "439381:D6:K3",
+          "article": "439381:D6",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04620389822595705
+        },
+        {
+          "chunk_id": "439381:D9:K5",
+          "article": "439381:D9",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04465811965811966
+        },
+        {
+          "chunk_id": "439381:D4",
+          "article": "439381:D4",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.044001660440016604
+        },
+        {
+          "chunk_id": "439381:D18",
+          "article": "439381:D18",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.043295594462296166
+        },
+        {
+          "chunk_id": "439381:D17",
+          "article": "439381:D17",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04252600430416069
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 0.95,
+      "latency_s": {
+        "retrieval": 0.31992310006171465
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q29",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "cit",
+      "form": "reference",
+      "answerable": true,
+      "expected": [
+        "421582:D10",
+        "404386:D9"
+      ],
+      "hits": [
+        {
+          "chunk_id": "428454:D3:K13",
+          "article": "428454:D3",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04431465126705103
+        },
+        {
+          "chunk_id": "428454:D3:K3",
+          "article": "428454:D3",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.043400084404738554
+        },
+        {
+          "chunk_id": "428454:D3:K9",
+          "article": "428454:D3",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.03930109974782853
+        },
+        {
+          "chunk_id": "421582:D10:K8",
+          "article": "421582:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.032266458495966696
+        },
+        {
+          "chunk_id": "428454:D3:K5",
+          "article": "428454:D3",
+          "found_by": [
+            "vector",
+            "document"
+          ],
+          "score": 0.03200204813108039
+        },
+        {
+          "chunk_id": "404386:D9",
+          "article": "404386:D9",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030536130536130537
+        },
+        {
+          "chunk_id": "428454:D1",
+          "article": "428454:D1",
+          "found_by": [
+            "vector",
+            "document"
+          ],
+          "score": 0.030117753623188408
+        },
+        {
+          "chunk_id": "439303:D26",
+          "article": "439303:D26",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02967032967032967
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 0.29166666666666663,
+      "latency_s": {
+        "retrieval": 0.32405630010180175
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q31",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "pit",
+      "form": "reference",
+      "answerable": true,
+      "expected": [
+        "439303:D8"
+      ],
+      "hits": [
+        {
+          "chunk_id": "439303:D8:K2",
+          "article": "439303:D8",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04918032786885246
+        },
+        {
+          "chunk_id": "439303:D8:K4",
+          "article": "439303:D8",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04718343765045739
+        },
+        {
+          "chunk_id": "439303:D69",
+          "article": "439303:D69",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04713064713064713
+        },
+        {
+          "chunk_id": "439303:D8:K3",
+          "article": "439303:D8",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04513888888888889
+        },
+        {
+          "chunk_id": "439303:D26",
+          "article": "439303:D26",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04350961538461538
+        },
+        {
+          "chunk_id": "439303:D50:K3",
+          "article": "439303:D50",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04106513641397362
+        },
+        {
+          "chunk_id": "439303:D50:K2",
+          "article": "439303:D50",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.03626233829151824
+        },
+        {
+          "chunk_id": "439303:D46",
+          "article": "439303:D46",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.035333208243424966
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 0.9166666666666666,
+      "latency_s": {
+        "retrieval": 0.28855990001466125
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q32",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "cit",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "439613:D5",
+        "439613:D16",
+        "404386:D9"
+      ],
+      "hits": [
+        {
+          "chunk_id": "421582:D10:K4",
+          "article": "421582:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03125
+        },
+        {
+          "chunk_id": "421582:D10:K9",
+          "article": "421582:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03047794966520434
+        },
+        {
+          "chunk_id": "439613:D16",
+          "article": "439613:D16",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029631255487269532
+        },
+        {
+          "chunk_id": "421582:D10:K21",
+          "article": "421582:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029386529386529386
+        },
+        {
+          "chunk_id": "428454:D7:K4",
+          "article": "428454:D7",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0288981288981289
+        },
+        {
+          "chunk_id": "421582:D10:K8",
+          "article": "421582:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028021349599695006
+        },
+        {
+          "chunk_id": "421582:D12:K3",
+          "article": "421582:D12",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027777777777777776
+        },
+        {
+          "chunk_id": "428454:D7:K2",
+          "article": "428454:D7",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02604430914933198
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.3333333333333333,
+      "context_precision": 0.3333333333333333,
+      "latency_s": {
+        "retrieval": 0.2712880000472069
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q33",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "cit",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "440483:D21",
+        "439382:D24"
+      ],
+      "hits": [
+        {
+          "chunk_id": "439382:D24",
+          "article": "439382:D24",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.032266458495966696
+        },
+        {
+          "chunk_id": "440483:D21:K3",
+          "article": "440483:D21",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.032018442622950824
+        },
+        {
+          "chunk_id": "440483:D21:K4",
+          "article": "440483:D21",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031754032258064516
+        },
+        {
+          "chunk_id": "440483:D21:K1",
+          "article": "440483:D21",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02946236559139785
+        },
+        {
+          "chunk_id": "427630:D10",
+          "article": "427630:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029211087420042643
+        },
+        {
+          "chunk_id": "433387:D4",
+          "article": "433387:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02877846790890269
+        },
+        {
+          "chunk_id": "433387:D2",
+          "article": "433387:D2",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02854251012145749
+        },
+        {
+          "chunk_id": "440483:D27",
+          "article": "440483:D27",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027783137179239824
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 1.0,
+      "latency_s": {
+        "retrieval": 0.2536902000429109
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q34",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "sct",
+      "form": "reference",
+      "answerable": true,
+      "expected": [
+        "405694:D9",
+        "422910:D8"
+      ],
+      "hits": [
+        {
+          "chunk_id": "422910:D8",
+          "article": "422910:D8",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04865990111891752
+        },
+        {
+          "chunk_id": "422910:D5:K4",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04788306451612903
+        },
+        {
+          "chunk_id": "422910:D3",
+          "article": "422910:D3",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.045582522915269395
+        },
+        {
+          "chunk_id": "422910:D1",
+          "article": "422910:D1",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.044708245521601686
+        },
+        {
+          "chunk_id": "422910:D5:K1",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.0433580113157578
+        },
+        {
+          "chunk_id": "422910:D5:K5",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04264870931537598
+        },
+        {
+          "chunk_id": "422910:D5:K6",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.042198100407055635
+        },
+        {
+          "chunk_id": "422910:D4:K5",
+          "article": "422910:D4",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04182392560001669
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.5,
+      "context_precision": 1.0,
+      "latency_s": {
+        "retrieval": 0.271695000003092
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q35",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "household",
+      "form": "reference",
+      "answerable": true,
+      "expected": [
+        "427630:D10",
+        "427630:D8",
+        "433387:D1",
+        "427777:D4"
+      ],
+      "hits": [
+        {
+          "chunk_id": "427777:D1",
+          "article": "427777:D1",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.047891458495966696
+        },
+        {
+          "chunk_id": "427777:D8",
+          "article": "427777:D8",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04689826302729529
+        },
+        {
+          "chunk_id": "427777:D4",
+          "article": "427777:D4",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04515994286792249
+        },
+        {
+          "chunk_id": "427777:D9",
+          "article": "427777:D9",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.04324404761904762
+        },
+        {
+          "chunk_id": "427777:D3",
+          "article": "427777:D3",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.03876262626262626
+        },
+        {
+          "chunk_id": "427777:D2",
+          "article": "427777:D2",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.03609986951654888
+        },
+        {
+          "chunk_id": "440483:D19:K1",
+          "article": "440483:D19",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031754032258064516
+        },
+        {
+          "chunk_id": "434628:D4",
+          "article": "434628:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030679156908665108
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.25,
+      "context_precision": 0.3333333333333333,
+      "latency_s": {
+        "retrieval": 0.23648249998223037
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q37",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "vat",
+      "form": "reference",
+      "answerable": true,
+      "expected": [
+        "379409:D5",
+        "421739:D1",
+        "404357:D4",
+        "422898:D1"
+      ],
+      "hits": [
+        {
+          "chunk_id": "421739:D1",
+          "article": "421739:D1",
+          "found_by": [
+            "keyword",
+            "vector",
+            "document"
+          ],
+          "score": 0.048915917503966164
+        },
+        {
+          "chunk_id": "422898:D1",
+          "article": "422898:D1",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03252247488101534
+        },
+        {
+          "chunk_id": "404357:D4:K1",
+          "article": "404357:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031024531024531024
+        },
+        {
+          "chunk_id": "421582:D4:K1",
+          "article": "421582:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030798389007344232
+        },
+        {
+          "chunk_id": "379409:D9",
+          "article": "379409:D9",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0288981288981289
+        },
+        {
+          "chunk_id": "379409:D5:K1",
+          "article": "379409:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02533373786407767
+        },
+        {
+          "chunk_id": "404357:D19",
+          "article": "404357:D19",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025278219395866455
+        },
+        {
+          "chunk_id": "404386:D4",
+          "article": "404386:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02488425925925926
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 0.9166666666666666,
+      "latency_s": {
+        "retrieval": 0.26334539998788387
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q38",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "household",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "427630:D3",
+        "427630:D4",
+        "433387:D1",
+        "422733:D7",
+        "434729:D1"
+      ],
+      "hits": [
+        {
+          "chunk_id": "433387:D1",
+          "article": "433387:D1",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031099324975891997
+        },
+        {
+          "chunk_id": "404357:D21",
+          "article": "404357:D21",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0304147465437788
+        },
+        {
+          "chunk_id": "433387:D2",
+          "article": "433387:D2",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0304147465437788
+        },
+        {
+          "chunk_id": "404386:D11",
+          "article": "404386:D11",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03036576949620428
+        },
+        {
+          "chunk_id": "427630:D3",
+          "article": "427630:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03007688828584351
+        },
+        {
+          "chunk_id": "427630:D8:K5",
+          "article": "427630:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0293236301369863
+        },
+        {
+          "chunk_id": "427630:D4",
+          "article": "427630:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029206349206349208
+        },
+        {
+          "chunk_id": "427630:D8:K1",
+          "article": "427630:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028958333333333336
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.6,
+      "context_precision": 0.6095238095238095,
+      "latency_s": {
+        "retrieval": 0.21866200002841651
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q40",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "cit",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "404386:D16",
+        "421582:D7"
+      ],
+      "hits": [
+        {
+          "chunk_id": "421582:D7",
+          "article": "421582:D7",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03278688524590164
+        },
+        {
+          "chunk_id": "404386:D16",
+          "article": "404386:D16",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03225806451612903
+        },
+        {
+          "chunk_id": "421582:D6",
+          "article": "421582:D6",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030117753623188408
+        },
+        {
+          "chunk_id": "421582:D25",
+          "article": "421582:D25",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029857397504456328
+        },
+        {
+          "chunk_id": "404386:D17",
+          "article": "404386:D17",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02900988017658188
+        },
+        {
+          "chunk_id": "404386:D14",
+          "article": "404386:D14",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028693528693528692
+        },
+        {
+          "chunk_id": "421582:D10:K8",
+          "article": "421582:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027777777777777776
+        },
+        {
+          "chunk_id": "421582:D20",
+          "article": "421582:D20",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026736111111111113
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 1.0,
+      "latency_s": {
+        "retrieval": 0.2803501000162214
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q41",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "pit",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "439303:D51",
+        "439382:D10"
+      ],
+      "hits": [
+        {
+          "chunk_id": "439303:D51",
+          "article": "439303:D51",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031099324975891997
+        },
+        {
+          "chunk_id": "433387:D2",
+          "article": "433387:D2",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028991596638655463
+        },
+        {
+          "chunk_id": "440483:D21:K1",
+          "article": "440483:D21",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028949545078577336
+        },
+        {
+          "chunk_id": "440483:D27",
+          "article": "440483:D27",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02844163539403516
+        },
+        {
+          "chunk_id": "440483:D22:K1",
+          "article": "440483:D22",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028381642512077296
+        },
+        {
+          "chunk_id": "439303:D50:K3",
+          "article": "439303:D50",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028373015873015873
+        },
+        {
+          "chunk_id": "439303:D67",
+          "article": "439303:D67",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026988636363636364
+        },
+        {
+          "chunk_id": "421582:D3:K3",
+          "article": "421582:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026742734890354787
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.5,
+      "context_precision": 1.0,
+      "latency_s": {
+        "retrieval": 0.27826210006605834
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q42",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "cit",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "404386:D9",
+        "421582:D10"
+      ],
+      "hits": [
+        {
+          "chunk_id": "421582:D10:K6",
+          "article": "421582:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03278688524590164
+        },
+        {
+          "chunk_id": "404357:D23:K13",
+          "article": "404357:D23",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0315136476426799
+        },
+        {
+          "chunk_id": "427630:D6",
+          "article": "427630:D6",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030776515151515152
+        },
+        {
+          "chunk_id": "379409:D14",
+          "article": "379409:D14",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028991596638655463
+        },
+        {
+          "chunk_id": "404357:D23:K1",
+          "article": "404357:D23",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02628900949796472
+        },
+        {
+          "chunk_id": "404357:D21",
+          "article": "404357:D21",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026182294223531334
+        },
+        {
+          "chunk_id": "421582:D10:K15",
+          "article": "421582:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026144907723855092
+        },
+        {
+          "chunk_id": "404357:D4:K10",
+          "article": "404357:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02557544757033248
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.5,
+      "context_precision": 0.6428571428571428,
+      "latency_s": {
+        "retrieval": 0.25264209997840226
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q43",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "household",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "427630:D13",
+        "427630:D6"
+      ],
+      "hits": [
+        {
+          "chunk_id": "427630:D8:K5",
+          "article": "427630:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02946236559139785
+        },
+        {
+          "chunk_id": "439381:D5",
+          "article": "439381:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029030910609857977
+        },
+        {
+          "chunk_id": "439381:D10",
+          "article": "439381:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028205128205128206
+        },
+        {
+          "chunk_id": "439381:D9:K4",
+          "article": "439381:D9",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027500922849760058
+        },
+        {
+          "chunk_id": "427630:D13",
+          "article": "427630:D13",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026333907056798625
+        },
+        {
+          "chunk_id": "421539:D26",
+          "article": "421539:D26",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02632034632034632
+        },
+        {
+          "chunk_id": "439381:D4",
+          "article": "439381:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026008827238335436
+        },
+        {
+          "chunk_id": "428454:D3:K15",
+          "article": "428454:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025151515151515154
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.5,
+      "context_precision": 0.2,
+      "latency_s": {
+        "retrieval": 0.2519888000097126
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q44",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "vat",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "421539:D15",
+        "440483:D42"
+      ],
+      "hits": [
+        {
+          "chunk_id": "440483:D49:K2",
+          "article": "440483:D49",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031024531024531024
+        },
+        {
+          "chunk_id": "427630:D12",
+          "article": "427630:D12",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031024531024531024
+        },
+        {
+          "chunk_id": "439382:D29",
+          "article": "439382:D29",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030834914611005692
+        },
+        {
+          "chunk_id": "440483:D42:K5",
+          "article": "440483:D42",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03028233151183971
+        },
+        {
+          "chunk_id": "439660:D8",
+          "article": "439660:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029709507042253523
+        },
+        {
+          "chunk_id": "440483:D59:K1",
+          "article": "440483:D59",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029418126757516764
+        },
+        {
+          "chunk_id": "421539:D15",
+          "article": "421539:D15",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028958333333333336
+        },
+        {
+          "chunk_id": "440483:D42:K2",
+          "article": "440483:D42",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028577260665441927
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 0.30357142857142855,
+      "latency_s": {
+        "retrieval": 0.24565169995184988
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q45",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "administration",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "421539:D12",
+        "421539:D16",
+        "421539:D44",
+        "439382:D12"
+      ],
+      "hits": [
+        {
+          "chunk_id": "439382:D12:K6",
+          "article": "439382:D12",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03200204813108039
+        },
+        {
+          "chunk_id": "404357:D23:K6",
+          "article": "404357:D23",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03200204813108039
+        },
+        {
+          "chunk_id": "439382:D12:K8",
+          "article": "439382:D12",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030117753623188408
+        },
+        {
+          "chunk_id": "421539:D12",
+          "article": "421539:D12",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029631255487269532
+        },
+        {
+          "chunk_id": "439382:D12:K5",
+          "article": "439382:D12",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0287391216352965
+        },
+        {
+          "chunk_id": "421539:D45",
+          "article": "421539:D45",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027205882352941177
+        },
+        {
+          "chunk_id": "440483:D17",
+          "article": "440483:D17",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027106227106227107
+        },
+        {
+          "chunk_id": "440483:D22:K2",
+          "article": "440483:D22",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02369989165763814
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.5,
+      "context_precision": 0.8041666666666667,
+      "latency_s": {
+        "retrieval": 0.22655219992157072
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q46",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "sct",
+      "form": "plain",
+      "answerable": false,
+      "expected": [],
+      "hits": [
+        {
+          "chunk_id": "422910:D3",
+          "article": "422910:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031754032258064516
+        },
+        {
+          "chunk_id": "405694:D2",
+          "article": "405694:D2",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031054405392392875
+        },
+        {
+          "chunk_id": "422908:D3:K6",
+          "article": "422908:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029877369007803793
+        },
+        {
+          "chunk_id": "405694:D3",
+          "article": "405694:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02967032967032967
+        },
+        {
+          "chunk_id": "422910:D4:K6",
+          "article": "422910:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029030910609857977
+        },
+        {
+          "chunk_id": "422908:D3:K5",
+          "article": "422908:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02886002886002886
+        },
+        {
+          "chunk_id": "405694:D8:K1",
+          "article": "405694:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028850145288501453
+        },
+        {
+          "chunk_id": "422910:D8",
+          "article": "422910:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02817460317460317
+        }
+      ],
+      "unresolved": [],
+      "recall": null,
+      "context_precision": null,
+      "latency_s": {
+        "retrieval": 0.24455549998674542
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q47",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "pit",
+      "form": "plain",
+      "answerable": false,
+      "expected": [],
+      "hits": [
+        {
+          "chunk_id": "439303:D38",
+          "article": "439303:D38",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031054405392392875
+        },
+        {
+          "chunk_id": "439303:D32",
+          "article": "439303:D32",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03009207275993712
+        },
+        {
+          "chunk_id": "421582:D12:K2",
+          "article": "421582:D12",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02946236559139785
+        },
+        {
+          "chunk_id": "440483:D81",
+          "article": "440483:D81",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028484848484848488
+        },
+        {
+          "chunk_id": "440483:D76",
+          "article": "440483:D76",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027730294396961064
+        },
+        {
+          "chunk_id": "440483:D34",
+          "article": "440483:D34",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027313266443701224
+        },
+        {
+          "chunk_id": "440483:D79",
+          "article": "440483:D79",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026875901875901876
+        },
+        {
+          "chunk_id": "422733:D4",
+          "article": "422733:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026625704045058884
+        }
+      ],
+      "unresolved": [],
+      "recall": null,
+      "context_precision": null,
+      "latency_s": {
+        "retrieval": 0.2899032999994233
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q48",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "administration",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "421539:D44",
+        "421539:D45"
+      ],
+      "hits": [
+        {
+          "chunk_id": "421539:D44",
+          "article": "421539:D44",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.032266458495966696
+        },
+        {
+          "chunk_id": "421539:D45",
+          "article": "421539:D45",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03200204813108039
+        },
+        {
+          "chunk_id": "439660:D33",
+          "article": "439660:D33",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03131881575727918
+        },
+        {
+          "chunk_id": "439382:D39:K2",
+          "article": "439382:D39",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02904040404040404
+        },
+        {
+          "chunk_id": "439660:D8",
+          "article": "439660:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027106227106227107
+        },
+        {
+          "chunk_id": "439382:D39:K6",
+          "article": "439382:D39",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026856524873828405
+        },
+        {
+          "chunk_id": "439660:D4",
+          "article": "439660:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026754075124025514
+        },
+        {
+          "chunk_id": "439660:D3",
+          "article": "439660:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026631393298059962
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 1.0,
+      "latency_s": {
+        "retrieval": 0.24630909995175898
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q49",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "household",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "421539:D45",
+        "421539:D44"
+      ],
+      "hits": [
+        {
+          "chunk_id": "439381:D7",
+          "article": "439381:D7",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03252247488101534
+        },
+        {
+          "chunk_id": "427630:D8:K1",
+          "article": "427630:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029957522915269395
+        },
+        {
+          "chunk_id": "421539:D45",
+          "article": "421539:D45",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02964426877470356
+        },
+        {
+          "chunk_id": "427630:D8:K5",
+          "article": "427630:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02854251012145749
+        },
+        {
+          "chunk_id": "439381:D6:K2",
+          "article": "439381:D6",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02821939586645469
+        },
+        {
+          "chunk_id": "439381:D8",
+          "article": "439381:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02797067901234568
+        },
+        {
+          "chunk_id": "439381:D9:K4",
+          "article": "439381:D9",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027650648360030512
+        },
+        {
+          "chunk_id": "439780:D8:K1",
+          "article": "439780:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027623285131627734
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.5,
+      "context_precision": 0.3333333333333333,
+      "latency_s": {
+        "retrieval": 0.26326160004828125
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q50",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "household",
+      "form": "plain",
+      "answerable": false,
+      "expected": [],
+      "hits": [
+        {
+          "chunk_id": "379409:D5:K26",
+          "article": "379409:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03177805800756621
+        },
+        {
+          "chunk_id": "404357:D4:K15",
+          "article": "404357:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03149801587301587
+        },
+        {
+          "chunk_id": "439660:D17",
+          "article": "439660:D17",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03125763125763126
+        },
+        {
+          "chunk_id": "439660:D26",
+          "article": "439660:D26",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0304147465437788
+        },
+        {
+          "chunk_id": "439660:D15",
+          "article": "439660:D15",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029857397504456328
+        },
+        {
+          "chunk_id": "404357:D17:K1",
+          "article": "404357:D17",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028665028665028666
+        },
+        {
+          "chunk_id": "421582:D4:K5",
+          "article": "421582:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028370221327967807
+        },
+        {
+          "chunk_id": "439660:D14",
+          "article": "439660:D14",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02832415420928403
+        }
+      ],
+      "unresolved": [],
+      "recall": null,
+      "context_precision": null,
+      "latency_s": {
+        "retrieval": 0.3371067999396473
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q51",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "sct",
+      "form": "plain",
+      "answerable": false,
+      "expected": [],
+      "hits": [
+        {
+          "chunk_id": "405694:D9",
+          "article": "405694:D9",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03252247488101534
+        },
+        {
+          "chunk_id": "405694:D5",
+          "article": "405694:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.032018442622950824
+        },
+        {
+          "chunk_id": "422910:D8",
+          "article": "422910:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03125763125763126
+        },
+        {
+          "chunk_id": "440483:D20",
+          "article": "440483:D20",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030834914611005692
+        },
+        {
+          "chunk_id": "405694:D6",
+          "article": "405694:D6",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030798389007344232
+        },
+        {
+          "chunk_id": "440483:D27",
+          "article": "440483:D27",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028309409888357256
+        },
+        {
+          "chunk_id": "422910:D5:K6",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027313266443701224
+        },
+        {
+          "chunk_id": "422910:D5:K1",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027051561365286855
+        }
+      ],
+      "unresolved": [],
+      "recall": null,
+      "context_precision": null,
+      "latency_s": {
+        "retrieval": 0.23920209996867925
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q52",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "cit",
+      "form": "plain",
+      "answerable": false,
+      "expected": [],
+      "hits": [
+        {
+          "chunk_id": "439613:D19",
+          "article": "439613:D19",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03278688524590164
+        },
+        {
+          "chunk_id": "428454:D7:K2",
+          "article": "428454:D7",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03125
+        },
+        {
+          "chunk_id": "421582:D10:K4",
+          "article": "421582:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030090497737556562
+        },
+        {
+          "chunk_id": "421582:D12:K2",
+          "article": "421582:D12",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030017921146953404
+        },
+        {
+          "chunk_id": "404357:D11",
+          "article": "404357:D11",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0288981288981289
+        },
+        {
+          "chunk_id": "433387:D2",
+          "article": "433387:D2",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026984126984126985
+        },
+        {
+          "chunk_id": "421582:D12:K3",
+          "article": "421582:D12",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02690501986276634
+        },
+        {
+          "chunk_id": "422910:D5:K3",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026830135039090264
+        }
+      ],
+      "unresolved": [],
+      "recall": null,
+      "context_precision": null,
+      "latency_s": {
+        "retrieval": 0.2856590000446886
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q53",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "pit",
+      "form": "plain",
+      "answerable": false,
+      "expected": [],
+      "hits": [
+        {
+          "chunk_id": "427630:D4",
+          "article": "427630:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030621785881252923
+        },
+        {
+          "chunk_id": "404357:D7",
+          "article": "404357:D7",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0287391216352965
+        },
+        {
+          "chunk_id": "421582:D17:K1",
+          "article": "421582:D17",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028612012987012988
+        },
+        {
+          "chunk_id": "421582:D8:K3",
+          "article": "421582:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02565284178187404
+        },
+        {
+          "chunk_id": "404357:D8",
+          "article": "404357:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025563671006668783
+        },
+        {
+          "chunk_id": "427630:D8:K7",
+          "article": "427630:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.024696835255841466
+        },
+        {
+          "chunk_id": "421582:D12:K4",
+          "article": "421582:D12",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.024475524475524476
+        },
+        {
+          "chunk_id": "421582:D15",
+          "article": "421582:D15",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.024039829302987197
+        }
+      ],
+      "unresolved": [],
+      "recall": null,
+      "context_precision": null,
+      "latency_s": {
+        "retrieval": 0.2234060000628233
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q54",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "household",
+      "form": "plain",
+      "answerable": false,
+      "expected": [],
+      "hits": [
+        {
+          "chunk_id": "421539:D41",
+          "article": "421539:D41",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03278688524590164
+        },
+        {
+          "chunk_id": "421539:D42",
+          "article": "421539:D42",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031054405392392875
+        },
+        {
+          "chunk_id": "421539:D43",
+          "article": "421539:D43",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.022961816305469555
+        },
+        {
+          "chunk_id": "421582:D10:K15",
+          "article": "421582:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02287199480181936
+        },
+        {
+          "chunk_id": "427630:D10",
+          "article": "427630:D10",
+          "found_by": [
+            "vector"
+          ],
+          "score": 0.016129032258064516
+        },
+        {
+          "chunk_id": "439382:D38",
+          "article": "439382:D38",
+          "found_by": [
+            "keyword"
+          ],
+          "score": 0.015873015873015872
+        },
+        {
+          "chunk_id": "440483:D32",
+          "article": "440483:D32",
+          "found_by": [
+            "vector"
+          ],
+          "score": 0.015873015873015872
+        },
+        {
+          "chunk_id": "439303:D8:K2",
+          "article": "439303:D8",
+          "found_by": [
+            "keyword"
+          ],
+          "score": 0.015625
+        }
+      ],
+      "unresolved": [],
+      "recall": null,
+      "context_precision": null,
+      "latency_s": {
+        "retrieval": 0.23674780002329499
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q55",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "cit",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "439382:D24"
+      ],
+      "hits": [
+        {
+          "chunk_id": "439382:D24",
+          "article": "439382:D24",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03278688524590164
+        },
+        {
+          "chunk_id": "440483:D21:K3",
+          "article": "440483:D21",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031754032258064516
+        },
+        {
+          "chunk_id": "440483:D21:K4",
+          "article": "440483:D21",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030621785881252923
+        },
+        {
+          "chunk_id": "427630:D10",
+          "article": "427630:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03057889822595705
+        },
+        {
+          "chunk_id": "433387:D4",
+          "article": "433387:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030303030303030304
+        },
+        {
+          "chunk_id": "421539:D14",
+          "article": "421539:D14",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029631255487269532
+        },
+        {
+          "chunk_id": "440483:D21:K1",
+          "article": "440483:D21",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028068137824235385
+        },
+        {
+          "chunk_id": "440483:D22:K1",
+          "article": "440483:D22",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027984344422700584
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 1.0,
+      "latency_s": {
+        "retrieval": 0.20890889992006123
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q56",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "household",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "427630:D13",
+        "421539:D13",
+        "427630:D8",
+        "433387:D1"
+      ],
+      "hits": [
+        {
+          "chunk_id": "433387:D1",
+          "article": "433387:D1",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03200204813108039
+        },
+        {
+          "chunk_id": "433387:D2",
+          "article": "433387:D2",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03128054740957967
+        },
+        {
+          "chunk_id": "427630:D8:K5",
+          "article": "427630:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029877369007803793
+        },
+        {
+          "chunk_id": "433387:D4",
+          "article": "433387:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027529761904761904
+        },
+        {
+          "chunk_id": "404357:D21",
+          "article": "404357:D21",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027263007840342125
+        },
+        {
+          "chunk_id": "427630:D10",
+          "article": "427630:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026279628993473032
+        },
+        {
+          "chunk_id": "427630:D13",
+          "article": "427630:D13",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026050420168067225
+        },
+        {
+          "chunk_id": "421582:D10:K6",
+          "article": "421582:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0253441802252816
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.75,
+      "context_precision": 0.6984126984126985,
+      "latency_s": {
+        "retrieval": 0.24467100005131215
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q57",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "vat",
+      "form": "plain",
+      "answerable": false,
+      "expected": [],
+      "hits": [
+        {
+          "chunk_id": "379409:D14",
+          "article": "379409:D14",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03278688524590164
+        },
+        {
+          "chunk_id": "440483:D19:K4",
+          "article": "440483:D19",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0315136476426799
+        },
+        {
+          "chunk_id": "404357:D23:K2",
+          "article": "404357:D23",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029386529386529386
+        },
+        {
+          "chunk_id": "404357:D23:K5",
+          "article": "404357:D23",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02877846790890269
+        },
+        {
+          "chunk_id": "379409:D11",
+          "article": "379409:D11",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02565359477124183
+        },
+        {
+          "chunk_id": "404357:D24",
+          "article": "404357:D24",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025151515151515154
+        },
+        {
+          "chunk_id": "404357:D20",
+          "article": "404357:D20",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02501516070345664
+        },
+        {
+          "chunk_id": "404357:D27:K3",
+          "article": "404357:D27",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.023856578204404292
+        }
+      ],
+      "unresolved": [],
+      "recall": null,
+      "context_precision": null,
+      "latency_s": {
+        "retrieval": 0.22906409995630383
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "q58",
+      "kind": "question",
+      "conversation": null,
+      "turn": null,
+      "tax_type": "vat",
+      "form": "plain",
+      "answerable": false,
+      "expected": [],
+      "hits": [
+        {
+          "chunk_id": "404453:D9:K4",
+          "article": "404453:D9",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029957522915269395
+        },
+        {
+          "chunk_id": "404357:D23:K2",
+          "article": "404357:D23",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027730294396961064
+        },
+        {
+          "chunk_id": "433921:D3",
+          "article": "433921:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027673192771084338
+        },
+        {
+          "chunk_id": "404453:D4",
+          "article": "404453:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025989268947015427
+        },
+        {
+          "chunk_id": "404357:D11",
+          "article": "404357:D11",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02533373786407767
+        },
+        {
+          "chunk_id": "404357:D38",
+          "article": "404357:D38",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025326537113730486
+        },
+        {
+          "chunk_id": "404453:D3",
+          "article": "404453:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025007766387076732
+        },
+        {
+          "chunk_id": "404453:D1",
+          "article": "404453:D1",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0242296918767507
+        }
+      ],
+      "unresolved": [],
+      "recall": null,
+      "context_precision": null,
+      "latency_s": {
+        "retrieval": 0.19683539995457977
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "c01.1",
+      "kind": "turn",
+      "conversation": "c01",
+      "turn": 1,
+      "tax_type": "pit",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "439303:D50"
+      ],
+      "hits": [
+        {
+          "chunk_id": "439303:D50:K3",
+          "article": "439303:D50",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03252247488101534
+        },
+        {
+          "chunk_id": "439303:D50:K2",
+          "article": "439303:D50",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.032266458495966696
+        },
+        {
+          "chunk_id": "439303:D51",
+          "article": "439303:D51",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031009615384615385
+        },
+        {
+          "chunk_id": "421582:D10:K8",
+          "article": "421582:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030834914611005692
+        },
+        {
+          "chunk_id": "440483:D22:K1",
+          "article": "440483:D22",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029850746268656716
+        },
+        {
+          "chunk_id": "439303:D67",
+          "article": "439303:D67",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02976190476190476
+        },
+        {
+          "chunk_id": "439303:D46",
+          "article": "439303:D46",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029437229437229435
+        },
+        {
+          "chunk_id": "439303:D26",
+          "article": "439303:D26",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028169014084507043
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 1.0,
+      "latency_s": {
+        "retrieval": 0.38898950000293553
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "c01.2",
+      "kind": "turn",
+      "conversation": "c01",
+      "turn": 2,
+      "tax_type": "pit",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "439303:D50"
+      ],
+      "hits": [
+        {
+          "chunk_id": "421582:D10:K8",
+          "article": "421582:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.032266458495966696
+        },
+        {
+          "chunk_id": "439303:D50:K2",
+          "article": "439303:D50",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.032266458495966696
+        },
+        {
+          "chunk_id": "439303:D8:K2",
+          "article": "439303:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031754032258064516
+        },
+        {
+          "chunk_id": "404357:D24",
+          "article": "404357:D24",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0304147465437788
+        },
+        {
+          "chunk_id": "439303:D50:K3",
+          "article": "439303:D50",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03007688828584351
+        },
+        {
+          "chunk_id": "421582:D9:K2",
+          "article": "421582:D9",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02946912242686891
+        },
+        {
+          "chunk_id": "439303:D26",
+          "article": "439303:D26",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028782894736842105
+        },
+        {
+          "chunk_id": "439303:D8:K4",
+          "article": "439303:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028594771241830064
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 0.45,
+      "latency_s": {
+        "retrieval": 0.2404118999838829
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "c01.3",
+      "kind": "turn",
+      "conversation": "c01",
+      "turn": 3,
+      "tax_type": "administration",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "421539:D16",
+        "439303:D67"
+      ],
+      "hits": [
+        {
+          "chunk_id": "379409:D14",
+          "article": "379409:D14",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03177805800756621
+        },
+        {
+          "chunk_id": "421582:D10:K8",
+          "article": "421582:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028474711270410194
+        },
+        {
+          "chunk_id": "439382:D22",
+          "article": "439382:D22",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027745885954841176
+        },
+        {
+          "chunk_id": "404357:D23:K6",
+          "article": "404357:D23",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025603864734299518
+        },
+        {
+          "chunk_id": "421582:D10:K6",
+          "article": "421582:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.024099883855981417
+        },
+        {
+          "chunk_id": "404357:D23:K2",
+          "article": "404357:D23",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.023296291337528453
+        },
+        {
+          "chunk_id": "404357:D24",
+          "article": "404357:D24",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.021968787515006
+        },
+        {
+          "chunk_id": "440483:D19:K4",
+          "article": "440483:D19",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.021369433877825018
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.0,
+      "context_precision": 0.0,
+      "latency_s": {
+        "retrieval": 0.20681289990898222
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "c02.1",
+      "kind": "turn",
+      "conversation": "c02",
+      "turn": 1,
+      "tax_type": "household",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "427630:D3",
+        "427630:D8",
+        "433387:D1",
+        "379409:D12",
+        "421739:D1"
+      ],
+      "hits": [
+        {
+          "chunk_id": "427630:D3",
+          "article": "427630:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03225806451612903
+        },
+        {
+          "chunk_id": "379409:D5:K25",
+          "article": "379409:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030536130536130537
+        },
+        {
+          "chunk_id": "421582:D12:K4",
+          "article": "421582:D12",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02938045560996381
+        },
+        {
+          "chunk_id": "379409:D12",
+          "article": "379409:D12",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029138513513513514
+        },
+        {
+          "chunk_id": "427630:D8:K1",
+          "article": "427630:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027984344422700584
+        },
+        {
+          "chunk_id": "404357:D23:K2",
+          "article": "404357:D23",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02690100430416069
+        },
+        {
+          "chunk_id": "404357:D31",
+          "article": "404357:D31",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026830135039090264
+        },
+        {
+          "chunk_id": "404357:D21",
+          "article": "404357:D21",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026153846153846153
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.6,
+      "context_precision": 0.7000000000000001,
+      "latency_s": {
+        "retrieval": 0.2510127000277862
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "c02.2",
+      "kind": "turn",
+      "conversation": "c02",
+      "turn": 2,
+      "tax_type": "household",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "427630:D3",
+        "433387:D1",
+        "379409:D12",
+        "421739:D1",
+        "404453:D5"
+      ],
+      "hits": [
+        {
+          "chunk_id": "404357:D17:K4",
+          "article": "404357:D17",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03047794966520434
+        },
+        {
+          "chunk_id": "379409:D9",
+          "article": "379409:D9",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02919863597612958
+        },
+        {
+          "chunk_id": "405694:D6",
+          "article": "405694:D6",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028612012987012988
+        },
+        {
+          "chunk_id": "421582:D12:K4",
+          "article": "421582:D12",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025252525252525256
+        },
+        {
+          "chunk_id": "439613:D8",
+          "article": "439613:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.024393785392768985
+        },
+        {
+          "chunk_id": "404357:D23:K2",
+          "article": "404357:D23",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02426470588235294
+        },
+        {
+          "chunk_id": "379409:D15:K1",
+          "article": "379409:D15",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.021708683473389355
+        },
+        {
+          "chunk_id": "439613:D10:K5",
+          "article": "439613:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.021167557932263815
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.0,
+      "context_precision": 0.0,
+      "latency_s": {
+        "retrieval": 0.17899449996184558
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "c03.1",
+      "kind": "turn",
+      "conversation": "c03",
+      "turn": 1,
+      "tax_type": "cit",
+      "form": "reference",
+      "answerable": true,
+      "expected": [
+        "404386:D10"
+      ],
+      "hits": [
+        {
+          "chunk_id": "404386:D10",
+          "article": "404386:D10",
+          "found_by": [
+            "reference",
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03252247488101534
+        },
+        {
+          "chunk_id": "404386:D13",
+          "article": "404386:D13",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031054405392392875
+        },
+        {
+          "chunk_id": "421582:D11",
+          "article": "421582:D11",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030330882352941176
+        },
+        {
+          "chunk_id": "404386:D18",
+          "article": "404386:D18",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029877369007803793
+        },
+        {
+          "chunk_id": "421582:D19",
+          "article": "421582:D19",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029386529386529386
+        },
+        {
+          "chunk_id": "404386:D11",
+          "article": "404386:D11",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02701252236135957
+        },
+        {
+          "chunk_id": "421582:D1",
+          "article": "421582:D1",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02535559678416821
+        },
+        {
+          "chunk_id": "422733:D7",
+          "article": "422733:D7",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.023431077007399288
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 1.0,
+      "latency_s": {
+        "retrieval": 0.2035327999619767
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "c03.2",
+      "kind": "turn",
+      "conversation": "c03",
+      "turn": 2,
+      "tax_type": "cit",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "404386:D13",
+        "404386:D12"
+      ],
+      "hits": [
+        {
+          "chunk_id": "421582:D18:K3",
+          "article": "421582:D18",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03278688524590164
+        },
+        {
+          "chunk_id": "404386:D12:K3",
+          "article": "404386:D12",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03200204813108039
+        },
+        {
+          "chunk_id": "404386:D13",
+          "article": "404386:D13",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03200204813108039
+        },
+        {
+          "chunk_id": "421582:D19",
+          "article": "421582:D19",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03125
+        },
+        {
+          "chunk_id": "421582:D23:K9",
+          "article": "421582:D23",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02919863597612958
+        },
+        {
+          "chunk_id": "421582:D23:K8",
+          "article": "421582:D23",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02904040404040404
+        },
+        {
+          "chunk_id": "421582:D23:K3",
+          "article": "421582:D23",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028991596638655463
+        },
+        {
+          "chunk_id": "404386:D18",
+          "article": "404386:D18",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028169014084507043
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 0.5833333333333333,
+      "latency_s": {
+        "retrieval": 0.24796770000830293
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "c03.3",
+      "kind": "turn",
+      "conversation": "c03",
+      "turn": 3,
+      "tax_type": "cit",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "404386:D13"
+      ],
+      "hits": [
+        {
+          "chunk_id": "404386:D13",
+          "article": "404386:D13",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.032018442622950824
+        },
+        {
+          "chunk_id": "421582:D19",
+          "article": "421582:D19",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03200204813108039
+        },
+        {
+          "chunk_id": "421582:D23:K6",
+          "article": "421582:D23",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0315136476426799
+        },
+        {
+          "chunk_id": "404386:D14",
+          "article": "404386:D14",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030798389007344232
+        },
+        {
+          "chunk_id": "421582:D20",
+          "article": "421582:D20",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030776515151515152
+        },
+        {
+          "chunk_id": "421582:D23:K2",
+          "article": "421582:D23",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030679156908665108
+        },
+        {
+          "chunk_id": "421582:D23:K10",
+          "article": "421582:D23",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030309988518943745
+        },
+        {
+          "chunk_id": "404386:D18",
+          "article": "404386:D18",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028985507246376812
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 1.0,
+      "latency_s": {
+        "retrieval": 0.19973120000213385
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "c04.1",
+      "kind": "turn",
+      "conversation": "c04",
+      "turn": 1,
+      "tax_type": "vat",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "379409:D15",
+        "421739:D1",
+        "404357:D29"
+      ],
+      "hits": [
+        {
+          "chunk_id": "379409:D15:K1",
+          "article": "379409:D15",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.032266458495966696
+        },
+        {
+          "chunk_id": "404357:D29",
+          "article": "404357:D29",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03225806451612903
+        },
+        {
+          "chunk_id": "404357:D28",
+          "article": "404357:D28",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030303030303030304
+        },
+        {
+          "chunk_id": "379409:D15:K2",
+          "article": "379409:D15",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02844551282051282
+        },
+        {
+          "chunk_id": "379409:D14",
+          "article": "379409:D14",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027629397679130595
+        },
+        {
+          "chunk_id": "404357:D30",
+          "article": "404357:D30",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027031963470319637
+        },
+        {
+          "chunk_id": "404357:D27:K1",
+          "article": "404357:D27",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026470588235294117
+        },
+        {
+          "chunk_id": "404357:D24",
+          "article": "404357:D24",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02638888888888889
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.6666666666666666,
+      "context_precision": 0.9166666666666666,
+      "latency_s": {
+        "retrieval": 0.19191039993893355
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "c04.2",
+      "kind": "turn",
+      "conversation": "c04",
+      "turn": 2,
+      "tax_type": "administration",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "440483:D45",
+        "439382:D31",
+        "421539:D18"
+      ],
+      "hits": [
+        {
+          "chunk_id": "439382:D31",
+          "article": "439382:D31",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03278688524590164
+        },
+        {
+          "chunk_id": "440483:D49:K1",
+          "article": "440483:D49",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031054405392392875
+        },
+        {
+          "chunk_id": "440483:D59:K1",
+          "article": "440483:D59",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031024531024531024
+        },
+        {
+          "chunk_id": "439660:D7:K3",
+          "article": "439660:D7",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029631255487269532
+        },
+        {
+          "chunk_id": "439660:D41",
+          "article": "439660:D41",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028629032258064516
+        },
+        {
+          "chunk_id": "440483:D56",
+          "article": "440483:D56",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028205128205128206
+        },
+        {
+          "chunk_id": "439660:D11:K6",
+          "article": "439660:D11",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026754075124025514
+        },
+        {
+          "chunk_id": "440483:D47",
+          "article": "440483:D47",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025833333333333333
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.3333333333333333,
+      "context_precision": 1.0,
+      "latency_s": {
+        "retrieval": 0.21342239994555712
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "c05.1",
+      "kind": "turn",
+      "conversation": "c05",
+      "turn": 1,
+      "tax_type": "pit",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "439303:D50",
+        "439303:D66",
+        "439303:D64"
+      ],
+      "hits": [
+        {
+          "chunk_id": "428454:D7:K4",
+          "article": "428454:D7",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028371628371628373
+        },
+        {
+          "chunk_id": "439303:D50:K3",
+          "article": "439303:D50",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027500922849760058
+        },
+        {
+          "chunk_id": "439303:D51",
+          "article": "439303:D51",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02738245361196181
+        },
+        {
+          "chunk_id": "440483:D22:K1",
+          "article": "440483:D22",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026013513513513515
+        },
+        {
+          "chunk_id": "421582:D10:K8",
+          "article": "421582:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026008827238335436
+        },
+        {
+          "chunk_id": "439303:D67",
+          "article": "439303:D67",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02594183740912095
+        },
+        {
+          "chunk_id": "440483:D76",
+          "article": "440483:D76",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.024934585193166076
+        },
+        {
+          "chunk_id": "439382:D27",
+          "article": "439382:D27",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.024322344322344324
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.3333333333333333,
+      "context_precision": 0.5,
+      "latency_s": {
+        "retrieval": 0.3020526000764221
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "c05.2",
+      "kind": "turn",
+      "conversation": "c05",
+      "turn": 2,
+      "tax_type": "administration",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "439382:D10"
+      ],
+      "hits": [
+        {
+          "chunk_id": "440483:D79",
+          "article": "440483:D79",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031099324975891997
+        },
+        {
+          "chunk_id": "439382:D10",
+          "article": "439382:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02921395544346364
+        },
+        {
+          "chunk_id": "439382:D6:K3",
+          "article": "439382:D6",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026742581090407176
+        },
+        {
+          "chunk_id": "427630:D8:K3",
+          "article": "427630:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026438310608579978
+        },
+        {
+          "chunk_id": "421539:D14",
+          "article": "421539:D14",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025914384123339348
+        },
+        {
+          "chunk_id": "439382:D31",
+          "article": "439382:D31",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025516795865633074
+        },
+        {
+          "chunk_id": "440483:D25:K2",
+          "article": "440483:D25",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.025245441795231416
+        },
+        {
+          "chunk_id": "439827:D10:K2",
+          "article": "439827:D10",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02513105149552883
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 0.5,
+      "latency_s": {
+        "retrieval": 0.22020420001354069
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "c05.3",
+      "kind": "turn",
+      "conversation": "c05",
+      "turn": 3,
+      "tax_type": "administration",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "421539:D44",
+        "421539:D45",
+        "421539:D16"
+      ],
+      "hits": [
+        {
+          "chunk_id": "439660:D6:K5",
+          "article": "439660:D6",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029513888888888888
+        },
+        {
+          "chunk_id": "440483:D38",
+          "article": "440483:D38",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02938045560996381
+        },
+        {
+          "chunk_id": "421539:D14",
+          "article": "421539:D14",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0287391216352965
+        },
+        {
+          "chunk_id": "439660:D6:K3",
+          "article": "439660:D6",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02803921568627451
+        },
+        {
+          "chunk_id": "439382:D25",
+          "article": "439382:D25",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.027912386121341344
+        },
+        {
+          "chunk_id": "421539:D16",
+          "article": "421539:D16",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02736498731424429
+        },
+        {
+          "chunk_id": "439660:D8",
+          "article": "439660:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02702702702702703
+        },
+        {
+          "chunk_id": "439382:D26",
+          "article": "439382:D26",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02674825174825175
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.3333333333333333,
+      "context_precision": 0.16666666666666666,
+      "latency_s": {
+        "retrieval": 0.19642449996899813
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "c06.1",
+      "kind": "turn",
+      "conversation": "c06",
+      "turn": 1,
+      "tax_type": "sct",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "405694:D6",
+        "422910:D5"
+      ],
+      "hits": [
+        {
+          "chunk_id": "422910:D5:K1",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03225806451612903
+        },
+        {
+          "chunk_id": "405694:D6",
+          "article": "405694:D6",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.032018442622950824
+        },
+        {
+          "chunk_id": "422910:D5:K6",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030309988518943745
+        },
+        {
+          "chunk_id": "405694:D2",
+          "article": "405694:D2",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030303030303030304
+        },
+        {
+          "chunk_id": "422910:D8",
+          "article": "422910:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03028233151183971
+        },
+        {
+          "chunk_id": "422910:D5:K5",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030090497737556562
+        },
+        {
+          "chunk_id": "422910:D5:K3",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.029910714285714284
+        },
+        {
+          "chunk_id": "404357:D5",
+          "article": "404357:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028373015873015873
+        }
+      ],
+      "unresolved": [],
+      "recall": 1.0,
+      "context_precision": 0.8761904761904763,
+      "latency_s": {
+        "retrieval": 0.2996966999489814
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "c06.2",
+      "kind": "turn",
+      "conversation": "c06",
+      "turn": 2,
+      "tax_type": "sct",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "405694:D4",
+        "405694:D9",
+        "422910:D8",
+        "422910:D5"
+      ],
+      "hits": [
+        {
+          "chunk_id": "405694:D6",
+          "article": "405694:D6",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.032266458495966696
+        },
+        {
+          "chunk_id": "440483:D20",
+          "article": "440483:D20",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.0315136476426799
+        },
+        {
+          "chunk_id": "422910:D5:K1",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.031009615384615385
+        },
+        {
+          "chunk_id": "422910:D8",
+          "article": "422910:D8",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030886196246139225
+        },
+        {
+          "chunk_id": "422910:D5:K3",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.030158730158730156
+        },
+        {
+          "chunk_id": "405694:D9",
+          "article": "405694:D9",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.03007688828584351
+        },
+        {
+          "chunk_id": "405694:D3",
+          "article": "405694:D3",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02964426877470356
+        },
+        {
+          "chunk_id": "422910:D4:K2",
+          "article": "422910:D4",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02928692699490662
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.75,
+      "context_precision": 0.525,
+      "latency_s": {
+        "retrieval": 0.3233063999796286
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    },
+    {
+      "id": "c06.3",
+      "kind": "turn",
+      "conversation": "c06",
+      "turn": 3,
+      "tax_type": "vat",
+      "form": "plain",
+      "answerable": true,
+      "expected": [
+        "379409:D7",
+        "379409:D9",
+        "379409:D11"
+      ],
+      "hits": [
+        {
+          "chunk_id": "404357:D11",
+          "article": "404357:D11",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.028531243721117136
+        },
+        {
+          "chunk_id": "404357:D9",
+          "article": "404357:D9",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.02788769549651404
+        },
+        {
+          "chunk_id": "379409:D7",
+          "article": "379409:D7",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.026515151515151516
+        },
+        {
+          "chunk_id": "440483:D27",
+          "article": "440483:D27",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.024766899766899768
+        },
+        {
+          "chunk_id": "440483:D19:K5",
+          "article": "440483:D19",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.024652147610405323
+        },
+        {
+          "chunk_id": "422910:D5:K3",
+          "article": "422910:D5",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.022759237949111367
+        },
+        {
+          "chunk_id": "405694:D6",
+          "article": "405694:D6",
+          "found_by": [
+            "keyword",
+            "vector"
+          ],
+          "score": 0.021243291592128802
+        },
+        {
+          "chunk_id": "440483:D79",
+          "article": "440483:D79",
+          "found_by": [
+            "keyword"
+          ],
+          "score": 0.01639344262295082
+        }
+      ],
+      "unresolved": [],
+      "recall": 0.3333333333333333,
+      "context_precision": 0.3333333333333333,
+      "latency_s": {
+        "retrieval": 0.24621789995580912
+      },
+      "tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "cost_usd": 0.0
+    }
+  ]
+}

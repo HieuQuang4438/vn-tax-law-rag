@@ -14,5 +14,14 @@ def required(name: str) -> str:
     return value
 
 
-GOOGLE_API_KEY = required("GOOGLE_API_KEY")
-LLM_MODEL = os.getenv("LLM_MODEL", "gemini-2.5-flash")
+def required_numbered(name: str) -> tuple[str, ...]:
+    """`<name>_1`, `<name>_2`, ... up to the first missing or empty one; `<name>_1` is required (#13)."""
+    values = [required(f"{name}_1")]
+    while value := os.getenv(f"{name}_{len(values) + 1}"):
+        values.append(value)
+    return tuple(values)
+
+
+GOOGLE_API_KEYS = required_numbered("GOOGLE_API_KEY")
+DEFAULT_LLM_MODEL = "gemini-3.5-flash-lite"  # ADR-0003
+LLM_MODEL = os.getenv("LLM_MODEL", DEFAULT_LLM_MODEL)

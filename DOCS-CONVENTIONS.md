@@ -95,6 +95,7 @@ docs/
     deprecation.md
     issue-proposal.md
     go-public.md
+    pr-review.md
 
   milestones/                # only when the repo has no GitHub remote.
     vX.Y.md                  # Execution state for one version. Deleted at
@@ -124,7 +125,7 @@ A guide is read once to learn something. A checklist is ticked every time the wo
 
 Their real value is **consistency across sessions**. Without them, the same task done twice — by you in two different weeks, or by two agent sessions — follows two different procedures, and whichever step one of them skipped is the one that breaks. `bugfix.md` existing means every bug fix starts with a failing test, whoever is doing it.
 
-One file per kind of work. All eight ship in `docs/checklists/` already — cut and add per this repo rather than starting from nothing. The set that earns its keep:
+One file per kind of work. All nine ship in `docs/checklists/` already — cut and add per this repo rather than starting from nothing. The set that earns its keep:
 
 | File | What is specific to it |
 |---|---|
@@ -136,6 +137,7 @@ One file per kind of work. All eight ship in `docs/checklists/` already — cut 
 | `deprecation.md` | the three-release path in §6 |
 | `issue-proposal.md` | the approach is approved in chat, then posted as an issue comment, before any code |
 | `go-public.md` | ticked once, the one time this repo is flipped from private to public |
+| `pr-review.md` | only what the author cannot establish about their own work |
 
 **Never restate the Definition of Done.** `CONVENTIONS.md` §10 is the universal gate for every change. A checklist holds only what is specific to its kind of work and points at §10 for the rest. Copying it into six files is the duplication this whole convention exists to prevent.
 

@@ -1,6 +1,6 @@
 # Checklist: deprecation
 
-Copy into `docs/checklists/`. One pass per release, three releases in total.
+One pass per release, three releases in total.
 Never announce and remove in the same release — the warning must reach people before the break.
 The universal gate is `CONVENTIONS.md` §10 — this file only adds what is specific to a deprecation.
 

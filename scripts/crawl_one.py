@@ -115,8 +115,9 @@ def parse_body(soup: BeautifulSoup) -> list[dict]:
     body = next(b for b in soup.select("div.the-document-body") if b.find("div", id=re.compile(r"^demuc\d+$")))
     blocks = []
     for div in body.find_all("div", id=re.compile(r"^demuc\d+$"), recursive=False):
-        # Drop site widgets (follow/note buttons, form download links).
-        for junk in div.select("div.document-tip, span.tooltip-button"):
+        # Drop site widgets (follow/note buttons, form download links, amendment labels) and
+        # the site's own comments between provisions: none of it is the document's text.
+        for junk in div.select("div.document-tip, span.tooltip-button, div.docitemadd, div.docitem-binhluan"):
             junk.decompose()
         lines = block_lines(div)
         if lines:
