@@ -177,8 +177,7 @@ function renderWelcome() {
       <p>Trả lời bằng tiếng Việt, chỉ từ <span data-count>${documents ? documents.length : "các"}</span> luật, nghị định, thông tư thuế trong bộ văn bản.</p>
       <ul>
         <li><span class="ic">${ic("quote")}</span><div><b>Mỗi ý có nguồn</b>Dẫn tới văn bản, điều, khoản. Bấm số trích dẫn để đọc nguyên văn.</div></li>
-        <li><span class="ic">${ic("history")}</span><div><b>Báo khi luật đã bị sửa</b>Điều khoản đã sửa đổi được nêu rõ, kèm văn bản sửa đổi.</div></li>
-        <li><span class="ic">${ic("msg")}</span><div><b>Hỏi tiếp trong cùng hội thoại</b>Ví dụ “còn thuế thu nhập cá nhân thì sao?”.</div></li>
+        <li><span class="ic">${ic("history")}</span><div><b>Báo khi luật đã bị sửa</b>Điều khoản đã bị sửa đổi được nêu rõ, kèm văn bản sửa đổi.</div></li>
       </ul>
       ${notice()}
     </div>`;

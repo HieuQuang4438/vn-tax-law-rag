@@ -320,3 +320,5 @@ kbd { font-family: var(--font-mono); font-size: 11px; padding: 0 4px; border: 1p
 .linkbtn { all: unset; cursor: pointer; color: var(--primary); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
 .linkbtn:focus-visible { box-shadow: var(--focus); }
 .a-body p.notices { font-size: var(--fs-16); color: var(--ink-2); }
+/* one focus ring on a text box: its frame's (:focus-within), not a second one of its own */
+.composer textarea:focus-visible, .search input:focus-visible { box-shadow: none; }
