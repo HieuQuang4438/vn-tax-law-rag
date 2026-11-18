@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-18
+updated: 2026-11-19
 owner: HieuQuang4438
 ---
 
@@ -179,7 +179,8 @@ by rank: rank 1 of every list in turn, then rank 2, and so on. The lists are pas
 keyword, vector, document. The retriever passes its `Fusion`'s `rrf_k` as the constant, and its
 `keyword_weight` and `vector_weight` for the first two lists. The document list always weighs 1;
 the `rrf` that ranks it uses the same constant and weighs its two lists 1 each. The defaults of `Fusion()` are `RRF_K` 60, `CANDIDATES` 50, both
-weights 1 and `per_article` on. `per_article` was adopted on #25 (*Fusion tuning*); the others
+weights 1 and `per_article` on. `per_article` was adopted on #25 ([fusion tuning](../experiments/2026-11-15-fusion-tuning.md), re-checked on
+eval set v2 in [2026-11-15-per-article-eval-set-v2.md](../experiments/2026-11-15-per-article-eval-set-v2.md)); the others
 are the starting values of #8. Each is changed only through a recorded experiment.
 
 ## The k hits
@@ -216,24 +217,17 @@ corpus test checks it two ways:
 
 **AC-012.** The median `retrieve` time over every question and conversation turn of the eval
 set is under 2 s on the dev laptop, with the model loaded beforehand and no network. The test
-prints the median and the 95th percentile, and both are recorded here with the machine.
-
-## Measured
-
-On the dev laptop (i7-10610U, 16 GB RAM, CPU only; torch 2.15.0+cpu, sentence-transformers
-6.3.0), eval set v1, the index of 1,923 chunks, the code that closes #8, 2026-11-13:
-
-- **AC-012.** 66 questions and turns, one warm-up call not timed: median 0.448 s, 95th
-  percentile 0.775 s. Nearly all of it is embedding the question.
-- **AC-007.** 13 items have `form: reference`. 4 name an article of a corpus document by number,
-  and all 4 articles are retrieved. The other 9 name a document without an article and get a
-  document list. No reference in an answerable item is unresolved.
+prints the median and the 95th percentile, and both are recorded with the machine in
+[docs/experiments/](../experiments/README.md), first in
+[2026-11-13-retrieval-latency-and-references.md](../experiments/2026-11-13-retrieval-latency-and-references.md).
 
 ## Cut diagnosis
 
-Of the expected articles missing from the top 8, how many are retrieved but ranked below the
-cut, and how many no list retrieves at all? The question is #24. The approach is the approved
-comment on #24. ADR-0002 reopens the reranker question only if the misses are ranked below the cut.
+`python -m src.eval.diagnose` places the expected articles that the top 8 misses: retrieved
+but ranked below the cut, or not retrieved at all. It was written for #24, and the question,
+the decision rule as it stood then, and the result are in
+[2026-11-14-cut-diagnosis.md](../experiments/2026-11-14-cut-diagnosis.md).
+The rule below is the one the tool applies now.
 
 ```bash
 python -m src.eval.diagnose      # eval/questions.yaml, data/, writes to eval/results/diagnostics/
@@ -308,176 +302,3 @@ ids and numbers only.
 
 **The summary.** Printed after the file is written: the path, and `DIRTY` as the runner prints
 it; recall at each cut per group; the miss counts per group; the verdict.
-
-### Result
-
-Run on 2026-11-15 at commit `20e8896`, clean, eval set v1. The index was today's `data/index`
-(bge-m3@8192, `syllable` BM25, 1,286 chunks), and the run was on the dev laptop (i7-10610U,
-16 GB RAM, CPU only). The file is `eval/results/diagnostics/2026-11-15-20e8896.json`.
-
-| k | Standalone recall@k (n = 39) | Follow-up recall@k (n = 10) |
-|---|---|---|
-| 8 | 0.678 [0.592, 0.764] | 0.575 [0.333, 0.817] |
-| 12 | 0.748 [0.664, 0.826] | 0.600 [0.333, 0.867] |
-| 16 | 0.778 [0.702, 0.848] | 0.600 [0.333, 0.867] |
-| 20 | 0.850 [0.778, 0.915] | 0.687 [0.440, 0.933] |
-| 30 | 0.898 [0.836, 0.953] | 0.687 [0.440, 0.933] |
-| 50 | 0.922 [0.865, 0.971] | 0.757 [0.567, 0.933] |
-
-- **Verdict: `ranking`, not borderline.** 30 of the 43 standalone misses (70%) are ranked 9 to
-  50. 5 are beyond 50, and 8 are not in the pool. The misses come from 25 of the 39 questions.
-- **Most misses sit just below the cut.** Of the 30, 21 are at ranks 9 to 20 (10 of them at 9
-  to 12), 6 at 21 to 30, and 3 at 31 to 50. recall@20 is 0.850, above the EVAL-001 target of
-  0.80. recall@8 is 0.678.
-- **Both lists usually find them.** 22 of the 43 misses are in the top 50 of both the BM25 and
-  the vector list, 7 in BM25 only and 6 in vector only. 8 are in neither.
-- **The 8 not in the pool are far from either cut.** Their best BM25 rank is 55 to 713, and
-  their best vector rank is 52 to 827.
-- **Split articles and references.** 6 misses are split articles. None comes from an
-  unresolved reference.
-- **Follow-up turns,** as written, have 14 misses: 6 below the cut, 5 beyond 50 and 3 not in
-  the pool. They do not decide.
-- **The check passes.** recall@8 equals the runner's EVAL-001 and EVAL-005 on the same index
-  (0.678 and 0.575, as in the #11 run).
-
-ADR-0002's condition for reconsidering a reranker is now met: the right article is retrieved
-but ranked below the cut. A cross-encoder still costs 19–28 s per 20 pairs on this laptop
-(ADR-0002), so the next issue tunes the fusion, as the decision rule says. Its options are left
-to that issue's proposal.
-
-## Fusion tuning
-
-Which fusion setting raises recall@8, given that 30 of the 43 missed articles sit at ranks 9 to
-50 (*Cut diagnosis*, *Result*)? The question is #25. The approach is the approved comment on
-#25. Only the fusion changes. Everything else is fixed: eval set v1, today's index
-(bge-m3@8192, `syllable` BM25, 1,286 chunks), `TOP_K` 8, `rewrite: none`, the dev laptop,
-bootstrap seed 0, one commit for every run.
-
-**Variants.** Each changes one knob of the setting before #25, `per_article` off. Everything
-else stays as it was. Since #25 `per_article` is on by default, so the baseline is reproduced
-with `--no-per-article` and every other variant with `--no-per-article` added.
-
-| Variant | Options | Why, from *Cut diagnosis* |
-|---|---|---|
-| Baseline | none | the current setting, re-run at the same commit; it must give recall@8 0.678, or the work stops |
-| V1 | `--per-article` | the top 8 holds 6.82 distinct articles on average |
-| V2 | `--rrf-k 20` | a smaller constant lifts chunks ranked high in one list |
-| V3 | `--rrf-k 120` | a larger constant lifts chunks found by both lists; 22 of the 43 misses are in both |
-| V4 | `--keyword-weight 2` | 7 misses are in the BM25 list only |
-| V5 | `--vector-weight 2` | 6 misses are in the vector list only |
-| V6 | `--candidates 100` | a chunk ranked 51 to 100 in one list still adds to its fused score |
-
-Each variant is scored with `python -m src.eval.run <options> --compare <baseline file>
---comparisons 6`, and placed with `python -m src.eval.diagnose <options>`.
-
-**Decision rule** (approved on #25):
-
-1. **Winner.** A variant wins when the paired 95% interval of its EVAL-001 change against the
-   baseline lies entirely above 0, as on #10 to #12.
-2. **Multiplicity.** Each winner's Bonferroni interval (`--comparisons 6`, *Comparing two runs*
-   in [eval-results.md](eval-results.md#comparing-two-runs)) is reported. A winner whose
-   Bonferroni interval includes 0 is still adopted, marked "re-check on eval set v2".
-3. **Guard.** A winner is not adopted when the paired interval of its EVAL-007 change lies
-   entirely below 0, or when its median latency (AC-012) is above 2 s. EVAL-005 is reported, but
-   with n = 10 it does not decide.
-4. **More than one winner.** The winner with the largest mean change is the candidate. One more
-   run combines every winner's options. It is adopted only if it passes rules 1 and 3 against
-   the baseline and its mean change beats the candidate's. Otherwise the candidate is adopted.
-5. **No winner.** `Fusion()` stays the default.
-
-The adopted setting becomes the defaults of `Fusion()`, and the *Fusion* paragraph above gets the
-new values. ADR-0002 is edited only if the setting contradicts it; none of the variants does.
-
-**Ceiling.** 13 of the 43 misses are beyond rank 50 or in no list, out of the fusion's reach. A
-perfect order of today's top 50 reaches recall@8 no higher than recall@50, 0.922.
-
-### Result
-
-Run on 2026-11-15 at commit `c22d922`, clean, eval set v1, before `per_article` became the
-default. The index was today's `data/index` (bge-m3@8192, `syllable` BM25, 1,286 chunks), and the
-runs were on the dev laptop (i7-10610U, 16 GB RAM, CPU only). The baseline is
-`eval/results/2026-11-15-c22d922.json`, and V1 to V6 are `-2` to `-7`. The diagnoses have the
-same names under `eval/results/diagnostics/`.
-
-| Variant | EVAL-001 recall@8 | Paired change [95%] | Bonferroni [99.2%] | EVAL-007 paired | Median latency |
-|---|---|---|---|---|---|
-| Baseline | 0.678 [0.592, 0.764] | — | — | — | 0.252 s |
-| **V1 `per_article`** | **0.714** | **+0.036 [+0.006, +0.071]** | [0.000, +0.092] | [−0.002, +0.035] | 0.209 s |
-| V2 `rrf_k` 20 | 0.695 | +0.017 [0.000, +0.043] | [0.000, +0.051] | [−0.001, +0.035] | 0.180 s |
-| V3 `rrf_k` 120 | 0.678 | 0.000 [0.000, 0.000] | [0.000, 0.000] | [−0.007, +0.002] | 0.216 s |
-| V4 `keyword_weight` 2 | 0.694 | +0.017 [−0.026, +0.059] | [−0.045, +0.078] | [−0.043, +0.002] | 0.219 s |
-| V5 `vector_weight` 2 | 0.672 | −0.006 [−0.044, +0.027] | [−0.059, +0.043] | [−0.024, +0.050] | 0.180 s |
-| V6 `candidates` 100 | 0.667 | −0.011 [−0.051, +0.019] | [−0.068, +0.026] | [−0.012, −0.001] | 0.186 s |
-
-- **V1 is the only winner, and it is adopted.** Its paired interval starts at +0.006. It raises
-  recall on 4 questions and lowers it on none. V2 raises it on 2, but its interval starts at
-  exactly 0, so it does not win.
-- **Re-check on eval set v2.** V1's Bonferroni interval starts at exactly 0 (rule 2). Done on
-  #28: kept (*Re-check on eval set v2*, below).
-- **The guard passes.** V1's EVAL-007 interval includes 0, and its median latency is 0.209 s.
-  EVAL-005 goes from 0.575 to 0.600 [0.000, +0.075].
-- **No combined run.** There is one winner, so rule 4 does not apply.
-- **The weights and V6 do not help.** V4 raises recall on 5 questions and lowers it on 2, and
-  V5 raises it on 2 and lowers it on 3; neither interval excludes 0. V6 lowers EVAL-007, with a
-  paired interval entirely below 0.
-- **Where the misses moved (V1).** 39 standalone misses instead of 43: 28 below the cut, 3
-  beyond 50 and 8 not in the pool. recall@20 is 0.870 and recall@50 0.939.
-- **The new default reproduces V1.** At commit `e2051f7`, with no options, EVAL-001 is 0.714
-  [0.634, 0.791], EVAL-005 0.600 and EVAL-007 0.701, with every per-item change 0 against V1
-  (`eval/results/2026-11-15-e2051f7.json`, and its diagnosis).
-
-recall@8 is still below the EVAL-001 target of 0.80. 28 of the remaining misses are ranked 9 to
-50, so the order of the top 50 is still the gap. No fusion knob in the grid closes it.
-
-### Re-check on eval set v2
-
-Does one hit per article still raise recall@8 on eval set v2? The question is #28; the
-approach is the approved comment on #28. Only `per_article` changes. Everything else is as at
-the v2 baseline (`eval/results/2026-11-15-b0cced1.json`, [eval-results.md](eval-results.md#baseline)):
-eval set v2, today's index (bge-m3@8192, `syllable` BM25, 1,286 chunks), `TOP_K` 8, `RRF_K` 60,
-50 candidates, weights 1 and 1, `rewrite: none`, bootstrap seed 0, the dev laptop, one clean
-commit for both runs.
-
-**Runs.**
-
-1. `python -m src.eval.run --no-per-article`, the setting before #25.
-2. `python -m src.eval.run --compare <run 1 file>`, the default: its paired changes are the
-   change that `per_article` brings. Against `b0cced1`, every per-item score must be the same,
-   or the work stops.
-
-**Decision rule** (approved on #28). One comparison, so no Bonferroni interval:
-
-1. **Keep** `per_article` when the paired 95% interval of its EVAL-001 change lies entirely above
-   0 and the guard of #25 holds: the EVAL-007 paired interval not entirely below 0, the median
-   latency (AC-012) at most 2 s.
-2. **Turn it off** when the interval lies entirely below 0.
-3. **Otherwise keep it**, recorded as inconclusive.
-
-EVAL-005 (n = 29) is reported, but does not decide. The mean change on the items with
-`added_in` 1 and 2 is read from each run's breakdown, without an interval: `per_article` was
-chosen on the version 1 questions, so a larger change there hints at tuning bias, without
-proving it.
-
-#### Result
-
-Run on 2026-11-15 at commit `4d2fda4`, clean, eval set v2, on the dev laptop (i7-10610U, 16 GB
-RAM, CPU only), with the index as above. Run 1 is `eval/results/2026-11-15-4d2fda4.json`, run 2
-`-2`. Run 2 gives every item the same score as `b0cced1`.
-
-| Run | EVAL-001 recall@8 | EVAL-005 recall@8 | EVAL-007 precision@8 | Median latency |
-|---|---|---|---|---|
-| 1 `--no-per-article` | 0.756 [0.703, 0.802] | 0.486 [0.333, 0.635] | 0.646 [0.597, 0.693] | 0.248 s |
-| 2 default | 0.769 [0.715, 0.813] | 0.494 [0.339, 0.644] | 0.678 [0.626, 0.728] | 0.266 s |
-| Paired change | **+0.012 [+0.004, +0.023]** | +0.009 [0.000, +0.026] | +0.032 [+0.021, +0.045] | |
-
-- **`per_article` stays on (rule 1).** Its paired EVAL-001 interval lies entirely above 0. It
-  raises recall on 6 questions and lowers it on none.
-- **The guard passes.** The EVAL-007 interval lies above 0, and the median latency is 0.266 s.
-- **The gain sits on the version 1 questions.** The mean change is +0.036 on the 39 with
-  `added_in` 1, the same as on eval set v1, and +0.006 on the 145 with `added_in` 2. 4 of the 6
-  raised questions are from version 1. This hints that the change measured on #25 was partly
-  tuned to those questions; on the new ones it is small.
-- **The paired interval is 0.019 wide**, against 0.065 on eval set v1 (#25), so v2 separates a
-  change of this size from 0.
-
-This resolves the "re-check on eval set v2" of *Result* above.

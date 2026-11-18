@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-18
+updated: 2026-11-19
 owner: HieuQuang4438
 ---
 
@@ -251,7 +251,7 @@ EVAL-002's interval resamples items, as under *Interval*, and takes the ratio of
 resample (`ratio_bootstrap_interval`), since sentences of one answer are not independent. The
 three judged scores carry `judge`, the judge's model, and the summary prints
 `judge <model>, not hand-checked` after them: a judged score stands only with the hand-check
-recorded beside it in *Generation runs*. EVAL-004 reads `not_found` alone: it needs no judge,
+recorded beside it in the run's file in [docs/experiments/](../experiments/README.md). EVAL-004 reads `not_found` alone: it needs no judge,
 carries no `judge` and is scored without one.
 
 EVAL-004 does not see the cost of saying not found too often, which falls on answerable
@@ -366,164 +366,13 @@ python -m src.eval.handcheck score eval/<file>-handcheck.me.md      # prints the
   ones, and prints `cited: <agreeing> of <graded>`, then `supported:`, `correct:` and
   `says_amended:`.
 
-**Generation runs.** Every clean `--generate` run is listed in a table under *Baseline*: its
-file, EVAL-002, EVAL-003, EVAL-006, the not-found counts, AC-015, and the hand-check agreement.
+**Generation runs.** Every clean `--generate` run is recorded in
+[docs/experiments/](../experiments/README.md): its file, EVAL-002, EVAL-003, EVAL-006, the not-found counts, AC-015, and the hand-check agreement.
 
 ## Baseline
 
-The first clean run, recorded on #9: `eval/results/2026-11-13-1d257ea.json`. Eval set v1, commit
-`1d257ea`, retrieval only with each turn as written, k = 8, RRF 60, 50 candidates, bge-m3
-`5617a9f6`, syllable BM25, on the dev laptop (i7-10610U, 16 GB RAM, CPU only).
-
-| Metric | Value | n | 95% interval | Target |
-|---|---|---|---|---|
-| EVAL-001 recall@8 | 0.633 | 39 | 0.539–0.727 | ≥ 0.80, not met |
-| EVAL-005 recall@8, follow-up turns, no rewrite | 0.575 | 10 | 0.333–0.817 | ≥ 0.70, not met |
-| EVAL-007 context precision@8 | 0.676 | 39 | 0.571–0.773 | ≥ 0.60, met |
-
-- Recall is 0.771 on `reference` questions and 0.572 on `plain` ones.
-- Retrieval latency is 0.35 s median and 0.69 s p95.
-- 48 of the 111 expected articles are missed: 9 of the 15 amending articles and 39 of the 96
-  base articles. Of the missed ones, 18 rank 9–20 and 16 rank 21–50 when 50 hits are
-  retrieved; 14 are not among them.
-
-EVAL-001's target was confirmed at 0.80 after this baseline, approved on #9. It is not revised
-again; the gap is the work of the retrieval issues.
-
-Since #12 the chunks are split over 1,600 tokens, not 800. At that threshold, commit `ab4a8fa`,
-otherwise as above: EVAL-001 0.678 [0.592, 0.764], EVAL-005 0.575 [0.333, 0.817], EVAL-007
-0.686 [0.590, 0.780], in `eval/results/2026-11-14-ab4a8fa-3.json`
-([chunk-schema.md](chunk-schema.md), *Threshold experiment*). The table above stays the record
-of the first baseline.
-
-Since #25 the top 8 holds one hit per article. At commit `e2051f7`, otherwise as at `ab4a8fa`:
-EVAL-001 0.714 [0.634, 0.791], EVAL-005 0.600 [0.333, 0.867], EVAL-007 0.701 [0.607, 0.793], in
-`eval/results/2026-11-15-e2051f7.json` ([retrieval.md](retrieval.md), *Fusion tuning*).
-
-The eval set v2 baseline, recorded on #26: `eval/results/2026-11-15-b0cced1.json`. Eval set v2
-(184 answerable standalone questions, 29 answerable follow-up turns), commit `b0cced1`, otherwise
-as at `e2051f7`. A v2 score is not compared paired with a v1 score.
-
-| Metric | Value | n | 95% interval | Target |
-|---|---|---|---|---|
-| EVAL-001 recall@8 | 0.769 | 184 | 0.715–0.813 | ≥ 0.80, not met |
-| EVAL-005 recall@8, follow-up turns, no rewrite | 0.494 | 29 | 0.339–0.644 | ≥ 0.70, not met |
-| EVAL-007 context precision@8 | 0.678 | 184 | 0.626–0.728 | ≥ 0.60, met |
-
-- Recall is 0.714 on the 39 version 1 questions and 0.783 on the 145 added in version 2.
-- Recall by tax type runs from 0.500 (`household`) to 0.933 (`cit`).
-- The 184 questions expect 164 distinct articles; version 1 expects 73 of them.
-- The 10 reference questions that name the wrong document (answered by the right one, step 2)
-  score 0.600: q65, q72, q74, q84, q122, q185, q212, q213, q240, q242.
-- Retrieval latency is 0.38 s median and 0.90 s p95 over 292 items.
-
-### Follow-up rewriters
-
-The four rewriters of [conversation.md](conversation.md), recorded on #19: retrieval-only runs at
-commit `6e9ee24`, eval set v2, retrieval as at `b0cced1`, each with `--rewrite <name>` and, for
-the three rewriters, `--compare` with the `none` run and `--comparisons 3`. EVAL-001 and
-EVAL-007 are those of `none` in every run: standalone questions go through no rewriter.
-
-| Rewriter | File | EVAL-005 | paired vs `none` | Bonferroni |
-|---|---|---|---|---|
-| `none` | `eval/results/2026-11-18-6e9ee24.json` | 0.494 [0.339, 0.644] | | |
-| `concat` | `eval/results/2026-11-18-6e9ee24-2.json` | 0.526 [0.360, 0.670] | +0.032 [−0.146, +0.195] | [−0.172, +0.237] |
-| `fuse` | `eval/results/2026-11-18-6e9ee24-3.json` | 0.480 [0.322, 0.627] | −0.014 [−0.129, +0.098] | [−0.172, +0.129] |
-| `llm` | `eval/results/2026-11-18-6e9ee24-4.json` | 0.629 [0.473, 0.767] | +0.134 [+0.017, +0.259] | [−0.003, +0.296] |
-
-- `llm` against `concat`, from the two files: +0.102, paired [+0.002, +0.224], Bonferroni
-  [−0.009, +0.250] at 3 comparisons.
-- The choice (choice 3A on #19): `concat`, the LLM-free rewriter with the higher EVAL-005;
-  `llm`'s Bonferroni lower bound over it is not above 0. No rewriter separates from `none`
-  (choice 4A), so the four are re-measured on an eval set v3 with more follow-up turns
-  (approved on #19). EVAL-005 misses its target (≥ 0.70) under every rewriter.
-- AC-014: in every run no first turn was rewritten; under `concat`, `fuse` and `llm` all 30
-  follow-ups went through the rewriter and got a query other than their question.
-- Recall dropped against `none` on 6 follow-ups under `concat` (c04.2, c05.3, c06.3, c12.2,
-  c15.3, c16.2), 2 under `fuse` (c15.3, c16.2) and 3 under `llm` (c04.2, c05.3, c06.2).
-- `concat` and `fuse` gave 2 reference hits on follow-ups, from an article named in an earlier
-  question; `none` and `llm` gave none.
-- `llm` ran once, and its rewrites are not deterministic: another run may score otherwise. It
-  made 30 calls, 0.0043 USD in all, its rewrite 0.84 s median; the other rewrites take
-  under a millisecond. Retrieval-only latency is 0.19 s median under `none` and 0.21 s under
-  `concat`.
-
-### Generation runs
-
-Clean `--generate` runs, on the dev laptop, judge `gemini-3.5-flash-lite`. The hand-check is the
-owner's, blind, on the sheet `python -m src.eval.handcheck sheet` writes.
-
-| File | EVAL-002 | EVAL-003 | EVAL-004 | EVAL-006 | Not found | AC-015 | Hand-check |
-|---|---|---|---|---|---|---|---|
-| `eval/results/2026-11-16-6cbf23a.json` | 0.855 [0.782, 0.909], n = 345 | 0.990 [0.977, 1.000], n = 155 | not scored | 0.380 [0.310, 0.457], n = 184 | 29 of 184 answerable, 55 of 56 unanswerable | 3 pass, 30 fail, 15 retrieval misses, of 48: not green | cited 20 of 20, supported 20 of 20, correct 20 of 20 |
-| `eval/results/2026-11-17-4091435.json` | 0.868 [0.799, 0.921], n = 394 | 0.985 [0.971, 0.995], n = 151 | not scored | 0.402 [0.332, 0.473], n = 184 | 33 of 184 answerable, 55 of 56 unanswerable | 15 pass, 12 fail, 15 retrieval misses, of 42; 6 uncited: not green | not hand-checked |
-| `eval/results/2026-11-18-271adae.json` | 0.774 [0.700, 0.850], n = 376 | 0.961 [0.940, 0.981], n = 154 | 0.982 [0.946, 1.000], n = 56 | 0.402 [0.332, 0.473], n = 184 | 30 of 184 answerable (by recall@8: 8 all, 14 some, 8 none), 55 of 56 unanswerable | 21 pass, 7 fail, 15 retrieval misses, of 43; 5 uncited: not green | cited 19 of 20, supported 19 of 20, correct 16 of 20, says_amended 4 of 6 |
-
-`2026-11-16-6cbf23a`, eval set v2, commit `6cbf23a`, retrieval as at `b0cced1`:
-
-- EVAL-002 and EVAL-006 miss their targets (≥ 0.90, ≥ 0.80); EVAL-003 meets its (≥ 0.90).
-- The judge called 7 of the 20 sampled answers correct, and the owner agreed on all 20: the low
-  EVAL-006 is the answers', not the judge's.
-- All 20 sampled sentences were judged `cited` and `supported`, so the hand-check does not yet
-  show the judge catching an unsupported sentence.
-- 72 citation ids not in the context, in 39 items, were flagged (AC-009).
-- Latency is 2.28 s median and 4.84 s p95 over 240 items; cost is 0.0049 USD per item, the
-  judge's 155 calls 0.7651 USD.
-- The keys changed 109 times, 106 on a 503 and 3 on a 429; 7 attempts failed on every key and
-  succeeded after the backoff.
-
-`2026-11-17-4091435`, eval set v2, commit `4091435` (amendment notices, choice A2; AC-015 narrowed,
-choice B2), retrieval as at `b0cced1`:
-
-- Not hand-checked: #15 closed without a further run (approved on #15), so its judged scores
-  stand on the judge alone; the hand-checked run is `6cbf23a`.
-- 18 answers got one amendment notice each.
-- AC-015, of 42 to which it applies, against 48 at `6cbf23a` (6 now uncited): 15 pass, 15
-  retrieval misses, 12 fail. The 12 fails, counted from ids and citations only:
-  - 3 (q04, q196, q203) carry a notice covering the asked provision and were judged
-    `says_amended: false`; from `f4889e6` a noticed provision is said amended without the judge;
-  - 1 (q16) cites the amended clause and its source in one sentence without saying it was
-    amended; from `f4889e6` it gets a notice (choice 2');
-  - 6 (q01, q37, q117, q197, q199, q221) do not cite the listed amended clause;
-  - 2 (q56, q200) are not found.
-- **AC-015 is not met at the close of #15.** The changes of `f4889e6` were not measured by a run;
-  the 8 fails of the last two kinds stay with them, as answer quality and retrieval, which
-  neither the notice nor the scope of AC-015 changes. They are left to a later issue.
-- 67 citation ids not in the context, in 32 items, were flagged (AC-009).
-- Latency is 2.69 s median and 10.24 s p95 over 240 items; cost is 0.0050 USD per item, the
-  judge's 151 calls 0.7477 USD.
-- The keys changed 150 times, all on a 503; 6 attempts failed, 5 on every key and 1 on a read
-  timeout, and succeeded after the backoff.
-
-`2026-11-18-271adae`, eval set v2, commit `271adae` (not-found rule narrowed, choice 2A on #16;
-notices and AC-015 as changed by `f4889e6`, choices 1, 2' and 3 on #15), retrieval as at
-`b0cced1`, the same index and model as `4091435`:
-
-- EVAL-004 meets its target; the narrower rule left the 55 of 56 unchanged. Not found on
-  answerable questions went from 33 to 30 against `4091435`: 7 answered now, 4 not found now, 26
-  not found in both. That is within the variation of one prompt across two runs (29 at
-  `6cbf23a`, 33 at `4091435`), so it is not attributed to the rule (a risk named on #16).
-- EVAL-002 fell from 0.868 to 0.774 and EVAL-003 from 0.985 to 0.961. Over the 147 items judged
-  in both runs, the model's sentences, notices left out, went from 0.881 to 0.786: a paired
-  change of −0.095 [−0.202, +0.006], items resampled as under *Interval*, so not shown to
-  differ. The notices were judged `cited` false on 12 of 32, against 7 of 18 at `4091435`.
-- Hand-check, the owner's, blind:
-  - `cited` and `supported` 19 of 20; the one disagreement (S9) is a notice the judge called
-    unsupported and the owner supported. 2 of the 20 sampled sentences were notices;
-  - `correct` 16 of 20; in all 4 disagreements the judge called incorrect an answer the owner
-    called correct, so EVAL-006 may understate the answers. At `6cbf23a` all 20 agreed;
-  - `says_amended` 4 of 6, the first such check; in the 2 disagreements (q56, q117) the judge
-    said amended and the owner did not. Both fail AC-015 anyway, since neither cites the
-    amending passage, so the AC-015 counts stand.
-- AC-015, of 43, against 42 at `4091435`: 21 pass, 15 retrieval misses, 7 fail, and 5 uncited.
-  The 7 fails, from ids and citations only:
-  - 2 (q01, q37) cite the amending passage but ask about a provision no notice covers, judged
-    not said to be amended;
-  - 4 (q56, q117, q197, q199) do not cite the amending passage;
-  - 1 (q200) is not found.
-  AC-015 is not met; the fails are answer quality and retrieval, as at `4091435`.
-- 85 citation ids not in the context, in 39 items, were flagged (AC-009), against 67 in 32.
-- Latency is 4.12 s median and 8.07 s p95 over 240 items; cost is 0.0050 USD per item, the
-  judge's 154 calls 0.7548 USD.
-- The keys changed 61 times, 60 on a 503 and 1 on a 429; 3 attempts failed, 2 on every key and
-  1 on a dropped connection, and succeeded on the retry.
+Every recorded run is a file in [docs/experiments/](../experiments/README.md): the
+baselines of eval set v1 and v2, the follow-up rewriters and every generation run. Later
+runs on eval set v2 compare against its baseline,
+[2026-11-15-retrieval-baseline-eval-set-v2.md](../experiments/2026-11-15-retrieval-baseline-eval-set-v2.md),
+and each says what it changed.

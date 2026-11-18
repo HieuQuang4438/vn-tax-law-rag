@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-15
+updated: 2026-11-19
 owner: HieuQuang4438
 ---
 
@@ -39,7 +39,9 @@ the three holds an id twice.
 ## Vector index — `chroma/`
 
 - **Model.** One of the pinned models below, through `sentence-transformers`, on CPU (NFR-001),
-  chosen with `--model`; `BAAI/bge-m3` by default (approved on #11). The table is
+  chosen with `--model`; `BAAI/bge-m3` by default (approved on #11), kept after the
+  [embedding experiment](../experiments/2026-11-14-embedding-model.md) and its
+  [re-run on eval set v2](../experiments/2026-11-15-embedding-model-eval-set-v2.md). The table is
   `EMBEDDING_MODELS` in `src/chunking/tokens.py`. Vectors are normalized to unit length.
 
   | Model | Revision | Maximum input, tokens | Dimensions |
@@ -97,7 +99,7 @@ estimated about 95 minutes for 1,824 chunks.
 - **Tokens.** One of three tokenizers, chosen at build time with `--tokenizer` and recorded
   in the manifest as `bm25_tokenizer`; questions are tokenized by the same one (approved on
   #10). `syllable` is the default, kept after #10 measured the two segmenters against it
-  (*Tokenizer experiment*, below).
+  ([tokenizer experiment](../experiments/2026-11-13-bm25-tokenizer.md)).
   - `syllable`: Unicode NFC, lowercase, split on whitespace, then strip from both ends of each
     token every character that is neither a letter nor a digit (`str.isalnum`); empty tokens
     are dropped. No stopword list. Diacritics stay, one-letter syllables stay, and a document
@@ -174,7 +176,7 @@ python -m src.index --tokenizer pyvi --out data/index-pyvi
 The vector cache stays in `data/index/embeddings/` whatever `--out` is, unless `--cache` names
 another one, so a tokenizer variant embeds nothing new. A variant with other chunks gets its
 own copy of the cache instead, because a build prunes the cache to its own texts
-([chunk-schema.md](chunk-schema.md), *Threshold experiment*). `build(enriched_dir, index_dir, embedder, tokenizer="syllable", cache_dir=None)`
+([threshold experiment](../experiments/2026-11-14-chunk-threshold.md)). `build(enriched_dir, index_dir, embedder, tokenizer="syllable", cache_dir=None)`
 takes the same choices; with no `cache_dir`, the cache is `index_dir/embeddings`. An unknown
 tokenizer stops the build with `ValueError` before anything is written.
 
@@ -184,140 +186,6 @@ table offline, with the given limit or, when it is `None`, the model's maximum. 
 `model`, `revision`, `input_limit`, `embed(texts)`, which returns one unit-length vector per
 text, and `count_tokens(text)`, the model's token count of a text, special tokens included and
 nothing cut, which decides whether a text fits the limit.
-
-## Tokenizer experiment
-
-Does word segmentation raise recall@8 over syllable tokens? Measured on #10, with the decision
-rule fixed before the run: a segmenter replaces `syllable` only if the paired 95% bootstrap
-interval of its EVAL-001 change lies entirely above 0 and AC-012 still holds.
-
-Setup, the same for every run: commit `0e6024c`, eval set v1 (`d33b390e4894…`), bge-m3
-`5617a9f6`, chunk threshold 800, k = 8, RRF 60, 50 candidates, `rewrite: none`, the dev laptop
-(i7-10610U, 16 GB RAM, CPU only). Each variant was built with `--out data/index-<tokenizer>`
-from the shared vector cache and scored with `python -m src.eval.run --index`.
-
-| Tokenizer | Version | EVAL-001 | Paired change vs syllable | EVAL-005 | EVAL-007 | BM25 build | Retrieval median / p95 | Results file |
-|---|---|---|---|---|---|---|---|---|
-| `syllable` | — | 0.633 [0.539, 0.727] | — | 0.575 [0.333, 0.817] | 0.676 [0.571, 0.773] | 0.6 s | 0.40 / 0.78 s | `2026-11-13-0e6024c.json` |
-| `underthesea` | 9.5.0 | 0.627 [0.519, 0.731] | −0.006 [−0.058, +0.038] | 0.542 [0.275, 0.808] | 0.674 [0.571, 0.765] | 44.0 s | 0.24 / 0.35 s | `2026-11-13-0e6024c-2.json` |
-| `pyvi` | 0.1.1 | 0.601 [0.499, 0.702] | −0.032 [−0.083, +0.013] | 0.542 [0.275, 0.808] | 0.658 [0.557, 0.754] | 13.7 s | 0.43 / 0.56 s | `2026-11-13-0e6024c-3.json` |
-
-- Neither segmenter meets the rule: both paired intervals include 0, and both means are lower.
-  `syllable` stays, and no dependency is added to `requirements.txt`.
-- Per question, underthesea raised recall on 3 questions and lowered it on 4; pyvi on 2 and 5.
-- On `plain` questions underthesea gains slightly (0.581 against 0.572) and pyvi loses (0.544);
-  on `reference` questions both lose (0.729 against 0.771).
-- Retrieval latency varies by about 0.2 s between runs on this laptop, more than between
-  tokenizers, so it does not separate them; every variant keeps AC-012.
-- The segmenters stay available, so the experiment can be run again on a later eval set.
-
-## Embedding experiment
-
-Does `AITeamVN/Vietnamese_Embedding`, bge-m3 fine-tuned for Vietnamese retrieval, raise
-recall@8 over bge-m3? Approach approved on #11, which replaces the issue's multilingual-e5: e5
-reads at most 512 tokens, and at the 1,600 threshold many indexed texts are longer.
-Vietnamese_Embedding reads at most 2,048, so the 12 longest of the 1,286 indexed texts are cut
-(counted with bge-m3's tokenizer, special tokens included); a control variant, bge-m3 cut at
-2,048, separates the model's effect from the cut's.
-
-| Variant | Model | Input limit | Folder | Role |
-|---|---|---|---|---|
-| 1 | `BAAI/bge-m3` `5617a9f6` | 8,192 | `data/index/` | baseline, the default index |
-| 2 | `BAAI/bge-m3` `5617a9f6` | 2,048 | `data/index-bge-2048/` | control |
-| 3 | `AITeamVN/Vietnamese_Embedding` `dea33aa1` | 2,048 | `data/index-vn-embedding/` | candidate |
-
-3 against 1 decides; 3 against 2 is the model's effect alone; 2 against 1 is the cost of the cut.
-
-Decision rule, fixed before the run: Vietnamese_Embedding replaces bge-m3 only if the paired 95%
-bootstrap interval of its EVAL-001 change against variant 1 lies entirely above 0 and AC-012
-still holds. Variant 2 is a diagnostic and never a candidate. If variant 3 wins, it becomes the
-default, a new ADR supersedes ADR-0002 for the embedding model, carrying its other decisions
-over unchanged, and `data/` is rebuilt.
-
-Setup, the same for every run: one commit, eval set v1, chunk threshold 1,600 (1,286 chunks),
-`syllable` BM25, k = 8, RRF 60, 50 candidates, `rewrite: none`, the dev laptop (i7-10610U,
-16 GB RAM, CPU only). Variant 1 is the default index, rebuilt from its cache at that commit.
-Variants 2 and 3 are built with `--model`, `--input-limit` and `--out`, each with its own copy of
-the vector cache (`--cache`), since a build prunes its model's cache folder to its own keys, and
-scored with `python -m src.eval.run --index`. Before the run, Vietnamese_Embedding's
-`tokenizer.json` is compared byte for byte with bge-m3's; if they differ, the texts over 2,048
-are counted again with its own tokenizer and reported.
-
-Reported for each variant: EVAL-001, EVAL-005 and EVAL-007 with their intervals, the paired
-change against variant 1 (and, for 3, against 2), texts embedded and cut, build time, retrieval
-latency, and the results file.
-
-Run on 2026-11-14 at commit `2360e43`, eval set v1 (`d33b390e4894…`). Before the run, the two
-`tokenizer.json` files differed in bytes (Vietnamese_Embedding's is written in a newer format,
-`prepend_scheme` for `add_prefix_space`), but they gave the same token ids for all 1,286 indexed
-texts, and its own tokenizer also puts 12 of them over 2,048.
-
-| Variant | EVAL-001 | Paired change vs 1 | EVAL-005 | EVAL-007 | Distinct articles in top 8 | Texts embedded | Index build | Retrieval median / p95 | Results file |
-|---|---|---|---|---|---|---|---|---|---|
-| 1 | 0.678 [0.592, 0.764] | — | 0.575 [0.333, 0.817] | 0.686 [0.590, 0.780] | 6.82 | 0 | 3.9 s | 0.19 / 0.26 s | `2026-11-14-2360e43.json` |
-| 2 | 0.665 [0.569, 0.757] | −0.013 [−0.038, +0.000] | 0.575 [0.333, 0.817] | 0.686 [0.584, 0.781] | 6.82 | 12 | 147 s | 0.18 / 0.28 s | `2026-11-14-2360e43-2.json` |
-| 3 | 0.708 [0.618, 0.797] | +0.030 [−0.035, +0.094] | 0.628 [0.408, 0.850] | 0.726 [0.636, 0.811] | 7.08 | 1,286 | 3,778 s | 0.17 / 0.24 s | `2026-11-14-2360e43-3.json` |
-
-- **Vietnamese_Embedding does not meet the rule**: its paired interval against variant 1
-  includes 0. bge-m3 at 8,192 stays the default, ADR-0002 stands, and `data/` is unchanged.
-- Against variant 1 it raised recall on 7 questions and lowered it on 4; on `plain` questions
-  0.618 to 0.677, on `reference` questions 0.812 to 0.778. It raised 3 follow-up turns and
-  lowered none (EVAL-005 paired [+0.000, +0.127]); context precision EVAL-007 paired
-  [−0.025, +0.113].
-- Against variant 2, the model's effect alone: EVAL-001 +0.043 [−0.031, +0.110], 8 questions
-  up and 4 down. This interval also includes 0.
-- The cut costs little on this set: variant 2 lowered one question and raised none.
-- The means lean towards Vietnamese_Embedding on every recall and precision metric but the
-  `reference` form. With 39 questions the intervals are too wide to tell; a larger eval set
-  could run the comparison again from these two folders' commands.
-- Embedding all 1,286 texts with Vietnamese_Embedding took 63 minutes, under the 1.2–1.6 h
-  estimated. Every variant keeps AC-012.
-
-### Re-run on eval set v2
-
-Does Vietnamese_Embedding raise recall@8 once the eval set can tell a change of about +0.03?
-The question is #27; the approach is the approved comment on #27. The three variants and the
-decision rule are those above, unchanged. What differs from the run above:
-
-- Eval set v2 (`f14d299e3d1e`), and `Fusion()` as it is now, one hit per article (#25).
-- The three folders are reused, not rebuilt: they hold the same chunks (`chunks_sha256`
-  `f46aee0d2d33`), and `src/index` has not changed since `2360e43`.
-- Variant 1 must give every item the same score as `eval/results/2026-11-15-b0cced1.json`, or
-  the work stops.
-- 3 against 1 is the one comparison that decides, so no Bonferroni interval. 3 against 2 and 2
-  against 1 are reported as above.
-- The mean change on the items with `added_in` 1 and 2 is read from each run's breakdown,
-  without an interval. The threshold (#12) and one hit per article (#25) were tuned on the
-  version 1 questions with bge-m3, so a smaller change there hints at bias toward bge-m3.
-- "Distinct articles in top 8" is not reported: with one hit per article it is always 8.
-- The tokenizers are not compared again: both revisions are pinned and unchanged.
-
-#### Result
-
-Run on 2026-11-15 at commit `7b40a2f`, clean, eval set v2, on the dev laptop (i7-10610U, 16 GB
-RAM, CPU only). Variant 1 gives every item the same score as `b0cced1`.
-
-| Variant | EVAL-001 | Paired change vs 1 | EVAL-005 | EVAL-007 | Retrieval median / p95 | Results file |
-|---|---|---|---|---|---|---|
-| 1 | 0.769 [0.715, 0.813] | — | 0.494 [0.339, 0.644] | 0.678 [0.626, 0.728] | 0.25 / 0.36 s | `2026-11-15-7b40a2f.json` |
-| 2 | 0.766 [0.712, 0.810] | −0.003 [−0.008, +0.000] | 0.494 [0.339, 0.644] | 0.678 [0.626, 0.727] | 0.29 / 0.44 s | `2026-11-15-7b40a2f-2.json` |
-| 3 | 0.784 [0.731, 0.826] | +0.015 [−0.006, +0.038] | 0.504 [0.352, 0.651] | 0.675 [0.625, 0.724] | 0.25 / 0.37 s | `2026-11-15-7b40a2f-3.json` |
-
-- **Vietnamese_Embedding again does not meet the rule**: its paired interval against variant 1
-  includes 0. bge-m3 at 8,192 stays the default, ADR-0002 stands, and `data/` is unchanged.
-- Against variant 1 it raised recall on 17 questions and lowered it on 10. EVAL-005 paired
-  [−0.084, +0.113], EVAL-007 paired [−0.031, +0.025]. On `plain` questions 0.751 to 0.770, on
-  `reference` questions 0.818 to 0.823.
-- Against variant 2, the model's effect alone: EVAL-001 +0.018 [−0.004, +0.041], 18 questions
-  up and 10 down. This interval also includes 0.
-- The cut still costs little: variant 2 lowered one question and raised none.
-- **No sign of bias toward bge-m3 on the version 1 questions.** The mean change of variant 3
-  against 1 is +0.035 on the 39 with `added_in` 1 and +0.010 on the 145 with `added_in` 2, the
-  opposite of what tuning toward bge-m3 would give.
-- **The paired interval is 0.044 wide**, against 0.129 on eval set v1: the change a different
-  model makes moves many items both ways, so its interval stays wider than #28's 0.019. A change
-  of +0.015 is within the noise at n = 184.
-- Every variant keeps AC-012.
 
 ## Rebuilding from the cached pages
 

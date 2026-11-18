@@ -1,6 +1,6 @@
 ---
 status: living
-updated: 2026-11-16
+updated: 2026-11-19
 owner: HieuQuang4438
 ---
 
@@ -60,7 +60,7 @@ Only folders with real content exist. The rest are created when their first file
 | `features/` | only a feature spanning 2+ services | when one exists |
 | `reference/` | glossary, corpus, chunk schema, index format, retrieval, context assembly, cited answers, conversation, web interface, eval set format, eval results | yes |
 | `guides/` | tutorials and how-tos | when written |
-| `experiments/` | measured runs, one file per question, append-only, with a register | from the first measured conclusion |
+| `experiments/` | measured runs, one file per question, append-only, with a register | yes |
 | `discovery/` | unofficial: drafts, option analysis, prototypes. No status, no CI | yes |
 | `milestones/` | execution state per version. Only with no GitHub remote | if no remote |
 | `archive/` | frozen docs of removed features. Never edited | on first removal |
