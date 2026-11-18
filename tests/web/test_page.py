@@ -131,6 +131,63 @@ def test_a_history_row_offers_to_rename_its_conversation(client):
     assert 'maxlength="100"' in script
 
 
+# --- Type -----------------------------------------------------------------------------------------
+
+def rules(css: str) -> dict[str, dict[str, str]]:
+    """Each selector's declarations, later rules over earlier ones, at-rules' bodies included."""
+    found: dict[str, dict[str, str]] = {}
+    for selectors, body in re.findall(r"([^{}]+)\{([^{}]*)\}", re.sub(r"/\*.*?\*/", "", css, flags=re.S)):
+        declarations = dict((k.strip(), v.strip()) for k, v in
+                            (d.split(":", 1) for d in body.split(";") if ":" in d))
+        for selector in selectors.split(","):
+            found.setdefault(" ".join(selector.split()), {}).update(declarations)
+    return found
+
+
+@pytest.fixture
+def css(client) -> str:
+    return client.get("/static/app.css").text
+
+
+def test_every_text_box_is_16_px(css):
+    found = rules(css)
+    for box in (".composer textarea", ".search input", ".hist-input"):
+        assert found[box].get("font-size") == "var(--fs-16)", box
+
+
+def test_no_text_is_under_12_px(css):
+    sizes = [int(px) for px in re.findall(r"(?:font-size|--fs-\d+):\s*(\d+)px", css)]
+    assert sizes and min(sizes) >= 12
+
+
+def test_no_capitals_are_made_by_css(css):
+    assert "uppercase" not in css
+
+
+def test_the_article_heading_above_an_excerpt_is_the_document_s_type(css):
+    loc = rules(css)[".excerpt .loc"]
+    found = (loc.get("font-family"), loc.get("font-size"), loc.get("font-weight"), loc.get("color"))
+    assert found == ("var(--font-doc)", "var(--fs-16)", "600", "var(--ink)")
+
+
+@pytest.mark.parametrize("selector", [".dlg-head h2", ".status h2"])
+def test_the_page_s_own_titles_are_sans(css, selector):
+    title = rules(css)[selector]
+    assert "font-family" not in title  # the body's, --font-ui
+    assert (title.get("font-size"), title.get("font-weight")) == ("var(--fs-20)", "600")
+
+
+@pytest.mark.parametrize("selector", [".welcome h2", ".brand-name", ".doc-title"])
+def test_a_serif_heading_leaves_room_for_the_marks(css, selector):
+    assert float(rules(css)[selector]["line-height"]) >= 1.3
+
+
+def test_the_answer_and_the_excerpt_share_the_body_line_height(css):
+    found = rules(css)
+    assert found[":root"]["--lh-body"] == "1.7"
+    assert found[".a-body"]["line-height"] == found[".excerpt"]["line-height"] == "var(--lh-body)"
+
+
 def test_a_text_with_a_closing_script_tag_cannot_end_the_texts_block(monkeypatch):
     def load():
         raise RuntimeError("not loaded in these tests")

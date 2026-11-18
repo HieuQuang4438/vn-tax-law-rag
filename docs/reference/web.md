@@ -90,6 +90,23 @@ a text box shows one focus ring, its frame's, not a second one of its own; a con
 be renamed. The page calls the
 API by relative paths, so it also works under a path prefix.
 
+**Type.** Three fonts, each with the Vietnamese letters: Source Serif 4 (`--font-doc`) for the
+words of the documents and the answer, Be Vietnam Pro (`--font-ui`) for the page's own words,
+JetBrains Mono (`--font-mono`) for the citation chips and the keys.
+
+- Serif: the answer, the excerpt in the source panel with its article heading above it (bold,
+  16 px, the ink color: it is the document's own heading), the document's name heading the
+  panel, the welcome's title, and the app's name as its wordmark.
+- Sans: everything else, the dialogs' titles and the loading and load error cards included
+  (20 px, weight 600): they are the page speaking, not a document. A document's name in a list
+  (the sources under an answer, the document list) is sans; heading the panel, it is serif.
+- No text under 12 px. No capitals made by `text-transform`: small capitals stack the
+  Vietnamese marks; the small labels ("Trả lời", the history's day groups, a document's kind)
+  are sentence case, weight 600.
+- Every text box is 16 px, so a phone's browser does not zoom in when it is focused.
+- Line height: 1.7 (`--lh-body`) for the answer and the excerpt; at least 1.3 for a heading in
+  serif, so the marks of a capital do not touch the line above.
+
 **Texts.** The texts that the Streamlit page had keep their wording; they and the quota message
 are constants of `src.web.texts`, put in the page as JSON when it is served, so the script holds
 no copy of them:
