@@ -139,6 +139,10 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 
 ### Changed
 
+- A citation id below the clause, at a point (`1.25a`, `1.25 b`, `1.25.c`), is read as its
+  clause (`1.25`) when that clause is in the context, so it resolves and is shown and judged as
+  the clause instead of being flagged. At `271adae`, 82 of the 85 flagged ids had this shape.
+  FR-CORE-011, AC-009, #33.
 - Generation model: `LLM_MODEL` defaults to `gemini-3.5-flash-lite` (`DEFAULT_LLM_MODEL` in
   `src.config`) instead of the deprecated `gemini-2.5-flash`, on the Gemini API free tier.
   Chosen by a pilot of 24 eval set v2 questions graded blind (`scripts/llm_pilot.py`):

@@ -25,6 +25,7 @@ DOC_ID = re.compile(r"-(\d+)-d1\.html$")
 ID = re.compile(r"^(\d+)(?:\.(\d+(?:\.\d+)*))?$")
 FLAGGED_LABEL = "Trích dẫn không có trong nguồn được cung cấp:"
 DAY = re.compile(r"^(\d{2})/(\d{2})/(\d{4})$")
+POINT = re.compile(r"^(\d+)\.(\d+(?:\.\d+)*)[ .]?[a-yđ]")  # `1.25a`, `1.25 b`, `1.25.c`, ... (#33)
 
 
 class SentenceOutput(BaseModel):
@@ -87,6 +88,17 @@ def _normalised(raw: str) -> str:
     if text.startswith("[") and text.endswith("]"):
         text = text[1:-1].strip()
     return text
+
+
+def _clause_of(citation_id: str, passages: dict[str, Passage]) -> str:
+    """A point-level id as its clause id, the longest clause of the passage that fits; any other id as given."""
+    match = POINT.match(citation_id)
+    passage = passages.get(match.group(1)) if match else None
+    if passage is None or passage.kind != "article":
+        return citation_id
+    run = match.group(2)
+    fits = [k for k in passage.clauses if run == k or run.startswith(k + ".")]
+    return f"{passage.id}.{max(fits, key=len)}" if fits else citation_id
 
 
 def _heading(article: str, title: str) -> str:
@@ -157,11 +169,11 @@ class Answerer:
                           {"assembly": assembly, "generation": 0})
         user = f"Passages:\n\n{context.text}\n\nQuestion: {question}"
         call = self.llm.generate("answer", self.prompt, user, AnswerOutput)
-        sentences = [Sentence(s.text, tuple(dict.fromkeys(_normalised(i) for i in s.citations)))
+        passages = {p.id: p for p in context.passages}
+        sentences = [Sentence(s.text, tuple(dict.fromkeys(_clause_of(_normalised(i), passages) for i in s.citations)))
                      for s in call.parsed.sentences]
         not_found = not sentences or (len(sentences) == 1 and sentences[0].text.strip() == NOT_FOUND
                                       and not sentences[0].citations)
-        passages = {p.id: p for p in context.passages}
         notices = [] if not_found else self._notices(sentences, passages)
         sentences += notices
         citations = [self._resolve(i, passages) for i in dict.fromkeys(i for s in sentences for i in s.citations)]
