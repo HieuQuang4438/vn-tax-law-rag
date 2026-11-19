@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-18
+updated: 2026-11-19
 owner: HieuQuang4438
 ---
 
@@ -12,7 +12,7 @@ answers in the eval run. The rules are FR-CORE-010, FR-CORE-011 and FR-CORE-012,
 AC-009 and AC-015, and EVAL-002, EVAL-003, EVAL-004 and EVAL-006
 ([acceptance.md](../product/acceptance.md)). The model is ADR-0003's. The approach is the
 approved comment on #15; when an answer is not found, the approved comment on #16; the fields
-the web page reads, the approved comments on #30.
+the web page reads, the approved comments on #30; point-level ids, the approved comment on #33.
 
 ## The model call — `src.llm`
 
@@ -102,7 +102,30 @@ replaced or repealed and to cite the passage named on that line (FR-CORE-010). T
 wording is the pilot's.
 
 **Ids as written.** Each id the model gives is trimmed and stripped of one pair of brackets
-(`" [1.25] "` → `1.25`). Duplicates within one sentence are kept once.
+(`" [1.25] "` → `1.25`). Duplicates within one sentence are kept once, after the rewrite below.
+
+**Point-level ids** (approved on #33, choices 1A, 2A and 3A). The model sometimes cites below the
+clause, at a point (điểm a, b, …), which the passages do not mark. Such an id is rewritten to its
+clause before it is resolved, so it renders, resolves and is judged as that clause id. An id is
+point-level when it is
+
+- a run of digits and dots `n.r`, then
+- an optional space or `.`, then
+- one point letter, `a` to `y` or `đ`, and anything after it,
+
+and passage n is an `article` passage with a clause k in its `clauses` that is `r` itself or
+begins `r` followed by a `.`. It becomes `n.k`, with the longest such k:
+
+| Written | Clauses of passage 1 | Becomes |
+|---|---|---|
+| `1.25a`, `1.25 b`, `1.25.c`, `1.25đ.1` | `25` | `1.25` |
+| `1.2.2a` | `2`, `2.2` | `1.2.2` |
+| `1.2a` | `2`, `2.2` | `1.2` |
+| `1.1.5a` | `1` | `1.1` |
+
+Any other id is kept as written and resolved as below: a bare letter (`a`), a letter after a
+passage alone (`1a`), a clause not in the passage (`1.99a`), a point on an `amending` passage
+(`2.1a`).
 
 **Resolving an id.** Against the context's passages:
 

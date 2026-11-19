@@ -199,6 +199,38 @@ def test_a_repeated_clause_number_is_shown_by_its_number():
     assert "[Luật 48/2024/QH15, Điều 11, khoản 2](" in answer.text
 
 
+
+# --- Point-level ids (choices 1A, 2A and 3A, approved on #33) -----------------------------------
+
+def test_a_point_level_id_is_rewritten_to_its_clause_and_kept_once():
+    sentences = [{"text": "Câu một.", "citations": ["1.25a", "1.25 b", "1.25.c", "1.25đ.1", "1.25"]}]
+    answer, _ = ask(sentences, "379409:D5:K25")
+    assert answer.sentences[0].citations == ("1.25",)
+    assert answer.flagged == []
+    assert answer.citations[0].id == "1.25" and answer.citations[0].in_context
+    assert answer.citations[0].clause == "25"
+
+
+def test_a_point_level_id_renders_as_its_clause():
+    answer, _ = ask([{"text": "Câu một.", "citations": ["1.25a"]}], "379409:D5:K25")
+    assert answer.text.startswith("Câu một. [1.25] ")
+    assert "1.25a" not in answer.text
+    assert "- [1.25] [Luật 48/2024/QH15, Điều 5, khoản 25](" in answer.text
+
+
+@pytest.mark.parametrize("written, rewritten", [("1.2.2a", "1.2.2"), ("1.2a", "1.2"), ("1.1.5a", "1.1")])
+def test_a_point_level_id_takes_the_longest_clause_in_the_passage(written, rewritten):
+    answer, _ = ask([{"text": "Câu một.", "citations": [written]}], "379409:D11")
+    assert answer.sentences[0].citations == (rewritten,)
+    assert answer.flagged == []
+
+
+def test_ids_that_are_not_point_level_are_kept_as_written_and_flagged():
+    sentences = [{"text": "Câu một.", "citations": ["a", "i", "1a", "1.99a", "2.1a"]}]
+    answer, _ = ask(sentences, "379409:D5:K25")
+    assert answer.sentences[0].citations == ("a", "i", "1a", "1.99a", "2.1a")
+    assert answer.flagged == ["a", "i", "1a", "1.99a", "2.1a"]
+
 # --- Rendering -----------------------------------------------------------------------------------
 
 def test_the_text_is_the_sentences_with_their_ids_then_the_sources():
