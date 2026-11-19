@@ -375,4 +375,5 @@ Every recorded run is a file in [docs/experiments/](../experiments/README.md): t
 baselines of eval set v1 and v2, the follow-up rewriters and every generation run. Later
 runs on eval set v2 compare against its baseline,
 [2026-11-15-retrieval-baseline-eval-set-v2.md](../experiments/2026-11-15-retrieval-baseline-eval-set-v2.md),
-and each says what it changed.
+and each says what it changed. The newest score of each metric against its target is in the
+register's [*Standing scores*](../experiments/README.md#standing-scores).

@@ -146,3 +146,5 @@ over the chunks (vector and BM25), reference lookup and hybrid retrieval, contex
 cited answers, multi-turn conversation, the web chat page and eval set v2 are built, with
 the eval runner scoring retrieval and, with `--generate`, the answers; the demo is not deployed
 yet.
+
+The newest score of each metric against its target: [docs/experiments/README.md, *Standing scores*](docs/experiments/README.md#standing-scores).

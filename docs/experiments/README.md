@@ -32,3 +32,27 @@ here is added by the main thread**, because the register is shared state — `CO
 No file here is `superseded`. The two re-runs on eval set v2, #27 and #28, confirmed the
 conclusions they re-checked rather than replacing them, so each earlier file stands and links to
 its re-run.
+
+## Standing scores
+
+The newest score of each metric, against its target in
+[acceptance.md](../product/acceptance.md). Each score holds for the run its file records, not for
+HEAD; a later run that changes one replaces its row, in the same change that adds its register
+row.
+
+| Metric | Score | n | 95% interval | Target | Met | Measured in |
+|---|---|---|---|---|---|---|
+| EVAL-001 recall@8 | 0.769 | 184 | 0.715–0.813 | ≥ 0.80 | ⬜ no | [2026-11-15-retrieval-baseline-eval-set-v2.md](2026-11-15-retrieval-baseline-eval-set-v2.md) |
+| EVAL-002 citation correctness | 0.774 | 376 | 0.700–0.850 | ≥ 0.90 | ⬜ no | [2026-11-17-not-found-generation.md](2026-11-17-not-found-generation.md) |
+| EVAL-003 faithfulness | 0.961 | 154 | 0.940–0.981 | ≥ 0.90 | ✅ yes | [2026-11-17-not-found-generation.md](2026-11-17-not-found-generation.md) |
+| EVAL-004 not found on unanswerable | 0.982 | 56 | 0.946–1.000 | ≥ 0.80 | ✅ yes | [2026-11-17-not-found-generation.md](2026-11-17-not-found-generation.md) |
+| EVAL-005 recall@8, follow-up turns, `concat` | 0.526 | 29 | 0.360–0.670 | ≥ 0.70 | ⬜ no | [2026-11-18-follow-up-rewriters.md](2026-11-18-follow-up-rewriters.md) |
+| EVAL-006 answer correctness | 0.402 | 184 | 0.332–0.473 | ≥ 0.80 | ⬜ no | [2026-11-17-not-found-generation.md](2026-11-17-not-found-generation.md) |
+| EVAL-007 context precision@8 | 0.678 | 184 | 0.626–0.728 | ≥ 0.60 | ✅ yes | [2026-11-15-retrieval-baseline-eval-set-v2.md](2026-11-15-retrieval-baseline-eval-set-v2.md) |
+| EVAL-008 answer relevancy | not run | | | none | | |
+| AC-012 median retrieval time, `concat` | 0.21 s | | | < 2 s | ✅ yes | [2026-11-18-follow-up-rewriters.md](2026-11-18-follow-up-rewriters.md) |
+| AC-015 amended provisions | 21 pass, 7 fail | 43 | | every one passes | ⬜ no | [2026-11-17-not-found-generation.md](2026-11-17-not-found-generation.md) |
+
+EVAL-001, EVAL-007 and AC-012 are retrieval as at `b0cced1`; the generation runs and the rewriter
+runs kept that retrieval. AC-015's 43 also count 15 retrieval misses and 5 uncited, which it
+reports and does not judge.

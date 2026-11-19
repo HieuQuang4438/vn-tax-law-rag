@@ -1,6 +1,6 @@
 ---
 status: approved
-updated: 2026-11-18
+updated: 2026-11-19
 owner: HieuQuang4438
 approved-by: peer
 ---
@@ -47,6 +47,9 @@ that baseline, by a recorded decision — never quietly to fit a result.
 | EVAL-006 | Answer correctness on answerable questions | ≥ 0.80 | FR-CORE-010 |
 | EVAL-007 | Context precision@k on answerable questions | ≥ 0.60 at k = 8 | FR-CORE-006, FR-CORE-008 |
 | EVAL-008 | Answer relevancy on answers to answerable questions | reported, no target | FR-CORE-010 |
+
+The newest score of each against its target: [experiments/README.md, *Standing
+scores*](../experiments/README.md#standing-scores).
 
 ## Measurement definitions
 
