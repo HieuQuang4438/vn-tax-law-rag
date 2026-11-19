@@ -139,6 +139,9 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 
 ### Changed
 
+- The answer prompt asks for every part of the question, from every passage that bears on it,
+  with each condition, exception, rate, threshold or deadline in its own sentence. Kept or
+  reverted by the run of #34. FR-CORE-010, EVAL-006, #34.
 - A citation id below the clause, at a point (`1.25a`, `1.25 b`, `1.25.c`), is read as its
   clause (`1.25`) when that clause is in the context, so it resolves and is shown and judged as
   the clause instead of being flagged. At `271adae`, 82 of the 85 flagged ids had this shape.
