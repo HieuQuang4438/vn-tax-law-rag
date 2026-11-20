@@ -148,6 +148,18 @@ def test_the_prompt_answers_the_part_the_passages_answer_and_keeps_not_found_for
     assert "If they do not answer the question" not in prompt
 
 
+def test_the_prompt_asks_for_every_part_of_the_question_one_provision_per_sentence():
+    """Choice 1B on #34, run again on #38: the rule follows the one on partial answers."""
+    prompt = PROMPT.read_text(encoding="utf-8")
+    every_part = "Answer every part of the question, using every passage that bears on it."
+    own_sentence = ("Give each condition, exception, rate, threshold or deadline the passages state"
+                    " in its own sentence; do not fold several provisions into one sentence.")
+    flat = " ".join(prompt.split())
+    assert every_part in flat
+    assert own_sentence in flat
+    assert flat.index("answer that part") < flat.index(every_part)
+
+
 def test_the_prompt_holds_the_not_found_sentence_and_the_link_line_rule():
     prompt = PROMPT.read_text(encoding="utf-8")
     assert NOT_FOUND == "Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có."
