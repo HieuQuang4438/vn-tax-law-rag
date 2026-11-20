@@ -34,6 +34,7 @@ python -m src.eval.run --compare eval/results/<file>    # also prints what chang
 | `--rewrite` | `concat` (`DEFAULT_REWRITER`) | the rewriter of the conversation turns, one of `none`, `concat`, `fuse`, `llm` ([conversation.md](conversation.md), approved on #19); `llm` spends API quota, with or without `--generate` |
 | `--compare` | none | an earlier results file to compare with |
 | `--comparisons` | 1 | how many variants are compared with the same baseline; above 1, `--compare` also prints the Bonferroni interval (#25) |
+| `--seed` | none | the seed of every model call of the run, answers, rewrites and judge alike (`LLM(seed=…)`, [answer.md](answer.md), *Seed*), recorded as `configuration.pipeline.seed`; without it the pipeline has no `seed` key, as before #37. Runs of one configuration take seeds 1 to k, and each arm of a comparison the same ones (approved on #37, *a seed per run*). It does not run with `--rejudge` |
 | `--rejudge` | none | an earlier `--generate` results file: judge its stored answers again instead of running the pipeline (*Re-judging a run*, #37); spends API quota |
 | `--rrf-k` | `RRF_K` (60) | the fusion's `rrf_k` ([retrieval.md](retrieval.md#hybrid-search)) |
 | `--keyword-weight` | 1 | the fusion's `keyword_weight` |
@@ -233,7 +234,8 @@ python -m src.eval.compare --old a1.json,a2.json --new b1.json,b2.json [--compar
 configuration. The command reads them and prints the comparison; it writes nothing. It exits
 with 2, printing the reason, when two of the files have different eval sets
 (`different eval sets: scores are not comparable`), or when the files of one side have different
-`configuration.pipeline` (`the runs of one side differ in configuration`).
+`configuration.pipeline`, its `seed` aside (`the runs of one side differ in configuration`): the
+runs of one side differ by their seeds and nothing else.
 
 **Per item, per side**, over the side's runs:
 
@@ -424,7 +426,7 @@ python -m src.eval.run --rejudge eval/results/2026-11-19-69f6ab4.json
 
 - It reads the results file and its answers file, `<data>/eval-answers/<results file stem>.jsonl`,
   and loads the eval set as `--set` names it. It runs no retrieval and no generation. It exits
-  with 2, printing the reason, with `--generate`, when the answers file is missing, or when the
+  with 2, printing the reason, with `--generate` or `--seed`, when the answers file is missing, or when the
   set's `sha256` is not the results file's.
 - **Judged again**: each answers record whose `verdict` is not null, with the question and key
   facts of its item in the set, its `sentences`, its `flagged` ids, its passages joined as the

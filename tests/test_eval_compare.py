@@ -200,6 +200,18 @@ def test_runs_of_one_side_with_different_configurations_are_refused():
         module().compare_runs(old, new)
 
 
+def test_runs_of_one_side_may_differ_in_their_seed():
+    """Approved on #37, a seed per run: the runs of one side differ by their seeds and nothing else."""
+    old, new = generation_runs()
+    old[0]["configuration"]["pipeline"]["seed"] = 1
+    old[1]["configuration"]["pipeline"]["seed"] = 2
+    try:
+        text = module().compare_runs(old, new)
+    except ValueError as error:
+        text = str(error)
+    assert line_of(text, "EVAL-006") != "", text
+
+
 # --- The command ----------------------------------------------------------------------------------
 
 def write(tmp_path, runs, prefix):

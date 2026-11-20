@@ -45,8 +45,10 @@ SDK's own retries off, and `seed` when the wrapper has one. Nothing else is set.
 `LLM.seed`; when it is not none, every attempt of every call sends it as `seed`. None, the
 default, sends no seed, as before #37. google-genai documents the seed as a best effort at
 repeating a reply, not a guarantee, and a seed does not narrow an eval interval: each answer is
-still one draw. It is turned on by default only if #37's probe shows the seeded replies repeat.
-The probe is `scripts/seed_probe.py <results file>`: one stored request, rebuilt from the answers
+still one draw. The probe on #37 showed the seeded replies repeat (5 of 5, against 4 distinct of
+5 unseeded), but the default stays none: a fixed seed would make k runs of one configuration
+repeat one another. The eval runner takes a seed per run instead (`--seed`, eval-results.md;
+approved on #37, *a seed per run*). The probe is `scripts/seed_probe.py <results file>`: one stored request, rebuilt from the answers
 file, sent 5 times with a seed and 5 times without; it prints how many distinct replies each set
 gave, never the texts. `temperature`, `top_p` and `top_k` are deprecated
 and ignored by `gemini-3.5-flash-lite` and later models (Google's *What's new in Gemini 3.6*,

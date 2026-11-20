@@ -1434,3 +1434,60 @@ def test_the_command_refuses_rejudge_on_another_eval_set(command, capsys):
     assert run_main(argv + ["--rejudge", str(first)], judge=RecordingJudge()) == 2
     assert "different eval sets" in capsys.readouterr().out
     assert len(list(out.glob("*.json"))) == 1
+
+
+# --- A seed per run (approved on #37, a seed per run) --------------------------------------------
+
+def written_pipeline(out: Path) -> dict:
+    files = sorted(out.glob("*.json")) if out.is_dir() else []
+    assert len(files) == 1
+    return at(json.loads(files[0].read_text(encoding="utf-8")), "configuration", "pipeline")
+
+
+def test_the_seed_option_is_recorded_in_the_pipeline(command):
+    argv, out, _ = command
+    assert run_main(argv + ["--generate", "--seed", "2"], pipeline=GeneratingPipeline(answers={}, default=DEFAULT_ANSWER),
+                    judge=FakeJudge()) == 0
+    assert at(written_pipeline(out), "seed") == 2
+    assert "seed" not in GeneratingPipeline.config  # the pipeline's own config is not changed
+
+
+def test_without_a_seed_the_pipeline_has_no_seed_key(command):
+    argv, out, _ = command
+    assert run_main(argv + ["--generate"], pipeline=GeneratingPipeline(answers={}, default=DEFAULT_ANSWER),
+                    judge=FakeJudge()) == 0
+    assert "seed" not in written_pipeline(out)
+
+
+class Built(Exception):
+    """Raised by the fake LLM once it is built: the test only needs its arguments."""
+
+
+def test_the_command_builds_its_model_with_the_seed(command, loads, monkeypatch):
+    import src.llm
+
+    built = []
+
+    def fake_llm(*args, **kwargs):
+        built.append(kwargs.get("seed"))
+        raise Built
+
+    monkeypatch.setattr(src.llm, "LLM", fake_llm)
+    argv, _, _ = command
+    try:
+        outcome = main(argv + ["--rewrite", "llm", "--seed", "3"])
+    except Built:
+        outcome = "built"
+    except SystemExit as error:
+        outcome = f"exit {error.code}"
+    assert outcome == "built"
+    assert built == [3]
+
+
+def test_the_command_refuses_a_seed_with_rejudge(command, capsys):
+    argv, out, _ = command
+    first = generated_file(command)
+    capsys.readouterr()
+    assert run_main(argv + ["--rejudge", str(first), "--seed", "1"], judge=RecordingJudge()) == 2
+    assert "--seed does not run with --rejudge" in capsys.readouterr().out
+    assert len(list(out.glob("*.json"))) == 1
