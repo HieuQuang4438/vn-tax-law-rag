@@ -18,10 +18,10 @@ from src.answer.answerer import markers
 
 SAMPLE = 20
 SEED = 0
-LABELS = {"Cited supports": "cited", "Context supports": "supported", "Correct": "correct",
+LABELS = {"Cited supports": "cited", "Context supports": "supported", "Fact": "facts", "Correct": "correct",
           "Says amended": "says_amended"}
 HEADING = re.compile(r"^## ([SAM]\d+) · ")
-GRADE = re.compile(r"^(Cited supports|Context supports|Correct|Says amended):\s*(\S*)\s*$")
+GRADE = re.compile(r"^(Cited supports|Context supports|Correct|Says amended|Fact (\d+) stated):\s*(\S*)\s*$")
 RULE = "Yes when the answer says that each of these provisions was amended, replaced or repealed."
 
 
@@ -76,8 +76,10 @@ def sheet(answers: Path, set_path: Path = Path("eval/questions.yaml"), out_dir: 
         lines += [f"## {name} · {record['id']}", "",
                   f"**Question.** {questions.get(record['id'], {}).get('question', '')}", "",
                   "**Key facts.**", "", *(f"{n}. {fact}" for n, fact in enumerate(facts, 1)), "",
-                  "**Answer.**", "", _answer_text(record), "", "Correct:", ""]
-        key[name] = {"id": record["id"], "correct": record["verdict"]["correct"]}
+                  "**Answer.**", "", _answer_text(record), "",
+                  *(f"Fact {n} stated:" for n in range(1, len(facts) + 1)), "Correct:", ""]
+        key[name] = {"id": record["id"], "facts": list(record["verdict"]["facts"]),
+                     "correct": record["verdict"]["correct"]}
     for number, record in enumerate(chosen_amended, 1):
         name = f"M{number}"
         passages = [p["text"] for p in record["passages"]]
@@ -96,7 +98,7 @@ def sheet(answers: Path, set_path: Path = Path("eval/questions.yaml"), out_dir: 
 
 
 def score(sheet_path: Path) -> dict[str, tuple[int, int]]:
-    """Per line kind (`cited`, `supported`, `correct`, `says_amended`): (agreeing with the judge, graded)."""
+    """Per line kind (`cited`, `supported`, `facts`, `correct`, `says_amended`): (agreeing with the judge, graded)."""
     key = _read_key(_key_path(sheet_path))
     counts = {kind: [0, 0] for kind in LABELS.values()}
     current = None
@@ -106,11 +108,20 @@ def score(sheet_path: Path) -> dict[str, tuple[int, int]]:
             current = heading.group(1)
             continue
         grade = GRADE.match(line)
-        if not grade or current not in key or grade.group(2).lower() not in ("yes", "no"):
+        if not grade or current not in key or grade.group(3).lower() not in ("yes", "no"):
             continue
-        kind = LABELS[grade.group(1)]
+        said = grade.group(3).lower() == "yes"
+        if grade.group(2):  # `Fact <n> stated:` against the n-th of the judge's facts (#39)
+            facts = key[current].get("facts", [])
+            n = int(grade.group(2))
+            if not 1 <= n <= len(facts):
+                continue
+            kind, judged = "facts", facts[n - 1]
+        else:
+            kind = LABELS[grade.group(1)]
+            judged = key[current][kind]
         counts[kind][1] += 1
-        counts[kind][0] += (grade.group(2).lower() == "yes") == key[current][kind]
+        counts[kind][0] += said == judged
     return {kind: (agree, graded) for kind, (agree, graded) in counts.items()}
 
 

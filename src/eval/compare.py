@@ -58,6 +58,15 @@ def _not_found(item: dict) -> float | None:
     return None
 
 
+def _coverage(item: dict) -> float | None:
+    """EVAL-009 of one item (#39): 0 when not found or contradicting, else the share of its key facts stated."""
+    if not item.get("key_facts"):
+        return None
+    if item.get("not_found") or item.get("contradicts"):
+        return 0.0
+    return item["facts_stated"] / item["key_facts"]
+
+
 def _faithful(item: dict) -> float | None:
     return item["supported"] / item["sentences"] if _judged(item) and item.get("sentences") else None
 
@@ -68,6 +77,7 @@ PLAIN = {
     "EVAL-005": _plain(_follow_up, lambda i: i.get("recall")),
     "EVAL-006": _plain(_answerable, _correct),
     "EVAL-007": _plain(_standalone, lambda i: i.get("context_precision")),
+    "EVAL-009": _plain(_answerable, _coverage),
 }
 
 

@@ -7,6 +7,12 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 
 ### Added
 
+- Key-fact coverage, EVAL-009: per answerable question, the share of its key facts the judge
+  marks as stated, 0 when not found or contradicting; reported with no target, and the metric a
+  generation experiment decides on, EVAL-006 guarded. Items carry `facts_stated`, `key_facts`
+  and `contradicts`; `python -m src.eval.run --rescore <results file>` gives an earlier run the
+  score from its stored verdicts; the hand-check sheet grades each key fact. EVAL-009, FR-CORE-010,
+  #39.
 - Re-judging a run: `python -m src.eval.run --rejudge <results file>` judges a `--generate`
   run's stored answers again, with no retrieval and no generation, so a change of verdict is the
   judge's alone; `run.rejudge_of` names the source. FR-CORE-015, EVAL-002, EVAL-003, EVAL-006,

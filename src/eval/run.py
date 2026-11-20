@@ -37,7 +37,7 @@ from src.retrieval import TOP_K, Hit, Unresolved
 
 FORMAT = 1
 TARGETS = {"EVAL-001": 0.80, "EVAL-002": 0.90, "EVAL-003": 0.90, "EVAL-004": 0.80,
-           "EVAL-005": 0.70, "EVAL-006": 0.80, "EVAL-007": 0.60, "EVAL-008": None}
+           "EVAL-005": 0.70, "EVAL-006": 0.80, "EVAL-007": 0.60, "EVAL-008": None, "EVAL-009": None}
 NAMES = {
     "EVAL-001": "recall@k, answerable standalone questions",
     "EVAL-002": "citation correctness",
@@ -47,6 +47,7 @@ NAMES = {
     "EVAL-006": "answer correctness",
     "EVAL-007": "context precision@k, answerable standalone questions",
     "EVAL-008": "answer relevancy",
+    "EVAL-009": "key-fact coverage",
 }
 NOT_RUN = "no generation stage"
 NFR006 = {"median_s": 10, "p95_s": 20}
@@ -214,8 +215,8 @@ def _not_run(eval_id: str, reason: str = NOT_RUN) -> dict:
 
 
 GENERATION_KEYS = ("generated", "context_tokens", "dropped", "not_found", "sentences", "cited_sentences", "citations",
-                   "flagged", "notices", "cited_supported", "supported", "correct", "ac015", "judge_latency_s", "judge_tokens",
-                   "judge_cost_usd")
+                   "flagged", "notices", "cited_supported", "supported", "correct", "facts_stated", "key_facts",
+                   "contradicts", "ac015", "judge_latency_s", "judge_tokens", "judge_cost_usd")
 
 
 def _item(item: Item, kind: str, conversation: str | None, turn: int | None, outcome: Outcome,
@@ -302,7 +303,7 @@ def _generated(entry: dict, item: Item, answer, judge, chunks: dict[str, dict], 
     amended = tuple(i for i in asked if i not in noticed_targets)
     verdict = None
     if answerable and answer.not_found:
-        entry["correct"] = False
+        entry.update(_not_found_keys(item))
     elif answerable and judge is not None:
         verdict = judge.judge(item.question, list(item.key_facts), answer, amended)
         entry.update(_verdict_keys(verdict))
@@ -333,12 +334,20 @@ def _generated(entry: dict, item: Item, answer, judge, chunks: dict[str, dict], 
     return record, verdict
 
 
+def _not_found_keys(item: Item) -> dict:
+    """The item keys of a not-found answer to an answerable question."""
+    return {"correct": False, "facts_stated": 0, "key_facts": len(item.key_facts), "contradicts": None}
+
+
 def _verdict_keys(verdict) -> dict:
     """The item keys a verdict sets."""
     return {
         "cited_supported": sum(1 for value in verdict.cited if value),
         "supported": sum(1 for value in verdict.supported if value),
         "correct": verdict.correct,
+        "facts_stated": sum(1 for value in verdict.facts if value),
+        "key_facts": len(verdict.facts),
+        "contradicts": verdict.contradicts,
         "judge_latency_s": verdict.call.latency_s if verdict.call else None,
         "judge_tokens": {"input": verdict.call.input_tokens, "output": verdict.call.output_tokens}
         if verdict.call else None,
@@ -381,9 +390,21 @@ def _judged_scores(items: list[dict], judge_model: str | None) -> dict:
     correct = [1.0 if i["correct"] else 0.0 for i in answered if i["correct"] is not None]
     if correct:
         scores["EVAL-006"] = _score("EVAL-006", correct)
+    coverage = [c for c in (_coverage(i) for i in answered) if c is not None]
+    if coverage:  # approved on #39
+        scores["EVAL-009"] = _score("EVAL-009", coverage)
     for entry in scores.values():
         entry["judge"] = judge_model
     return scores
+
+
+def _coverage(item: dict) -> float | None:
+    """EVAL-009 of one item: 0 when not found or contradicting, else the share of its key facts stated (#39)."""
+    if not item.get("key_facts"):
+        return None
+    if item["not_found"] or item.get("contradicts"):
+        return 0.0
+    return item["facts_stated"] / item["key_facts"]
 
 
 def _generation(items: list[dict], judge_model: str | None) -> dict:
@@ -538,6 +559,7 @@ def rejudge(old: dict, records: list[dict], eval_set: EvalSet, judge) -> tuple[d
             if verdict.call is not None:
                 judge_model = verdict.call.model
             entry.update(_verdict_keys(verdict))
+            by_id[record["id"]] = entry = _ordered(entry)
             ac015 = entry.get("ac015")
             if ac015 and ac015.get("asked"):
                 says = True if not amended else verdict.says_amended
@@ -545,10 +567,43 @@ def rejudge(old: dict, records: list[dict], eval_set: EvalSet, judge) -> tuple[d
                 ac015["passes"] = bool(not entry["not_found"] and ac015["cites_amending"] and says is True)
             record["verdict"] = _verdict_record(verdict)
         new_records.append(record)
-    scores = dict(old["scores"])
-    scores.update(_judged_scores(items, judge_model))
-    return {"scores": scores, "breakdown": old["breakdown"], "latency": old["latency"], "cost": old["cost"],
-            "generation": _generation(items, judge_model), "ac015": _ac015(items), "items": items}, new_records
+    items = [by_id[i["id"]] for i in items]
+    return {"scores": _scores_again(old["scores"], items, judge_model), "breakdown": old["breakdown"],
+            "latency": old["latency"], "cost": old["cost"], "generation": _generation(items, judge_model),
+            "ac015": _ac015(items), "items": items}, new_records
+
+
+def _ordered(entry: dict) -> dict:
+    """The item's keys in the order of *Generation stage*, those it lacks as null."""
+    return {**{k: v for k, v in entry.items() if k not in GENERATION_KEYS},
+            **{k: entry.get(k) for k in GENERATION_KEYS}}
+
+
+def _scores_again(scores: dict, items: list[dict], judge_model: str | None) -> dict:
+    """The earlier scores, the judged ones scored again from the items, in EVAL id order."""
+    scores = {**scores, **_judged_scores(items, judge_model)}
+    return {eval_id: scores[eval_id] for eval_id in sorted(TARGETS) if eval_id in scores}
+
+
+def rescore(old: dict, records: list[dict], eval_set: EvalSet) -> dict:
+    """The parts of `old` with EVAL-009's item keys filled from the stored verdicts, no API call (#39)."""
+    old = json.loads(json.dumps(old))
+    questions = {q.id: q for q in eval_set.questions}
+    verdicts = {r["id"]: r.get("verdict") for r in records}
+    judge_model = old["scores"].get("EVAL-006", {}).get("judge")
+    items = []
+    for entry in old["items"]:
+        if entry["kind"] == "question" and entry["answerable"] and entry.get("generated"):
+            verdict = verdicts.get(entry["id"])
+            if entry["not_found"]:
+                entry.update({k: v for k, v in _not_found_keys(questions[entry["id"]]).items() if k != "correct"})
+            elif verdict:
+                entry.update({"facts_stated": sum(1 for value in verdict["facts"] if value),
+                              "key_facts": len(verdict["facts"]), "contradicts": verdict["contradicts"]})
+        items.append(_ordered(entry))
+    return {"scores": _scores_again(old["scores"], items, judge_model), "breakdown": old["breakdown"],
+            "latency": old["latency"], "cost": old["cost"], "generation": old.get("generation"),
+            "ac015": old.get("ac015"), "items": items}
 
 
 # --- Configuration ------------------------------------------------------------------------------
@@ -787,10 +842,17 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None, judge=
                         help="variants compared with the same baseline; above 1, also the Bonferroni interval")
     parser.add_argument("--rejudge", help="an earlier --generate results file: judge its stored answers again (#37)")
     parser.add_argument("--seed", type=int, help="the seed of every model call of the run (#37); default none")
+    parser.add_argument("--rescore", help="an earlier --generate results file: score its stored verdicts again (#39)")
     add_fusion_arguments(parser)
     args = parser.parse_args(argv)
     if args.comparisons < 1:
         parser.error(f"--comparisons must be at least 1, not {args.comparisons}")
+    if args.rescore:
+        for name, given in (("generate", args.generate), ("seed", args.seed is not None), ("rejudge", args.rejudge)):
+            if given:
+                print(f"--rescore does not run with --{name}")
+                return 2
+        return _rescore_command(args, argv)
     if args.rejudge:
         if args.generate:
             print("--rejudge does not run with --generate")
@@ -869,11 +931,9 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None, judge=
     return 0
 
 
-def _rejudge_command(args: argparse.Namespace, argv: list[str] | None, judge=None) -> int:
-    """`--rejudge`: no retrieval and no generation, one judge call per judged record (#37)."""
-    started_at = datetime.now().astimezone().isoformat(timespec="seconds")
-    started = time.perf_counter()
-    source, data = Path(args.rejudge), Path(args.data)
+def _stored_run(args: argparse.Namespace, source: Path):
+    """An earlier run's results, answers file and eval set, or the exit code of a refusal (#37, #39)."""
+    data = Path(args.data)
     enriched = Path(args.enriched) if args.enriched else data / "enriched"
     old = json.loads(source.read_text(encoding="utf-8"))
     answers_in = data / "eval-answers" / f"{source.stem}.jsonl"
@@ -884,26 +944,24 @@ def _rejudge_command(args: argparse.Namespace, argv: list[str] | None, judge=Non
     if eval_set.sha256 != old["configuration"]["eval_set"]["sha256"]:
         print("different eval sets: scores are not comparable")
         return 2
-    if judge is None:
-        from src.eval.judge import Judge
-        from src.llm import LLM
+    return old, answers_in, eval_set
 
-        judge = Judge(LLM())
-    from src.eval.judge import PROMPT as JUDGE_PROMPT
 
-    records = [json.loads(line) for line in answers_in.read_text(encoding="utf-8").splitlines() if line.strip()]
-    scored, new_records = rejudge(old, records, eval_set, judge)
+def _write_derived(args, argv, source: Path, old: dict, scored: dict, answers: bytes, started_at: str,
+                   started: float, of: str, judge=None) -> int:
+    """Write a results file derived from an earlier one, its answers file beside it; print the summary."""
     config = {**json.loads(json.dumps(old["configuration"])), **_here(Path("."))}
-    pipeline = config.setdefault("pipeline", {})
-    pipeline["judge_model"] = getattr(getattr(judge, "llm", None), "model", pipeline.get("judge_model"))
-    pipeline.setdefault("prompts", {})["judge"] = hashlib.sha256(JUDGE_PROMPT.read_bytes()).hexdigest()
+    if judge is not None:
+        from src.eval.judge import PROMPT as JUDGE_PROMPT
+
+        pipeline = config.setdefault("pipeline", {})
+        pipeline["judge_model"] = getattr(getattr(judge, "llm", None), "model", pipeline.get("judge_model"))
+        pipeline.setdefault("prompts", {})["judge"] = hashlib.sha256(JUDGE_PROMPT.read_bytes()).hexdigest()
     command = " ".join(["python -m src.eval.run", *(argv if argv is not None else [])])
-    run = {"started": started_at, "command": command, "seconds": round(time.perf_counter() - started, 1),
-           "rejudge_of": source.stem}
+    run = {"started": started_at, "command": command, "seconds": round(time.perf_counter() - started, 1), of: source.stem}
     results = {"format": FORMAT, "run": run, "configuration": config, **scored}
     path = write_results(results, Path(args.out))
-    answers_out = data / "eval-answers" / f"{path.stem}.jsonl"
-    answers_out.write_bytes("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in new_records).encode("utf-8"))
+    (Path(args.data) / "eval-answers" / f"{path.stem}.jsonl").write_bytes(answers)
     print(summary(results, path))
     if args.compare:
         earlier = json.loads(Path(args.compare).read_text(encoding="utf-8"))
@@ -915,6 +973,41 @@ def _rejudge_command(args: argparse.Namespace, argv: list[str] | None, judge=Non
         print()
         print(text)
     return 0
+
+
+def _rescore_command(args: argparse.Namespace, argv: list[str] | None) -> int:
+    """`--rescore`: the stored verdicts scored again, no API call (#39)."""
+    started_at = datetime.now().astimezone().isoformat(timespec="seconds")
+    started = time.perf_counter()
+    source = Path(args.rescore)
+    stored = _stored_run(args, source)
+    if isinstance(stored, int):
+        return stored
+    old, answers_in, eval_set = stored
+    answers = answers_in.read_bytes()
+    records = [json.loads(line) for line in answers.decode("utf-8").splitlines() if line.strip()]
+    return _write_derived(args, argv, source, old, rescore(old, records, eval_set), answers, started_at, started,
+                          "rescore_of")
+
+
+def _rejudge_command(args: argparse.Namespace, argv: list[str] | None, judge=None) -> int:
+    """`--rejudge`: no retrieval and no generation, one judge call per judged record (#37)."""
+    started_at = datetime.now().astimezone().isoformat(timespec="seconds")
+    started = time.perf_counter()
+    source = Path(args.rejudge)
+    stored = _stored_run(args, source)
+    if isinstance(stored, int):
+        return stored
+    old, answers_in, eval_set = stored
+    if judge is None:
+        from src.eval.judge import Judge
+        from src.llm import LLM
+
+        judge = Judge(LLM())
+    records = [json.loads(line) for line in answers_in.read_text(encoding="utf-8").splitlines() if line.strip()]
+    scored, new_records = rejudge(old, records, eval_set, judge)
+    answers = "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in new_records).encode("utf-8")
+    return _write_derived(args, argv, source, old, scored, answers, started_at, started, "rejudge_of", judge)
 
 
 if __name__ == "__main__":

@@ -1071,7 +1071,7 @@ def test_the_answers_list_gets_one_record_per_generated_item(generation):
 def test_the_summary_marks_judged_scores_as_not_hand_checked(generation, tmp_path):
     results, *_ = generation
     text = summary(results, tmp_path / "x.json")
-    assert text.count("judge gemini-3.5-flash-lite, not hand-checked") == 3
+    assert text.count("judge gemini-3.5-flash-lite, not hand-checked") == 4  # EVAL-002, 003, 006 and 009 (#39)
     assert "not found on 1 of 3 answerable (by recall@k: 1 all, 0 some, 0 none) and 1 of 1 unanswerable" in text
     line = next((l for l in text.splitlines() if "EVAL-004" in l), "")
     assert "1.000" in line and "n=1" in line and "PASS" in line and "judge" not in line
@@ -1272,7 +1272,8 @@ def test_the_command_stops_on_progress_from_another_run(command, capsys):
 
 # --- Re-judging a run (approved on #37, step 1A) ------------------------------------------------
 
-REJUDGE_KEYS = ("cited_supported", "supported", "correct", "judge_latency_s", "judge_tokens", "judge_cost_usd", "ac015")
+REJUDGE_KEYS = ("cited_supported", "supported", "correct", "facts_stated", "key_facts", "contradicts", "judge_latency_s",
+                "judge_tokens", "judge_cost_usd", "ac015")
 
 
 def rejudge_function():
