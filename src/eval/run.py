@@ -786,6 +786,7 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None, judge=
     parser.add_argument("--comparisons", type=int, default=1,
                         help="variants compared with the same baseline; above 1, also the Bonferroni interval")
     parser.add_argument("--rejudge", help="an earlier --generate results file: judge its stored answers again (#37)")
+    parser.add_argument("--seed", type=int, help="the seed of every model call of the run (#37); default none")
     add_fusion_arguments(parser)
     args = parser.parse_args(argv)
     if args.comparisons < 1:
@@ -793,6 +794,9 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None, judge=
     if args.rejudge:
         if args.generate:
             print("--rejudge does not run with --generate")
+            return 2
+        if args.seed is not None:
+            print("--seed does not run with --rejudge")
             return 2
         return _rejudge_command(args, argv, judge)
     fusion = fusion_from(parser, args)
@@ -811,7 +815,7 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None, judge=
         if args.generate or args.rewrite == "llm":
             from src.llm import LLM
 
-            llm = LLM()  # one wrapper for answers, rewrites and judge: one pacing over the keys
+            llm = LLM(seed=args.seed)  # one wrapper for answers, rewrites and judge: one pacing over the keys
         turn_rewriter = make_rewriter(args.rewrite, llm)
         if args.generate:
             from src.answer import Answerer
@@ -819,13 +823,15 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None, judge=
             pipeline = AnswerPipeline(retriever, Answerer.load(data, llm=llm), rewriter=turn_rewriter)
         else:
             pipeline = RetrievalPipeline(retriever, rewriter=turn_rewriter)
+    if args.seed is not None:  # a seed per run (#37): recorded only when given, so older runs still match
+        pipeline.config = {**pipeline.config, "seed": args.seed}
     progress, records, chunks = None, None, None
     if args.generate:
         if judge is None:
             from src.eval.judge import Judge
             from src.llm import LLM
 
-            judge = Judge(llm or LLM())
+            judge = Judge(llm or LLM(seed=args.seed))
         header = {"commit": _git(Path("."), "rev-parse", "HEAD").decode().strip(),
                   "eval_set_sha256": eval_set.sha256, "pipeline": pipeline.config}
         try:

@@ -82,8 +82,11 @@ def _check(old: list[dict], new: list[dict]) -> None:
     shas = {r["configuration"]["eval_set"]["sha256"] for r in old + new}
     if len(shas) != 1:
         raise ValueError("different eval sets: scores are not comparable")
+    def unseeded(results: dict) -> dict:  # the runs of one side differ by their seeds and nothing else (#37)
+        return {k: v for k, v in results["configuration"]["pipeline"].items() if k != "seed"}
+
     for side in (old, new):
-        if any(r["configuration"]["pipeline"] != side[0]["configuration"]["pipeline"] for r in side):
+        if any(unseeded(r) != unseeded(side[0]) for r in side):
             raise ValueError("the runs of one side differ in configuration")
 
 

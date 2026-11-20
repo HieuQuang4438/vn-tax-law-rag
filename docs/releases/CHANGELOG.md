@@ -16,7 +16,9 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
   generation metrics included, which were computed by hand before. FR-CORE-015, #37.
 - `scripts/noise.py`: how much a rerun of one configuration moves EVAL-006, split by whether the
   answer text repeated, and the projected interval for k runs per arm. EVAL-006, #37.
-- `LLM(seed=…)`: an optional seed sent on every attempt; off by default. #37.
+- A seed per eval run: `python -m src.eval.run --seed N` sends N on every model call of the run
+  (`LLM(seed=…)`, off by default) and records it as `configuration.pipeline.seed`; the runs of
+  one configuration take seeds 1 to k. #37.
 - Context header on every chunk, apart from its text: `python -m src.enrich` writes
   `data/enriched/chunks.jsonl`; chunks and articles carry `chapter_title`. FR-CORE-003, AC-003,
   ADR-0001.
