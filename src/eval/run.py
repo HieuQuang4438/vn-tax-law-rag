@@ -123,12 +123,14 @@ class AnswerPipeline:
 
     generates = True
 
-    def __init__(self, retriever, answerer, judge_model: str | None = None, k: int = TOP_K, rewriter=None):
+    def __init__(self, retriever, answerer, judge_model: str | None = None, k: int = TOP_K, rewriter=None,
+                 context_k: int | None = None):
         from src.answer.answerer import PROMPT as ANSWER_PROMPT
         from src.eval.judge import PROMPT as JUDGE_PROMPT
         from src.llm import PRICES, PRICES_READ
 
         self._retriever, self._answerer, self._k = retriever, answerer, k
+        self._context_k = context_k or k  # the hits the answer's context is assembled from (#36)
         self._rewriter = rewriter or make_rewriter("none")
         model = answerer.llm.model
         price_in, price_out = PRICES[model]
@@ -140,10 +142,12 @@ class AnswerPipeline:
                                    "judge": hashlib.sha256(JUDGE_PROMPT.read_bytes()).hexdigest()},
                        "judge_model": judge_model or model, "context_budget": answerer.assembler.budget,
                        "google_genai": _version("google-genai"), **_rewrite_config(self._rewriter)}
+        if context_k is not None:  # recorded only when given, so older runs still match (#36)
+            self.config["context_k"] = context_k
 
     def _retrieval(self, question: str):
         started = time.perf_counter()
-        result = self._retriever.retrieve(question, k=self._k)
+        result = self._retriever.retrieve(question, k=self._context_k)
         return result, time.perf_counter() - started
 
     def retrieve(self, question: str, earlier: tuple[str, ...] = ()) -> Outcome:
@@ -841,12 +845,21 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None, judge=
     parser.add_argument("--comparisons", type=int, default=1,
                         help="variants compared with the same baseline; above 1, also the Bonferroni interval")
     parser.add_argument("--rejudge", help="an earlier --generate results file: judge its stored answers again (#37)")
+    parser.add_argument("--context-k", type=int,
+                        help="with --generate, the hits the answer's context is assembled from (#36); default TOP_K")
     parser.add_argument("--seed", type=int, help="the seed of every model call of the run (#37); default none")
     parser.add_argument("--rescore", help="an earlier --generate results file: score its stored verdicts again (#39)")
     add_fusion_arguments(parser)
     args = parser.parse_args(argv)
     if args.comparisons < 1:
         parser.error(f"--comparisons must be at least 1, not {args.comparisons}")
+    if args.context_k is not None:  # the retrieval scores keep the first TOP_K (#36, choice 1A)
+        if not args.generate:
+            print("--context-k needs --generate")
+            return 2
+        if args.context_k < TOP_K:
+            print(f"--context-k must be at least {TOP_K}")
+            return 2
     if args.rescore:
         for name, given in (("generate", args.generate), ("seed", args.seed is not None), ("rejudge", args.rejudge)):
             if given:
@@ -882,7 +895,8 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None, judge=
         if args.generate:
             from src.answer import Answerer
 
-            pipeline = AnswerPipeline(retriever, Answerer.load(data, llm=llm), rewriter=turn_rewriter)
+            pipeline = AnswerPipeline(retriever, Answerer.load(data, llm=llm), rewriter=turn_rewriter,
+                                      context_k=args.context_k)
         else:
             pipeline = RetrievalPipeline(retriever, rewriter=turn_rewriter)
     if args.seed is not None:  # a seed per run (#37): recorded only when given, so older runs still match

@@ -7,6 +7,10 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 
 ### Added
 
+- The context's k of a generation run: `python -m src.eval.run --generate --context-k N`
+  assembles each answer's context from the top N hits, at least `TOP_K`, while EVAL-001 and
+  EVAL-007 still score the first `TOP_K`; recorded as `configuration.pipeline.context_k`.
+  FR-CORE-008, EVAL-009, #36.
 - Key-fact coverage, EVAL-009: per answerable question, the share of its key facts the judge
   marks as stated, 0 when not found or contradicting; reported with no target, and the metric a
   generation experiment decides on, EVAL-006 guarded. Items carry `facts_stated`, `key_facts`
