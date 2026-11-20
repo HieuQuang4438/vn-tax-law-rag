@@ -1,6 +1,6 @@
 ---
 status: living
-updated: 2026-11-19
+updated: 2026-11-20
 owner: HieuQuang4438
 ---
 
@@ -15,6 +15,7 @@ here is added by the main thread**, because the register is shared state — `CO
 
 | Date | Question | Issue | Status | Conclusion | Superseded by |
 |---|---|---|---|---|---|
+| 2026-11-19 | [Prompt for every part of the question](2026-11-19-every-part-prompt.md) | #34 | approved | inconclusive, prompt reverted: EVAL-006 +0.027 [−0.016, +0.071] | |
 | 2026-11-19 | [Point-level citation ids](2026-11-19-point-level-ids.md) | #33 | approved | kept: EVAL-002 0.774 to 0.950, +0.176 [+0.103, +0.263]; flagged ids 85 to 2 | |
 | 2026-11-18 | [Follow-up rewriters](2026-11-18-follow-up-rewriters.md) | #19 | approved | `concat` chosen; no rewriter separates from `none`, so the four are re-measured on eval set v3 | |
 | 2026-11-17 | [Not-found reply, generation run](2026-11-17-not-found-generation.md) | #16 | approved | EVAL-004 0.982, target met; AC-015 not met: 21 pass, 7 fail | |
@@ -39,7 +40,7 @@ its re-run.
 The newest score of each metric, against its target in
 [acceptance.md](../product/acceptance.md). Each score holds for the run its file records, not for
 HEAD; a later run that changes one replaces its row, in the same change that adds its register
-row.
+row. A run whose change is reverted does not replace a row.
 
 | Metric | Score | n | 95% interval | Target | Met | Measured in |
 |---|---|---|---|---|---|---|
