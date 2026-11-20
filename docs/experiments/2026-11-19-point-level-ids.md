@@ -1,6 +1,6 @@
 ---
 status: approved
-updated: 2026-11-19
+updated: 2026-11-20
 owner: HieuQuang4438
 approved-by: self (built)
 issue: 33
@@ -65,12 +65,14 @@ The id rewrite runs after the model has answered, so it cannot change what the m
 EVAL-006 moved on 11 items, 4 up and 7 down, all with every expected article retrieved. Neither
 the answer call nor the judge call sets a temperature or a seed (`src/llm.py`), so both sample:
 
-- 67 of the 184 answers have the same output token count in both runs; the other 117 were written
-  differently. Of the 11, q146 went from 6 sentences to 2 and q238 from 4 to 1.
-- q174 and q178 have the same sentence count, near-identical output tokens (305 and 305, 176 and
-  174) and the same citations in both runs, and still went from correct to wrong: the judge
-  changed its verdict on what is most likely the same answer. Answer text is not stored, so this
-  is not certain.
+- 79 of the 184 answers have the same text in both runs (`data/eval-answers/`, compared by
+  equality, not read); the other 105 were written differently. Output token counts include
+  thinking tokens, so they do not tell the two apart. Of the 11, q146 went from 6 sentences to 2
+  and q238 from 4 to 1.
+- q174 has the same text in both runs and still went from correct to wrong: the judge marked one
+  of its four key facts as missing the second time. It is the only one of the 11 with the same
+  text, so the other 10 changed answer as well as verdict. q178 has the same sentence count,
+  near-identical output tokens (176 and 174) and the same citations, but its text differs.
 
 A rerun of an unchanged configuration therefore moves EVAL-006 by a few hundredths. A change to
 the prompt (#34) or the context (#36) has to clear that before its interval can lie above 0.
