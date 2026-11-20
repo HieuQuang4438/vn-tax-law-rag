@@ -9,7 +9,8 @@ owner: HieuQuang4438
 What `python -m src.eval.run` does and the results file it writes. It runs the eval set
 ([eval-set.md](eval-set.md)) through the pipeline and scores the metrics defined in
 [acceptance.md](../product/acceptance.md#measurement-definitions). The rules are FR-CORE-015,
-AC-011 and AC-016. The approach is the approved comment on #9.
+AC-011 and AC-016. The approach is the approved comment on #9; re-judging, comparing several
+runs and the noise script, the approved comment on #37.
 
 By default the pipeline is retrieval only ([retrieval.md](retrieval.md)), and the metrics that
 need an answer are written as not run. `--generate` adds context assembly, generation and an
@@ -33,6 +34,7 @@ python -m src.eval.run --compare eval/results/<file>    # also prints what chang
 | `--rewrite` | `concat` (`DEFAULT_REWRITER`) | the rewriter of the conversation turns, one of `none`, `concat`, `fuse`, `llm` ([conversation.md](conversation.md), approved on #19); `llm` spends API quota, with or without `--generate` |
 | `--compare` | none | an earlier results file to compare with |
 | `--comparisons` | 1 | how many variants are compared with the same baseline; above 1, `--compare` also prints the Bonferroni interval (#25) |
+| `--rejudge` | none | an earlier `--generate` results file: judge its stored answers again instead of running the pipeline (*Re-judging a run*, #37); spends API quota |
 | `--rrf-k` | `RRF_K` (60) | the fusion's `rrf_k` ([retrieval.md](retrieval.md#hybrid-search)) |
 | `--keyword-weight` | 1 | the fusion's `keyword_weight` |
 | `--vector-weight` | 1 | the fusion's `vector_weight` |
@@ -218,6 +220,51 @@ prints `different eval sets: scores are not comparable` and exits with 2. Otherw
   likely, and this interval corrects for that;
 - every item whose recall dropped: its id, old and new recall.
 
+## Comparing several runs
+
+Approved on #37, step 3B. Each answer is one draw from the model, so a generation run repeated
+k times and averaged per item gives a narrower interval than one run.
+
+```bash
+python -m src.eval.compare --old a1.json,a2.json --new b1.json,b2.json [--comparisons n]
+```
+
+`--old` and `--new` each take one or more results files, comma-separated: the runs of one
+configuration. The command reads them and prints the comparison; it writes nothing. It exits
+with 2, printing the reason, when two of the files have different eval sets
+(`different eval sets: scores are not comparable`), or when the files of one side have different
+`configuration.pipeline` (`the runs of one side differ in configuration`).
+
+**Per item, per side**, over the side's runs:
+
+| ID | Over | Item value |
+|---|---|---|
+| EVAL-001, EVAL-007 | standalone questions with a `recall` | the mean of `recall`, of `context_precision` |
+| EVAL-005 | follow-up turns with a `recall` | the mean of `recall` |
+| EVAL-006 | answerable standalone questions with a `correct` | the mean of `correct`, 1 or 0 |
+| EVAL-004 | unanswerable standalone questions generated | the mean of `not_found`, 1 or 0 |
+| EVAL-002 | answerable standalone questions | the sums of `cited_supported` and of `cited_sentences` over the runs where it was judged |
+| EVAL-003 | answerable standalone questions | the mean of `supported / sentences` over the runs where it was judged with at least one sentence; none when there is no such run |
+
+An item is paired when it has a value on both sides, `EVAL-003` aside: there every item of the
+population is kept and a side's value is the mean over its items that have one. The items are
+taken in the order of the first file of `--new`, so with one file per side EVAL-001, EVAL-005
+and EVAL-007 get the same `paired` interval as `--compare`.
+
+**Printed**: a first line naming the commits of each side, then one line per EVAL id with a value
+on both sides: old, new and the change, to 3 decimals, then `paired [low, high]`, the paired
+95% bootstrap interval of the change, and with `--comparisons n` above 1 `bonferroni [low,
+high]`, as under *Comparing two runs*. A side's value is the mean of its paired items' values;
+for EVAL-002 the ratio of the sums. The intervals resample the paired items as under *Interval*,
+with the same seed, and take in each resample:
+
+- EVAL-001, EVAL-004, EVAL-005, EVAL-006, EVAL-007: the mean of the per-item differences
+  (`paired_bootstrap_interval`);
+- EVAL-002: the new side's ratio of the sums minus the old side's
+  (`paired_ratio_bootstrap_interval`);
+- EVAL-003: the new side's mean over its items with a value minus the old side's
+  (`paired_nanmean_bootstrap_interval`).
+
 ## Generation stage
 
 `--generate` adds context assembly, generation and the judge ([answer.md](answer.md)), approved
@@ -365,6 +412,61 @@ python -m src.eval.handcheck score eval/<file>-handcheck.me.md      # prints the
 - `score <sheet>` reads `yes` or `no`, in any case, after each of those labels, skips blank
   ones, and prints `cited: <agreeing> of <graded>`, then `supported:`, `correct:` and
   `says_amended:`.
+
+## Re-judging a run
+
+Approved on #37, step 1A. `--rejudge <results file>` judges the stored answers of an earlier
+`--generate` run again, so a change of verdict is the judge's alone.
+
+```bash
+python -m src.eval.run --rejudge eval/results/2026-11-19-69f6ab4.json
+```
+
+- It reads the results file and its answers file, `<data>/eval-answers/<results file stem>.jsonl`,
+  and loads the eval set as `--set` names it. It runs no retrieval and no generation. It exits
+  with 2, printing the reason, with `--generate`, when the answers file is missing, or when the
+  set's `sha256` is not the results file's.
+- **Judged again**: each answers record whose `verdict` is not null, with the question and key
+  facts of its item in the set, its `sentences`, its `flagged` ids, its passages joined as the
+  context text (`"\n\n".join` of their `text`, as `Context.text`) and its `amended` ids. One
+  judge call each, as under *Generation stage*. Every other record and item is copied unchanged.
+- **The item** of each judged record gets the new `cited_supported`, `supported`, `correct`,
+  `judge_latency_s`, `judge_tokens` and `judge_cost_usd`. Its `ac015`, when it has `asked` ids,
+  gets `says_amended` true when `amended` is empty and the new verdict's otherwise, and `passes`
+  again from it.
+- **The new results file**: `scores` are the earlier file's, with EVAL-002, EVAL-003 and EVAL-006
+  scored again from the items; `generation` and `ac015` computed again; `breakdown`, `latency`,
+  `cost` and every other item key unchanged. `configuration` is the earlier file's with `commit`,
+  `dirty`, `diff_sha256`, `versions` and `machine` of this run, and in `pipeline` the
+  `judge_model` and the judge prompt's hash of this run. `run` adds `rejudge_of`, the earlier
+  file's stem. The file is named and written as any results file, and the answers file beside
+  it holds the copied records with the new `verdict`.
+- The summary is printed; `--compare` works as for any run.
+
+## Run-to-run noise
+
+Approved on #37, step 0A. `scripts/noise.py` measures how much a rerun of one configuration moves
+EVAL-006. It reads results files and their answers files, structured fields only, and prints
+counts and numbers, never text.
+
+```bash
+python scripts/noise.py --runs a.json,b.json,c.json [--pairs old.json:new.json,...] [--answers data/eval-answers]
+```
+
+- **Same text**: two answers whose lists of sentence texts are equal character for character.
+  **Same normalised text**: equal after dropping every punctuation character (Unicode category
+  `P`) and collapsing whitespace to one space, trimmed.
+- **For each two of `--runs`**: over the answerable standalone questions with a `correct` in
+  both, how many have the same text and the same normalised text, how many changed verdict, and
+  of those how many have the same text and the same normalised text; and the half-width of the
+  paired EVAL-006 interval between the two (`paired_bootstrap_interval`).
+- **Projection**, from three or more runs: σ̄², the mean over the items with a `correct` in every
+  run of the sample variance (n − 1) of the item's `correct` across the runs; and for k = 1 to 5
+  the projected half-width of a paired EVAL-006 change at k runs per arm,
+  1.96 · √(2 σ̄² / (k n)), n those items.
+- **For each `--pairs` entry**: binary EVAL-006 and the **share of key facts stated** side by side,
+  each with its paired interval. The share of an answerable standalone question is the mean of its
+  verdict's `facts`, 0 for a not-found answer, and none without a verdict otherwise.
 
 **Generation runs.** Every clean `--generate` run is recorded in
 [docs/experiments/](../experiments/README.md): its file, EVAL-002, EVAL-003, EVAL-006, the not-found counts, AC-015, and the hand-check agreement.

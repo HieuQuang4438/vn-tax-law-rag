@@ -12,7 +12,8 @@ answers in the eval run. The rules are FR-CORE-010, FR-CORE-011 and FR-CORE-012,
 AC-009 and AC-015, and EVAL-002, EVAL-003, EVAL-004 and EVAL-006
 ([acceptance.md](../product/acceptance.md)). The model is ADR-0003's. The approach is the
 approved comment on #15; when an answer is not found, the approved comment on #16; the fields
-the web page reads, the approved comments on #30; point-level ids, the approved comment on #33.
+the web page reads, the approved comments on #30; point-level ids, the approved comment on #33;
+the seed, the approved comment on #37.
 
 ## The model call — `src.llm`
 
@@ -29,7 +30,7 @@ call.parsed                                       # an AnswerOutput
 
 | Name | What it is |
 |---|---|
-| `LLM(model=LLM_MODEL, api_keys=None, clients=None, sleep=time.sleep, clock=time.monotonic)` | `api_keys` none means `GOOGLE_API_KEYS`, every key, each with its own client (*Keys*). `clients`, for tests, replaces the google-genai clients, one per key. A model with no entry in `PRICES` raises `ValueError` naming it. |
+| `LLM(model=LLM_MODEL, api_keys=None, clients=None, sleep=time.sleep, clock=time.monotonic, seed=None)` | `seed`, *Seed*. `api_keys` none means `GOOGLE_API_KEYS`, every key, each with its own client (*Keys*). `clients`, for tests, replaces the google-genai clients, one per key. A model with no entry in `PRICES` raises `ValueError` naming it. |
 | `LLM.keys` | How many keys it holds. |
 | `LLM.generate(prompt, system, user, schema, validate=None)` | One call. `prompt` is the prompt's name, for the log; `system` its text; `user` the request; `schema` a pydantic model the reply must fit. `validate`, if given, is called with the parsed reply and raises `ValueError` when the reply does not fit the request. Returns a `Call`. |
 | `Call` | `parsed`, the reply as a `schema` instance; `model`; `prompt`; `input_tokens`; `output_tokens`, answer and thinking tokens together; `latency_s`, of the attempt that succeeded; `cost_usd`; `attempts`. |
@@ -38,7 +39,13 @@ call.parsed                                       # an AnswerOutput
 
 **The request** sends the system instruction, the user text, `response_mime_type`
 `application/json` and `response_schema` `schema`, with a 60 s timeout (`TIMEOUT_S`) and the
-SDK's own retries off. Nothing else is set. `temperature`, `top_p` and `top_k` are deprecated
+SDK's own retries off, and `seed` when the wrapper has one. Nothing else is set.
+
+**Seed** (approved on #37, step 2A). `LLM(seed=None)` takes an optional integer, kept as
+`LLM.seed`; when it is not none, every attempt of every call sends it as `seed`. None, the
+default, sends no seed, as before #37. google-genai documents the seed as a best effort at
+repeating a reply, not a guarantee, and a seed does not narrow an eval interval: each answer is
+still one draw. It is turned on by default only if #37's probe shows the seeded replies repeat. `temperature`, `top_p` and `top_k` are deprecated
 and ignored by `gemini-3.5-flash-lite` and later models (Google's *What's new in Gemini 3.6*,
 read 2026-11-16); CONVENTIONS §5's `temperature=0` therefore cannot apply. The thinking level
 is the model's default, `minimal` for Flash-Lite. This is choice 8A of #15, as the pilot ran.

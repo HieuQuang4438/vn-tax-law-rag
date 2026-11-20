@@ -4,6 +4,7 @@ The rules are `docs/reference/answer.md`, *The model call*. A fake client stands
 google-genai, and a fake clock for time, so nothing goes to the network and nothing sleeps.
 """
 
+import inspect
 import json
 import logging
 import socket
@@ -108,6 +109,24 @@ def test_the_request_sets_no_sampling_or_thinking_parameter():
     assert client.requests
     config = client.requests[0]["config"]
     assert (config.temperature, config.top_p, config.top_k, config.thinking_config) == (None, None, None, None)
+
+
+def test_the_request_sends_no_seed_by_default():
+    """answer.md, *Seed* (approved on #37, step 2A): none unless the wrapper is given one."""
+    llm, client, _ = wrapper(response(GOOD))
+    assert getattr(llm, "seed", "no seed attribute") is None
+    llm.generate("answer", "system", "user", Reply)
+    assert client.requests[0]["config"].seed is None
+
+
+def test_a_seed_is_sent_on_every_attempt():
+    assert "seed" in inspect.signature(LLM).parameters
+    clock = FakeClock()
+    client = FakeClient([response("not json at all"), response(GOOD)], clock)
+    llm = LLM(api_keys=["dummy"], clients=[client], sleep=clock.sleep, clock=clock.clock, seed=7)
+    assert llm.seed == 7
+    llm.generate("answer", "system", "user", Reply)
+    assert [request["config"].seed for request in client.requests] == [7, 7]
 
 
 def test_the_constants_are_the_specified_ones():

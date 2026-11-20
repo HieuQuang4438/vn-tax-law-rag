@@ -1267,3 +1267,170 @@ def test_the_command_stops_on_progress_from_another_run(command, capsys):
     assert code == 2
     assert not out.exists() or not list(out.glob("*.json"))
     assert "progress.jsonl" in capsys.readouterr().out
+
+
+# --- Re-judging a run (approved on #37, step 1A) ------------------------------------------------
+
+REJUDGE_KEYS = ("cited_supported", "supported", "correct", "judge_latency_s", "judge_tokens", "judge_cost_usd", "ac015")
+
+
+def rejudge_function():
+    from src.eval import run as runner
+
+    function = getattr(runner, "rejudge", None)
+    assert function is not None, "src.eval.run has no rejudge"
+    return function
+
+
+class RecordingJudge(FakeJudge):
+    """Finds every answer wrong, says no provision was amended, and records what it was shown."""
+
+    def __init__(self):
+        super().__init__()
+        self.shown: list[tuple] = []
+
+    def judge(self, question, key_facts, answer, amended=()):
+        self.calls.append((question, tuple(key_facts), tuple(amended)))
+        self.shown.append(([(s.text, tuple(s.citations)) for s in answer.sentences], answer.context.text,
+                           tuple(answer.flagged)))
+        return Verdict(tuple(False if s.citations else None for s in answer.sentences),
+                       tuple(False for _ in answer.sentences), tuple(False for _ in key_facts), True,
+                       False if amended else None, False, judge_call())
+
+
+def judged_run() -> tuple[dict, list[dict]]:
+    answers = []
+    results = full_results(evaluate(small_set(), GeneratingPipeline(), PARENTS, judge=FakeJudge(), chunks=CHUNKS,
+                                    answers=answers))
+    results["configuration"]["pipeline"] = {**GeneratingPipeline.config, "prompts": {"answer": "a", "judge": "j"},
+                                            "judge_model": "gemini-3.5-flash-lite"}
+    return json.loads(json.dumps(results)), json.loads(json.dumps(answers))
+
+
+def test_rejudge_shows_the_judge_what_the_first_judge_saw(connections):
+    old, records = judged_run()
+    judge = RecordingJudge()
+    rejudge_function()(old, records, small_set(), judge)
+    assert judge.calls == [(QUESTIONS[0].question, ("một sự kiện",), ("1.25",)),
+                           (QUESTIONS[2].question, ("một sự kiện",), ())]
+    sentences, context_text, flagged = judge.shown[0]
+    assert sentences == [("Câu một.", ("1.25", "2")), ("Câu hai.", ("7",))]
+    assert context_text == "[1] A\n\n[2] sửa đổi A\n\n[3] B"
+    assert flagged == ("7",)
+
+
+def test_rejudge_replaces_only_the_judge_keys_of_the_judged_items(connections):
+    old, records = judged_run()
+    new, _ = rejudge_function()(old, records, small_set(), RecordingJudge())
+    before = {i["id"]: i for i in old["items"]}
+    for entry in at(new, "items"):
+        unchanged = {k: v for k, v in entry.items() if k not in REJUDGE_KEYS}
+        assert unchanged == {k: v for k, v in before[entry["id"]].items() if k not in REJUDGE_KEYS}
+    q01 = item_of(new, "q01")
+    assert (at(q01, "cited_supported"), at(q01, "supported"), at(q01, "correct")) == (0, 0, False)
+    assert item_of(new, "q02") == before["q02"]  # not found: not judged
+    assert item_of(new, "q04") == before["q04"]  # unanswerable
+
+
+def test_rejudge_scores_the_judged_metrics_again_and_keeps_the_rest(connections):
+    old, records = judged_run()
+    new, _ = rejudge_function()(old, records, small_set(), RecordingJudge())
+    assert at(new, "scores", "EVAL-006", "value") == 0.0
+    assert at(new, "scores", "EVAL-003", "value") == 0.0
+    for eval_id in ("EVAL-001", "EVAL-004", "EVAL-005", "EVAL-007", "EVAL-008"):
+        assert at(new, "scores", eval_id) == old["scores"][eval_id]
+    for key in ("breakdown", "latency", "cost"):
+        assert at(new, key) == old[key]
+    assert at(new, "generation", "judge", "calls") == 2
+
+
+def test_rejudge_takes_ac015_from_the_new_verdict(connections):
+    old, records = judged_run()
+    assert "q01" in old["ac015"]["passes"]
+    new, _ = rejudge_function()(old, records, small_set(), RecordingJudge())
+    assert at(item_of(new, "q01"), "ac015", "says_amended") is False
+    assert at(item_of(new, "q01"), "ac015", "passes") is False
+    assert "q01" in at(new, "ac015", "fails")
+
+
+def test_rejudge_records_carry_the_new_verdict_and_the_rest_unchanged(connections):
+    old, records = judged_run()
+    _, new_records = rejudge_function()(old, records, small_set(), RecordingJudge())
+    assert [r["id"] for r in new_records] == [r["id"] for r in records]
+    for before, after in zip(records, new_records):
+        assert {k: v for k, v in after.items() if k != "verdict"} == {k: v for k, v in before.items() if k != "verdict"}
+        if before["verdict"] is None:
+            assert after["verdict"] is None
+    q01 = next(r for r in new_records if r["id"] == "q01")
+    assert q01["verdict"]["correct"] is False and q01["verdict"]["facts"] == [False]
+
+
+def run_main(argv, **kwargs) -> int:
+    """main's exit code, an argparse exit included, so an unknown option fails on an assertion."""
+    try:
+        return main(argv, **kwargs)
+    except SystemExit as error:
+        return error.code
+
+
+def generated_file(command) -> Path:
+    argv, out, _ = command
+    assert main(argv + ["--generate"], pipeline=GeneratingPipeline(answers={}, default=DEFAULT_ANSWER),
+                judge=FakeJudge()) == 0
+    files = sorted(out.glob("*.json"))
+    assert len(files) == 1
+    return files[0]
+
+
+def test_the_command_rejudges_a_run_without_retrieval_or_generation(command, monkeypatch, capsys):
+    argv, out, _ = command
+    data = Path(argv[argv.index("--data") + 1])
+    first = generated_file(command)
+
+    def no_retriever(*args, **kwargs):
+        raise AssertionError("a re-judge loads no retriever")
+
+    monkeypatch.setattr(Retriever, "load", no_retriever)
+    judge = RecordingJudge()
+    capsys.readouterr()
+    assert run_main(argv + ["--rejudge", str(first)], judge=judge) == 0
+    second = [p for p in sorted(out.glob("*.json")) if p != first]
+    assert len(second) == 1
+    written = json.loads(second[0].read_text(encoding="utf-8"))
+    assert at(written, "run", "rejudge_of") == first.stem
+    assert len(judge.calls) == 24
+    assert at(written, "scores", "EVAL-006", "value") == 0.0
+    answers_file = data / "eval-answers" / (second[0].stem + ".jsonl")
+    assert answers_file.exists()
+    assert len(answers_file.read_text(encoding="utf-8").splitlines()) == 30
+    assert second[0].name in capsys.readouterr().out
+
+
+def test_the_command_refuses_rejudge_with_generate(command, capsys):
+    argv, out, _ = command
+    first = generated_file(command)
+    capsys.readouterr()
+    assert run_main(argv + ["--rejudge", str(first), "--generate"], judge=RecordingJudge()) == 2
+    assert "--rejudge does not run with --generate" in capsys.readouterr().out
+    assert len(list(out.glob("*.json"))) == 1
+
+
+def test_the_command_refuses_rejudge_without_the_answers_file(command, capsys):
+    argv, out, _ = command
+    data = Path(argv[argv.index("--data") + 1])
+    first = generated_file(command)
+    (data / "eval-answers" / (first.stem + ".jsonl")).unlink()
+    capsys.readouterr()
+    assert run_main(argv + ["--rejudge", str(first)], judge=RecordingJudge()) == 2
+    assert first.stem + ".jsonl" in capsys.readouterr().out
+    assert len(list(out.glob("*.json"))) == 1
+
+
+def test_the_command_refuses_rejudge_on_another_eval_set(command, capsys):
+    argv, out, set_path = command
+    first = generated_file(command)
+    set_path.write_text(set_path.read_text(encoding="utf-8") + "# changed\n", encoding="utf-8")
+    capsys.readouterr()
+    assert run_main(argv + ["--rejudge", str(first)], judge=RecordingJudge()) == 2
+    assert "different eval sets" in capsys.readouterr().out
+    assert len(list(out.glob("*.json"))) == 1
