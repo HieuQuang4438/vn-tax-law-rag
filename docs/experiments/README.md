@@ -15,6 +15,7 @@ here is added by the main thread**, because the register is shared state — `CO
 
 | Date | Question | Issue | Status | Conclusion | Superseded by |
 |---|---|---|---|---|---|
+| 2026-11-20 | [Run-to-run noise in EVAL-006](2026-11-20-eval006-noise.md) | #37 | approved | k = 2 runs per arm: projected half-width ±0.028 against ±0.040 for one; the judge alone changes 4 of 184 verdicts | |
 | 2026-11-19 | [Prompt for every part of the question](2026-11-19-every-part-prompt.md) | #34 | approved | inconclusive, prompt reverted: EVAL-006 +0.027 [−0.016, +0.071] | |
 | 2026-11-19 | [Point-level citation ids](2026-11-19-point-level-ids.md) | #33 | approved | kept: EVAL-002 0.774 to 0.950, +0.176 [+0.103, +0.263]; flagged ids 85 to 2 | |
 | 2026-11-18 | [Follow-up rewriters](2026-11-18-follow-up-rewriters.md) | #19 | approved | `concat` chosen; no rewriter separates from `none`, so the four are re-measured on eval set v3 | |
@@ -40,21 +41,25 @@ its re-run.
 The newest score of each metric, against its target in
 [acceptance.md](../product/acceptance.md). Each score holds for the run its file records, not for
 HEAD; a later run that changes one replaces its row, in the same change that adds its register
-row. A run whose change is reverted does not replace a row.
+row. A run whose change is reverted does not replace a row. When several runs measure one
+configuration, the row holds their mean, each item averaged over the runs first, with the interval
+of those per-item means (#37).
 
 | Metric | Score | n | 95% interval | Target | Met | Measured in |
 |---|---|---|---|---|---|---|
 | EVAL-001 recall@8 | 0.769 | 184 | 0.715–0.813 | ≥ 0.80 | ⬜ no | [2026-11-15-retrieval-baseline-eval-set-v2.md](2026-11-15-retrieval-baseline-eval-set-v2.md) |
-| EVAL-002 citation correctness | 0.950 | 379 | 0.926–0.971 | ≥ 0.90 | ✅ yes | [2026-11-19-point-level-ids.md](2026-11-19-point-level-ids.md) |
-| EVAL-003 faithfulness | 0.971 | 155 | 0.954–0.987 | ≥ 0.90 | ✅ yes | [2026-11-19-point-level-ids.md](2026-11-19-point-level-ids.md) |
-| EVAL-004 not found on unanswerable | 0.982 | 56 | 0.946–1.000 | ≥ 0.80 | ✅ yes | [2026-11-19-point-level-ids.md](2026-11-19-point-level-ids.md) |
+| EVAL-002 citation correctness, 3 runs | 0.954 | 1,162 | 0.934–0.972 | ≥ 0.90 | ✅ yes | [2026-11-20-eval006-noise.md](2026-11-20-eval006-noise.md) |
+| EVAL-003 faithfulness, 3 runs | 0.969 | 157 | 0.953–0.983 | ≥ 0.90 | ✅ yes | [2026-11-20-eval006-noise.md](2026-11-20-eval006-noise.md) |
+| EVAL-004 not found on unanswerable, 3 runs | 0.982 | 56 | 0.946–1.000 | ≥ 0.80 | ✅ yes | [2026-11-20-eval006-noise.md](2026-11-20-eval006-noise.md) |
 | EVAL-005 recall@8, follow-up turns, `concat` | 0.526 | 29 | 0.360–0.670 | ≥ 0.70 | ⬜ no | [2026-11-18-follow-up-rewriters.md](2026-11-18-follow-up-rewriters.md) |
-| EVAL-006 answer correctness | 0.386 | 184 | 0.315–0.457 | ≥ 0.80 | ⬜ no | [2026-11-19-point-level-ids.md](2026-11-19-point-level-ids.md) |
+| EVAL-006 answer correctness, 3 runs | 0.364 | 184 | 0.299–0.431 | ≥ 0.80 | ⬜ no | [2026-11-20-eval006-noise.md](2026-11-20-eval006-noise.md) |
 | EVAL-007 context precision@8 | 0.678 | 184 | 0.626–0.728 | ≥ 0.60 | ✅ yes | [2026-11-15-retrieval-baseline-eval-set-v2.md](2026-11-15-retrieval-baseline-eval-set-v2.md) |
 | EVAL-008 answer relevancy | not run | | | none | | |
 | AC-012 median retrieval time, `concat` | 0.21 s | | | < 2 s | ✅ yes | [2026-11-18-follow-up-rewriters.md](2026-11-18-follow-up-rewriters.md) |
-| AC-015 amended provisions | 21 pass, 6 fail | 42 | | every one passes | ⬜ no | [2026-11-19-point-level-ids.md](2026-11-19-point-level-ids.md) |
+| AC-015 amended provisions, 3 runs | 21, 21, 22 pass; 6, 7, 5 fail | 42, 43, 42 | | every one passes | ⬜ no | [2026-11-20-eval006-noise.md](2026-11-20-eval006-noise.md) |
 
 EVAL-001, EVAL-007 and AC-012 are retrieval as at `b0cced1`; the generation runs and the rewriter
-runs kept that retrieval. AC-015's 42 also count 15 retrieval misses and 6 uncited, which it
-reports and does not judge.
+runs kept that retrieval. The three runs of the generation rows are `69f6ab4`, unseeded, and
+`e8c4f1b` with seeds 1 and 2; EVAL-002's n is the cited sentences of all three. AC-015 is given
+per run, since its counts do not average: each run's total is its passes, fails and 15 retrieval
+misses; 5 or 6 more questions were uncited. AC-015 reports both and judges neither.

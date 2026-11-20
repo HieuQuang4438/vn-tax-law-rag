@@ -470,6 +470,12 @@ python scripts/noise.py --runs a.json,b.json,c.json [--pairs old.json:new.json,.
   each with its paired interval. The share of an answerable standalone question is the mean of its
   verdict's `facts`, 0 for a not-found answer, and none without a verdict otherwise.
 
+**Runs per arm: k = 2**, set by
+[2026-11-20-eval006-noise.md](../experiments/2026-11-20-eval006-noise.md) (#37): the smallest k
+whose projected half-width of a paired EVAL-006 change is within ±0.03 (±0.028; one run gives
+±0.040). A generation experiment runs each arm twice, `--seed 1` and `--seed 2`, and compares
+them with `python -m src.eval.compare`. A retrieval-only run does not sample and needs one.
+
 **Generation runs.** Every clean `--generate` run is recorded in
 [docs/experiments/](../experiments/README.md): its file, EVAL-002, EVAL-003, EVAL-006, the not-found counts, AC-015, and the hand-check agreement.
 
