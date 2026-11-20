@@ -40,8 +40,8 @@ from src.eval.run import (
 from src.retrieval import TOP_K, Fusion, Hit, Retrieval, Retriever, Unresolved
 
 ROOT = Path(__file__).resolve().parent.parent
-EVAL_IDS = [f"EVAL-00{n}" for n in range(1, 9)]
-GENERATION = ["EVAL-002", "EVAL-003", "EVAL-004", "EVAL-006", "EVAL-008"]
+EVAL_IDS = [f"EVAL-00{n}" for n in range(1, 10)]
+GENERATION = ["EVAL-002", "EVAL-003", "EVAL-004", "EVAL-006", "EVAL-008", "EVAL-009"]
 TOP_KEYS = ["format", "run", "configuration", "scores", "breakdown", "latency", "cost", "generation",
             "ac015", "items"]
 
@@ -684,7 +684,8 @@ from types import SimpleNamespace  # noqa: E402
 GEN_TOP_KEYS = ["format", "run", "configuration", "scores", "breakdown", "latency", "cost", "generation", "ac015",
                 "items"]
 GEN_ITEM_KEYS = ["generated", "context_tokens", "dropped", "not_found", "sentences", "cited_sentences", "citations",
-                 "flagged", "notices", "cited_supported", "supported", "correct", "ac015", "judge_latency_s", "judge_tokens",
+                 "flagged", "notices", "cited_supported", "supported", "correct", "facts_stated", "key_facts",
+                 "contradicts", "ac015", "judge_latency_s", "judge_tokens",
                  "judge_cost_usd"]
 CHUNKS = {  # the enriched chunks AC-015 reads: id -> record
     "379409:D5:K1": {"id": "379409:D5:K1", "parent_id": A, "clause": "1", "amended_by": []},
@@ -1490,4 +1491,99 @@ def test_the_command_refuses_a_seed_with_rejudge(command, capsys):
     capsys.readouterr()
     assert run_main(argv + ["--rejudge", str(first), "--seed", "1"], judge=RecordingJudge()) == 2
     assert "--seed does not run with --rejudge" in capsys.readouterr().out
+    assert len(list(out.glob("*.json"))) == 1
+
+
+# --- Key-fact coverage, EVAL-009 (approved on #39) ----------------------------------------------
+
+class Contradicts(FakeJudge):
+    """States every key fact and contradicts one of them."""
+
+    def judge(self, question, key_facts, answer, amended=()):
+        verdict = super().judge(question, key_facts, answer, amended)
+        return dataclasses.replace(verdict, facts=tuple(True for _ in key_facts), contradicts=True, correct=False)
+
+
+def test_eval009_is_the_mean_coverage_over_answerable_questions(generation):
+    results, *_ = generation
+    entry = score(results, "EVAL-009")
+    # q01 states its one key fact, q02 is not found, q03 states none
+    assert at(entry, "value") == pytest.approx(1 / 3)
+    assert (at(entry, "n"), at(entry, "target"), at(entry, "passes")) == (3, None, None)
+    assert at(entry, "interval") == pytest.approx(list(bootstrap_interval([1.0, 0.0, 0.0])))
+    assert at(entry, "judge") == "gemini-3.5-flash-lite"
+
+
+def test_items_record_the_key_facts_stated(generation):
+    results, *_ = generation
+    keys = ("facts_stated", "key_facts", "contradicts")
+    assert [tuple(at(item_of(results, q), k) for k in keys) for q in ("q01", "q02", "q03", "q04")] == [
+        (1, 1, False), (0, 1, None), (0, 1, False), (None, None, None)]
+
+
+def test_an_answer_that_contradicts_a_key_fact_covers_nothing(connections):
+    results, _ = one_question([provision(B)], DEFAULT_ANSWER, judge=Contradicts())
+    q01 = item_of(results, "q01")
+    assert (at(q01, "facts_stated"), at(q01, "contradicts")) == (1, True)
+    assert at(score(results, "EVAL-009"), "value") == 0.0
+
+
+def rescore_function():
+    from src.eval import run as runner
+
+    function = getattr(runner, "rescore", None)
+    assert function is not None, "src.eval.run has no rescore"
+    return function
+
+
+def before_eval009(results: dict) -> dict:
+    """A results file as written before #39: no coverage keys and no EVAL-009."""
+    old = json.loads(json.dumps(results))
+    old["scores"].pop("EVAL-009", None)
+    for entry in old["items"]:
+        for key in ("facts_stated", "key_facts", "contradicts"):
+            entry.pop(key, None)
+    return old
+
+
+def test_rescore_gives_an_earlier_run_eval009_from_its_stored_verdicts(connections):
+    scored, records = judged_run()
+    new = rescore_function()(before_eval009(scored), records, small_set())
+    assert at(new, "scores", "EVAL-009") == at(scored, "scores", "EVAL-009")
+    assert list(at(new, "scores")) == EVAL_IDS
+    for before, after in zip(scored["items"], at(new, "items")):
+        assert list(after) == list(before)  # the keys back in their order
+        assert after == before
+
+
+def test_the_command_rescores_a_run_without_retrieval_or_judge(command, monkeypatch, capsys):
+    argv, out, _ = command
+    data = Path(argv[argv.index("--data") + 1])
+    first = generated_file(command)
+    path_of_answers = data / "eval-answers" / (first.stem + ".jsonl")
+    first.write_text(json.dumps(before_eval009(json.loads(first.read_text(encoding="utf-8")))), encoding="utf-8")
+
+    def no_retriever(*args, **kwargs):
+        raise AssertionError("a re-score loads no retriever")
+
+    monkeypatch.setattr(Retriever, "load", no_retriever)
+    judge = RecordingJudge()
+    capsys.readouterr()
+    assert run_main(argv + ["--rescore", str(first)], judge=judge) == 0
+    assert judge.calls == []
+    second = [p for p in sorted(out.glob("*.json")) if p != first]
+    assert len(second) == 1
+    written = json.loads(second[0].read_text(encoding="utf-8"))
+    assert at(written, "run", "rescore_of") == first.stem
+    assert at(written, "scores", "EVAL-009", "value") == 1.0
+    copied = data / "eval-answers" / (second[0].stem + ".jsonl")
+    assert copied.exists() and copied.read_bytes() == path_of_answers.read_bytes()
+
+
+def test_the_command_refuses_rescore_with_generate(command, capsys):
+    argv, out, _ = command
+    first = generated_file(command)
+    capsys.readouterr()
+    assert run_main(argv + ["--rescore", str(first), "--generate"], judge=RecordingJudge()) == 2
+    assert "--rescore does not run with --generate" in capsys.readouterr().out
     assert len(list(out.glob("*.json"))) == 1

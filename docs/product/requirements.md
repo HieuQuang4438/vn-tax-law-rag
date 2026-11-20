@@ -1,8 +1,7 @@
 ---
-status: approved
-updated: 2026-11-18
+status: in-review
+updated: 2026-11-20
 owner: HieuQuang4438
-approved-by: peer
 ---
 
 # Requirements — vn-tax-law-rag
@@ -88,7 +87,7 @@ Test column is filled in as tests are written; a requirement with no AC is not s
 | GOAL-001 | FR-CORE-016 | AC-014, EVAL-005 | — |
 | GOAL-001 | FR-CORE-007 | AC-007 | — |
 | GOAL-002, GOAL-003 | FR-CORE-009 | AC-008 | — |
-| GOAL-002, GOAL-003 | FR-CORE-010, FR-CORE-011 | AC-009, AC-015, EVAL-002, EVAL-003, EVAL-006, EVAL-008 | — |
+| GOAL-002, GOAL-003 | FR-CORE-010, FR-CORE-011 | AC-009, AC-015, EVAL-002, EVAL-003, EVAL-006, EVAL-008, EVAL-009 | — |
 | GOAL-003 | FR-CORE-012 | EVAL-004 | — |
 | GOAL-003 | FR-CORE-013, FR-CORE-014 | AC-010 | — |
 | GOAL-004 | FR-CORE-015 | AC-011 | — |

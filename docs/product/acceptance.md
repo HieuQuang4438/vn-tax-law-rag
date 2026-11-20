@@ -1,8 +1,7 @@
 ---
-status: approved
-updated: 2026-11-19
+status: in-review
+updated: 2026-11-20
 owner: HieuQuang4438
-approved-by: peer
 ---
 
 # Acceptance — vn-tax-law-rag
@@ -47,6 +46,7 @@ that baseline, by a recorded decision — never quietly to fit a result.
 | EVAL-006 | Answer correctness on answerable questions | ≥ 0.80 | FR-CORE-010 |
 | EVAL-007 | Context precision@k on answerable questions | ≥ 0.60 at k = 8 | FR-CORE-006, FR-CORE-008 |
 | EVAL-008 | Answer relevancy on answers to answerable questions | reported, no target | FR-CORE-010 |
+| EVAL-009 | Key-fact coverage on answerable questions | reported, no target | FR-CORE-010 |
 
 The newest score of each against its target: [experiments/README.md, *Standing
 scores*](../experiments/README.md#standing-scores).
@@ -92,6 +92,13 @@ rewritten question.
 fact of the expected answer and contradict none. Judged by an LLM against the key facts, with a
 hand-checked sample of at least 20 judgments per run to confirm the judge. Faithfulness alone
 cannot catch an answer that follows the wrong passage faithfully; this does.
+
+**Key-fact coverage** — over answers to answerable questions, the mean of each answer's share of
+the expected answer's key facts that it states, from the same judgments as answer correctness.
+A not-found answer scores 0, and so does one that contradicts a key fact. Reported, with no
+target: the product's bar is answer correctness. An answer that states three of four key facts
+counts here and not there, so this is the measure a generation experiment decides on, with
+answer correctness guarded (#39). The hand-checked judgments are graded per key fact as well.
 
 **Context precision@k** — over answerable questions, the sum of precision@i over the ranks
 *i* ≤ k whose retrieved chunk belongs to an expected article (a clause chunk counts for its

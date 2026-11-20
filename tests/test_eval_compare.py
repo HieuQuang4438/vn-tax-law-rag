@@ -32,9 +32,12 @@ PIPELINE = {"stages": ["retrieval", "assembly", "generation"], "rewrite": "none"
 
 
 def question(item_id, recall=1.0, precision=1.0, correct=None, cited=None, supported=None, sentences=None,
-             answerable=True, not_found=False, generated=True):
-    """One standalone item; `cited` is (cited_supported, cited_sentences), none when not judged."""
+             answerable=True, not_found=False, generated=True, facts=None, contradicts=None):
+    """One standalone item; `cited` is (cited_supported, cited_sentences) and `facts` (facts_stated, key_facts),
+    none when not judged."""
     return {"id": item_id, "kind": "question", "conversation": None, "turn": None, "answerable": answerable,
+            "facts_stated": facts[0] if facts else None, "key_facts": facts[1] if facts else None,
+            "contradicts": contradicts,
             "recall": recall if answerable else None, "context_precision": precision if answerable else None,
             "generated": generated, "not_found": not_found, "sentences": sentences,
             "cited_supported": cited[0] if cited else None, "cited_sentences": cited[1] if cited else None,
@@ -137,6 +140,19 @@ def test_eval006_averages_each_item_over_its_runs_before_pairing():
     # q01: 0.5 -> 1.0, q02: 0.0 -> 0.5
     low, high = paired_bootstrap_interval([0.5, 0.0], [1.0, 0.5])
     assert "0.250 -> 0.750" in line and "(+0.500)" in line
+    assert f"paired [{low:+.3f}, {high:+.3f}]" in line
+
+
+def test_eval009_averages_each_item_s_coverage_over_its_runs():
+    """Approved on #39: coverage is 0 when not found or contradicting, else facts_stated / key_facts."""
+    old = [run("aaaaaaa", [question("q01", facts=(1, 2), contradicts=False), question("q02", not_found=True, facts=(0, 1))]),
+           run("aaaaab2", [question("q01", facts=(2, 2), contradicts=False), question("q02", facts=(1, 1), contradicts=True)])]
+    new = [run("bbbbbbb", [question("q01", facts=(2, 2), contradicts=False), question("q02", facts=(1, 1), contradicts=False)]),
+           run("bbbbbb2", [question("q01", facts=(2, 2), contradicts=False), question("q02", facts=(1, 1), contradicts=False)])]
+    line = line_of(module().compare_runs(old, new), "EVAL-009")
+    # q01: (0.5 + 1) / 2 -> 1, q02: 0 -> 1
+    low, high = paired_bootstrap_interval([0.75, 0.0], [1.0, 1.0])
+    assert "0.375 -> 1.000" in line
     assert f"paired [{low:+.3f}, {high:+.3f}]" in line
 
 

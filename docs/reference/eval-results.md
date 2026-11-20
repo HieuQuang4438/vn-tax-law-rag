@@ -10,7 +10,8 @@ What `python -m src.eval.run` does and the results file it writes. It runs the e
 ([eval-set.md](eval-set.md)) through the pipeline and scores the metrics defined in
 [acceptance.md](../product/acceptance.md#measurement-definitions). The rules are FR-CORE-015,
 AC-011 and AC-016. The approach is the approved comment on #9; re-judging, comparing several
-runs and the noise script, the approved comment on #37.
+runs and the noise script, the approved comment on #37; EVAL-009 and re-scoring, the approved
+comment on #39.
 
 By default the pipeline is retrieval only ([retrieval.md](retrieval.md)), and the metrics that
 need an answer are written as not run. `--generate` adds context assembly, generation and an
@@ -35,6 +36,7 @@ python -m src.eval.run --compare eval/results/<file>    # also prints what chang
 | `--compare` | none | an earlier results file to compare with |
 | `--comparisons` | 1 | how many variants are compared with the same baseline; above 1, `--compare` also prints the Bonferroni interval (#25) |
 | `--seed` | none | the seed of every model call of the run, answers, rewrites and judge alike (`LLM(seed=…)`, [answer.md](answer.md), *Seed*), recorded as `configuration.pipeline.seed`; without it the pipeline has no `seed` key, as before #37. Runs of one configuration take seeds 1 to k, and each arm of a comparison the same ones (approved on #37, *a seed per run*). It does not run with `--rejudge` |
+| `--rescore` | none | an earlier `--generate` results file: score its stored verdicts again, with no API call (*Re-scoring a run*, #39) |
 | `--rejudge` | none | an earlier `--generate` results file: judge its stored answers again instead of running the pipeline (*Re-judging a run*, #37); spends API quota |
 | `--rrf-k` | `RRF_K` (60) | the fusion's `rrf_k` ([retrieval.md](retrieval.md#hybrid-search)) |
 | `--keyword-weight` | 1 | the fusion's `keyword_weight` |
@@ -68,7 +70,7 @@ file, when the two runs used different eval sets.
 | EVAL-001 | answerable standalone questions | recall@8 |
 | EVAL-005 | answerable follow-up turns: every turn after the first of a conversation | recall@8 |
 | EVAL-007 | answerable standalone questions | context precision@8 |
-| EVAL-002, EVAL-003, EVAL-004, EVAL-006, EVAL-008 | | not run: `no generation stage`; with `--generate`, see *Generation stage* |
+| EVAL-002, EVAL-003, EVAL-004, EVAL-006, EVAL-008, EVAL-009 | | not run: `no generation stage`; with `--generate`, see *Generation stage* |
 
 - **recall@k** of one item: the share of its expected articles that are the parent article of
   at least one of its first k hits. The expected articles are the `article` of each of its
@@ -149,7 +151,7 @@ The file holds ids and numbers only: no question text, no answer text and no cor
 | `versions` | `python` and the installed `bm25s`, `chromadb`, `numpy`, `pyvi`, `sentence-transformers`, `torch`, `underthesea`; null for one not installed |
 | `machine` | `os` (`platform.platform()`), `cpu` (`platform.processor()`), `cpu_count`, `ram_gb` (null when it cannot be read) |
 
-**`scores`**, one entry per EVAL id, EVAL-001 to EVAL-008:
+**`scores`**, one entry per EVAL id, EVAL-001 to EVAL-009:
 
 | Key | Value |
 |---|---|
@@ -244,6 +246,7 @@ runs of one side differ by their seeds and nothing else.
 | EVAL-001, EVAL-007 | standalone questions with a `recall` | the mean of `recall`, of `context_precision` |
 | EVAL-005 | follow-up turns with a `recall` | the mean of `recall` |
 | EVAL-006 | answerable standalone questions with a `correct` | the mean of `correct`, 1 or 0 |
+| EVAL-009 | answerable standalone questions with a `key_facts` | the mean of the item's coverage, as under *Generation stage* |
 | EVAL-004 | unanswerable standalone questions generated | the mean of `not_found`, 1 or 0 |
 | EVAL-002 | answerable standalone questions | the sums of `cited_supported` and of `cited_sentences` over the runs where it was judged |
 | EVAL-003 | answerable standalone questions | the mean of `supported / sentences` over the runs where it was judged with at least one sentence; none when there is no such run |
@@ -295,6 +298,7 @@ per day (ADR-0003).
 | EVAL-006 | the answers to answerable standalone questions | 1 when `correct`, 0 otherwise, a not-found answer included as 0; the mean |
 | EVAL-004 | the unanswerable standalone questions generated | 1 when `not_found`, 0 otherwise; the mean (approved on #16) |
 | EVAL-008 | | not run: `not scored` |
+| EVAL-009 | the answers to answerable standalone questions with key facts | per answer, its **coverage**: 0 when `not_found` or `contradicts`, else `facts_stated / key_facts`; the mean (approved on #39); no target |
 
 EVAL-002's interval resamples items, as under *Interval*, and takes the ratio of the sums in each
 resample (`ratio_bootstrap_interval`), since sentences of one answer are not independent. The
@@ -366,6 +370,7 @@ the generated items only; the scope reads `full pipeline, dev laptop`. An item's
 | `notices` | `Answer.notices`: the amendment notices among `sentences` |
 | `cited_supported`, `supported` | sentences whose `cited`, and whose `supported`, verdict is true; null when not judged |
 | `correct` | the verdict's; false for a not-found answer to an answerable question; null for an unanswerable one |
+| `facts_stated`, `key_facts`, `contradicts` | the key facts the verdict marks as stated, the item's key facts, and the verdict's `contradicts`; for a not-found answer to an answerable question 0, the item's key facts and null; null for one not judged and for an unanswerable one (#39) |
 | `ac015` | null when the question has no amended chunk; else `{"in_context", "asked", "noticed", "cites_amending", "says_amended", "passes"}`: `asked` the ids AC-015 asks about, null for a retrieval miss and empty for an uncited question; `noticed` the asked ids a notice covers, in the order of `asked`; the last four null for both |
 | `judge_latency_s`, `judge_tokens`, `judge_cost_usd` | the judge call's; null when not judged |
 
@@ -403,17 +408,18 @@ python -m src.eval.handcheck score eval/<file>-handcheck.me.md      # prints the
 - The sheet has one section per sentence, `## S<n> · <id> · sentence <i>` (i counted from 1 in
   its answer): the question, the sentence with its ids, its cited passages, the whole context
   in a folded `<details>` block, and the blank lines `Cited supports:` and `Context supports:`.
-  Then one section per answer, `## A<n> · <id>`: the question, the key facts, the answer, and the
-  blank line `Correct:`. Then one section per answer graded on `says_amended` (AC-015, choice 3
+  Then one section per answer, `## A<n> · <id>`: the question, the key facts, the answer, one
+  blank line `Fact <n> stated:` per key fact, numbered from 1 (#39, choice 5A), and the blank line
+  `Correct:`. Then one section per answer graded on `says_amended` (AC-015, choice 3
   on #15), `## M<n> · <id>`: the question, the line `**Amended provisions.**` with the record's
   `amended` ids as `[1.25], [3]`, the whole context in a folded `<details>` block, the answer,
   the rule `Yes when the answer says that each of these provisions was amended, replaced or
   repealed.`, and the blank line `Says amended:`. No verdict is on the sheet.
 - The key is a JSON block: `{"S1": {"id", "sentence", "cited", "supported"}, "A1": {"id",
-  "correct"}, "M1": {"id", "says_amended"}, …}`, the judge's verdicts.
+  "facts", "correct"}, "M1": {"id", "says_amended"}, …}`, the judge's verdicts.
 - `score <sheet>` reads `yes` or `no`, in any case, after each of those labels, skips blank
-  ones, and prints `cited: <agreeing> of <graded>`, then `supported:`, `correct:` and
-  `says_amended:`.
+  ones, and prints `cited: <agreeing> of <graded>`, then `supported:`, `facts:`, `correct:` and
+  `says_amended:`. A `Fact <n> stated:` line is graded against the n-th of the key's `facts`.
 
 ## Re-judging a run
 
@@ -433,11 +439,11 @@ python -m src.eval.run --rejudge eval/results/2026-11-19-69f6ab4.json
   context text (`"\n\n".join` of their `text`, as `Context.text`) and its `amended` ids. One
   judge call each, as under *Generation stage*. Every other record and item is copied unchanged.
 - **The item** of each judged record gets the new `cited_supported`, `supported`, `correct`,
-  `judge_latency_s`, `judge_tokens` and `judge_cost_usd`. Its `ac015`, when it has `asked` ids,
+  `facts_stated`, `key_facts`, `contradicts`, `judge_latency_s`, `judge_tokens` and `judge_cost_usd`. Its `ac015`, when it has `asked` ids,
   gets `says_amended` true when `amended` is empty and the new verdict's otherwise, and `passes`
   again from it.
-- **The new results file**: `scores` are the earlier file's, with EVAL-002, EVAL-003 and EVAL-006
-  scored again from the items; `generation` and `ac015` computed again; `breakdown`, `latency`,
+- **The new results file**: `scores` are the earlier file's, with EVAL-002, EVAL-003, EVAL-006 and
+  EVAL-009 scored again from the items; `generation` and `ac015` computed again; `breakdown`, `latency`,
   `cost` and every other item key unchanged. `configuration` is the earlier file's with `commit`,
   `dirty`, `diff_sha256`, `versions` and `machine` of this run, and in `pipeline` the
   `judge_model` and the judge prompt's hash of this run. `run` adds `rejudge_of`, the earlier
@@ -475,6 +481,28 @@ python scripts/noise.py --runs a.json,b.json,c.json [--pairs old.json:new.json,.
 whose projected half-width of a paired EVAL-006 change is within ±0.03 (±0.028; one run gives
 ±0.040). A generation experiment runs each arm twice, `--seed 1` and `--seed 2`, and compares
 them with `python -m src.eval.compare`. A retrieval-only run does not sample and needs one.
+It decides on EVAL-009, with EVAL-006 guarded: EVAL-006 must not change with an interval
+entirely below 0 (approved on #39, choice 4A).
+
+## Re-scoring a run
+
+Approved on #39, choice 6A. `--rescore <results file>` scores the stored verdicts of an earlier
+`--generate` run again, with no API call, so a run from before a score existed gets it.
+
+```bash
+python -m src.eval.run --rescore eval/results/2026-11-19-69f6ab4.json
+```
+
+- It reads the results file, its answers file and the eval set as `--rejudge` does, and exits
+  with 2 for the same reasons, and with `--generate`, `--seed` or `--rejudge`.
+- **The item** of each answerable standalone question that was generated gets `facts_stated`,
+  `key_facts` and `contradicts` as under *Generation stage*: from its record's `verdict` when it
+  has one, as for a not-found answer when it is not found. Its keys are then in the order of
+  *Generation stage*. Every other item key is unchanged.
+- **The new results file**: `scores` are the earlier file's, with EVAL-002, EVAL-003, EVAL-006
+  and EVAL-009 scored from the items, in EVAL id order; everything else is as under *Re-judging
+  a run*, with `rescore_of` in `run` instead of `rejudge_of` and the judge's settings in
+  `pipeline` unchanged. The answers file beside it is a copy of the earlier one.
 
 **Generation runs.** Every clean `--generate` run is recorded in
 [docs/experiments/](../experiments/README.md): its file, EVAL-002, EVAL-003, EVAL-006, the not-found counts, AC-015, and the hand-check agreement.
