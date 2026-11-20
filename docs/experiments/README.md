@@ -55,11 +55,14 @@ of those per-item means (#37).
 | EVAL-006 answer correctness, 3 runs | 0.364 | 184 | 0.299–0.431 | ≥ 0.80 | ⬜ no | [2026-11-20-eval006-noise.md](2026-11-20-eval006-noise.md) |
 | EVAL-007 context precision@8 | 0.678 | 184 | 0.626–0.728 | ≥ 0.60 | ✅ yes | [2026-11-15-retrieval-baseline-eval-set-v2.md](2026-11-15-retrieval-baseline-eval-set-v2.md) |
 | EVAL-008 answer relevancy | not run | | | none | | |
+| EVAL-009 key-fact coverage, 3 runs | 0.583 | 184 | 0.528–0.637 | none | | [2026-11-20-eval006-noise.md](2026-11-20-eval006-noise.md) |
 | AC-012 median retrieval time, `concat` | 0.21 s | | | < 2 s | ✅ yes | [2026-11-18-follow-up-rewriters.md](2026-11-18-follow-up-rewriters.md) |
 | AC-015 amended provisions, 3 runs | 21, 21, 22 pass; 6, 7, 5 fail | 42, 43, 42 | | every one passes | ⬜ no | [2026-11-20-eval006-noise.md](2026-11-20-eval006-noise.md) |
 
 EVAL-001, EVAL-007 and AC-012 are retrieval as at `b0cced1`; the generation runs and the rewriter
 runs kept that retrieval. The three runs of the generation rows are `69f6ab4`, unseeded, and
-`e8c4f1b` with seeds 1 and 2; EVAL-002's n is the cited sentences of all three. AC-015 is given
+`e8c4f1b` with seeds 1 and 2; EVAL-002's n is the cited sentences of all three. EVAL-009 is
+those three runs re-scored from their stored verdicts by #39, `eval/results/2026-11-20-dc5ddea.json`,
+`-2` and `-3`. AC-015 is given
 per run, since its counts do not average: each run's total is its passes, fails and 15 retrieval
 misses; 5 or 6 more questions were uncited. AC-015 reports both and judges neither.
