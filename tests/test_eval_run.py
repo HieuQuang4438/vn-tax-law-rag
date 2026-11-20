@@ -1588,3 +1588,128 @@ def test_the_command_refuses_rescore_with_generate(command, capsys):
     assert run_main(argv + ["--rescore", str(first), "--generate"], judge=RecordingJudge()) == 2
     assert "--rescore does not run with --generate" in capsys.readouterr().out
     assert len(list(out.glob("*.json"))) == 1
+
+
+# --- The context's k (approved on #36, choice 1A) ------------------------------------------------
+
+class KRetriever:
+    """Finds `k` hits for every question, the expected article of q01 only at rank 9, and records each k."""
+
+    fusion = Fusion()
+
+    def __init__(self):
+        self.ks: list[tuple[str, int]] = []
+
+    def _hits(self, k):
+        chunks = ["999001:D1"] * 8 + ["379409:D9"] * 8
+        return Retrieval([Hit(c, ("keyword",), 0.5) for c in chunks[:k]], [])
+
+    def retrieve(self, question, k=TOP_K):
+        self.ks.append(("retrieve", k))
+        return self._hits(k)
+
+    def fuse(self, questions, k=TOP_K):
+        self.ks.append(("fuse", k))
+        return self._hits(k)
+
+
+class HitsAnswerer:
+    """Records how many hits each answer was given."""
+
+    llm = SimpleNamespace(model="gemini-3.5-flash-lite")
+    assembler = SimpleNamespace(budget=24000)
+
+    def __init__(self):
+        self.given: list[int] = []
+
+    def answer(self, question, result):
+        self.given.append(len(result.hits))
+        return SimpleNamespace(call=None, latency_s={"assembly": 0.0, "generation": 0.0})
+
+
+def with_context_k(retriever, answerer, k):
+    """The pipeline with a context k, or None while `AnswerPipeline` takes none, so the test fails on an assertion."""
+    try:
+        return AnswerPipeline(retriever, answerer, context_k=k)
+    except TypeError:
+        return None
+
+
+def test_the_context_k_sets_the_hits_an_answer_is_given():
+    retriever, answerer = KRetriever(), HitsAnswerer()
+    pipeline = with_context_k(retriever, answerer, 12)
+    assert pipeline is not None
+    outcome = pipeline.answer(QUESTIONS[0].question)
+    assert retriever.ks == [("retrieve", 12)]
+    assert answerer.given == [12]
+    assert len(outcome.hits) == 12
+
+
+def test_the_context_k_leaves_the_turns_at_top_k():
+    retriever = KRetriever()
+    pipeline = with_context_k(retriever, HitsAnswerer(), 12)
+    assert pipeline is not None
+    pipeline.retrieve(SECOND, (FIRST,))
+    assert retriever.ks == [("retrieve", TOP_K)]
+
+
+def test_without_a_context_k_an_answer_is_given_top_k_hits():
+    retriever, answerer = KRetriever(), HitsAnswerer()
+    pipeline = AnswerPipeline(retriever, answerer)
+    pipeline.answer(QUESTIONS[0].question)
+    assert answerer.given == [TOP_K]
+    assert "context_k" not in pipeline.config
+
+
+def test_the_context_k_is_recorded_in_the_pipeline_config():
+    pipeline = with_context_k(KRetriever(), HitsAnswerer(), 12)
+    assert pipeline is not None
+    assert pipeline.config.get("context_k") == 12
+    assert pipeline.config.get("top_k") == TOP_K
+
+
+def test_more_hits_than_top_k_are_stored_and_scored_at_top_k(connections):
+    results = evaluate(small_set(), RetrievalPipeline(KRetriever(), k=12), PARENTS)
+    item = item_of(results, "q01")
+    assert len(at(item, "hits")) == 12
+    assert at(item, "recall") == 0.0  # its expected article is only at rank 9
+    assert at(item, "context_precision") == 0.0
+
+
+def test_the_command_builds_the_answer_pipeline_with_the_context_k(command, loads, monkeypatch):
+    import src.answer
+    import src.eval.run as run_module
+    import src.llm
+
+    built = []
+
+    def fake_pipeline(*args, **kwargs):
+        built.append(kwargs.get("context_k"))
+        raise Built
+
+    monkeypatch.setattr(src.llm, "LLM", lambda *args, **kwargs: SimpleNamespace(model="gemini-3.5-flash-lite"))
+    monkeypatch.setattr(src.answer.Answerer, "load", classmethod(lambda cls, *args, **kwargs: HitsAnswerer()))
+    monkeypatch.setattr(run_module, "AnswerPipeline", fake_pipeline)
+    argv, _, _ = command
+    try:
+        outcome = main(argv + ["--generate", "--context-k", "12"])
+    except Built:
+        outcome = "built"
+    except SystemExit as error:
+        outcome = f"exit {error.code}"
+    assert outcome == "built"
+    assert built == [12]
+
+
+def test_the_command_refuses_a_context_k_without_generate(command, loads, capsys):
+    argv, out, _ = command
+    assert run_main(argv + ["--context-k", "12"]) == 2
+    assert "--context-k needs --generate" in capsys.readouterr().out
+    assert not list(out.glob("*.json")) if out.is_dir() else True
+
+
+def test_the_command_refuses_a_context_k_below_top_k(command, capsys):
+    argv, out, _ = command
+    assert run_main(argv + ["--generate", "--context-k", "4"],
+                    pipeline=GeneratingPipeline(answers={}, default=DEFAULT_ANSWER), judge=FakeJudge()) == 2
+    assert f"--context-k must be at least {TOP_K}" in capsys.readouterr().out

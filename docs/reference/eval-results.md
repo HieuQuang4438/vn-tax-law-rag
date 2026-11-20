@@ -36,6 +36,7 @@ python -m src.eval.run --compare eval/results/<file>    # also prints what chang
 | `--compare` | none | an earlier results file to compare with |
 | `--comparisons` | 1 | how many variants are compared with the same baseline; above 1, `--compare` also prints the Bonferroni interval (#25) |
 | `--seed` | none | the seed of every model call of the run, answers, rewrites and judge alike (`LLM(seed=…)`, [answer.md](answer.md), *Seed*), recorded as `configuration.pipeline.seed`; without it the pipeline has no `seed` key, as before #37. Runs of one configuration take seeds 1 to k, and each arm of a comparison the same ones (approved on #37, *a seed per run*). It does not run with `--rejudge` |
+| `--context-k` | `TOP_K` (8) | with `--generate`, how many hits the answer's context is assembled from: `AnswerPipeline` retrieves that many for each standalone question and the item's `hits` hold them all, while `recall` and `context_precision`, and so EVAL-001 and EVAL-007, still take the first `TOP_K` (approved on #36, choice 1A). Recorded as `configuration.pipeline.context_k`; without it the pipeline has no `context_k` key. Conversation turns are not generated and still retrieve `TOP_K`, so EVAL-005 is unchanged. It must be at least `TOP_K`, and it does not run without `--generate` |
 | `--rescore` | none | an earlier `--generate` results file: score its stored verdicts again, with no API call (*Re-scoring a run*, #39) |
 | `--rejudge` | none | an earlier `--generate` results file: judge its stored answers again instead of running the pipeline (*Re-judging a run*, #37); spends API quota |
 | `--rrf-k` | `RRF_K` (60) | the fusion's `rrf_k` ([retrieval.md](retrieval.md#hybrid-search)) |
@@ -277,10 +278,11 @@ on #15. Without it the run is retrieval only and calls no API. With it, on eval 
 makes 240 generation calls and at most 184 judge calls, within the free tier's 500 requests
 per day (ADR-0003).
 
-- The pipeline is `AnswerPipeline(retriever, answerer)`: `generates` is true, `answer(question)`
-  retrieves, assembles and generates, and `retrieve(question, earlier=())` rewrites and
-  retrieves. Its stages are `retrieval`, `assembly`, `generation`, with `rewrite` first when the
-  rewriter is not `none`.
+- The pipeline is `AnswerPipeline(retriever, answerer, context_k=None)`: `generates` is true,
+  `answer(question)` retrieves `context_k` hits (`TOP_K` when none), assembles and generates, and
+  `retrieve(question, earlier=())` rewrites and retrieves `TOP_K`. Its stages are `retrieval`,
+  `assembly`, `generation`, with `rewrite` first when the rewriter is not `none`. Its config has
+  `context_k` only when it is given (`--context-k`, #36).
 - Standalone questions are generated; conversation turns are only retrieved, through the
   rewriter (`generated: false`; choice 2A on #19 leaves their generation out of the scores).
   The warm-up call only retrieves.
