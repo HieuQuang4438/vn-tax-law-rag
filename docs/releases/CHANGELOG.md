@@ -7,6 +7,16 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 
 ### Added
 
+- Re-judging a run: `python -m src.eval.run --rejudge <results file>` judges a `--generate`
+  run's stored answers again, with no retrieval and no generation, so a change of verdict is the
+  judge's alone; `run.rejudge_of` names the source. FR-CORE-015, EVAL-002, EVAL-003, EVAL-006,
+  #37.
+- Comparing several runs: `python -m src.eval.compare --old a.json,b.json --new c.json,d.json`
+  averages each item over its side's runs and prints paired intervals for every metric, the
+  generation metrics included, which were computed by hand before. FR-CORE-015, #37.
+- `scripts/noise.py`: how much a rerun of one configuration moves EVAL-006, split by whether the
+  answer text repeated, and the projected interval for k runs per arm. EVAL-006, #37.
+- `LLM(seed=…)`: an optional seed sent on every attempt; off by default. #37.
 - Context header on every chunk, apart from its text: `python -m src.enrich` writes
   `data/enriched/chunks.jsonl`; chunks and articles carry `chapter_title`. FR-CORE-003, AC-003,
   ADR-0001.

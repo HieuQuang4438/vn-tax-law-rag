@@ -57,8 +57,9 @@ class _Retry(Exception):
 class LLM:
     def __init__(self, model: str | None = None, api_keys: tuple[str, ...] | list[str] | None = None,
                  clients: list | None = None, sleep: Callable[[float], None] = time.sleep,
-                 clock: Callable[[], float] = time.monotonic):
+                 clock: Callable[[], float] = time.monotonic, seed: int | None = None):
         self.model = model or LLM_MODEL
+        self.seed = seed  # sent on every attempt when set (answer.md, *Seed*, #37)
         if self.model not in PRICES:
             raise ValueError(f"no price for model {self.model!r}; add it to src.llm.PRICES")
         if clients is None:
@@ -104,7 +105,7 @@ class LLM:
 
     def _attempt(self, system: str, user: str, schema: type, validate) -> tuple[Any, Any, float]:
         config = types.GenerateContentConfig(system_instruction=system, response_mime_type="application/json",
-                                             response_schema=schema)
+                                             response_schema=schema, seed=self.seed)
         response, seconds = self._send(user, config)
         parsed = response.parsed if isinstance(response.parsed, schema) else None
         if parsed is None:
