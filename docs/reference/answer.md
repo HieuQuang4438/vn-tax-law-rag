@@ -12,8 +12,7 @@ answers in the eval run. The rules are FR-CORE-010, FR-CORE-011 and FR-CORE-012,
 AC-009 and AC-015, and EVAL-002, EVAL-003, EVAL-004 and EVAL-006
 ([acceptance.md](../product/acceptance.md)). The model is ADR-0003's. The approach is the
 approved comment on #15; when an answer is not found, the approved comment on #16; the fields
-the web page reads, the approved comments on #30; point-level ids, the approved comment on #33;
-the rule on every part of the question, the approved comment on #34.
+the web page reads, the approved comments on #30; point-level ids, the approved comment on #33.
 
 ## The model call — `src.llm`
 
@@ -97,19 +96,10 @@ answer.text                                        # what the reader sees
 `Passages:\n\n<context.text>\n\nQuestion: <question>`, as in the pilot. The prompt asks for
 Vietnamese, sentences that each carry the ids of the passages they come from (`1`, or `1.25`
 for a clause), nothing beyond the passages, an answer to the part of the question the passages
-answer, an answer to every part of the question from every passage that bears on it, one
-provision per sentence (below), the `NOT_FOUND` sentence alone with no ids only when no passage
-bears on the question (FR-CORE-012, below), and, when a provision used has a link line, to say
-it was amended, replaced or repealed and to cite the passage named on that line (FR-CORE-010).
-The not-found wording is the pilot's.
-
-**Every part of the question** (approved on #34, choice 1B). After the rule on partial answers,
-the prompt asks the model to answer every part of the question, using every passage that bears
-on it, and to give each condition, exception, rate, threshold or deadline the passages state in
-its own sentence, not folding several provisions into one. At `271adae`, answers of 1 to 3
-sentences were judged correct 0.35 of the time and answers of 4 or more 0.78; the rule targets
-those short answers. The rule stays only if the run of #34 keeps it by the decision rule fixed
-in its approach comment; otherwise it is reverted with this paragraph and its test.
+answer, the `NOT_FOUND` sentence alone with no ids only when no passage bears on the question
+(FR-CORE-012, below), and, when a provision used has a link line, to say it was amended,
+replaced or repealed and to cite the passage named on that line (FR-CORE-010). The not-found
+wording is the pilot's.
 
 **Ids as written.** Each id the model gives is trimmed and stripped of one pair of brackets
 (`" [1.25] "` → `1.25`). Duplicates within one sentence are kept once, after the rewrite below.
