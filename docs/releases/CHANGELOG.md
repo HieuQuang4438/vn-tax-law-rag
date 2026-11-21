@@ -7,6 +7,10 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 
 ### Added
 
+- Prices for `gemini-3.8-flash` (0.75 / 3.75 USD per 1M tokens through 2026-12-31) and
+  `gemini-4-hydrogen` (1.50 / 7.50), read 2026-11-21, so `LLM_MODEL` can name either for a
+  manual test of the web page. The default model stays `gemini-3.5-flash-lite` (ADR-0003).
+  FR-CORE-010, NFR-007.
 - The context's k of a generation run: `python -m src.eval.run --generate --context-k N`
   assembles each answer's context from the top N hits, at least `TOP_K`, while EVAL-001 and
   EVAL-007 still score the first `TOP_K`; recorded as `configuration.pipeline.context_k`.

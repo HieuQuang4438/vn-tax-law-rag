@@ -16,7 +16,9 @@ from pydantic import ValidationError
 
 from src.config import GOOGLE_API_KEYS, LLM_MODEL
 
-PRICES = {"gemini-3.5-flash-lite": (0.30, 2.50)}  # USD per 1M tokens, input and output (ADR-0003)
+PRICES = {"gemini-3.5-flash-lite": (0.30, 2.50),  # USD per 1M tokens, input and output (ADR-0003)
+          "gemini-3.8-flash": (0.75, 3.75),  # through 2026-12-31, then 1.50 / 7.50 (pricing page, 2026-11-21)
+          "gemini-4-hydrogen": (1.50, 7.50)}  # pricing page, 2026-11-21
 PRICES_READ = "2026-11-16"
 TIMEOUT_S = 60
 MIN_INTERVAL_S = 4.0  # under 15 requests per minute
