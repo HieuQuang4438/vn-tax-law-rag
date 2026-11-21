@@ -109,6 +109,11 @@ a text box shows one focus ring, its frame's, not a second one of its own; a con
 be renamed. The page calls the
 API by relative paths, so it also works under a path prefix.
 
+**Versioned links** (#41). The page links its stylesheet and script as
+`static/app.css?v=<hash>` and `static/app.js?v=<hash>`, `<hash>` the first 12 hex digits of the
+file's SHA-256 when the app starts. A changed file is a new URL, so a browser that kept the
+older one fetches it, rather than running an older script against a newer API.
+
 **Type.** Three fonts, each with the Vietnamese letters: Source Serif 4 (`--font-doc`) for the
 words of the documents and the answer, Be Vietnam Pro (`--font-ui`) for the page's own words,
 JetBrains Mono (`--font-mono`) for the citation chips and the keys.

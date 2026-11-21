@@ -6,6 +6,7 @@ The rules are `docs/reference/web.md`, *The page*. These tests read what the app
 page's script is checked by hand in the end-to-end run (#30, *Risks*).
 """
 
+import hashlib
 import json
 import re
 import threading
@@ -66,18 +67,33 @@ def test_the_browser_tab_shows_the_title(client):
     assert f"<title>{texts.TITLE}</title>" in client.get("/").text
 
 
+def linked(html: str, path: str) -> str | None:
+    """The URL the page links `path` by, with its query (#41, *Versioned links*)."""
+    match = re.search(rf'"({re.escape(path)}(\?[^"]*)?)"', html)
+    return match.group(1) if match else None
+
+
 def test_the_stylesheet_and_the_script_are_served(client):
     html = client.get("/").text
     for path in ("static/app.css", "static/app.js"):
-        assert f'"{path}"' in html
-        assert client.get("/" + path).status_code == 200
+        url = linked(html, path)
+        assert url is not None
+        assert client.get("/" + url).status_code == 200
+
+
+def test_the_stylesheet_and_the_script_are_linked_by_their_content(client):
+    """A changed file is a new URL, so a browser that kept the older one fetches it (#41)."""
+    html = client.get("/").text
+    for path in ("static/app.css", "static/app.js"):
+        served = client.get("/" + path).content
+        assert linked(html, path) == f"{path}?v={hashlib.sha256(served).hexdigest()[:12]}"
 
 
 def test_the_page_loads_no_script_from_another_origin(client):
     html = client.get("/").text
-    assert re.findall(r'<script[^>]*\ssrc="([^"]+)"', html) == ["static/app.js"]
+    assert [src.split("?")[0] for src in re.findall(r'<script[^>]*\ssrc="([^"]+)"', html)] == ["static/app.js"]
     for href in re.findall(r'<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"', html):
-        assert href == "static/app.css" or href.startswith("https://fonts.googleapis.com/")
+        assert href.split("?")[0] == "static/app.css" or href.startswith("https://fonts.googleapis.com/")
 
 
 def test_the_script_calls_the_api_by_relative_paths(client):
