@@ -1,7 +1,8 @@
 ---
-status: draft
-updated: 2026-11-19
+status: approved
+updated: 2026-11-21
 owner: HieuQuang4438
+approved-by: peer
 ---
 
 # Cited answers
