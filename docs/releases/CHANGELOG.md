@@ -201,6 +201,10 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 
 ### Fixed
 
+- The page links its stylesheet and script with a version taken from their content
+  (`static/app.js?v=<hash>`), so a browser that kept an older script fetches the new one
+  instead of running it against a newer API; after #41 changed the sources' fields, a cached
+  script showed every citation chip as `?`. FR-CORE-014, #41.
 - A results file's `run.command` holds the options the command was given: run from the shell,
   `python -m src.eval.run` and `python -m src.eval.diagnose` recorded the bare command, since
   only options passed to `main(argv)` were joined. Files written before keep the bare command;

@@ -1,5 +1,6 @@
 """The FastAPI app: the static chat page and its JSON API (#30). Rules: `docs/reference/web.md`."""
 
+import hashlib
 import html
 import json
 import logging
@@ -44,10 +45,13 @@ class AskBody(BaseModel):
 
 
 def _page() -> str:
-    """index.html with the title and the texts of `src.web.texts` filled in."""
+    """index.html with the title, the texts of `src.web.texts` and versioned links to its stylesheet and script."""
     values = json.dumps({name: getattr(texts, name) for name in texts.NAMES}, ensure_ascii=False)
     values = values.replace("</", "<\\/")  # JSON reads `<\/` as `</`; HTML does not end the script block there
     page = (STATIC / "index.html").read_text(encoding="utf-8")
+    for name in ("app.css", "app.js"):  # a changed file is a new URL (web.md, *Versioned links*, #41)
+        version = hashlib.sha256((STATIC / name).read_bytes()).hexdigest()[:12]
+        page = page.replace(f'"static/{name}"', f'"static/{name}?v={version}"')
     return page.replace("__TITLE__", html.escape(texts.TITLE)).replace("__TEXTS__", values)
 
 
