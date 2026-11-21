@@ -191,7 +191,7 @@ def test_an_answer_carries_its_sentences_sources_and_flagged_ids(serve):
     assert body["sentences"] == [{"text": SENTENCE, "citations": ["1.25", "7"]},
                                  {"text": NOTICE_SENTENCE, "citations": ["1.25", "2"]}]
     assert (body["notices"], body["not_found"], body["flagged"]) == (1, False, ["7"])
-    assert [source["id"] for source in body["sources"]] == ["1.25", "2"]
+    assert [source.get("ids") for source in body["sources"]] == [["1.25"], ["2"]]
     assert isinstance(body["seconds"], float) and body["seconds"] >= 0
     assert "text" not in body  # the page renders the sentences and the sources, not Answer.text
 
@@ -201,8 +201,8 @@ def test_a_source_joins_its_citation_to_its_document(serve):
     settled(client)
     source = client.post("/api/ask", json={"question": Q1}).json()["sources"][0]
     assert source == {
-        "id": "1.25", "document": "Luật 48/2024/QH15", "kind": "Luật", "number": "48/2024/QH15",
-        "title": "Thuế giá trị gia tăng", "issued": "2024-11-26", "article": "5", "clause": "25",
+        "ids": ["1.25"], "document": "Luật 48/2024/QH15", "kind": "Luật", "number": "48/2024/QH15",
+        "title": "Thuế giá trị gia tăng", "issued": "2024-11-26", "article": "5", "clauses": ["25"],
         "heading": "Điều 5. Đối tượng không chịu thuế", "url": VAT_URL + "#:~:text=%C4%90i%E1%BB%81u%205.",
         "text": CLAUSE_TEXT, "effective": "2026-01-01",
         "amended_by": [{"target": "1.25", "type": "amends", "source": "2"}],
@@ -303,3 +303,87 @@ def test_the_documents_are_those_the_answerer_loaded_in_its_order(serve):
          "title": "Sửa đổi, bổ sung một số điều của Luật Thuế giá trị gia tăng", "url": AMENDING_URL,
          "issued": "2025-12-11"},
     ]}
+
+
+# --- One source per article (#41) ----------------------------------------------------------------
+
+ARTICLE_TEXT = "Điều 5. Đối tượng không chịu thuế\n1. Sản phẩm trồng trọt.\n3. Sản phẩm là giống vật nuôi.\n" + CLAUSE_TEXT
+CLAUSE_3_TEXT = "3. Sản phẩm là giống vật nuôi."
+ARTICLE_LINK = Link("1", "amends", "2")
+
+
+def vat(id: str, clause: str | None, text: str, effective: str | None, links=()) -> Citation:
+    return Citation(id, True, "1", "Luật 48/2024/QH15", "5", clause, VAT_URL + "#:~:text=%C4%90i%E1%BB%81u%205.",
+                    "379409", "Điều 5. Đối tượng không chịu thuế", text, effective, tuple(links))
+
+
+def amending() -> Citation:
+    return Citation("2", True, "2", "Luật 149/2025/QH15", "1", "2", AMENDING_URL + "#:~:text=%C4%90i%E1%BB%81u%201.",
+                    "421739", "Điều 1. Sửa đổi, bổ sung một số điều của Luật Thuế giá trị gia tăng",
+                    AMENDING_TEXT, "2026-07-01")
+
+
+def answer_citing(*citations: Citation) -> Answer:
+    ids = tuple(c.id for c in citations)
+    return Answer([Sentence(SENTENCE, ids)], list(citations), [], False, "the rendered text")
+
+
+def sources_of(serve, answer: Answer) -> list[dict]:
+    client = serve(Loader(answer))
+    settled(client)
+    return client.post("/api/ask", json={"question": Q1}).json()["sources"]
+
+
+def test_an_article_cited_whole_and_by_a_clause_is_one_source(serve):
+    """The case of #41: a clause cited by the answer, its whole article by the amendment notice."""
+    sources = sources_of(serve, answer_citing(vat("1.25", "25", CLAUSE_TEXT, "2026-01-01", [LINK]), amending(),
+                                              vat("1", None, ARTICLE_TEXT, "2025-07-01", [ARTICLE_LINK])))
+    assert [source.get("ids") for source in sources] == [["1.25", "1"], ["2"]]
+    article = sources[0]
+    assert (article["article"], article.get("clauses")) == ("5", ["25"])
+    assert (article["text"], article["effective"]) == (ARTICLE_TEXT, "2025-07-01")
+    assert article["amended_by"] == [{"target": "1.25", "type": "amends", "source": "2"},
+                                     {"target": "1", "type": "amends", "source": "2"}]
+
+
+def test_the_clauses_of_one_article_are_one_source_in_clause_order(serve):
+    sources = sources_of(serve, answer_citing(vat("1.25", "25", CLAUSE_TEXT, "2026-01-01"),
+                                              vat("1.3", "3", CLAUSE_3_TEXT, "2026-01-01")))
+    assert len(sources) == 1
+    source = sources[0]
+    assert (source.get("ids"), source.get("clauses")) == (["1.25", "1.3"], ["3", "25"])
+    assert (source["text"], source["effective"]) == (CLAUSE_3_TEXT + "\n" + CLAUSE_TEXT, "2026-01-01")
+
+
+def test_clauses_with_different_dates_give_no_date(serve):
+    sources = sources_of(serve, answer_citing(vat("1.25", "25", CLAUSE_TEXT, "2026-01-01"),
+                                              vat("1.3", "3", CLAUSE_3_TEXT, "2025-07-01")))
+    assert sources[0]["effective"] is None
+
+
+def test_an_article_cited_alone_has_no_clause(serve):
+    source = sources_of(serve, answer_citing(vat("1", None, ARTICLE_TEXT, "2025-07-01")))[0]
+    assert (source.get("ids"), source.get("clauses"), source["text"]) == (["1"], [], ARTICLE_TEXT)
+
+
+def test_a_source_stands_where_its_first_id_is_first_used(serve):
+    sources = sources_of(serve, answer_citing(amending(), vat("1.25", "25", CLAUSE_TEXT, "2026-01-01"),
+                                              vat("1", None, ARTICLE_TEXT, "2025-07-01")))
+    assert [source.get("ids") for source in sources] == [["2"], ["1.25", "1"]]
+
+
+def test_a_link_two_ids_share_is_listed_once(serve):
+    sources = sources_of(serve, answer_citing(vat("1", None, ARTICLE_TEXT, "2025-07-01", [ARTICLE_LINK]),
+                                              vat("1.25", "25", CLAUSE_TEXT, "2026-01-01", [ARTICLE_LINK])))
+    assert len(sources) == 1
+    assert sources[0]["amended_by"] == [{"target": "1", "type": "amends", "source": "2"}]
+
+
+def test_a_flagged_id_is_not_a_source(serve):
+    answer = answer_citing(vat("1.25", "25", CLAUSE_TEXT, "2026-01-01"), Citation("1.9", False),
+                           vat("1", None, ARTICLE_TEXT, "2025-07-01"))
+    answer.flagged = ["1.9"]
+    client = serve(Loader(answer))
+    settled(client)
+    body = client.post("/api/ask", json={"question": Q1}).json()
+    assert ([source.get("ids") for source in body["sources"]], body["flagged"]) == ([["1.25", "1"]], ["1.9"])

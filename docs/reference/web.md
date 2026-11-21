@@ -1,6 +1,6 @@
 ---
-status: approved
-updated: 2026-11-18
+status: in-review
+updated: 2026-11-21
 owner: HieuQuang4438
 approved-by: peer
 ---
@@ -71,14 +71,32 @@ with 422. Its answer:
 | `sentences` | `Answer.sentences`, each `{"text", "citations"}`, the amendment notices last |
 | `notices` | `Answer.notices`: how many of the last sentences are notices |
 | `not_found` | `Answer.not_found` |
-| `sources` | the citations in the context, in `Answer.citations` order (below) |
+| `sources` | the citations in the context, one source per passage, in `Answer.citations` order (below) |
 | `flagged` | `Answer.flagged`: the ids not in the context |
 | `seconds` | the time from the request read to the answer, for the page to show |
 
-Each source is one `Citation` joined to its `Document` by `doc_id`: `id`, `document` (the
-label), `kind`, `number`, `title`, `issued`, `article`, `clause`, `heading`, `url`, `text`,
-`effective`, and `amended_by` as `{"target", "type", "source"}` ([answer.md](answer.md),
-*For the page*). `Answer.text` is not sent: the page renders the sentences and the sources.
+Each source is one passage's citations joined to its `Document` by `doc_id`: `ids`,
+`document` (the label), `kind`, `number`, `title`, `issued`, `article`, `clauses`, `heading`,
+`url`, `text`, `effective`, and `amended_by` as `{"target", "type", "source"}`
+([answer.md](answer.md), *For the page*). `Answer.text` is not sent: the page renders the
+sentences and the sources.
+
+**One source per article** (#41, choices 1A to 4A). The citations in the context that share a
+passage (`Citation.passage`: `n`, `n.k`, `n.k.2`, … of one article, or an amending passage `m`)
+make one source, so an article cited whole and by a clause is listed once. `Answer` itself does
+not change.
+
+- `ids`: the passage's ids the answer cites, in first-use order. The source stands where the
+  first of them is first used in `Answer.citations`.
+- `clauses`: the clause numbers as shown (`Citation.clause`) of its `n.k` ids, in clause order;
+  empty when only `n` is cited.
+- `text`: the article's when `n` is among the ids; otherwise its clauses' texts in clause order,
+  one per line.
+- `effective`: `n`'s when `n` is among the ids; otherwise the clauses' date when they share one,
+  none when they differ.
+- `amended_by`: the links of all its ids, in the order of `ids`, each once.
+- `document`, `kind`, `number`, `title`, `issued`, `article`, `heading` and `url`: those of the
+  first id; every id of one passage has the same.
 
 ## The page — `src/web/static/`
 
@@ -140,14 +158,17 @@ the prototype's, in the page.
   at a time: the send button is off until the answer.
 - **Answer** (S5, S8): the sentences, the amendment notices as a paragraph of their own. Each
   source gets a number, 1…n in the order of `sources`, shown as a chip after the sentences that
-  cite it; a flagged id is a `?` chip, and a note names the flagged ids (FR-CORE-011). Under it
-  the sources: document, article and clause, its title, "Đã sửa đổi" when it has
+  cite any of its `ids`, once per sentence; a flagged id is a `?` chip, and a note names the
+  flagged ids (FR-CORE-011). Under it the sources: document, article and the clauses cited
+  ("Điều 3, khoản 1, 2"), its title, "Đã sửa đổi" when it has
   `amended_by`, and a link to the source page in a new tab (AC-010). Then `NOTICE`, under every
   answer, a not-found one included (FR-CORE-013). Then copy, 👍/👎 and the seconds.
 - **Source panel**: a chip or a source row opens it. Kind, document, title, place, issue date,
   effective date, "hồi tố, trước ngày ban hành" when the effective date comes first (#30,
   correction to choice 8), one line per amendment link with "Xem nguồn [n]" when its source is
-  among the sources, the heading and the text, and a link to the source page. On a page 1280 px
+  among the sources, the provision it amends named "Điều này" when that is the source's `n` and
+  "Khoản k" when it is one of the source's `n.k`, then the heading and the text, and a link to
+  the source page. On a page 1280 px
   wide or more it opens on the first source of a new answer; under 1280 px it is a drawer
   under the top bar, under 900 px a bottom sheet. A button at the right of the top bar,
   `#panel-toggle` (`aria-controls="panel"`, `aria-expanded` while the panel is open), closes it
@@ -170,7 +191,8 @@ the prototype's, in the page.
 **History** (choices 3A, 4A, 7A). The conversations are kept in the browser's `localStorage`,
 newest first, at most 50: the oldest is dropped. Each keeps its questions, the API's answers and
 the votes; nothing goes to the server. Its title is its first question until it is renamed
-(*Rename* above). A write that fails
+(*Rename* above). A source kept before #41 has `id` and `clause` in place of `ids` and
+`clauses`; the page reads it as `ids` `[id]` and `clauses` `[clause]`, or `[]` without a clause. A write that fails
 (storage full or blocked) keeps the conversation for the open page only. Copy puts the answer
 with the page's numbers, its sources with their links, and `NOTICE` on the clipboard.
 
