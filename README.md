@@ -14,15 +14,11 @@ how I am learning RAG end to end, from crawling and chunking to evaluation.
 
 ## What it does
 
-Planned — see Status for what exists today.
-
 - Answers questions about current Vietnamese tax law in Vietnamese.
 - Cites the document, article and clause behind every answer, with a link to the source text.
 - Says it found nothing rather than guessing when the documents do not cover the question.
 
 ## How it works
-
-Solid boxes are built; dashed boxes are planned.
 
 ```mermaid
 flowchart LR
@@ -36,19 +32,16 @@ flowchart LR
     end
     subgraph online["Online — answer a question"]
         direction LR
-        q[Question +<br/>conversation] -.-> rw[Rewrite follow-up<br/>as standalone]
-        rw -.-> ref[Resolve explicit<br/>references]
-        rw -.-> hyb[Hybrid retrieval<br/>rank fusion, top k]
-        ref -.-> aug[Assemble context<br/>parent article, amending text,<br/>citation ids]
-        hyb -.-> aug
-        aug -.-> llm[LLM answers from<br/>context only]
-        llm -.-> out[Answer with citations,<br/>or not found]
+        q[Question +<br/>earlier questions] --> rw[Follow-up joined with<br/>the last 2 questions]
+        rw --> ref[Resolve explicit<br/>references]
+        rw --> hyb[Hybrid retrieval<br/>rank fusion, top k]
+        ref --> aug[Assemble context<br/>parent article, amending text,<br/>citation ids]
+        hyb --> aug
+        aug --> llm[LLM answers from<br/>context only]
+        llm --> out[Answer with citations,<br/>or not found]
     end
     vec --> hyb
     kw --> hyb
-
-    classDef planned stroke-dasharray: 5 5
-    class q,rw planned
 ```
 
 Why it is built this way: chunking in [ADR-0001](docs/adr/0001-chunk-by-legal-structure.md),
@@ -66,12 +59,19 @@ All project documents: [docs/README.md](docs/README.md).
    header naming its document, chapter, article and clause.
 3. **Retrieve** — hybrid keyword + embedding search, because users ask both in prose and by
    document number, and explicit references ("Điều 9 Luật 48/2024") are looked up directly.
-   Built: `src.retrieval`, 0.45 s per question (median) on CPU.
-4. **Answer** — an LLM answers only from the retrieved articles and cites them. *Not built yet.*
-5. **Evaluate** — a hand-written question set with expected answers, key facts and articles,
-   scored on retrieval and on the answers. The set (v1, 50 questions and 6 conversations), its
-   checker (`python -m src.eval.check`) and the runner (`python -m src.eval.run`) are built; the
-   runner scores retrieval today, and the answers once generation exists.
+   A follow-up question is first joined with the last two questions of its conversation
+   (`concat`, chosen on #19). Built: `src.retrieval`, 0.45 s per question (median) on CPU.
+4. **Answer** — the top 8 articles are assembled into a context of at most 24,000 tokens, with
+   the amending text of amended provisions and a citation id per passage;
+   `gemini-3.5-flash-lite` answers in Vietnamese from that context only, citing a passage for
+   every claim and saying when a cited provision has been amended, or says the documents do not
+   cover the question ([ADR-0003](docs/adr/0003-gemini-flash-lite-free-tier.md)). Built:
+   `src.answer`, served by `python -m src.web`.
+5. **Evaluate** — a hand-written set with expected answers, key facts and articles: v2, 240
+   questions (184 answerable, 56 the corpus does not cover) and 22 conversations of 52 turns.
+   `python -m src.eval.check` checks it against the corpus; `python -m src.eval.run` scores
+   retrieval, and with `--generate` the answers, judged by `gemini-3.5-flash-lite`. Scores:
+   *Standing scores* in [docs/experiments/README.md](docs/experiments/README.md#standing-scores).
 
 ## Data
 
