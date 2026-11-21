@@ -35,7 +35,7 @@ call.parsed                                       # an AnswerOutput
 | `LLM.generate(prompt, system, user, schema, validate=None)` | One call. `prompt` is the prompt's name, for the log; `system` its text; `user` the request; `schema` a pydantic model the reply must fit. `validate`, if given, is called with the parsed reply and raises `ValueError` when the reply does not fit the request. Returns a `Call`. |
 | `Call` | `parsed`, the reply as a `schema` instance; `model`; `prompt`; `input_tokens`; `output_tokens`, answer and thinking tokens together; `latency_s`, of the attempt that succeeded; `cost_usd`; `attempts`. |
 | `LLMError` | Raised when a call gets no usable reply. `quota: bool`, *Retries*. |
-| `PRICES` | USD per million tokens, input and output: `gemini-3.5-flash-lite` 0.30 and 2.50, read 2026-11-16 (`PRICES_READ`; ADR-0003). |
+| `PRICES` | USD per million tokens, input and output: `gemini-3.5-flash-lite` 0.30 and 2.50, read 2026-11-16 (`PRICES_READ`; ADR-0003). For manual tests through `LLM_MODEL`, read 2026-11-21: `gemini-3.8-flash` 0.75 and 3.75 through 2026-12-31, then 1.50 and 7.50; `gemini-4-hydrogen` 1.50 and 7.50. `PRICES_READ` is the date of `gemini-3.5-flash-lite`'s price only, so an eval run with another model records the wrong date until a run needs it (#35). |
 
 **The request** sends the system instruction, the user text, `response_mime_type`
 `application/json` and `response_schema` `schema`, with a 60 s timeout (`TIMEOUT_S`) and the

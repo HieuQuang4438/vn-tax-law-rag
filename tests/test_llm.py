@@ -131,6 +131,8 @@ def test_a_seed_is_sent_on_every_attempt():
 
 def test_the_constants_are_the_specified_ones():
     assert PRICES["gemini-3.5-flash-lite"] == (0.30, 2.50)
+    assert PRICES.get("gemini-3.8-flash") == (0.75, 3.75)
+    assert PRICES.get("gemini-4-hydrogen") == (1.50, 7.50)
     assert PRICES_READ == "2026-11-16"
     assert (TIMEOUT_S, MIN_INTERVAL_S, BACKOFF_S, ATTEMPTS) == (60, 4.0, 10, 5)
 
