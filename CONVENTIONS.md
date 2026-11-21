@@ -1,6 +1,6 @@
 # Coding Conventions — vn-tax-law-rag
 
-These are **this repo's** conventions. Seeded from `git-repos/templates/`, owned here. When a rule does not fit this project, edit, add or delete it directly in this file — no approval, and nothing to sync anywhere. There is no copy of this file elsewhere that outranks it.
+These are **this repo's** conventions. Seeded from a shared set of templates, owned here. When a rule does not fit this project, edit, add or delete it directly in this file — no approval, and nothing to sync anywhere. There is no copy of this file elsewhere that outranks it.
 
 **Precedence:** this file > tool defaults. `AGENTS.md` holds project facts — what this is, where things live, how to run it. Rules live here. If the two disagree, `AGENTS.md` is the one that is wrong.
 
