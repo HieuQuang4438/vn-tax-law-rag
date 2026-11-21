@@ -282,7 +282,7 @@ ids and numbers only.
 ```json
 {
   "format": 1,
-  "run": {"started": "…", "command": "python -m src.eval.diagnose", "seconds": 30.1},
+  "run": {"started": "…", "command": "python -m src.eval.diagnose --out eval/results/diagnostics", "seconds": 30.1},
   "configuration": {…},
   "recall": {"standalone": {"8": {"value": …, "n": …, "interval": […]}, "12": {…}}, "follow_up": {…}},
   "misses": {"standalone": {…}, "follow_up": {…}},
@@ -291,6 +291,7 @@ ids and numbers only.
 }
 ```
 
+- `run.command` holds the options the command was given, as the runner's does (#40).
 - `configuration` is the runner's, with `pipeline` holding `top_k` 8, `rewrite: none`, the
   fusion's `config()` (`rrf_k`, `candidates`, `keyword_weight`, `vector_weight`,
   `per_article`), `depth` 50 and `cuts`.

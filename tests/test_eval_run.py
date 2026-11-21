@@ -1713,3 +1713,50 @@ def test_the_command_refuses_a_context_k_below_top_k(command, capsys):
     assert run_main(argv + ["--generate", "--context-k", "4"],
                     pipeline=GeneratingPipeline(answers={}, default=DEFAULT_ANSWER), judge=FakeJudge()) == 2
     assert f"--context-k must be at least {TOP_K}" in capsys.readouterr().out
+
+
+# --- The command in the results file (#40) -------------------------------------------------------
+
+def shell(monkeypatch, argv):
+    """`python -m src.eval.run <argv>` as the shell starts it: the options in `sys.argv`, none passed to main."""
+    import sys
+
+    monkeypatch.setattr(sys, "argv", ["src/eval/run.py", *argv])
+
+
+def newest_command(out: Path, besides: tuple[Path, ...] = ()) -> str:
+    files = [p for p in sorted(out.glob("*.json")) if p not in besides]
+    assert len(files) == 1
+    return at(json.loads(files[0].read_text(encoding="utf-8")), "run", "command")
+
+
+def test_a_run_from_the_shell_records_its_options(command, monkeypatch):
+    argv, out, _ = command
+    shell(monkeypatch, argv + ["--rewrite", "none"])
+    assert main(pipeline=FakePipeline(default=["379409:D9"])) == 0
+    assert newest_command(out) == " ".join(["python -m src.eval.run", *argv, "--rewrite", "none"])
+
+
+def test_a_run_given_argv_records_those_options(command):
+    argv, out, _ = command
+    assert main(argv, pipeline=FakePipeline(default=["379409:D9"])) == 0
+    assert newest_command(out) == " ".join(["python -m src.eval.run", *argv])
+
+
+def test_a_rejudge_from_the_shell_records_its_options(command, monkeypatch):
+    argv, out, _ = command
+    first = generated_file(command)
+    monkeypatch.setattr(Retriever, "load", lambda *args, **kwargs: None)
+    shell(monkeypatch, argv + ["--rejudge", str(first)])
+    assert main(judge=RecordingJudge()) == 0
+    assert newest_command(out, (first,)) == " ".join(["python -m src.eval.run", *argv, "--rejudge", str(first)])
+
+
+def test_a_rescore_from_the_shell_records_its_options(command, monkeypatch):
+    argv, out, _ = command
+    first = generated_file(command)
+    first.write_text(json.dumps(before_eval009(json.loads(first.read_text(encoding="utf-8")))), encoding="utf-8")
+    monkeypatch.setattr(Retriever, "load", lambda *args, **kwargs: None)
+    shell(monkeypatch, argv + ["--rescore", str(first)])
+    assert main(judge=RecordingJudge()) == 0
+    assert newest_command(out, (first,)) == " ".join(["python -m src.eval.run", *argv, "--rescore", str(first)])

@@ -128,7 +128,7 @@ The file holds ids and numbers only: no question text, no answer text and no cor
 ```json
 {
   "format": 1,
-  "run": {"started": "2026-11-13T15:04:05+07:00", "command": "python -m src.eval.run", "seconds": 41.3},
+  "run": {"started": "2026-11-13T15:04:05+07:00", "command": "python -m src.eval.run --generate --seed 1", "seconds": 41.3},
   "configuration": {...},
   "scores": {"EVAL-001": {...}, "...": {}},
   "breakdown": {"form": {...}, "tax_type": {...}, "added_in": {...}},
@@ -137,6 +137,11 @@ The file holds ids and numbers only: no question text, no answer text and no cor
   "items": [{...}]
 }
 ```
+
+**`run`** holds `started`, the local start time; `command`, `python -m src.eval.run` followed by
+the options the command was given, in the order given, whether they came from the shell
+(`sys.argv`) or from a call to `main(argv)` (#40); and `seconds`, the run's wall time. A resumed
+run's `seconds` covers its last segment only.
 
 **`configuration`**
 

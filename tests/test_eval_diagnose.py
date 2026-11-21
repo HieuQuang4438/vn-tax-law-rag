@@ -305,3 +305,17 @@ def test_without_fusion_options_the_file_records_the_default(command):
     pipeline = at(json.loads(files[0].read_text(encoding="utf-8")), "configuration", "pipeline")
     expected = {"rrf_k": 60, "candidates": 50, "keyword_weight": 1.0, "vector_weight": 1.0, "per_article": True}
     assert {key: at(pipeline, key) for key in expected} == expected
+
+
+# --- The command in the file (#40) ---------------------------------------------------------------
+
+def test_a_diagnosis_from_the_shell_records_its_options(command, monkeypatch):
+    import sys
+
+    argv, out = command
+    monkeypatch.setattr(sys, "argv", ["src/eval/diagnose.py", *argv])
+    assert main(retriever=FakeRetriever(default=Rankings(final=["379409:D9"]))) == 0
+    files = sorted(out.glob("*.json")) if out.is_dir() else []
+    assert len(files) == 1
+    written = json.loads(files[0].read_text(encoding="utf-8"))
+    assert at(written, "run", "command") == " ".join(["python -m src.eval.diagnose", *argv])
