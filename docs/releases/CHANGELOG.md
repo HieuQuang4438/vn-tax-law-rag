@@ -165,6 +165,11 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 
 ### Changed
 
+- The web page lists each article once: `POST /api/ask` groups the citations of one passage
+  into one source with `ids` and `clauses` in place of `id` and `clause`, so an article cited
+  whole by an amendment notice and by a clause in the answer shares one number and one row
+  ("Điều 3, khoản 1"). A sentence shows each source's chip once. Conversations kept in the
+  browser before still render. `Answer` is unchanged. FR-CORE-011, FR-CORE-014, AC-010, #41.
 - A citation id below the clause, at a point (`1.25a`, `1.25 b`, `1.25.c`), is read as its
   clause (`1.25`) when that clause is in the context, so it resolves and is shown and judged as
   the clause instead of being flagged. At `271adae`, 82 of the 85 flagged ids had this shape.

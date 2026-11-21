@@ -102,11 +102,25 @@ function chip(ti, n) {
 const answerHead = (extra = "") => `<div class="a-head"><span class="dot" aria-hidden="true">${ic("scale", "icon")}</span>Trả lời${extra}</div>`;
 const notice = () => `<div class="callout callout-info" role="note">${ic("info")}<div>${esc(T.NOTICE)}</div></div>`;
 
-function place(s) {  // "Điều 5, khoản 25"
-  return `Điều ${s.article}` + (s.clause ? `, khoản ${s.clause}` : "");
+function ids(s) {  // a source kept before #41 has `id` in place of `ids`
+  return s.ids || [s.id];
 }
-function numbers(answer) {  // a source id's number on the page: 1…n, the order of the sources
-  return Object.fromEntries(answer.sources.map((s, i) => [s.id, i + 1]));
+function clauses(s) {  // and `clause` in place of `clauses`
+  return s.clauses || (s.clause ? [s.clause] : []);
+}
+function place(s) {  // "Điều 5, khoản 25", "Điều 3, khoản 1, 2"
+  const k = clauses(s);
+  return `Điều ${s.article}` + (k.length ? `, khoản ${k.join(", ")}` : "");
+}
+function numbers(answer) {  // each id's number on the page: its source's, 1…n in the order of the sources
+  return Object.fromEntries(answer.sources.flatMap((s, i) => ids(s).map(id => [id, i + 1])));
+}
+function once(numbers) {  // each source's number once, in order; every flagged id (none) kept
+  const seen = new Set();
+  return numbers.filter(n => !n || (!seen.has(n) && seen.add(n)));
+}
+function chips(ti, citations, by) {  // a sentence's chips: each source once, a flagged id as `?`
+  return once(citations.map(id => by[id])).map(n => chip(ti, n)).join("");
 }
 
 function renderAnswer(turn, ti, many) {
@@ -121,7 +135,7 @@ function renderAnswer(turn, ti, many) {
         <li>xem câu hỏi có nằm trong <button type="button" class="linkbtn" data-act="docs"><span data-count>${documents ? documents.length : "các"}</span> văn bản hiện có</button> không.</li></ul></div></div>`;
   } else {
     const body = a.sentences.length - a.notices;
-    const sentence = s => esc(s.text) + s.citations.map(id => chip(ti, by[id])).join("");
+    const sentence = s => esc(s.text) + chips(ti, s.citations, by);
     h += `<div class="a-body"><p>${a.sentences.slice(0, body).map(sentence).join(" ")}</p>` +
       (a.notices ? `<p class="notices">${a.sentences.slice(body).map(sentence).join(" ")}</p>` : "") + `</div>`;
     if (a.sources.length) {
@@ -260,7 +274,7 @@ function scrollDown() { const th = $("#thread"); th.scrollTop = th.scrollHeight;
 /* ---------- source panel ---------- */
 function wide() { return app.getBoundingClientRect().width >= WIDE; }
 function name(provision, sources, by) {  // a link's provision as the reader sees it
-  const s = sources.find(x => x.id === provision);
+  const s = sources.find(x => ids(x).includes(provision));
   if (s) return `${s.document}, ${place(s)}`;
   const clause = provision.split(".").slice(1)[0];
   return clause ? `Khoản ${clause}` : `Điều này`;
@@ -277,7 +291,8 @@ function openPanel(ti, n) {
   const retro = s.issued && s.effective && s.effective < s.issued;
   const links = s.amended_by.map(link => {
     const source = by[link.source];
-    const what = link.target === s.id ? (s.clause ? "Khoản này" : "Điều này") : name(link.target, a.sources, by);
+    const own = ids(s).includes(link.target), clause = link.target.split(".")[1];
+    const what = own ? (clause ? `Khoản ${clause}` : "Điều này") : name(link.target, a.sources, by);
     return `<div class="amend">${ic("history")}<div><b>Đã được sửa đổi.</b> ${esc(what)} ${esc(LINK_WORDS[link.type] || link.type)} ${esc(name(link.source, a.sources, by))}.` +
       (source ? ` <button type="button" data-turn="${ti}" data-src="${source}">Xem nguồn [${source}]</button>` : "") + `</div></div>`;
   }).join("");
@@ -322,7 +337,7 @@ function closePanel() {
 /* ---------- copy ---------- */
 function copyText(turn) {
   const a = turn.answer, by = numbers(a);
-  const text = a.sentences.map(s => s.text + s.citations.map(id => ` [${by[id] || "?"}]`).join("")).join(" ");
+  const text = a.sentences.map(s => s.text + once(s.citations.map(id => by[id])).map(n => ` [${n || "?"}]`).join("")).join(" ");
   const sources = a.sources.map((s, i) => `[${i + 1}] ${s.document}, ${place(s)}: ${s.url}`);
   return [text, sources.length ? "Nguồn:\n" + sources.join("\n") : "", T.NOTICE].filter(Boolean).join("\n\n");
 }

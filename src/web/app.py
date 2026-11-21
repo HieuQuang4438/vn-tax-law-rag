@@ -100,12 +100,37 @@ def _not_ready(engine: Engine) -> JSONResponse | None:
     return JSONResponse({"error": "loading" if engine.status == "loading" else "load_error"}, status_code=503)
 
 
-def _source(citation, documents: dict) -> dict:
-    document = documents[citation.doc_id]
-    return {"id": citation.id, "document": citation.document, "kind": document.kind, "number": document.number,
-            "title": document.title, "issued": document.issued, "article": citation.article,
-            "clause": citation.clause, "heading": citation.heading, "url": citation.url, "text": citation.text,
-            "effective": citation.effective, "amended_by": [asdict(link) for link in citation.amended_by]}
+def _clause_order(citation) -> tuple[int, ...]:
+    return tuple((int(part) if part.isdigit() else 0, part) for part in citation.id.split(".")[1:])
+
+
+def _source(cited: list, documents: dict) -> dict:
+    """One passage's citations, in first-use order, as one source (web.md, *One source per article*, #41)."""
+    first = cited[0]
+    document = documents[first.doc_id]
+    whole = next((c for c in cited if c.id == c.passage), None)
+    clauses = sorted((c for c in cited if c.id != c.passage), key=_clause_order)
+    if whole is not None:
+        text, effective = whole.text, whole.effective
+    else:
+        text = "\n".join(c.text or "" for c in clauses)
+        dates = {c.effective for c in clauses}
+        effective = dates.pop() if len(dates) == 1 else None
+    links = []
+    for citation in cited:
+        links += [link for link in citation.amended_by if link not in links]
+    return {"ids": [c.id for c in cited], "document": first.document, "kind": document.kind,
+            "number": document.number, "title": document.title, "issued": document.issued,
+            "article": first.article, "clauses": [c.clause for c in clauses], "heading": first.heading,
+            "url": first.url, "text": text, "effective": effective, "amended_by": [asdict(link) for link in links]}
+
+
+def _sources(citations: list, documents: dict) -> list[dict]:
+    passages: dict[str, list] = {}
+    for citation in citations:
+        if citation.in_context:
+            passages.setdefault(citation.passage, []).append(citation)
+    return [_source(cited, documents) for cited in passages.values()]
 
 
 def create_app(load: Callable[[], tuple[Any, Any]] | None = None) -> FastAPI:
@@ -163,7 +188,7 @@ def create_app(load: Callable[[], tuple[Any, Any]] | None = None) -> FastAPI:
         return {"question": body.question,
                 "sentences": [{"text": s.text, "citations": list(s.citations)} for s in result.sentences],
                 "notices": result.notices, "not_found": result.not_found,
-                "sources": [_source(c, documents) for c in result.citations if c.in_context],
+                "sources": _sources(result.citations, documents),
                 "flagged": list(result.flagged), "seconds": round(time.perf_counter() - started, 3)}
 
     return app
