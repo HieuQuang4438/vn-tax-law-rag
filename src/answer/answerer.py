@@ -14,8 +14,8 @@ from urllib.parse import quote
 
 from pydantic import BaseModel
 
-from src.context import Assembler, Context, Passage, cites
-from src.context.assembly import LINK_WORDS
+from src.context import Assembler, Context, Link, Passage, cites
+from src.context.assembly import LINK_WORDS, _marked
 from src.llm import LLM, Call
 from src.retrieval import Retrieval
 
@@ -24,6 +24,8 @@ PROMPT = Path(__file__).resolve().parent.parent / "prompts" / "answer.md"
 DOC_ID = re.compile(r"-(\d+)-d1\.html$")
 ID = re.compile(r"^(\d+)(?:\.(\d+(?:\.\d+)*))?$")
 FLAGGED_LABEL = "Trích dẫn không có trong nguồn được cung cấp:"
+DAY = re.compile(r"^(\d{2})/(\d{2})/(\d{4})$")
+POINT = re.compile(r"^(\d+)\.(\d+(?:\.\d+)*)[ .]?[a-yđ]")  # `1.25a`, `1.25 b`, `1.25.c`, ... (#33)
 
 
 class SentenceOutput(BaseModel):
@@ -39,6 +41,10 @@ class AnswerOutput(BaseModel):
 class Document:
     label: str  # <loai_van_ban> <so_hieu>
     url: str
+    kind: str = ""  # loai_van_ban
+    number: str = ""  # so_hieu
+    title: str = ""  # trich_yeu
+    issued: str | None = None  # ngay_ban_hanh as YYYY-MM-DD
 
 
 @dataclass(frozen=True)
@@ -56,6 +62,12 @@ class Citation:
     article: str | None = None
     clause: str | None = None  # the clause number as shown
     url: str | None = None
+    # For the web page (answer.md, *For the page*, #30).
+    doc_id: str | None = None
+    heading: str | None = None
+    text: str | None = None
+    effective: str | None = None
+    amended_by: tuple[Link, ...] = ()
 
 
 @dataclass
@@ -78,9 +90,39 @@ def _normalised(raw: str) -> str:
     return text
 
 
+def _clause_of(citation_id: str, passages: dict[str, Passage]) -> str:
+    """A point-level id as its clause id, the longest clause of the passage that fits; any other id as given."""
+    match = POINT.match(citation_id)
+    passage = passages.get(match.group(1)) if match else None
+    if passage is None or passage.kind != "article":
+        return citation_id
+    run = match.group(2)
+    fits = [k for k in passage.clauses if run == k or run.startswith(k + ".")]
+    return f"{passage.id}.{max(fits, key=len)}" if fits else citation_id
+
+
+def _heading(article: str, title: str) -> str:
+    return f"Điều {article}. {title}".strip() if title else f"Điều {article}."
+
+
 def _fragment(article: str, title: str) -> str:
-    heading = f"Điều {article}. {title}".strip() if title else f"Điều {article}."
-    return "#:~:text=" + quote(heading, safe="").replace("-", "%2D")
+    return "#:~:text=" + quote(_heading(article, title), safe="").replace("-", "%2D")
+
+
+def _iso(day: str | None) -> str | None:
+    """`dd/mm/yyyy` as `YYYY-MM-DD`; none for anything else."""
+    match = DAY.match(day) if isinstance(day, str) else None
+    return f"{match.group(3)}-{match.group(2)}-{match.group(1)}" if match else None
+
+
+def _clause_text(article_text: str, passage_id: str, clause: str) -> str:
+    """The clause's lines: from its clause line to the line before the next one, without the mark."""
+    plain = article_text.split("\n")
+    marked, clauses = _marked(article_text, passage_id)
+    starts = [i for i, (line, mark) in enumerate(zip(plain, marked)) if line != mark]  # one per clause, in order
+    position = clauses.index(clause)
+    end = starts[position + 1] if position + 1 < len(starts) else len(plain)
+    return "\n".join(plain[starts[position]:end])
 
 
 def _named(citation: "Citation") -> str:
@@ -103,7 +145,9 @@ def documents_of(processed_dir: Path) -> dict[str, "Document"]:
         if not match:
             continue
         metadata = page["metadata"]
-        documents[match.group(1)] = Document(f"{metadata['loai_van_ban']} {metadata['so_hieu']}", page["source_url"])
+        kind, number = metadata["loai_van_ban"], metadata["so_hieu"]
+        documents[match.group(1)] = Document(f"{kind} {number}", page["source_url"], kind, number,
+                                             metadata.get("trich_yeu", ""), _iso(metadata.get("ngay_ban_hanh")))
     return documents
 
 
@@ -125,11 +169,11 @@ class Answerer:
                           {"assembly": assembly, "generation": 0})
         user = f"Passages:\n\n{context.text}\n\nQuestion: {question}"
         call = self.llm.generate("answer", self.prompt, user, AnswerOutput)
-        sentences = [Sentence(s.text, tuple(dict.fromkeys(_normalised(i) for i in s.citations)))
+        passages = {p.id: p for p in context.passages}
+        sentences = [Sentence(s.text, tuple(dict.fromkeys(_clause_of(_normalised(i), passages) for i in s.citations)))
                      for s in call.parsed.sentences]
         not_found = not sentences or (len(sentences) == 1 and sentences[0].text.strip() == NOT_FOUND
                                       and not sentences[0].citations)
-        passages = {p.id: p for p in context.passages}
         notices = [] if not_found else self._notices(sentences, passages)
         sentences += notices
         citations = [self._resolve(i, passages) for i in dict.fromkeys(i for s in sentences for i in s.citations)]
@@ -161,17 +205,28 @@ class Answerer:
             if clause is not None and clause not in passage.clauses:
                 return Citation(citation_id, False)
             article_id = f"{passage.doc_id}:D{passage.article}"
+            article = self.assembler.articles[article_id]
+            text = article["text"] if clause is None else _clause_text(article["text"], passage.id, clause)
+            own = self.assembler.chunks.get(f"{article_id}:K{clause}") if clause is not None else None
+            if own is not None:
+                effective = own["effective_date"]
+            else:
+                dates = {chunk["effective_date"] for chunk in self.assembler.chunks_of[article_id]}
+                effective = dates.pop() if len(dates) == 1 else None
         else:
             if clause is not None:
                 return Citation(citation_id, False)
             chunk = self.assembler.chunks[passage.chunk_ids[0]]
             article_id = chunk["parent_id"]
             clause = chunk["clause"] if chunk["clause"] not in (None, "0") else None
+            text, effective = chunk["text"], chunk["effective_date"]
         shown = clause.split(".")[0] if clause else None
         document = self.documents[passage.doc_id]
         title = self.assembler.articles[article_id]["title"]
+        links = tuple(link for link in passage.links if cites(citation_id, link.target))
         return Citation(citation_id, True, passage.id, document.label, passage.article, shown,
-                        document.url + _fragment(passage.article, title))
+                        document.url + _fragment(passage.article, title), passage.doc_id,
+                        _heading(passage.article, title), text, effective, links)
 
     @staticmethod
     def _render(sentences: list[Sentence], citations: list[Citation], flagged: list[str]) -> str:

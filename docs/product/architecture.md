@@ -192,8 +192,10 @@ logs every call ([answer.md](../reference/answer.md)). — FR-CORE-010, FR-CORE-
 Each citation id becomes document, article and clause with a link to the source page; the
 link scrolls to the article where the browser supports text fragments, since the page has no
 anchor per article. A citation id that was not in the context is listed apart, never shown as
-a source. The web chat page shows under every answer the note that it is information, not
-advice, and keeps one conversation per browser session ([web.md](../reference/web.md)).
+a source. The web chat page, a FastAPI app serving a static page and a JSON API, shows each
+source with its text, effective date and amendments, shows under every answer the note that it
+is information, not advice, and keeps the conversations in the browser
+([web.md](../reference/web.md)).
 — FR-CORE-011, FR-CORE-013, FR-CORE-014
 
 ## Measuring it — built; answer relevancy planned

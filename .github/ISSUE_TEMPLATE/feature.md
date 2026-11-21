@@ -9,7 +9,7 @@ labels: feature
 
 **Work:** <what gets built, in one or two sentences. Point at the spec; do not restate it.>
 
-**Done when:** <the AC id and its test; the docs updated in the same commit.>
+**Done when:** <the AC id and its test; the spec the test encodes in the same commit as the failing test, and the docs describing what was delivered in the same commit as the behavior.>
 
 **Depends on:** <#issue numbers, ADR ids, or "nothing">
 

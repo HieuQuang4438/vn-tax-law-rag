@@ -1,7 +1,8 @@
 ---
-status: draft
-updated: 2026-11-18
+status: approved
+updated: 2026-11-21
 owner: HieuQuang4438
+approved-by: peer
 ---
 
 # Eval results
@@ -9,7 +10,9 @@ owner: HieuQuang4438
 What `python -m src.eval.run` does and the results file it writes. It runs the eval set
 ([eval-set.md](eval-set.md)) through the pipeline and scores the metrics defined in
 [acceptance.md](../product/acceptance.md#measurement-definitions). The rules are FR-CORE-015,
-AC-011 and AC-016. The approach is the approved comment on #9.
+AC-011 and AC-016. The approach is the approved comment on #9; re-judging, comparing several
+runs and the noise script, the approved comment on #37; EVAL-009 and re-scoring, the approved
+comment on #39.
 
 By default the pipeline is retrieval only ([retrieval.md](retrieval.md)), and the metrics that
 need an answer are written as not run. `--generate` adds context assembly, generation and an
@@ -33,6 +36,10 @@ python -m src.eval.run --compare eval/results/<file>    # also prints what chang
 | `--rewrite` | `concat` (`DEFAULT_REWRITER`) | the rewriter of the conversation turns, one of `none`, `concat`, `fuse`, `llm` ([conversation.md](conversation.md), approved on #19); `llm` spends API quota, with or without `--generate` |
 | `--compare` | none | an earlier results file to compare with |
 | `--comparisons` | 1 | how many variants are compared with the same baseline; above 1, `--compare` also prints the Bonferroni interval (#25) |
+| `--seed` | none | the seed of every model call of the run, answers, rewrites and judge alike (`LLM(seed=…)`, [answer.md](answer.md), *Seed*), recorded as `configuration.pipeline.seed`; without it the pipeline has no `seed` key, as before #37. Runs of one configuration take seeds 1 to k, and each arm of a comparison the same ones (approved on #37, *a seed per run*). It does not run with `--rejudge` |
+| `--context-k` | `TOP_K` (8) | with `--generate`, how many hits the answer's context is assembled from: `AnswerPipeline` retrieves that many for each standalone question and the item's `hits` hold them all, while `recall` and `context_precision`, and so EVAL-001 and EVAL-007, still take the first `TOP_K` (approved on #36, choice 1A). Recorded as `configuration.pipeline.context_k`; without it the pipeline has no `context_k` key. Conversation turns are not generated and still retrieve `TOP_K`, so EVAL-005 is unchanged. It must be at least `TOP_K`, and it does not run without `--generate` |
+| `--rescore` | none | an earlier `--generate` results file: score its stored verdicts again, with no API call (*Re-scoring a run*, #39) |
+| `--rejudge` | none | an earlier `--generate` results file: judge its stored answers again instead of running the pipeline (*Re-judging a run*, #37); spends API quota |
 | `--rrf-k` | `RRF_K` (60) | the fusion's `rrf_k` ([retrieval.md](retrieval.md#hybrid-search)) |
 | `--keyword-weight` | 1 | the fusion's `keyword_weight` |
 | `--vector-weight` | 1 | the fusion's `vector_weight` |
@@ -65,7 +72,7 @@ file, when the two runs used different eval sets.
 | EVAL-001 | answerable standalone questions | recall@8 |
 | EVAL-005 | answerable follow-up turns: every turn after the first of a conversation | recall@8 |
 | EVAL-007 | answerable standalone questions | context precision@8 |
-| EVAL-002, EVAL-003, EVAL-004, EVAL-006, EVAL-008 | | not run: `no generation stage`; with `--generate`, see *Generation stage* |
+| EVAL-002, EVAL-003, EVAL-004, EVAL-006, EVAL-008, EVAL-009 | | not run: `no generation stage`; with `--generate`, see *Generation stage* |
 
 - **recall@k** of one item: the share of its expected articles that are the parent article of
   at least one of its first k hits. The expected articles are the `article` of each of its
@@ -122,7 +129,7 @@ The file holds ids and numbers only: no question text, no answer text and no cor
 ```json
 {
   "format": 1,
-  "run": {"started": "2026-11-13T15:04:05+07:00", "command": "python -m src.eval.run", "seconds": 41.3},
+  "run": {"started": "2026-11-13T15:04:05+07:00", "command": "python -m src.eval.run --generate --seed 1", "seconds": 41.3},
   "configuration": {...},
   "scores": {"EVAL-001": {...}, "...": {}},
   "breakdown": {"form": {...}, "tax_type": {...}, "added_in": {...}},
@@ -131,6 +138,11 @@ The file holds ids and numbers only: no question text, no answer text and no cor
   "items": [{...}]
 }
 ```
+
+**`run`** holds `started`, the local start time; `command`, `python -m src.eval.run` followed by
+the options the command was given, in the order given, whether they came from the shell
+(`sys.argv`) or from a call to `main(argv)` (#40); and `seconds`, the run's wall time. A resumed
+run's `seconds` covers its last segment only.
 
 **`configuration`**
 
@@ -146,7 +158,7 @@ The file holds ids and numbers only: no question text, no answer text and no cor
 | `versions` | `python` and the installed `bm25s`, `chromadb`, `numpy`, `pyvi`, `sentence-transformers`, `torch`, `underthesea`; null for one not installed |
 | `machine` | `os` (`platform.platform()`), `cpu` (`platform.processor()`), `cpu_count`, `ram_gb` (null when it cannot be read) |
 
-**`scores`**, one entry per EVAL id, EVAL-001 to EVAL-008:
+**`scores`**, one entry per EVAL id, EVAL-001 to EVAL-009:
 
 | Key | Value |
 |---|---|
@@ -218,6 +230,53 @@ prints `different eval sets: scores are not comparable` and exits with 2. Otherw
   likely, and this interval corrects for that;
 - every item whose recall dropped: its id, old and new recall.
 
+## Comparing several runs
+
+Approved on #37, step 3B. Each answer is one draw from the model, so a generation run repeated
+k times and averaged per item gives a narrower interval than one run.
+
+```bash
+python -m src.eval.compare --old a1.json,a2.json --new b1.json,b2.json [--comparisons n]
+```
+
+`--old` and `--new` each take one or more results files, comma-separated: the runs of one
+configuration. The command reads them and prints the comparison; it writes nothing. It exits
+with 2, printing the reason, when two of the files have different eval sets
+(`different eval sets: scores are not comparable`), or when the files of one side have different
+`configuration.pipeline`, its `seed` aside (`the runs of one side differ in configuration`): the
+runs of one side differ by their seeds and nothing else.
+
+**Per item, per side**, over the side's runs:
+
+| ID | Over | Item value |
+|---|---|---|
+| EVAL-001, EVAL-007 | standalone questions with a `recall` | the mean of `recall`, of `context_precision` |
+| EVAL-005 | follow-up turns with a `recall` | the mean of `recall` |
+| EVAL-006 | answerable standalone questions with a `correct` | the mean of `correct`, 1 or 0 |
+| EVAL-009 | answerable standalone questions with a `key_facts` | the mean of the item's coverage, as under *Generation stage* |
+| EVAL-004 | unanswerable standalone questions generated | the mean of `not_found`, 1 or 0 |
+| EVAL-002 | answerable standalone questions | the sums of `cited_supported` and of `cited_sentences` over the runs where it was judged |
+| EVAL-003 | answerable standalone questions | the mean of `supported / sentences` over the runs where it was judged with at least one sentence; none when there is no such run |
+
+An item is paired when it has a value on both sides, `EVAL-003` aside: there every item of the
+population is kept and a side's value is the mean over its items that have one. The items are
+taken in the order of the first file of `--new`, so with one file per side EVAL-001, EVAL-005
+and EVAL-007 get the same `paired` interval as `--compare`.
+
+**Printed**: a first line naming the commits of each side, then one line per EVAL id with a value
+on both sides: old, new and the change, to 3 decimals, then `paired [low, high]`, the paired
+95% bootstrap interval of the change, and with `--comparisons n` above 1 `bonferroni [low,
+high]`, as under *Comparing two runs*. A side's value is the mean of its paired items' values;
+for EVAL-002 the ratio of the sums. The intervals resample the paired items as under *Interval*,
+with the same seed, and take in each resample:
+
+- EVAL-001, EVAL-004, EVAL-005, EVAL-006, EVAL-007: the mean of the per-item differences
+  (`paired_bootstrap_interval`);
+- EVAL-002: the new side's ratio of the sums minus the old side's
+  (`paired_ratio_bootstrap_interval`);
+- EVAL-003: the new side's mean over its items with a value minus the old side's
+  (`paired_nanmean_bootstrap_interval`).
+
 ## Generation stage
 
 `--generate` adds context assembly, generation and the judge ([answer.md](answer.md)), approved
@@ -225,10 +284,11 @@ on #15. Without it the run is retrieval only and calls no API. With it, on eval 
 makes 240 generation calls and at most 184 judge calls, within the free tier's 500 requests
 per day (ADR-0003).
 
-- The pipeline is `AnswerPipeline(retriever, answerer)`: `generates` is true, `answer(question)`
-  retrieves, assembles and generates, and `retrieve(question, earlier=())` rewrites and
-  retrieves. Its stages are `retrieval`, `assembly`, `generation`, with `rewrite` first when the
-  rewriter is not `none`.
+- The pipeline is `AnswerPipeline(retriever, answerer, context_k=None)`: `generates` is true,
+  `answer(question)` retrieves `context_k` hits (`TOP_K` when none), assembles and generates, and
+  `retrieve(question, earlier=())` rewrites and retrieves `TOP_K`. Its stages are `retrieval`,
+  `assembly`, `generation`, with `rewrite` first when the rewriter is not `none`. Its config has
+  `context_k` only when it is given (`--context-k`, #36).
 - Standalone questions are generated; conversation turns are only retrieved, through the
   rewriter (`generated: false`; choice 2A on #19 leaves their generation out of the scores).
   The warm-up call only retrieves.
@@ -246,12 +306,13 @@ per day (ADR-0003).
 | EVAL-006 | the answers to answerable standalone questions | 1 when `correct`, 0 otherwise, a not-found answer included as 0; the mean |
 | EVAL-004 | the unanswerable standalone questions generated | 1 when `not_found`, 0 otherwise; the mean (approved on #16) |
 | EVAL-008 | | not run: `not scored` |
+| EVAL-009 | the answers to answerable standalone questions with key facts | per answer, its **coverage**: 0 when `not_found` or `contradicts`, else `facts_stated / key_facts`; the mean (approved on #39); no target |
 
 EVAL-002's interval resamples items, as under *Interval*, and takes the ratio of the sums in each
 resample (`ratio_bootstrap_interval`), since sentences of one answer are not independent. The
 three judged scores carry `judge`, the judge's model, and the summary prints
 `judge <model>, not hand-checked` after them: a judged score stands only with the hand-check
-recorded beside it in *Generation runs*. EVAL-004 reads `not_found` alone: it needs no judge,
+recorded beside it in the run's file in [docs/experiments/](../experiments/README.md). EVAL-004 reads `not_found` alone: it needs no judge,
 carries no `judge` and is scored without one.
 
 EVAL-004 does not see the cost of saying not found too often, which falls on answerable
@@ -317,6 +378,7 @@ the generated items only; the scope reads `full pipeline, dev laptop`. An item's
 | `notices` | `Answer.notices`: the amendment notices among `sentences` |
 | `cited_supported`, `supported` | sentences whose `cited`, and whose `supported`, verdict is true; null when not judged |
 | `correct` | the verdict's; false for a not-found answer to an answerable question; null for an unanswerable one |
+| `facts_stated`, `key_facts`, `contradicts` | the key facts the verdict marks as stated, the item's key facts, and the verdict's `contradicts`; for a not-found answer to an answerable question 0, the item's key facts and null; null for one not judged and for an unanswerable one (#39) |
 | `ac015` | null when the question has no amended chunk; else `{"in_context", "asked", "noticed", "cites_amending", "says_amended", "passes"}`: `asked` the ids AC-015 asks about, null for a retrieval miss and empty for an uncited question; `noticed` the asked ids a notice covers, in the order of `asked`; the last four null for both |
 | `judge_latency_s`, `judge_tokens`, `judge_cost_usd` | the judge call's; null when not judged |
 
@@ -354,176 +416,110 @@ python -m src.eval.handcheck score eval/<file>-handcheck.me.md      # prints the
 - The sheet has one section per sentence, `## S<n> · <id> · sentence <i>` (i counted from 1 in
   its answer): the question, the sentence with its ids, its cited passages, the whole context
   in a folded `<details>` block, and the blank lines `Cited supports:` and `Context supports:`.
-  Then one section per answer, `## A<n> · <id>`: the question, the key facts, the answer, and the
-  blank line `Correct:`. Then one section per answer graded on `says_amended` (AC-015, choice 3
+  Then one section per answer, `## A<n> · <id>`: the question, the key facts, the answer, one
+  blank line `Fact <n> stated:` per key fact, numbered from 1 (#39, choice 5A), and the blank line
+  `Correct:`. Then one section per answer graded on `says_amended` (AC-015, choice 3
   on #15), `## M<n> · <id>`: the question, the line `**Amended provisions.**` with the record's
   `amended` ids as `[1.25], [3]`, the whole context in a folded `<details>` block, the answer,
   the rule `Yes when the answer says that each of these provisions was amended, replaced or
   repealed.`, and the blank line `Says amended:`. No verdict is on the sheet.
 - The key is a JSON block: `{"S1": {"id", "sentence", "cited", "supported"}, "A1": {"id",
-  "correct"}, "M1": {"id", "says_amended"}, …}`, the judge's verdicts.
+  "facts", "correct"}, "M1": {"id", "says_amended"}, …}`, the judge's verdicts.
 - `score <sheet>` reads `yes` or `no`, in any case, after each of those labels, skips blank
-  ones, and prints `cited: <agreeing> of <graded>`, then `supported:`, `correct:` and
-  `says_amended:`.
+  ones, and prints `cited: <agreeing> of <graded>`, then `supported:`, `facts:`, `correct:` and
+  `says_amended:`. A `Fact <n> stated:` line is graded against the n-th of the key's `facts`.
 
-**Generation runs.** Every clean `--generate` run is listed in a table under *Baseline*: its
-file, EVAL-002, EVAL-003, EVAL-006, the not-found counts, AC-015, and the hand-check agreement.
+## Re-judging a run
+
+Approved on #37, step 1A. `--rejudge <results file>` judges the stored answers of an earlier
+`--generate` run again, so a change of verdict is the judge's alone.
+
+```bash
+python -m src.eval.run --rejudge eval/results/2026-11-19-69f6ab4.json
+```
+
+- It reads the results file and its answers file, `<data>/eval-answers/<results file stem>.jsonl`,
+  and loads the eval set as `--set` names it. It runs no retrieval and no generation. It exits
+  with 2, printing the reason, with `--generate` or `--seed`, when the answers file is missing, or when the
+  set's `sha256` is not the results file's.
+- **Judged again**: each answers record whose `verdict` is not null, with the question and key
+  facts of its item in the set, its `sentences`, its `flagged` ids, its passages joined as the
+  context text (`"\n\n".join` of their `text`, as `Context.text`) and its `amended` ids. One
+  judge call each, as under *Generation stage*. Every other record and item is copied unchanged.
+- **The item** of each judged record gets the new `cited_supported`, `supported`, `correct`,
+  `facts_stated`, `key_facts`, `contradicts`, `judge_latency_s`, `judge_tokens` and `judge_cost_usd`. Its `ac015`, when it has `asked` ids,
+  gets `says_amended` true when `amended` is empty and the new verdict's otherwise, and `passes`
+  again from it.
+- **The new results file**: `scores` are the earlier file's, with EVAL-002, EVAL-003, EVAL-006 and
+  EVAL-009 scored again from the items; `generation` and `ac015` computed again; `breakdown`, `latency`,
+  `cost` and every other item key unchanged. `configuration` is the earlier file's with `commit`,
+  `dirty`, `diff_sha256`, `versions` and `machine` of this run, and in `pipeline` the
+  `judge_model` and the judge prompt's hash of this run. `run` adds `rejudge_of`, the earlier
+  file's stem. The file is named and written as any results file, and the answers file beside
+  it holds the copied records with the new `verdict`.
+- The summary is printed; `--compare` works as for any run.
+
+## Run-to-run noise
+
+Approved on #37, step 0A. `scripts/noise.py` measures how much a rerun of one configuration moves
+EVAL-006. It reads results files and their answers files, structured fields only, and prints
+counts and numbers, never text.
+
+```bash
+python scripts/noise.py --runs a.json,b.json,c.json [--pairs old.json:new.json,...] [--answers data/eval-answers]
+```
+
+- **Same text**: two answers whose lists of sentence texts are equal character for character.
+  **Same normalised text**: equal after dropping every punctuation character (Unicode category
+  `P`) and collapsing whitespace to one space, trimmed.
+- **For each two of `--runs`**: over the answerable standalone questions with a `correct` in
+  both, how many have the same text and the same normalised text, how many changed verdict, and
+  of those how many have the same text and the same normalised text; and the half-width of the
+  paired EVAL-006 interval between the two (`paired_bootstrap_interval`).
+- **Projection**, from three or more runs: σ̄², the mean over the items with a `correct` in every
+  run of the sample variance (n − 1) of the item's `correct` across the runs; and for k = 1 to 5
+  the projected half-width of a paired EVAL-006 change at k runs per arm,
+  1.96 · √(2 σ̄² / (k n)), n those items.
+- **For each `--pairs` entry**: binary EVAL-006 and the **share of key facts stated** side by side,
+  each with its paired interval. The share of an answerable standalone question is the mean of its
+  verdict's `facts`, 0 for a not-found answer, and none without a verdict otherwise.
+
+**Runs per arm: k = 2**, set by
+[2026-11-20-eval006-noise.md](../experiments/2026-11-20-eval006-noise.md) (#37): the smallest k
+whose projected half-width of a paired EVAL-006 change is within ±0.03 (±0.028; one run gives
+±0.040). A generation experiment runs each arm twice, `--seed 1` and `--seed 2`, and compares
+them with `python -m src.eval.compare`. A retrieval-only run does not sample and needs one.
+It decides on EVAL-009, with EVAL-006 guarded: EVAL-006 must not change with an interval
+entirely below 0 (approved on #39, choice 4A).
+
+## Re-scoring a run
+
+Approved on #39, choice 6A. `--rescore <results file>` scores the stored verdicts of an earlier
+`--generate` run again, with no API call, so a run from before a score existed gets it.
+
+```bash
+python -m src.eval.run --rescore eval/results/2026-11-19-69f6ab4.json
+```
+
+- It reads the results file, its answers file and the eval set as `--rejudge` does, and exits
+  with 2 for the same reasons, and with `--generate`, `--seed` or `--rejudge`.
+- **The item** of each answerable standalone question that was generated gets `facts_stated`,
+  `key_facts` and `contradicts` as under *Generation stage*: from its record's `verdict` when it
+  has one, as for a not-found answer when it is not found. Its keys are then in the order of
+  *Generation stage*. Every other item key is unchanged.
+- **The new results file**: `scores` are the earlier file's, with EVAL-002, EVAL-003, EVAL-006
+  and EVAL-009 scored from the items, in EVAL id order; everything else is as under *Re-judging
+  a run*, with `rescore_of` in `run` instead of `rejudge_of` and the judge's settings in
+  `pipeline` unchanged. The answers file beside it is a copy of the earlier one.
+
+**Generation runs.** Every clean `--generate` run is recorded in
+[docs/experiments/](../experiments/README.md): its file, EVAL-002, EVAL-003, EVAL-006, the not-found counts, AC-015, and the hand-check agreement.
 
 ## Baseline
 
-The first clean run, recorded on #9: `eval/results/2026-11-13-1d257ea.json`. Eval set v1, commit
-`1d257ea`, retrieval only with each turn as written, k = 8, RRF 60, 50 candidates, bge-m3
-`5617a9f6`, syllable BM25, on the dev laptop (i7-10610U, 16 GB RAM, CPU only).
-
-| Metric | Value | n | 95% interval | Target |
-|---|---|---|---|---|
-| EVAL-001 recall@8 | 0.633 | 39 | 0.539–0.727 | ≥ 0.80, not met |
-| EVAL-005 recall@8, follow-up turns, no rewrite | 0.575 | 10 | 0.333–0.817 | ≥ 0.70, not met |
-| EVAL-007 context precision@8 | 0.676 | 39 | 0.571–0.773 | ≥ 0.60, met |
-
-- Recall is 0.771 on `reference` questions and 0.572 on `plain` ones.
-- Retrieval latency is 0.35 s median and 0.69 s p95.
-- 48 of the 111 expected articles are missed: 9 of the 15 amending articles and 39 of the 96
-  base articles. Of the missed ones, 18 rank 9–20 and 16 rank 21–50 when 50 hits are
-  retrieved; 14 are not among them.
-
-EVAL-001's target was confirmed at 0.80 after this baseline, approved on #9. It is not revised
-again; the gap is the work of the retrieval issues.
-
-Since #12 the chunks are split over 1,600 tokens, not 800. At that threshold, commit `ab4a8fa`,
-otherwise as above: EVAL-001 0.678 [0.592, 0.764], EVAL-005 0.575 [0.333, 0.817], EVAL-007
-0.686 [0.590, 0.780], in `eval/results/2026-11-14-ab4a8fa-3.json`
-([chunk-schema.md](chunk-schema.md), *Threshold experiment*). The table above stays the record
-of the first baseline.
-
-Since #25 the top 8 holds one hit per article. At commit `e2051f7`, otherwise as at `ab4a8fa`:
-EVAL-001 0.714 [0.634, 0.791], EVAL-005 0.600 [0.333, 0.867], EVAL-007 0.701 [0.607, 0.793], in
-`eval/results/2026-11-15-e2051f7.json` ([retrieval.md](retrieval.md), *Fusion tuning*).
-
-The eval set v2 baseline, recorded on #26: `eval/results/2026-11-15-b0cced1.json`. Eval set v2
-(184 answerable standalone questions, 29 answerable follow-up turns), commit `b0cced1`, otherwise
-as at `e2051f7`. A v2 score is not compared paired with a v1 score.
-
-| Metric | Value | n | 95% interval | Target |
-|---|---|---|---|---|
-| EVAL-001 recall@8 | 0.769 | 184 | 0.715–0.813 | ≥ 0.80, not met |
-| EVAL-005 recall@8, follow-up turns, no rewrite | 0.494 | 29 | 0.339–0.644 | ≥ 0.70, not met |
-| EVAL-007 context precision@8 | 0.678 | 184 | 0.626–0.728 | ≥ 0.60, met |
-
-- Recall is 0.714 on the 39 version 1 questions and 0.783 on the 145 added in version 2.
-- Recall by tax type runs from 0.500 (`household`) to 0.933 (`cit`).
-- The 184 questions expect 164 distinct articles; version 1 expects 73 of them.
-- The 10 reference questions that name the wrong document (answered by the right one, step 2)
-  score 0.600: q65, q72, q74, q84, q122, q185, q212, q213, q240, q242.
-- Retrieval latency is 0.38 s median and 0.90 s p95 over 292 items.
-
-### Follow-up rewriters
-
-The four rewriters of [conversation.md](conversation.md), recorded on #19: retrieval-only runs at
-commit `6e9ee24`, eval set v2, retrieval as at `b0cced1`, each with `--rewrite <name>` and, for
-the three rewriters, `--compare` with the `none` run and `--comparisons 3`. EVAL-001 and
-EVAL-007 are those of `none` in every run: standalone questions go through no rewriter.
-
-| Rewriter | File | EVAL-005 | paired vs `none` | Bonferroni |
-|---|---|---|---|---|
-| `none` | `eval/results/2026-11-18-6e9ee24.json` | 0.494 [0.339, 0.644] | | |
-| `concat` | `eval/results/2026-11-18-6e9ee24-2.json` | 0.526 [0.360, 0.670] | +0.032 [−0.146, +0.195] | [−0.172, +0.237] |
-| `fuse` | `eval/results/2026-11-18-6e9ee24-3.json` | 0.480 [0.322, 0.627] | −0.014 [−0.129, +0.098] | [−0.172, +0.129] |
-| `llm` | `eval/results/2026-11-18-6e9ee24-4.json` | 0.629 [0.473, 0.767] | +0.134 [+0.017, +0.259] | [−0.003, +0.296] |
-
-- `llm` against `concat`, from the two files: +0.102, paired [+0.002, +0.224], Bonferroni
-  [−0.009, +0.250] at 3 comparisons.
-- The choice (choice 3A on #19): `concat`, the LLM-free rewriter with the higher EVAL-005;
-  `llm`'s Bonferroni lower bound over it is not above 0. No rewriter separates from `none`
-  (choice 4A), so the four are re-measured on an eval set v3 with more follow-up turns
-  (approved on #19). EVAL-005 misses its target (≥ 0.70) under every rewriter.
-- AC-014: in every run no first turn was rewritten; under `concat`, `fuse` and `llm` all 30
-  follow-ups went through the rewriter and got a query other than their question.
-- Recall dropped against `none` on 6 follow-ups under `concat` (c04.2, c05.3, c06.3, c12.2,
-  c15.3, c16.2), 2 under `fuse` (c15.3, c16.2) and 3 under `llm` (c04.2, c05.3, c06.2).
-- `concat` and `fuse` gave 2 reference hits on follow-ups, from an article named in an earlier
-  question; `none` and `llm` gave none.
-- `llm` ran once, and its rewrites are not deterministic: another run may score otherwise. It
-  made 30 calls, 0.0043 USD in all, its rewrite 0.84 s median; the other rewrites take
-  under a millisecond. Retrieval-only latency is 0.19 s median under `none` and 0.21 s under
-  `concat`.
-
-### Generation runs
-
-Clean `--generate` runs, on the dev laptop, judge `gemini-3.5-flash-lite`. The hand-check is the
-owner's, blind, on the sheet `python -m src.eval.handcheck sheet` writes.
-
-| File | EVAL-002 | EVAL-003 | EVAL-004 | EVAL-006 | Not found | AC-015 | Hand-check |
-|---|---|---|---|---|---|---|---|
-| `eval/results/2026-11-16-6cbf23a.json` | 0.855 [0.782, 0.909], n = 345 | 0.990 [0.977, 1.000], n = 155 | not scored | 0.380 [0.310, 0.457], n = 184 | 29 of 184 answerable, 55 of 56 unanswerable | 3 pass, 30 fail, 15 retrieval misses, of 48: not green | cited 20 of 20, supported 20 of 20, correct 20 of 20 |
-| `eval/results/2026-11-17-4091435.json` | 0.868 [0.799, 0.921], n = 394 | 0.985 [0.971, 0.995], n = 151 | not scored | 0.402 [0.332, 0.473], n = 184 | 33 of 184 answerable, 55 of 56 unanswerable | 15 pass, 12 fail, 15 retrieval misses, of 42; 6 uncited: not green | not hand-checked |
-| `eval/results/2026-11-18-271adae.json` | 0.774 [0.700, 0.850], n = 376 | 0.961 [0.940, 0.981], n = 154 | 0.982 [0.946, 1.000], n = 56 | 0.402 [0.332, 0.473], n = 184 | 30 of 184 answerable (by recall@8: 8 all, 14 some, 8 none), 55 of 56 unanswerable | 21 pass, 7 fail, 15 retrieval misses, of 43; 5 uncited: not green | cited 19 of 20, supported 19 of 20, correct 16 of 20, says_amended 4 of 6 |
-
-`2026-11-16-6cbf23a`, eval set v2, commit `6cbf23a`, retrieval as at `b0cced1`:
-
-- EVAL-002 and EVAL-006 miss their targets (≥ 0.90, ≥ 0.80); EVAL-003 meets its (≥ 0.90).
-- The judge called 7 of the 20 sampled answers correct, and the owner agreed on all 20: the low
-  EVAL-006 is the answers', not the judge's.
-- All 20 sampled sentences were judged `cited` and `supported`, so the hand-check does not yet
-  show the judge catching an unsupported sentence.
-- 72 citation ids not in the context, in 39 items, were flagged (AC-009).
-- Latency is 2.28 s median and 4.84 s p95 over 240 items; cost is 0.0049 USD per item, the
-  judge's 155 calls 0.7651 USD.
-- The keys changed 109 times, 106 on a 503 and 3 on a 429; 7 attempts failed on every key and
-  succeeded after the backoff.
-
-`2026-11-17-4091435`, eval set v2, commit `4091435` (amendment notices, choice A2; AC-015 narrowed,
-choice B2), retrieval as at `b0cced1`:
-
-- Not hand-checked: #15 closed without a further run (approved on #15), so its judged scores
-  stand on the judge alone; the hand-checked run is `6cbf23a`.
-- 18 answers got one amendment notice each.
-- AC-015, of 42 to which it applies, against 48 at `6cbf23a` (6 now uncited): 15 pass, 15
-  retrieval misses, 12 fail. The 12 fails, counted from ids and citations only:
-  - 3 (q04, q196, q203) carry a notice covering the asked provision and were judged
-    `says_amended: false`; from `f4889e6` a noticed provision is said amended without the judge;
-  - 1 (q16) cites the amended clause and its source in one sentence without saying it was
-    amended; from `f4889e6` it gets a notice (choice 2');
-  - 6 (q01, q37, q117, q197, q199, q221) do not cite the listed amended clause;
-  - 2 (q56, q200) are not found.
-- **AC-015 is not met at the close of #15.** The changes of `f4889e6` were not measured by a run;
-  the 8 fails of the last two kinds stay with them, as answer quality and retrieval, which
-  neither the notice nor the scope of AC-015 changes. They are left to a later issue.
-- 67 citation ids not in the context, in 32 items, were flagged (AC-009).
-- Latency is 2.69 s median and 10.24 s p95 over 240 items; cost is 0.0050 USD per item, the
-  judge's 151 calls 0.7477 USD.
-- The keys changed 150 times, all on a 503; 6 attempts failed, 5 on every key and 1 on a read
-  timeout, and succeeded after the backoff.
-
-`2026-11-18-271adae`, eval set v2, commit `271adae` (not-found rule narrowed, choice 2A on #16;
-notices and AC-015 as changed by `f4889e6`, choices 1, 2' and 3 on #15), retrieval as at
-`b0cced1`, the same index and model as `4091435`:
-
-- EVAL-004 meets its target; the narrower rule left the 55 of 56 unchanged. Not found on
-  answerable questions went from 33 to 30 against `4091435`: 7 answered now, 4 not found now, 26
-  not found in both. That is within the variation of one prompt across two runs (29 at
-  `6cbf23a`, 33 at `4091435`), so it is not attributed to the rule (a risk named on #16).
-- EVAL-002 fell from 0.868 to 0.774 and EVAL-003 from 0.985 to 0.961. Over the 147 items judged
-  in both runs, the model's sentences, notices left out, went from 0.881 to 0.786: a paired
-  change of −0.095 [−0.202, +0.006], items resampled as under *Interval*, so not shown to
-  differ. The notices were judged `cited` false on 12 of 32, against 7 of 18 at `4091435`.
-- Hand-check, the owner's, blind:
-  - `cited` and `supported` 19 of 20; the one disagreement (S9) is a notice the judge called
-    unsupported and the owner supported. 2 of the 20 sampled sentences were notices;
-  - `correct` 16 of 20; in all 4 disagreements the judge called incorrect an answer the owner
-    called correct, so EVAL-006 may understate the answers. At `6cbf23a` all 20 agreed;
-  - `says_amended` 4 of 6, the first such check; in the 2 disagreements (q56, q117) the judge
-    said amended and the owner did not. Both fail AC-015 anyway, since neither cites the
-    amending passage, so the AC-015 counts stand.
-- AC-015, of 43, against 42 at `4091435`: 21 pass, 15 retrieval misses, 7 fail, and 5 uncited.
-  The 7 fails, from ids and citations only:
-  - 2 (q01, q37) cite the amending passage but ask about a provision no notice covers, judged
-    not said to be amended;
-  - 4 (q56, q117, q197, q199) do not cite the amending passage;
-  - 1 (q200) is not found.
-  AC-015 is not met; the fails are answer quality and retrieval, as at `4091435`.
-- 85 citation ids not in the context, in 39 items, were flagged (AC-009), against 67 in 32.
-- Latency is 4.12 s median and 8.07 s p95 over 240 items; cost is 0.0050 USD per item, the
-  judge's 154 calls 0.7548 USD.
-- The keys changed 61 times, 60 on a 503 and 1 on a 429; 3 attempts failed, 2 on every key and
-  1 on a dropped connection, and succeeded on the retry.
+Every recorded run is a file in [docs/experiments/](../experiments/README.md): the
+baselines of eval set v1 and v2, the follow-up rewriters and every generation run. Later
+runs on eval set v2 compare against its baseline,
+[2026-11-15-retrieval-baseline-eval-set-v2.md](../experiments/2026-11-15-retrieval-baseline-eval-set-v2.md),
+and each says what it changed. The newest score of each metric against its target is in the
+register's [*Standing scores*](../experiments/README.md#standing-scores).

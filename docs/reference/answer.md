@@ -1,7 +1,8 @@
 ---
-status: draft
-updated: 2026-11-18
+status: approved
+updated: 2026-11-21
 owner: HieuQuang4438
+approved-by: peer
 ---
 
 # Cited answers
@@ -11,7 +12,9 @@ the answer's form, how each citation id is resolved and shown, and the judge tha
 answers in the eval run. The rules are FR-CORE-010, FR-CORE-011 and FR-CORE-012, their tests
 AC-009 and AC-015, and EVAL-002, EVAL-003, EVAL-004 and EVAL-006
 ([acceptance.md](../product/acceptance.md)). The model is ADR-0003's. The approach is the
-approved comment on #15; when an answer is not found, the approved comment on #16.
+approved comment on #15; when an answer is not found, the approved comment on #16; the fields
+the web page reads, the approved comments on #30; point-level ids, the approved comment on #33;
+the seed, the approved comment on #37.
 
 ## The model call — `src.llm`
 
@@ -28,16 +31,27 @@ call.parsed                                       # an AnswerOutput
 
 | Name | What it is |
 |---|---|
-| `LLM(model=LLM_MODEL, api_keys=None, clients=None, sleep=time.sleep, clock=time.monotonic)` | `api_keys` none means `GOOGLE_API_KEYS`, every key, each with its own client (*Keys*). `clients`, for tests, replaces the google-genai clients, one per key. A model with no entry in `PRICES` raises `ValueError` naming it. |
+| `LLM(model=LLM_MODEL, api_keys=None, clients=None, sleep=time.sleep, clock=time.monotonic, seed=None)` | `seed`, *Seed*. `api_keys` none means `GOOGLE_API_KEYS`, every key, each with its own client (*Keys*). `clients`, for tests, replaces the google-genai clients, one per key. A model with no entry in `PRICES` raises `ValueError` naming it. |
 | `LLM.keys` | How many keys it holds. |
 | `LLM.generate(prompt, system, user, schema, validate=None)` | One call. `prompt` is the prompt's name, for the log; `system` its text; `user` the request; `schema` a pydantic model the reply must fit. `validate`, if given, is called with the parsed reply and raises `ValueError` when the reply does not fit the request. Returns a `Call`. |
 | `Call` | `parsed`, the reply as a `schema` instance; `model`; `prompt`; `input_tokens`; `output_tokens`, answer and thinking tokens together; `latency_s`, of the attempt that succeeded; `cost_usd`; `attempts`. |
-| `LLMError` | Raised when a call gets no usable reply. |
-| `PRICES` | USD per million tokens, input and output: `gemini-3.5-flash-lite` 0.30 and 2.50, read 2026-11-16 (`PRICES_READ`; ADR-0003). |
+| `LLMError` | Raised when a call gets no usable reply. `quota: bool`, *Retries*. |
+| `PRICES` | USD per million tokens, input and output: `gemini-3.5-flash-lite` 0.30 and 2.50, read 2026-11-16 (`PRICES_READ`; ADR-0003). For manual tests through `LLM_MODEL`, read 2026-11-21: `gemini-3.8-flash` 0.75 and 3.75 through 2026-12-31, then 1.50 and 7.50; `gemini-4-hydrogen` 1.50 and 7.50. `PRICES_READ` is the date of `gemini-3.5-flash-lite`'s price only, so an eval run with another model records the wrong date until a run needs it (#35). |
 
 **The request** sends the system instruction, the user text, `response_mime_type`
 `application/json` and `response_schema` `schema`, with a 60 s timeout (`TIMEOUT_S`) and the
-SDK's own retries off. Nothing else is set. `temperature`, `top_p` and `top_k` are deprecated
+SDK's own retries off, and `seed` when the wrapper has one. Nothing else is set.
+
+**Seed** (approved on #37, step 2A). `LLM(seed=None)` takes an optional integer, kept as
+`LLM.seed`; when it is not none, every attempt of every call sends it as `seed`. None, the
+default, sends no seed, as before #37. google-genai documents the seed as a best effort at
+repeating a reply, not a guarantee, and a seed does not narrow an eval interval: each answer is
+still one draw. The probe on #37 showed the seeded replies repeat (5 of 5, against 4 distinct of
+5 unseeded), but the default stays none: a fixed seed would make k runs of one configuration
+repeat one another. The eval runner takes a seed per run instead (`--seed`, eval-results.md;
+approved on #37, *a seed per run*). The probe is `scripts/seed_probe.py <results file>`: one stored request, rebuilt from the answers
+file, sent 5 times with a seed and 5 times without; it prints how many distinct replies each set
+gave, never the texts. `temperature`, `top_p` and `top_k` are deprecated
 and ignored by `gemini-3.5-flash-lite` and later models (Google's *What's new in Gemini 3.6*,
 read 2026-11-16); CONVENTIONS §5's `temperature=0` therefore cannot apply. The thinking level
 is the model's default, `minimal` for Flash-Lite. This is choice 8A of #15, as the pilot ran.
@@ -58,6 +72,9 @@ connection, a timeout, or a reply that is not valid JSON for `schema` or that `v
 refuses; these last three are tried again with the same key. A failed attempt is tried again
 after `BACKOFF_S` × 2^(n−1) seconds (`BACKOFF_S` = 10: 10, 20, 40, 80), up to `ATTEMPTS` = 5
 attempts in all; after the fifth, `LLMError`. Any other 4xx raises `LLMError` at once.
+`LLMError.quota` is true when the fifth attempt failed because every key answered it with 429,
+so the web page can ask the reader to wait rather than show the general error (#30, choice 2A);
+it is false for every other failure, a 5xx on any key of that attempt included.
 
 **Log.** Logger `src.llm`: one `INFO` line per call with model, prompt name, input and output
 tokens, latency and cost; one `WARNING` line per retry with its reason, and one per key
@@ -81,10 +98,10 @@ answer.text                                        # what the reader sees
 | `Answerer(assembler, llm, documents)` | `assembler`: an `src.context.Assembler`; `documents`: doc_id → `Document`. |
 | `Answerer.load(data_dir=Path("data"), llm=None)` | `Assembler.load(data_dir)` and the documents of `data_dir/processed/*.json`, names starting with `_` skipped as elsewhere; `llm` none means `LLM()`. |
 | `Answerer.answer(question, retrieval)` | Assembles the context, asks the model and adds the amendment notices. An empty context gives the not-found answer without a call. |
-| `Document` | `label`: `<loai_van_ban> <so_hieu>`, e.g. `Luật 48/2024/QH15`; `url`: the page's `source_url`. The doc_id is the number in `-<id>-d1.html`. |
+| `Document` | `label`: `<loai_van_ban> <so_hieu>`, e.g. `Luật 48/2024/QH15`; `url`: the page's `source_url`; `kind`: `loai_van_ban`; `number`: `so_hieu`; `title`: `trich_yeu`; `issued`: `ngay_ban_hanh` as `YYYY-MM-DD`, none when it is missing or not `dd/mm/yyyy`. The doc_id is the number in `-<id>-d1.html`. |
 | `Answer` | `sentences: list[Sentence]`, the model's then the amendment notices; `citations: list[Citation]`, every distinct id cited, in first-use order, those not in the context included; `flagged: list[str]`, the ids not in the context, in first-use order; `not_found: bool`; `text: str`, as rendered below; `context: Context`; `call: Call` or none; `latency_s: dict[str, float]`, `assembly` and `generation`, the latter the call's `latency_s` (0 without a call), so pacing waits and retries are not counted; `notices: int`, how many of `sentences`, the last ones, are amendment notices. |
 | `Sentence` | `text: str`; `citations: tuple[str, ...]`, as normalised below. |
-| `Citation` | `id: str`; `in_context: bool`; and when in the context: `passage: str`, `document: str` (the label), `article: str`, `clause: str` or none, the clause number as shown (below), `url: str`. |
+| `Citation` | `id: str`; `in_context: bool`; and when in the context: `passage: str`, `document: str` (the label), `article: str`, `clause: str` or none, the clause number as shown (below), `url: str`; for the web page (*For the page*, below): `doc_id: str`, `heading: str`, `text: str`, `effective: str` or none, `amended_by: tuple[Link, ...]`. A flagged citation has none of these and an empty `amended_by`. |
 | `AnswerOutput` | The reply schema: `{"sentences": [{"text": str, "citations": [str]}]}`. |
 | `NOT_FOUND` | `Không tìm thấy quy định trả lời câu hỏi này trong các văn bản hiện có.` |
 
@@ -98,7 +115,30 @@ replaced or repealed and to cite the passage named on that line (FR-CORE-010). T
 wording is the pilot's.
 
 **Ids as written.** Each id the model gives is trimmed and stripped of one pair of brackets
-(`" [1.25] "` → `1.25`). Duplicates within one sentence are kept once.
+(`" [1.25] "` → `1.25`). Duplicates within one sentence are kept once, after the rewrite below.
+
+**Point-level ids** (approved on #33, choices 1A, 2A and 3A). The model sometimes cites below the
+clause, at a point (điểm a, b, …), which the passages do not mark. Such an id is rewritten to its
+clause before it is resolved, so it renders, resolves and is judged as that clause id. An id is
+point-level when it is
+
+- a run of digits and dots `n.r`, then
+- an optional space or `.`, then
+- one point letter, `a` to `y` or `đ`, and anything after it,
+
+and passage n is an `article` passage with a clause k in its `clauses` that is `r` itself or
+begins `r` followed by a `.`. It becomes `n.k`, with the longest such k:
+
+| Written | Clauses of passage 1 | Becomes |
+|---|---|---|
+| `1.25a`, `1.25 b`, `1.25.c`, `1.25đ.1` | `25` | `1.25` |
+| `1.2.2a` | `2`, `2.2` | `1.2.2` |
+| `1.2a` | `2`, `2.2` | `1.2` |
+| `1.1.5a` | `1` | `1.1` |
+
+Any other id is kept as written and resolved as below: a bare letter (`a`), a letter after a
+passage alone (`1a`), a clause not in the passage (`1.99a`), a point on an `amending` passage
+(`2.1a`).
 
 **Resolving an id.** Against the context's passages:
 
@@ -179,6 +219,31 @@ percent-encoded (`urllib.parse.quote`, nothing safe) and `-` is written `%2D`, s
 fragments read `-` as a separator. The source page has no anchor per article (checked on a
 cached page, #15); a browser that supports text fragments scrolls to the article heading, any
 other opens the page at its top.
+
+**For the page** (#30: choices 1A and 8A, and the issue date approved after them). The web
+page shows each source's text and dates beside the answer, so a citation in the context
+carries them, taken from the passages and chunks the answer was made from. `Answer.text` does
+not change, so the eval and the judge see the same answers.
+
+- `doc_id`: the passage's document; the page reads `kind`, `title` and `issued` from its
+  `Document`.
+- `heading`: `Điều <article>. <title>`, the article's title from `articles.jsonl`, or
+  `Điều <article>.` when the title is empty, as in the link's fragment.
+- `text`: the provision as written in the corpus.
+  - `n`, an article passage: the article's `text` from `articles.jsonl`.
+  - `n.k`: clause k's lines, from its clause line to the line before the next clause line or
+    to the article's end, clause lines as the context marks them ([context.md](context.md)),
+    without the `[n.k] ` mark.
+  - `m`, an amending passage: the source chunk's `text`.
+- `effective`: an `effective_date` from `chunks.jsonl` (FR-CORE-004), of the provision cited.
+  - `n.k`: the chunk `<article id>:K<k>` when the article has one; otherwise as for `n`.
+  - `n`: the date its article's chunks share; none when they differ.
+  - `m`: the source chunk's.
+
+  A date may come before the document's `issued`: a document can take effect retroactively,
+  and the date is kept as written ([chunk-schema.md](chunk-schema.md)).
+- `amended_by`: the links of the passage (`Passage.links`) whose amended provision the id
+  cites, in their order, as for the amendment notices; empty for an amending passage.
 
 ## The judge — `src.eval.judge`
 

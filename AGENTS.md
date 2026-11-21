@@ -13,8 +13,8 @@ Both files are this repo's own. A rule that does not fit this project gets chang
 
 ## Project facts
 
-- Visibility: private — to be flipped to public as a portfolio piece, so written as if public from the first commit. `CONVENTIONS.md` §3 and §8 key off this line: a public repo carries no internal identifiers, and a private repo that may ever be flipped to public is written as if it already were.
-- Stack: Python 3.12, requests, BeautifulSoup + lxml; bge-m3 via sentence-transformers (CPU), Chroma, bm25s (ADR-0002); gemini-3.5-flash-lite on the Gemini API free tier through google-genai (ADR-0003).
+- Visibility: public since 2026-11-21, a portfolio piece with no `LICENSE` file (written as if public from the first commit). `CONVENTIONS.md` §3 and §8 key off this line: a public repo carries no internal identifiers.
+- Stack: Python 3.12, requests, BeautifulSoup + lxml; bge-m3 via sentence-transformers (CPU), Chroma, bm25s (ADR-0002); gemini-3.5-flash-lite on the Gemini API free tier through google-genai (ADR-0003); FastAPI and a plain HTML/CSS/JS page for the web app (#30).
 - Entrypoint: `src/main.py` — run with `python -m src.main`
 - Config: `src/config.py` — every env read happens here, nowhere else
 - Test: `pytest`

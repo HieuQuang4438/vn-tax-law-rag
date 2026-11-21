@@ -4,6 +4,7 @@ The rules are `docs/reference/answer.md`, *The model call*. A fake client stands
 google-genai, and a fake clock for time, so nothing goes to the network and nothing sleeps.
 """
 
+import inspect
 import json
 import logging
 import socket
@@ -110,8 +111,28 @@ def test_the_request_sets_no_sampling_or_thinking_parameter():
     assert (config.temperature, config.top_p, config.top_k, config.thinking_config) == (None, None, None, None)
 
 
+def test_the_request_sends_no_seed_by_default():
+    """answer.md, *Seed* (approved on #37, step 2A): none unless the wrapper is given one."""
+    llm, client, _ = wrapper(response(GOOD))
+    assert getattr(llm, "seed", "no seed attribute") is None
+    llm.generate("answer", "system", "user", Reply)
+    assert client.requests[0]["config"].seed is None
+
+
+def test_a_seed_is_sent_on_every_attempt():
+    assert "seed" in inspect.signature(LLM).parameters
+    clock = FakeClock()
+    client = FakeClient([response("not json at all"), response(GOOD)], clock)
+    llm = LLM(api_keys=["dummy"], clients=[client], sleep=clock.sleep, clock=clock.clock, seed=7)
+    assert llm.seed == 7
+    llm.generate("answer", "system", "user", Reply)
+    assert [request["config"].seed for request in client.requests] == [7, 7]
+
+
 def test_the_constants_are_the_specified_ones():
     assert PRICES["gemini-3.5-flash-lite"] == (0.30, 2.50)
+    assert PRICES.get("gemini-3.8-flash") == (0.75, 3.75)
+    assert PRICES.get("gemini-4-hydrogen") == (1.50, 7.50)
     assert PRICES_READ == "2026-11-16"
     assert (TIMEOUT_S, MIN_INTERVAL_S, BACKOFF_S, ATTEMPTS) == (60, 4.0, 10, 5)
 
@@ -299,3 +320,37 @@ def test_the_wrapper_makes_no_network_request_with_a_fake_client(monkeypatch):
     llm.generate("answer", "system", "user", Reply)
     assert len(client.requests) == 1
     assert attempts == []
+
+
+# --- Quota (#30, choice 2A) ------------------------------------------------------------------------
+
+def raised_by(llm) -> LLMError:
+    with pytest.raises(LLMError) as raised:
+        llm.generate("answer", "system", "user", Reply)
+    return raised.value
+
+
+def test_a_429_on_the_one_key_at_every_attempt_is_a_quota_error():
+    llm, _, _ = wrapper(*[REFUSED] * ATTEMPTS)
+    assert raised_by(llm).quota is True
+
+
+def test_a_429_on_every_key_of_the_last_attempt_is_a_quota_error():
+    llm, _, _ = rotating([REFUSED] * ATTEMPTS, [REFUSED] * ATTEMPTS)
+    assert raised_by(llm).quota is True
+
+
+def test_a_5xx_on_any_key_of_the_last_attempt_is_not_a_quota_error():
+    llm, _, _ = rotating([REFUSED] * ATTEMPTS, [BUSY] * ATTEMPTS)
+    assert raised_by(llm).quota is False
+
+
+@pytest.mark.parametrize("failures", [
+    [api_error(errors.ServerError, 500)] * ATTEMPTS,
+    [httpx2.ReadTimeout("timed out")] * ATTEMPTS,
+    [REFUSED] * (ATTEMPTS - 1) + [response("not json at all")],
+    [api_error(errors.ClientError, 400)],
+], ids=["5xx", "timeout", "429-then-not-json", "400"])
+def test_any_other_failure_is_not_a_quota_error(failures):
+    llm, _, _ = wrapper(*failures)
+    assert raised_by(llm).quota is False

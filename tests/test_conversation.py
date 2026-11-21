@@ -195,3 +195,56 @@ def test_generation_sees_the_rewritten_question_not_the_earlier_turns():
     session.ask(Q2)
     assert retriever.calls[1:] == [("retrieve", REWRITTEN, 8)]
     assert [question for question, _ in answerer.calls] == [Q1, REWRITTEN]
+
+
+# --- Without a session (#30, choice 6A) ------------------------------------------------------------
+
+def test_ask_rewrites_with_the_given_earlier_questions_and_returns_the_turn():
+    from src.conversation import ask
+
+    recording = Recording(rewriter("concat"))
+    retriever, answerer = FakeRetriever(), FakeAnswerer()
+    turn = ask(retriever, answerer, Q2, [Q1], recording)
+    assert recording.calls == [(Q2, (Q1,))]
+    assert retriever.calls == [("retrieve", f"{Q1} {Q2}", 8)]
+    assert answerer.calls == [(f"{Q1} {Q2}", turn.retrieval)]
+    assert (turn.question, turn.answer) == (Q2, "answer 1")
+
+
+def test_ask_passes_a_first_question_through_with_the_default_rewriter():
+    from src.conversation import ask
+
+    retriever = FakeRetriever()
+    turn = ask(retriever, FakeAnswerer(), Q1)
+    assert turn.rewrite == Rewrite(Q1, (Q1,))
+    assert retriever.calls == [("retrieve", Q1, 8)]
+
+
+def test_ask_uses_the_default_rewriter_and_k_unless_given_others():
+    from src.conversation import ask
+
+    retriever = FakeRetriever()
+    ask(retriever, FakeAnswerer(), Q2, [Q1])
+    ask(retriever, FakeAnswerer(), Q2, [Q1], rewriter("fuse"), k=5)
+    assert retriever.calls == [("retrieve", f"{Q1} {Q2}", 8), ("fuse", (Q2, f"{Q1} {Q2}"), 5)]
+
+
+def test_ask_gives_the_turn_a_session_with_the_same_earlier_questions_gives():
+    from src.conversation import ask
+
+    session = Session(FakeRetriever(), FakeAnswerer(), rewriter("concat"))
+    session.ask(Q1)
+    session.ask(Q2)
+    expected = session.ask(Q3)
+    turn = ask(FakeRetriever(), FakeAnswerer(), Q3, [Q1, Q2], rewriter("concat"))
+    assert (turn.question, turn.rewrite, turn.retrieval) == (expected.question, expected.rewrite, expected.retrieval)
+
+
+def test_ask_keeps_nothing_between_calls():
+    from src.conversation import ask
+
+    retriever, answerer = FakeRetriever(), FakeAnswerer()
+    first = ask(retriever, answerer, Q2, [Q1])
+    second = ask(retriever, answerer, Q2, [Q1])
+    assert first.rewrite == second.rewrite
+    assert retriever.calls[0] == retriever.calls[1]

@@ -111,6 +111,10 @@ def grade(sheet_path: Path, key_path: Path, wrong: set[str], blank: set[str]) ->
             if line == label and current not in blank:
                 value = key[current][field] != (current in wrong)
                 line = f"{label} {'yes' if value else 'NO'}"
+        fact = re.match(r"^Fact (\d+) stated:$", line)
+        if fact and current not in blank and "facts" in key.get(current, {}):
+            value = key[current]["facts"][int(fact.group(1)) - 1] != (current in wrong)
+            line = f"{line} {'yes' if value else 'NO'}"
         lines.append(line)
     sheet_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -119,7 +123,7 @@ def test_score_counts_agreement_per_kind_and_skips_blanks(tmp_path):
     answers, set_path = write(tmp_path, [record(n) for n in range(1, 26)])
     sheet_path, key_path = sheet(answers, set_path, tmp_path / "eval")
     grade(sheet_path, key_path, wrong={"S1", "A2"}, blank={"S3", "A4", "A5"})
-    assert score(sheet_path) == {"cited": (18, 19), "supported": (18, 19), "correct": (17, 18),
+    assert score(sheet_path) == {"cited": (18, 19), "supported": (18, 19), "facts": (17, 18), "correct": (17, 18),
                                  "says_amended": (0, 0)}
 
 
@@ -133,7 +137,8 @@ def test_the_command_writes_the_sheet_and_prints_the_agreement(tmp_path, capsys)
     capsys.readouterr()
     assert main(["score", str(sheet_path)]) == 0
     printed = capsys.readouterr().out
-    for line in ("cited: 20 of 20", "supported: 20 of 20", "correct: 20 of 20", "says_amended: 0 of 0"):
+    for line in ("cited: 20 of 20", "supported: 20 of 20", "facts: 20 of 20", "correct: 20 of 20",
+                 "says_amended: 0 of 0"):
         assert line in printed
 
 
@@ -179,3 +184,31 @@ def test_score_counts_agreement_on_says_amended(tmp_path):
     sheet_path, key_path = sheet(answers, set_path, tmp_path / "eval")
     grade(sheet_path, key_path, wrong={"M1"}, blank={"M2"})
     assert score(sheet_path).get("says_amended") == (18, 19)
+
+
+# --- Key facts, one by one (approved on #39, choice 5A) -------------------------------------------
+
+def test_an_answer_section_has_one_fact_line_per_key_fact_and_the_key_holds_the_facts(tmp_path):
+    records = [record(n) for n in range(1, 4)]
+    records[1]["verdict"]["facts"] = [True, False]
+    answers, set_path = write(tmp_path, records)
+    questions = yaml.safe_load(set_path.read_text(encoding="utf-8"))
+    questions["questions"][1]["key_facts"] = ["Sự kiện một.", "Sự kiện hai."]
+    set_path.write_text(yaml.safe_dump(questions, allow_unicode=True), encoding="utf-8")
+    sheet_path, key_path = sheet(answers, set_path, tmp_path / "eval")
+    text = text_of(sheet_path)
+    section = next(part for part in text.split("## ")[1:] if part.startswith("A") and " · q02" in part.splitlines()[0])
+    lines = section.splitlines()
+    assert lines.count("Fact 1 stated:") == 1 and lines.count("Fact 2 stated:") == 1
+    assert lines.index("Fact 2 stated:") < lines.index("Correct:")
+    assert text.splitlines().count("Fact 1 stated:") == 3
+    key = json.loads(text_of(key_path).split("```json\n", 1)[1].split("\n```", 1)[0])
+    a = next(entry for name, entry in key.items() if name.startswith("A") and entry["id"] == "q02")
+    assert a.get("facts") == [True, False]
+
+
+def test_score_grades_each_fact_line_against_its_fact(tmp_path):
+    answers, set_path = write(tmp_path, [record(n) for n in range(1, 26)])
+    sheet_path, key_path = sheet(answers, set_path, tmp_path / "eval")
+    grade(sheet_path, key_path, wrong={"A3"}, blank=set())
+    assert score(sheet_path).get("facts") == (19, 20)

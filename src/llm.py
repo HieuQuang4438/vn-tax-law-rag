@@ -16,7 +16,9 @@ from pydantic import ValidationError
 
 from src.config import GOOGLE_API_KEYS, LLM_MODEL
 
-PRICES = {"gemini-3.5-flash-lite": (0.30, 2.50)}  # USD per 1M tokens, input and output (ADR-0003)
+PRICES = {"gemini-3.5-flash-lite": (0.30, 2.50),  # USD per 1M tokens, input and output (ADR-0003)
+          "gemini-3.8-flash": (0.75, 3.75),  # through 2026-12-31, then 1.50 / 7.50 (pricing page, 2026-11-21)
+          "gemini-4-hydrogen": (1.50, 7.50)}  # pricing page, 2026-11-21
 PRICES_READ = "2026-11-16"
 TIMEOUT_S = 60
 MIN_INTERVAL_S = 4.0  # under 15 requests per minute
@@ -39,18 +41,27 @@ class Call:
 
 
 class LLMError(RuntimeError):
-    """No usable reply."""
+    """No usable reply. `quota`: the last attempt failed with 429 on every key (answer.md, *Retries*)."""
+
+    def __init__(self, message: str = "", quota: bool = False):
+        super().__init__(message)
+        self.quota = quota
 
 
 class _Retry(Exception):
-    """A failure worth another attempt; the message is its reason."""
+    """A failure worth another attempt; the message is its reason. `quota`: every key answered it with 429."""
+
+    def __init__(self, message: str, quota: bool = False):
+        super().__init__(message)
+        self.quota = quota
 
 
 class LLM:
     def __init__(self, model: str | None = None, api_keys: tuple[str, ...] | list[str] | None = None,
                  clients: list | None = None, sleep: Callable[[float], None] = time.sleep,
-                 clock: Callable[[], float] = time.monotonic):
+                 clock: Callable[[], float] = time.monotonic, seed: int | None = None):
         self.model = model or LLM_MODEL
+        self.seed = seed  # sent on every attempt when set (answer.md, *Seed*, #37)
         if self.model not in PRICES:
             raise ValueError(f"no price for model {self.model!r}; add it to src.llm.PRICES")
         if clients is None:
@@ -71,6 +82,7 @@ class LLM:
 
     def _send(self, user: str, config) -> tuple[Any, float]:
         """One attempt: the current key first; a 429 or a 5xx moves to the next key at once."""
+        quota = True  # every key so far answered with 429
         for _ in range(self.keys):
             self._pace()
             started = self._clock()
@@ -83,7 +95,7 @@ class LLM:
                     raise LLMError(f"{self.model}: client error {error.code}") from error
                 reason, last = "429", error
             except errors.ServerError as error:
-                reason, last = f"server error {error.code}", error
+                reason, last, quota = f"server error {error.code}", error, False
             except httpx2.TransportError as error:
                 raise _Retry(type(error).__name__) from error
             following = (self._current + 1) % self.keys
@@ -91,11 +103,11 @@ class LLM:
                 log.warning("%s: %s on key %d of %d, moving to key %d of %d",
                             self.model, reason, self._current + 1, self.keys, following + 1, self.keys)
             self._current = following
-        raise _Retry(reason if self.keys == 1 else f"429 or 5xx on every key, the last {reason}") from last
+        raise _Retry(reason if self.keys == 1 else f"429 or 5xx on every key, the last {reason}", quota) from last
 
     def _attempt(self, system: str, user: str, schema: type, validate) -> tuple[Any, Any, float]:
         config = types.GenerateContentConfig(system_instruction=system, response_mime_type="application/json",
-                                             response_schema=schema)
+                                             response_schema=schema, seed=self.seed)
         response, seconds = self._send(user, config)
         parsed = response.parsed if isinstance(response.parsed, schema) else None
         if parsed is None:
@@ -118,7 +130,8 @@ class LLM:
             except _Retry as reason:
                 log.warning("%s %s: attempt %d of %d failed: %s", self.model, prompt, attempt, ATTEMPTS, reason)
                 if attempt == ATTEMPTS:
-                    raise LLMError(f"{self.model} {prompt}: no usable reply after {ATTEMPTS} attempts") from reason
+                    raise LLMError(f"{self.model} {prompt}: no usable reply after {ATTEMPTS} attempts",
+                                   reason.quota) from reason
                 self._sleep(BACKOFF_S * 2 ** (attempt - 1))
                 continue
             usage = response.usage_metadata

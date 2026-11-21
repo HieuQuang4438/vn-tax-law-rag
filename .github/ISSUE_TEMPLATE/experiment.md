@@ -17,7 +17,7 @@ labels: experiment
 
 **Work:** <the runs to perform and the comparison between them: which configurations, how many seeds, which slice of the data.>
 
-**Done when:** <the record written, with the configuration; the decision taken, or an ADR if an option is dropped for good.>
+**Done when:** <the record written in `docs/experiments/YYYY-MM-DD-<slug>.md`, with the configuration, and its line in the register; the decision taken, or an ADR if an option is dropped for good.>
 
 **Depends on:** <#issue numbers for whatever must exist before the run, or "nothing">
 

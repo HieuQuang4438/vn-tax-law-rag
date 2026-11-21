@@ -7,6 +7,32 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 
 ### Added
 
+- Prices for `gemini-3.8-flash` (0.75 / 3.75 USD per 1M tokens through 2026-12-31) and
+  `gemini-4-hydrogen` (1.50 / 7.50), read 2026-11-21, so `LLM_MODEL` can name either for a
+  manual test of the web page. The default model stays `gemini-3.5-flash-lite` (ADR-0003).
+  FR-CORE-010, NFR-007.
+- The context's k of a generation run: `python -m src.eval.run --generate --context-k N`
+  assembles each answer's context from the top N hits, at least `TOP_K`, while EVAL-001 and
+  EVAL-007 still score the first `TOP_K`; recorded as `configuration.pipeline.context_k`.
+  FR-CORE-008, EVAL-009, #36.
+- Key-fact coverage, EVAL-009: per answerable question, the share of its key facts the judge
+  marks as stated, 0 when not found or contradicting; reported with no target, and the metric a
+  generation experiment decides on, EVAL-006 guarded. Items carry `facts_stated`, `key_facts`
+  and `contradicts`; `python -m src.eval.run --rescore <results file>` gives an earlier run the
+  score from its stored verdicts; the hand-check sheet grades each key fact. EVAL-009, FR-CORE-010,
+  #39.
+- Re-judging a run: `python -m src.eval.run --rejudge <results file>` judges a `--generate`
+  run's stored answers again, with no retrieval and no generation, so a change of verdict is the
+  judge's alone; `run.rejudge_of` names the source. FR-CORE-015, EVAL-002, EVAL-003, EVAL-006,
+  #37.
+- Comparing several runs: `python -m src.eval.compare --old a.json,b.json --new c.json,d.json`
+  averages each item over its side's runs and prints paired intervals for every metric, the
+  generation metrics included, which were computed by hand before. FR-CORE-015, #37.
+- `scripts/noise.py`: how much a rerun of one configuration moves EVAL-006, split by whether the
+  answer text repeated, and the projected interval for k runs per arm. EVAL-006, #37.
+- A seed per eval run: `python -m src.eval.run --seed N` sends N on every model call of the run
+  (`LLM(seed=…)`, off by default) and records it as `configuration.pipeline.seed`; the runs of
+  one configuration take seeds 1 to k. #37.
 - Context header on every chunk, apart from its text: `python -m src.enrich` writes
   `data/enriched/chunks.jsonl`; chunks and articles carry `chapter_title`. FR-CORE-003, AC-003,
   ADR-0001.
@@ -121,9 +147,33 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 - Web chat page: `python -m streamlit run src/app.py` keeps one conversation per browser
   session and shows each answer with its sources as links and the note that it is
   information, not advice. FR-CORE-013, FR-CORE-014, AC-010, #17.
+- What the new web page reads: each resolved citation carries its document id, article
+  heading, the cited article, clause or amending text, its effective date and the amendment
+  links of what it cites; each document carries its kind, number, title and issue date;
+  `LLMError.quota` marks a failure that was 429 on every key; `src.conversation.ask` answers one
+  turn from the earlier questions without keeping a session. FR-CORE-010, FR-CORE-011,
+  FR-CORE-016, #30.
+- Web app API: `python -m src.web` serves a FastAPI app that loads the index in the background
+  and answers `GET /api/status`, `POST /api/load`, `GET /api/documents` and `POST /api/ask`,
+  stateless, with the earlier questions sent by the page; a spent quota is told apart (429)
+  from other failures (500). FR-CORE-013, FR-CORE-014, AC-010, #30.
+- Web chat page: `python -m src.web` serves the static page built from the approved prototype:
+  sources numbered on the page with a panel that shows each one's text, issue and effective
+  dates and amendments, the not-advice notice under every answer, a quota message of its own,
+  and up to 50 conversations kept in the browser, each one renamable. FR-CORE-011, FR-CORE-013, FR-CORE-014,
+  AC-010, #30.
 
 ### Changed
 
+- The web page lists each article once: `POST /api/ask` groups the citations of one passage
+  into one source with `ids` and `clauses` in place of `id` and `clause`, so an article cited
+  whole by an amendment notice and by a clause in the answer shares one number and one row
+  ("Điều 3, khoản 1"). A sentence shows each source's chip once. Conversations kept in the
+  browser before still render. `Answer` is unchanged. FR-CORE-011, FR-CORE-014, AC-010, #41.
+- A citation id below the clause, at a point (`1.25a`, `1.25 b`, `1.25.c`), is read as its
+  clause (`1.25`) when that clause is in the context, so it resolves and is shown and judged as
+  the clause instead of being flagged. At `271adae`, 82 of the 85 flagged ids had this shape.
+  FR-CORE-011, AC-009, #33.
 - Generation model: `LLM_MODEL` defaults to `gemini-3.5-flash-lite` (`DEFAULT_LLM_MODEL` in
   `src.config`) instead of the deprecated `gemini-2.5-flash`, on the Gemini API free tier.
   Chosen by a pilot of 24 eval set v2 questions graded blind (`scripts/llm_pilot.py`):
@@ -146,8 +196,19 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 
 ### Removed
 
+- The Streamlit page `src/app.py`, its tests and `streamlit`: replaced by the page of
+  `python -m src.web`. FR-CORE-013, FR-CORE-014, #30.
+
 ### Fixed
 
+- The page links its stylesheet and script with a version taken from their content
+  (`static/app.js?v=<hash>`), so a browser that kept an older script fetches the new one
+  instead of running it against a newer API; after #41 changed the sources' fields, a cached
+  script showed every citation chip as `?`. FR-CORE-014, #41.
+- A results file's `run.command` holds the options the command was given: run from the shell,
+  `python -m src.eval.run` and `python -m src.eval.diagnose` recorded the bare command, since
+  only options passed to `main(argv)` were joined. Files written before keep the bare command;
+  their `configuration` carries the options that change a score. FR-CORE-015, #40.
 - Parsed text no longer carries the site's own words: its "Bổ sung" label on amended
   provisions (12 lines) and its comment blocks between provisions (22 blocks, 3 of them inside
   chunks, e.g. a note on the 2% VAT cut inside the VAT Law's rate clause). FR-CORE-001.

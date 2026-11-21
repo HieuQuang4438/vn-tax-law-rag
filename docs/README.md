@@ -1,6 +1,6 @@
 ---
 status: living
-updated: 2026-11-16
+updated: 2026-11-19
 owner: HieuQuang4438
 ---
 
@@ -43,6 +43,8 @@ When two documents disagree, the one higher in this list wins and the lower one 
 
 `discovery/` is outside this list. It governs nothing.
 
+`experiments/` is outside it too, for the opposite reason: each file is dated and records what was true at one commit, so it cannot disagree with HEAD. Where it and `reference/` differ, that is time passing, not a conflict.
+
 ## Folders
 
 Only folders with real content exist. The rest are created when their first file is written —
@@ -58,6 +60,7 @@ Only folders with real content exist. The rest are created when their first file
 | `features/` | only a feature spanning 2+ services | when one exists |
 | `reference/` | glossary, corpus, chunk schema, index format, retrieval, context assembly, cited answers, conversation, web interface, eval set format, eval results | yes |
 | `guides/` | tutorials and how-tos | when written |
+| `experiments/` | measured runs, one file per question, append-only, with a register and the [standing scores](experiments/README.md#standing-scores) | yes |
 | `discovery/` | unofficial: drafts, option analysis, prototypes. No status, no CI | yes |
 | `milestones/` | execution state per version. Only with no GitHub remote | if no remote |
 | `archive/` | frozen docs of removed features. Never edited | on first removal |

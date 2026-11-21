@@ -1,7 +1,8 @@
 ---
-status: draft
-updated: 2026-11-18
+status: approved
+updated: 2026-11-21
 owner: HieuQuang4438
+approved-by: peer
 ---
 
 # Conversation
@@ -89,8 +90,14 @@ two lists, which for a slot are near the top.
 |---|---|
 | `Session(retriever, answerer, rewriter=None, k=TOP_K)` | One conversation. `rewriter` none means `rewriter(DEFAULT_REWRITER)`, kept as `Session.rewriter`. |
 | `Session.turns` | `list[Turn]`, oldest first. |
-| `Session.ask(question)` | Rewrites the question with the questions of `turns` as `earlier`; retrieves with `retriever.retrieve(query, k)` for one query and `retriever.fuse(queries, k)` for two; answers with `answerer.answer(rewrite.question, retrieval)`; adds the turn and returns it. |
+| `Session.ask(question)` | `ask(retriever, answerer, question, earlier, rewriter, k)` with the questions of `turns` as `earlier`; adds the turn and returns it. |
+| `ask(retriever, answerer, question, earlier=(), rewriter=None, k=TOP_K)` | One turn, keeping nothing: rewrites the question with `earlier`, the conversation's earlier questions oldest first; retrieves with `retriever.retrieve(query, k)` for one query and `retriever.fuse(queries, k)` for two; answers with `answerer.answer(rewrite.question, retrieval)`; returns the `Turn`. `rewriter` none means `rewriter(DEFAULT_REWRITER)`. |
 | `Turn` | `question: str`, as asked; `rewrite: Rewrite`; `retrieval: Retrieval`; `answer: Answer`. |
+
+**Without a session** (#30, choice 6A). The web page keeps its conversations itself and sends
+the earlier questions with each new one, so the server keeps no session: `ask` gives the turn a
+`Session` holding the same earlier questions would give. Every rewriter reads the earlier
+questions only, never the answers, so nothing else need be sent.
 
 **What generation sees** (choice 2A): the rewritten question and the passages, as for a
 standalone question; no earlier turn. An answer cannot refer back to an earlier one, and the
@@ -119,5 +126,5 @@ follow-ups of eval set v2 (choice 4A).
 **The choice.** `concat`, under 3A, at `6e9ee24`: EVAL-005 0.526 against 0.480 for `fuse` and
 0.494 for `none`; `llm` scored 0.629, but its Bonferroni lower bound over `concat` is −0.009.
 No rewriter separates from `none`, so under 4A the four are re-measured on eval set v3, which
-adds conversations (approved on #19). The runs are in [eval-results.md](eval-results.md),
-*Follow-up rewriters*.
+adds conversations (approved on #19). The runs are in
+[2026-11-18-follow-up-rewriters.md](../experiments/2026-11-18-follow-up-rewriters.md).

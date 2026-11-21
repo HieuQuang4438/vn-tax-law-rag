@@ -4,6 +4,7 @@ Rules and file format: `docs/reference/retrieval.md`, *Cut diagnosis*.
 """
 
 import argparse
+import sys
 import time
 from collections import Counter
 from datetime import datetime
@@ -141,6 +142,8 @@ def summary(results: dict, path: Path) -> str:
 
 
 def main(argv: list[str] | None = None, retriever=None) -> int:
+    if argv is None:  # from the shell: the options are in sys.argv, and the results file records them (#40)
+        argv = sys.argv[1:]
     parser = argparse.ArgumentParser(prog="python -m src.eval.diagnose",
                                      description="Place the expected articles missing from the top 8.")
     parser.add_argument("--set", default="eval/questions.yaml", help="the eval set")
@@ -165,7 +168,7 @@ def main(argv: list[str] | None = None, retriever=None) -> int:
     diagnosed = diagnose(eval_set, retriever, _parents(enriched))
     pipeline = {"stages": ["retrieval"], "rewrite": "none", "top_k": TOP_K, **fusion.config(),
                 "depth": DEPTH, "cuts": list(CUTS)}
-    command = " ".join(["python -m src.eval.diagnose", *(argv if argv is not None else [])])
+    command = " ".join(["python -m src.eval.diagnose", *argv])
     results = {"format": FORMAT,
                "run": {"started": started_at, "command": command, "seconds": round(time.perf_counter() - started, 1)},
                "configuration": configuration(eval_set, set_path, index_dir, pipeline), **diagnosed}

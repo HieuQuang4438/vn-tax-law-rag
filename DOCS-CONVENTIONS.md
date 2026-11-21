@@ -5,7 +5,7 @@ Companion to [CONVENTIONS.md](CONVENTIONS.md). The two files are not ranked agai
 The one thing inherited from there is the three base rules, restated because everything here derives from them.
 
 1. One fact has one owning file. Everywhere else references it.
-2. Docs change in the same commit as the behavior they describe.
+2. Docs change in the same commit as the behavior they describe. One named exception, §1: the spec a failing test encodes ships with that test.
 3. Decisions are append-only. Supersede, never rewrite.
 
 **Where this comes from:** established practice, not one repo's habits — [Diátaxis](https://diataxis.fr) for splitting doc types by reader intent, [Michael Nygard's Architecture Decision Record format](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions), [Keep a Changelog](https://keepachangelog.com), [SemVer](https://semver.org), and docs-as-code (docs in the repo, reviewed in the PR, checked in CI).
@@ -18,10 +18,14 @@ Docs rot because one folder is asked to answer two different questions at once:
 
 | Question | Answer type | Lives in | Edit rule |
 |---|---|---|---|
-| What is true **now**? | State | `product/`, `services/`, `reference/` | Rewritten freely, always describes HEAD |
-| What happened and **why**? | History | `adr/`, `releases/` | Append-only, frozen once written |
+| What is true **now**? | State | `product/`, `services/`, `reference/` | Rewritten freely, always describes HEAD — one named exception below |
+| What happened and **why**? | History | `adr/`, `experiments/`, `releases/` | Append-only, frozen once written |
 
 Keep them physically separate. A file is one or the other, never both.
+
+A measured run belongs in the second row even though it reads like a fact: `CONVENTIONS.md` §6 makes a number carry the configuration it was measured under, so it is true of one commit and cannot be rewritten to describe HEAD. Rewrite it and the number no longer matches its configuration; leave it in a state file and that file stops describing HEAD.
+
+**The one exception to HEAD-only: a spec shipping with its failing test.** `CONVENTIONS.md` §7 puts the spec a test encodes in the same commit as that test, so between that commit and the implementation a `reference/` page describes behavior that does not exist yet. The window is deliberate, and it is the only way the stop at the red test does its job — that is the last moment the test can still be compared against the requirement rather than against the code. The red test is itself the notice that the behavior is absent, and the window closes with the implementation commit. Nothing else in `docs/` gets this: it is not a licence to describe anything else that is merely planned (§3).
 
 **Corollary — do not fork internal docs per version.** `docs/v1/`, `docs/v2/` looks organized and guarantees drift: a fix lands in one copy, the other silently lies. Internal state docs describe HEAD only.
 
@@ -82,6 +86,10 @@ docs/
     README.md                # register table: ID, title, status, date
     NNNN-<slug>.md
 
+  experiments/               # measured runs, append-only. One file per question
+    README.md                # register table: date, question, status, conclusion
+    YYYY-MM-DD-<slug>.md
+
   releases/
     CHANGELOG.md             # Keep a Changelog format, newest first
     vX.Y.Z.md                # per-release notes: shipped IDs, migration, rollback
@@ -115,9 +123,9 @@ docs/
 Rules on the shape:
 
 - A folder appears when it has content. Do not scaffold empty directories.
-- `adr/` is the only folder that grows for the life of the project. Everything else stays roughly constant in file count. Nothing is ever moved out of it; §7 keeps the register readable instead.
+- `adr/` and `experiments/` are the two folders that grow for the life of the project. Everything else stays roughly constant in file count. Nothing is ever moved out of either; each keeps its register readable instead (§7 for `adr/`).
 - `features/` is for cross-service flows only. A feature inside one service is documented in that service's `requirements.md`.
-- `roadmap.md` describes intent. Nothing else in `docs/` may describe a future state as if it exists.
+- `roadmap.md` describes intent. Nothing else in `docs/` may describe a future state as if it exists, with the one exception named in §1: the spec that ships with a failing test, until that test passes.
 
 ### `checklists/` — one fixed procedure per kind of work
 
@@ -148,6 +156,16 @@ One file per kind of work. All nine ship in `docs/checklists/` already — cut a
 - **One incident is not enough to earn a line.** Add on the second occurrence, or the file becomes an incident log.
 - **Items are actions, not reminders.** "Be careful with migrations" cannot be ticked, so it can never be removed either. "Run `alembic upgrade head` against a copy of production data" can.
 - **Prune on a fixed cadence.** Each release, delete any item that has never once caught anything. If you cannot recall it catching something, it has not.
+
+### `experiments/` — measured runs
+
+An experiment answers a question with a number, and `CONVENTIONS.md` §6 fixes the metric, the threshold and the whole configuration before the run. This folder is where that record lands. Raw per-item results stay where the eval code writes them, under `eval/`; a file here carries the deciding numbers next to their configuration and points at the raw files rather than copying them.
+
+- **One file per question**, named `YYYY-MM-DD-<slug>.md` after the day the configuration was fixed. A date needs no counter, so two agents cannot collide over the next number, and it works in a repo with no remote. The issue number goes in the front matter.
+- **What a file holds:** the question, the configuration fixed before the run, the decision rule, each run with its numbers, and the conclusion. A result that disproves the hypothesis is recorded like any other (§6).
+- **`status` uses the ADR set** (§4): `proposed` once the configuration, metric and threshold are fixed and nothing has run; `approved` once the conclusion is written, after which the file is frozen; `superseded` when a later experiment answers the same question again, with a forward link. Here **`approved` means concluded, not reviewed** — the runs are the check, not a reader's agreement — so `approved-by` is `self (built)`. These files carry front matter at every tier, tier 0 included (§4).
+- **The register**, `experiments/README.md`, is written with the first file: date, question, status, one-line conclusion, and what superseded it. It is how a reader finds which answers still stand without opening every file.
+- **`reference/` keeps the current value and points here.** "`RRF_K` = 60, set by `experiments/2026-11-15-fusion-tuning.md`" — so a tuned value reads differently from an arbitrary one, and the conclusion still lives in one file.
 
 ### `discovery/` — the unofficial half
 
@@ -190,7 +208,7 @@ applies-to: [auth, api]   # optional: services, if not obvious from path
 
 - `updated` must be at least as recent as the last content change. CI checks it against `git log`.
 
-Front matter is cheap and machine-checkable. Skip it only at tier 0 (§10).
+Front matter is cheap and machine-checkable. Skip it only at tier 0 (§10) — except in `experiments/`, which carries it at every tier, because its `status` is what tells a superseded answer from one that still stands (§3).
 
 ### Status values
 
@@ -523,7 +541,7 @@ Off-the-shelf alternatives worth using instead of hand-rolling: `lychee` or `mar
 
 ## 9. Maintenance rules
 
-- **Same-commit rule** (base rule 2). Behavior change and doc change ship together, in one commit — not merely in one pull request, which most repos here do not have. A change touching behavior and no doc gets asked why.
+- **Same-commit rule** (base rule 2). Behavior change and doc change ship together, in one commit — not merely in one pull request, which most repos here do not have. The spec a failing test encodes is the named exception in §1: it ships one commit earlier, with that test. A change touching behavior and no doc gets asked why.
 - **Owning-file rule.** Before writing a fact, find who owns it. If it exists, link. If not, decide the owner and write it once.
 - **No copy-paste between docs.** A duplicated sentence is a future contradiction.
 - **Stale docs are bugs.** File them as bugs. A `refinement-checklist.md` under `product/` keeps known gaps visible instead of rediscovered. This does not apply to `discovery/`, where going out of date is normal.
@@ -537,7 +555,7 @@ The full structure fits a product with services and a release history. It is wro
 
 | Tier | Trigger | Add |
 |---|---|---|
-| 0 | Any repo | `README.md`, plus `docs/discovery/` as soon as a choice is worth a paragraph |
+| 0 | Any repo | `README.md`, plus `docs/discovery/` as soon as a choice is worth a paragraph, and `docs/experiments/` as soon as a conclusion rests on a number |
 | 1 | Second contributor, or code outlives one sitting | `docs/adr/`, front matter, `docs/checklists/bugfix.md` |
 | 2 | Requirements outgrow the README | `docs/product/` with FR/AC IDs and the matrix, and the `approved` status |
 | 3 | Second deployable service | `docs/services/<svc>/`, service ID prefixes |

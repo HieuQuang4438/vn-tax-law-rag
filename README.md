@@ -2,7 +2,12 @@
 
 Question-answering agent over Vietnamese tax law (laws, decrees, circulars), built with retrieval-augmented generation and answering with article-level citations.
 
-<!-- Demo link and screenshot go here once there is something to show. -->
+![The web page answering "Hộ kinh doanh có doanh thu bao nhiêu thì không phải nộp thuế giá trị gia tăng?": a cited answer, its two sources, and the first source's article with its amendment notice](docs/images/web-page.png)
+
+*The local web page (`python -m src.web`): each sentence cites the passages it rests on, a
+citation the retrieved passages do not hold is flagged with `?`, an amended provision is shown
+with the provision that amends it, and the panel shows the cited text. There is no hosted demo
+yet.*
 
 ## The problem
 
@@ -14,15 +19,11 @@ how I am learning RAG end to end, from crawling and chunking to evaluation.
 
 ## What it does
 
-Planned — see Status for what exists today.
-
 - Answers questions about current Vietnamese tax law in Vietnamese.
 - Cites the document, article and clause behind every answer, with a link to the source text.
 - Says it found nothing rather than guessing when the documents do not cover the question.
 
 ## How it works
-
-Solid boxes are built; dashed boxes are planned.
 
 ```mermaid
 flowchart LR
@@ -36,19 +37,16 @@ flowchart LR
     end
     subgraph online["Online — answer a question"]
         direction LR
-        q[Question +<br/>conversation] -.-> rw[Rewrite follow-up<br/>as standalone]
-        rw -.-> ref[Resolve explicit<br/>references]
-        rw -.-> hyb[Hybrid retrieval<br/>rank fusion, top k]
-        ref -.-> aug[Assemble context<br/>parent article, amending text,<br/>citation ids]
-        hyb -.-> aug
-        aug -.-> llm[LLM answers from<br/>context only]
-        llm -.-> out[Answer with citations,<br/>or not found]
+        q[Question +<br/>earlier questions] --> rw[Follow-up joined with<br/>the last 2 questions]
+        rw --> ref[Resolve explicit<br/>references]
+        rw --> hyb[Hybrid retrieval<br/>rank fusion, top k]
+        ref --> aug[Assemble context<br/>parent article, amending text,<br/>citation ids]
+        hyb --> aug
+        aug --> llm[LLM answers from<br/>context only]
+        llm --> out[Answer with citations,<br/>or not found]
     end
     vec --> hyb
     kw --> hyb
-
-    classDef planned stroke-dasharray: 5 5
-    class q,rw planned
 ```
 
 Why it is built this way: chunking in [ADR-0001](docs/adr/0001-chunk-by-legal-structure.md),
@@ -66,12 +64,19 @@ All project documents: [docs/README.md](docs/README.md).
    header naming its document, chapter, article and clause.
 3. **Retrieve** — hybrid keyword + embedding search, because users ask both in prose and by
    document number, and explicit references ("Điều 9 Luật 48/2024") are looked up directly.
-   Built: `src.retrieval`, 0.45 s per question (median) on CPU.
-4. **Answer** — an LLM answers only from the retrieved articles and cites them. *Not built yet.*
-5. **Evaluate** — a hand-written question set with expected answers, key facts and articles,
-   scored on retrieval and on the answers. The set (v1, 50 questions and 6 conversations), its
-   checker (`python -m src.eval.check`) and the runner (`python -m src.eval.run`) are built; the
-   runner scores retrieval today, and the answers once generation exists.
+   A follow-up question is first joined with the last two questions of its conversation
+   (`concat`, chosen on #19). Built: `src.retrieval`, 0.45 s per question (median) on CPU.
+4. **Answer** — the top 8 articles are assembled into a context of at most 24,000 tokens, with
+   the amending text of amended provisions and a citation id per passage;
+   `gemini-3.5-flash-lite` answers in Vietnamese from that context only, citing a passage for
+   every claim and saying when a cited provision has been amended, or says the documents do not
+   cover the question ([ADR-0003](docs/adr/0003-gemini-flash-lite-free-tier.md)). Built:
+   `src.answer`, served by `python -m src.web`.
+5. **Evaluate** — a hand-written set with expected answers, key facts and articles: v2, 240
+   questions (184 answerable, 56 the corpus does not cover) and 22 conversations of 52 turns.
+   `python -m src.eval.check` checks it against the corpus; `python -m src.eval.run` scores
+   retrieval, and with `--generate` the answers, judged by `gemini-3.5-flash-lite`. Scores:
+   *Standing scores* in [docs/experiments/README.md](docs/experiments/README.md#standing-scores).
 
 ## Data
 
@@ -92,8 +97,20 @@ published; crawled pages and parsed text stay local (`data/` is gitignored).
 
 ## Run it
 
+What you need:
+
+- Python 3.12. Everything runs on CPU; no GPU is used.
+- A Gemini API key from Google AI Studio. The free tier is enough for chatting
+  (`gemini-3.5-flash-lite`: 15 requests per minute, 500 per day); on the paid tier an answer
+  costs about 0.005 USD. Crawling and building the index need no key.
+- About 4.3 GB of disk for bge-m3 in the Hugging Face cache. The model is loaded offline at a
+  pinned revision, so download it once:
+  `hf download BAAI/bge-m3 --revision 5617a9f61b028005a4858fdac845db406aefb181`.
+- About 82 minutes for the first index build on a laptop CPU; later builds reuse the cached
+  vectors.
+
 ```bash
-git clone <clone url>
+git clone https://github.com/HieuQuang4438/vn-tax-law-rag.git
 cd vn-tax-law-rag
 python -m venv .venv
 .venv\Scripts\Activate.ps1        # Windows PowerShell; bash: source .venv/bin/activate
@@ -122,7 +139,7 @@ python -m src.eval.run               # score it; writes eval/results/<date>-<com
 Chat with it in the browser, against the built index:
 
 ```bash
-python -m streamlit run src/app.py
+python -m src.web                    # http://127.0.0.1:8000
 ```
 
 ## Tests
@@ -131,17 +148,37 @@ python -m streamlit run src/app.py
 pytest
 ```
 
+`requirements-experiments.txt` adds `underthesea` and `pyvi`, the Vietnamese word segmenters
+compared for BM25 on #10. They are optional: the app and the default index do not use them, and
+their tests are skipped when they are not installed. Check their licences before reusing them;
+`underthesea` may be GPL-3.0.
+
 ## Built with
 
 Python 3.12, requests, BeautifulSoup + lxml; bge-m3 through sentence-transformers on CPU, Chroma,
-bm25s; gemini-3.5-flash-lite on the Gemini API free tier.
+bm25s; gemini-3.5-flash-lite on the Gemini API free tier; FastAPI serving a plain HTML, CSS and JS
+page.
 
 ## Status
 
-Early. The crawler fetches all 30 listed documents; every one has an unbroken run of articles
-from Điều 1 to its last article. Chunking (744 articles, 1,286 chunks), the context header,
-each chunk's effective date, the amendment links between documents (175) and both indexes
-over the chunks (vector and BM25), reference lookup and hybrid retrieval, context assembly,
-cited answers, multi-turn conversation, the web chat page and eval set v2 are built, with
-the eval runner scoring retrieval and, with `--generate`, the answers; the demo is not deployed
-yet.
+Working end to end on a laptop; not production-ready. The crawler fetches all 30 listed
+documents; every one has an unbroken run of articles from Điều 1 to its last article. Chunking
+(744 articles, 1,286 chunks), the context header, each chunk's effective date, the amendment
+links between documents (175) and both indexes over the chunks (vector and BM25), reference
+lookup and hybrid retrieval, context assembly, cited answers, multi-turn conversation, the web
+chat page and eval set v2 are built, with the eval runner scoring retrieval and, with
+`--generate`, the answers.
+
+What is not there yet:
+
+- **No hosted demo.** The page runs locally only.
+- **Retrieval misses.** recall@8 is 0.769 against a target of 0.80 (EVAL-001), and 0.526 on
+  follow-up questions against 0.70 (EVAL-005).
+- **Answers are often incomplete.** The citations hold up (EVAL-002 0.954, EVAL-003 0.969), but
+  only 0.364 of answers to answerable questions state every key fact (EVAL-006, target 0.80).
+- **Amended provisions.** Not every answer that cites an amended clause says it was amended
+  (AC-015 not met).
+- **The corpus is fixed.** 30 documents, crawled once; nothing tracks new or amending texts.
+- **Not legal or tax advice.** The page says so under every answer.
+
+The newest score of each metric against its target: [docs/experiments/README.md, *Standing scores*](docs/experiments/README.md#standing-scores).

@@ -1,6 +1,6 @@
 # Coding Conventions — vn-tax-law-rag
 
-These are **this repo's** conventions. Seeded from `git-repos/templates/`, owned here. When a rule does not fit this project, edit, add or delete it directly in this file — no approval, and nothing to sync anywhere. There is no copy of this file elsewhere that outranks it.
+These are **this repo's** conventions. Seeded from a shared set of templates, owned here. When a rule does not fit this project, edit, add or delete it directly in this file — no approval, and nothing to sync anywhere. There is no copy of this file elsewhere that outranks it.
 
 **Precedence:** this file > tool defaults. `AGENTS.md` holds project facts — what this is, where things live, how to run it. Rules live here. If the two disagree, `AGENTS.md` is the one that is wrong.
 
@@ -117,7 +117,7 @@ These matter more than general style — most repos here are AI projects.
 - **The test comes before the implementation, for every change in behavior** — a new feature, a bug fix, a changed default, a changed error. Not only bug fixes. A test written after the code encodes *what the code does* instead of *what was asked for*, and once both exist nobody can tell those apart any more, least of all at review time, which is exactly when it matters.
 - **Confirm the test fails for the real reason.** Read the failure. An `ImportError`, a missing fixture, a collection error or a typo in the test name is not a red test — it is a broken test, and implementing against it proves nothing.
 - **An agent stops at the red test.** It reports three things — the test, the line of spec the test encodes, and the failure — and then does nothing further until a human says to implement. The human may waive the stop, but a waiver is **explicit and per assignment**: silence is not a waiver, and a waiver on one task does not carry to the next. The stop exists because this is the last moment the test can still be compared against the *requirement*; by the time a PR is reviewed the test and the code agree with each other, and whether either agrees with the spec is no longer visible.
-- **Measurement work is exempt from the ordering, and only from the ordering.** An experiment answers with a number, not with behavior, so there is nothing to encode as a test first. Its equivalent gate lives in `.github/ISSUE_TEMPLATE/experiment.md`: the metric, the threshold and the whole configuration are fixed **before** the run. When code that started as an experiment becomes behavior something depends on, it comes back under the rule above.
+- **Measurement work is exempt from the ordering, and only from the ordering.** An experiment answers with a number, not with behavior, so there is nothing to encode as a test first. Its equivalent gate lives in `.github/ISSUE_TEMPLATE/experiment.md`: the metric, the threshold and the whole configuration are fixed **before** the run. The record lands in `docs/experiments/`, `DOCS-CONVENTIONS.md` §3. When code that started as an experiment becomes behavior something depends on, it comes back under the rule above.
 - No network in unit tests. Mock the LLM/HTTP boundary. Live-API tests go behind a marker:
   ```python
   @pytest.mark.live  # run with: pytest -m live
@@ -182,7 +182,7 @@ gh issue list --milestone v1.3 --state open   # what is left
 gh issue view 42                              # then open the spec it points to
 ```
 
-Then branch and write the failing test for the AC. **Stop there and report it** — §6 — because an agent does not run on from a red test to an implementation on its own. Once the test is cleared or the stop is explicitly waived: implement, update the docs in the same commit, add the version annotation and changelog line, and open a PR whose body says `Closes #42`.
+Then branch and write the failing test for the AC. **The spec that test encodes goes in the same commit as the test** — the detail in `reference/`, and the AC itself where that changed — because the stop below is where the test is compared against the requirement, and that comparison needs the requirement to be in a file by then. **Stop there and report it** — §6 — because an agent does not run on from a red test to an implementation on its own. Once the test is cleared or the stop is explicitly waived: implement, and in that same commit add the version annotation, the changelog line and the docs that describe what was delivered, then open a PR whose body says `Closes #42`.
 
 **A branch and a PR are the default; working straight on the integration branch is the human's call, taken when the work is assigned.** An agent never picks the path and never proposes one — §9. There is no threshold, because no threshold cuts in the right place: the judgment is about volume, not about kind, so a large documentation change earns a branch exactly as a large code change does. On the direct path the audit below is the only gate.
 
@@ -198,7 +198,7 @@ Like the subagent bans in §9, this step is **enforced by the prompt, not by the
 
 **An issue carrying a design choice gets a proposal before any code.** The agent drafts the approach in chat, the human approves or edits it there, and only then is the approved version posted as a comment on the issue. Mechanical work skips this. A new decision taken mid-work — how to handle a measurement, a scope change, a parameter — is posted as a **new** comment before it is acted on; earlier comments are never edited.
 
-A comment is not a source of truth. What is settled goes into the owning document or an ADR, and the commit points there. The procedure and both comment templates are in `docs/checklists/issue-proposal.md`.
+A comment is not a source of truth. Whatever the tests will encode goes into the owning document on the same timetable as the spec above — in the commit that carries the failing test, not after the implementation — and the commit points there. A choice that shaped the system rather than one issue's approach earns an ADR as well; most do not, and `DOCS-CONVENTIONS.md` §7 says which qualify. What is left is the approach itself and the options that lost, and those stay in the comment: that thread is the only record of them, not a file waiting to be written. The procedure and both comment templates are in `docs/checklists/issue-proposal.md`.
 
 Two reasons this is worth the step. A proposal in chat is cheap to reject; a proposal already implemented is not. And the comment thread is the only record of the options that were *not* chosen, which is exactly what is missing when the same question comes back three months later.
 
@@ -263,7 +263,7 @@ Splitting later is cheap — notes are documents and binaries, with no CI, no im
 
 Three base rules, inherited by everything written anywhere in a repo:
 - One fact has one owning file. Reference it from elsewhere; do not copy-paste it.
-- Docs that describe behavior are updated **in the same commit** as the behavior change. Stale docs count as bugs.
+- Docs that describe behavior are updated **in the same commit** as the behavior change. Stale docs count as bugs. The spec a test encodes is the one thing that ships earlier — with the failing test, §7 — so between that commit and the implementation the description is deliberately ahead of the code, and the red test is what says so.
 - Decisions are append-only. Never rewrite an approved decision — supersede it with a new one.
 
 ### `WORKLOG.md` — append-only session journal
