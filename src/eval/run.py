@@ -12,6 +12,7 @@ import os
 import platform
 import statistics
 import subprocess
+import sys
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -830,6 +831,8 @@ def _parents(enriched_dir: Path) -> dict[str, str]:
 
 
 def main(argv: list[str] | None = None, pipeline: Pipeline | None = None, judge=None) -> int:
+    if argv is None:  # from the shell: the options are in sys.argv, and the results file records them (#40)
+        argv = sys.argv[1:]
     parser = argparse.ArgumentParser(prog="python -m src.eval.run", description="Score the eval set.")
     parser.add_argument("--set", default="eval/questions.yaml", help="the eval set")
     parser.add_argument("--data", default="data", help="folder holding processed/, enriched/ and index/")
@@ -922,7 +925,7 @@ def main(argv: list[str] | None = None, pipeline: Pipeline | None = None, judge=
     scored = evaluate(eval_set, pipeline, _parents(enriched), judge=judge, chunks=chunks, progress=progress,
                       answers=records)
     config = configuration(eval_set, set_path, index_dir, pipeline.config)
-    command = " ".join(["python -m src.eval.run", *(argv if argv is not None else [])])
+    command = " ".join(["python -m src.eval.run", *argv])
     run = {"started": started_at, "command": command, "seconds": round(time.perf_counter() - started, 1)}
     if args.generate:
         run["resumed_items"] = resumed
@@ -971,7 +974,7 @@ def _write_derived(args, argv, source: Path, old: dict, scored: dict, answers: b
         pipeline = config.setdefault("pipeline", {})
         pipeline["judge_model"] = getattr(getattr(judge, "llm", None), "model", pipeline.get("judge_model"))
         pipeline.setdefault("prompts", {})["judge"] = hashlib.sha256(JUDGE_PROMPT.read_bytes()).hexdigest()
-    command = " ".join(["python -m src.eval.run", *(argv if argv is not None else [])])
+    command = " ".join(["python -m src.eval.run", *argv])
     run = {"started": started_at, "command": command, "seconds": round(time.perf_counter() - started, 1), of: source.stem}
     results = {"format": FORMAT, "run": run, "configuration": config, **scored}
     path = write_results(results, Path(args.out))
@@ -989,7 +992,7 @@ def _write_derived(args, argv, source: Path, old: dict, scored: dict, answers: b
     return 0
 
 
-def _rescore_command(args: argparse.Namespace, argv: list[str] | None) -> int:
+def _rescore_command(args: argparse.Namespace, argv: list[str]) -> int:
     """`--rescore`: the stored verdicts scored again, no API call (#39)."""
     started_at = datetime.now().astimezone().isoformat(timespec="seconds")
     started = time.perf_counter()
@@ -1004,7 +1007,7 @@ def _rescore_command(args: argparse.Namespace, argv: list[str] | None) -> int:
                           "rescore_of")
 
 
-def _rejudge_command(args: argparse.Namespace, argv: list[str] | None, judge=None) -> int:
+def _rejudge_command(args: argparse.Namespace, argv: list[str], judge=None) -> int:
     """`--rejudge`: no retrieval and no generation, one judge call per judged record (#37)."""
     started_at = datetime.now().astimezone().isoformat(timespec="seconds")
     started = time.perf_counter()

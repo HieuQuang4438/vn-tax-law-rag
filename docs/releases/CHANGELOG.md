@@ -192,6 +192,10 @@ Newest first. Every line cites the IDs it moved — see `DOCS-CONVENTIONS.md` §
 
 ### Fixed
 
+- A results file's `run.command` holds the options the command was given: run from the shell,
+  `python -m src.eval.run` and `python -m src.eval.diagnose` recorded the bare command, since
+  only options passed to `main(argv)` were joined. Files written before keep the bare command;
+  their `configuration` carries the options that change a score. FR-CORE-015, #40.
 - Parsed text no longer carries the site's own words: its "Bổ sung" label on amended
   provisions (12 lines) and its comment blocks between provisions (22 blocks, 3 of them inside
   chunks, e.g. a note on the 2% VAT cut inside the VAT Law's rate clause). FR-CORE-001.
