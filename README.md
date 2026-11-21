@@ -2,7 +2,7 @@
 
 Question-answering agent over Vietnamese tax law (laws, decrees, circulars), built with retrieval-augmented generation and answering with article-level citations.
 
-<!-- Demo link and screenshot go here once there is something to show. -->
+<!-- Screenshot of the local web page goes here once #41 lists each article once. -->
 
 ## The problem
 
@@ -92,8 +92,20 @@ published; crawled pages and parsed text stay local (`data/` is gitignored).
 
 ## Run it
 
+What you need:
+
+- Python 3.12. Everything runs on CPU; no GPU is used.
+- A Gemini API key from Google AI Studio. The free tier is enough for chatting
+  (`gemini-3.5-flash-lite`: 15 requests per minute, 500 per day); on the paid tier an answer
+  costs about 0.005 USD. Crawling and building the index need no key.
+- About 4.3 GB of disk for bge-m3 in the Hugging Face cache. The model is loaded offline at a
+  pinned revision, so download it once:
+  `hf download BAAI/bge-m3 --revision 5617a9f61b028005a4858fdac845db406aefb181`.
+- About 82 minutes for the first index build on a laptop CPU; later builds reuse the cached
+  vectors.
+
 ```bash
-git clone <clone url>
+git clone https://github.com/HieuQuang4438/vn-tax-law-rag.git
 cd vn-tax-law-rag
 python -m venv .venv
 .venv\Scripts\Activate.ps1        # Windows PowerShell; bash: source .venv/bin/activate
@@ -131,6 +143,11 @@ python -m src.web                    # http://127.0.0.1:8000
 pytest
 ```
 
+`requirements-experiments.txt` adds `underthesea` and `pyvi`, the Vietnamese word segmenters
+compared for BM25 on #10. They are optional: the app and the default index do not use them, and
+their tests are skipped when they are not installed. Check their licences before reusing them;
+`underthesea` may be GPL-3.0.
+
 ## Built with
 
 Python 3.12, requests, BeautifulSoup + lxml; bge-m3 through sentence-transformers on CPU, Chroma,
@@ -139,12 +156,24 @@ page.
 
 ## Status
 
-Early. The crawler fetches all 30 listed documents; every one has an unbroken run of articles
-from Điều 1 to its last article. Chunking (744 articles, 1,286 chunks), the context header,
-each chunk's effective date, the amendment links between documents (175) and both indexes
-over the chunks (vector and BM25), reference lookup and hybrid retrieval, context assembly,
-cited answers, multi-turn conversation, the web chat page and eval set v2 are built, with
-the eval runner scoring retrieval and, with `--generate`, the answers; the demo is not deployed
-yet.
+Working end to end on a laptop; not production-ready. The crawler fetches all 30 listed
+documents; every one has an unbroken run of articles from Điều 1 to its last article. Chunking
+(744 articles, 1,286 chunks), the context header, each chunk's effective date, the amendment
+links between documents (175) and both indexes over the chunks (vector and BM25), reference
+lookup and hybrid retrieval, context assembly, cited answers, multi-turn conversation, the web
+chat page and eval set v2 are built, with the eval runner scoring retrieval and, with
+`--generate`, the answers.
+
+What is not there yet:
+
+- **No hosted demo.** The page runs locally only.
+- **Retrieval misses.** recall@8 is 0.769 against a target of 0.80 (EVAL-001), and 0.526 on
+  follow-up questions against 0.70 (EVAL-005).
+- **Answers are often incomplete.** The citations hold up (EVAL-002 0.954, EVAL-003 0.969), but
+  only 0.364 of answers to answerable questions state every key fact (EVAL-006, target 0.80).
+- **Amended provisions.** Not every answer that cites an amended clause says it was amended
+  (AC-015 not met).
+- **The corpus is fixed.** 30 documents, crawled once; nothing tracks new or amending texts.
+- **Not legal or tax advice.** The page says so under every answer.
 
 The newest score of each metric against its target: [docs/experiments/README.md, *Standing scores*](docs/experiments/README.md#standing-scores).
