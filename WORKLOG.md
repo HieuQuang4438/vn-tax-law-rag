@@ -12,6 +12,57 @@
 
 ---
 
+## Session 10 — 2026-11-21 · Public: the history scan, the README, one source per article (#40, #41)
+
+This block covers the go-public work and the issues done alongside it. The work between
+Session 9 and this one (#33 to #39) is recorded in its issues and in `docs/experiments/`, not
+here.
+
+**Done**
+
+- #40: `run.command` records the options a command was given from the shell, for `src.eval.run`
+  and `src.eval.diagnose` (`d37d015`, `692d7b3`).
+- Prices for `gemini-3.8-flash` and `gemini-4-hydrogen`, for manual tests of the page
+  (`5c8c732`, `1465e2c`); the README's *How it works* brought up to date (`8508d1f`).
+- History scan before the flip: `gitleaks detect --source .`, no leaks in 192 commits; the
+  history grepped for machine and user names, paths, emails, key prefixes, hosts and project
+  ids, nothing in any diff; the 37 issues and 2 PRs, `docs/` links, fixtures and commit
+  messages read. Results on the owner's tracking issue.
+- README: run requirements (Gemini key, 4.3 GB bge-m3, ~82 min first build), the optional
+  segmenters, an honest *Status*, and a screenshot of the local page.
+- #41: the page lists each article once (`9e89670`, `5580cc6`), and links its stylesheet and
+  script by their content so a cached script is not run against a newer API (`33a13af`,
+  `f92ef43`); end-to-end run in `web.md`; closed by `3ce7d86`.
+- The ten reference docs left at `draft` or `in-review` approved by the owner (`6503919`).
+- Visibility flipped to public by the owner; `AGENTS.md` says so.
+
+**Decided + why**
+
+- No `LICENSE` file: a portfolio piece, readable and forkable, with no right to reuse granted.
+  Adding one later is a commit; withdrawing one is not possible.
+- History not rewritten. The personal email stays in the author lines of the early commits; the
+  account's email is private from now on. Rewriting would change every SHA that results files,
+  records and issues cite.
+- Kept as they are: the mentions of the private template repo in this file (append-only) and in
+  two commit bodies; the free-tier keys of several projects, rotated on 429, in #13, #15,
+  `answer.md` and the #36 record (owner's decision); one sentence of the site's own comment in
+  `tests/fixtures/crawler/amended_clause.html`, the block the parser test drops.
+- #41: grouping in the API, not the page, so it is tested (choice 1A); the cached-script fix by
+  versioned links rather than `Cache-Control: no-cache` (Approved comment on #41).
+
+**Real state / warnings**
+
+- Verified 2026-11-21: 798 tests pass, 19 deselected; the repo, the `develop` tree, the README
+  image, an issue and the Actions page answer 200 signed out; every relative link in the
+  Markdown files resolves; the README's external links answer 200.
+- `main`, the default branch, is 66 commits behind `develop`: a visitor sees the README of
+  `ef6bdae`, with no screenshot and the old *Status*, until `develop` is merged.
+- `eval/questions.yaml` was checked for copied site text by a grep only; its question and
+  answer text was not read in this session.
+- Assumed, not checked: the Mermaid diagram renders on GitHub (it is drawn in the browser).
+
+---
+
 ## Session 9 — 2026-11-18 · Web UI v2: FastAPI page from the prototype (#30)
 
 **Done**
