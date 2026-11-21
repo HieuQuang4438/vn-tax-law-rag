@@ -236,6 +236,30 @@ not taken from the eval set (#30, *Done when*). At commit `3c6529b`, on the dev 
   reload keeping the history, the document list, the bottom sheet under 900 px, renaming, the
   panel button, the type.
 
+### One source per article (#41)
+
+One turn on the real index and model, the question of #41's *Seen in*, at commit `5580cc6`, on
+the dev laptop (CPU): `python -m src.web --port 8001` with nothing faked, the page in headless
+Chrome driven through its DevTools protocol, the question typed in its box;
+`gemini-3.5-flash-lite`.
+
+| | Seconds | What the page showed | Cost (USD) |
+|---|---|---|---|
+| The question on the revenue under which a household business pays no VAT | 2.9 | an answer, 2 sources: Nghị định 68/2026/NĐ-CP, Điều 3, khoản 1, "Đã sửa đổi" (ids `3.1` and `3`), and Nghị định 141/2026/NĐ-CP, Điều 1 (`4`); chips 1, then `?`, then 1 and 2 on the notice; the panel on source 1 with "Điều này được sửa đổi, bổ sung bởi Nghị định 141/2026/NĐ-CP, Điều 1. Xem nguồn [2]" and the whole article's text; the note on the flagged id `4.1`; the notice | 0.0040 |
+
+- Article 3 is listed once, where before #41 it was listed twice (sources 1 and 3 of the same
+  question); `POST /api/ask` answered 200, and the server's log has no error.
+- Copy gave `[1]` on the first sentence, `[?]` on the second, `[1] [2]` on the notice, and two
+  sources.
+- The same conversation rewritten in the browser to the form kept before #41 (`id` and `clause`
+  per source) and reloaded rendered without error, as it did then: three rows, numbers 1 to 3.
+- On the owner's own page at `5580cc6` every chip showed `?`: the browser ran its cached script
+  from before #41 against the new API. Fixed by *Versioned links* (`f92ef43`, approved on #41);
+  at `f92ef43` the served page links `static/app.css?v=29842c7ebff5` and
+  `static/app.js?v=115d19d901e8`, the first 12 hex digits of the files' SHA-256.
+- Beyond #41: the model cited `4.1`, a clause of the amending passage, which has no clause ids
+  (context.md), so it was flagged; a finding on the answers, not on the page.
+
 ## The Streamlit page's end-to-end run
 
 Recorded on #17, before #30 replaced the page. One run on the real index and model, 2 turns, a question and a follow-up written for this run,

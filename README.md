@@ -2,7 +2,12 @@
 
 Question-answering agent over Vietnamese tax law (laws, decrees, circulars), built with retrieval-augmented generation and answering with article-level citations.
 
-<!-- Screenshot of the local web page goes here once #41 lists each article once. -->
+![The web page answering "Hộ kinh doanh có doanh thu bao nhiêu thì không phải nộp thuế giá trị gia tăng?": a cited answer, its two sources, and the first source's article with its amendment notice](docs/images/web-page.png)
+
+*The local web page (`python -m src.web`): each sentence cites the passages it rests on, a
+citation the retrieved passages do not hold is flagged with `?`, an amended provision is shown
+with the provision that amends it, and the panel shows the cited text. There is no hosted demo
+yet.*
 
 ## The problem
 
