@@ -1,6 +1,6 @@
 ---
 status: living
-updated: 2026-11-20
+updated: 2026-11-21
 owner: HieuQuang4438
 ---
 
@@ -15,6 +15,7 @@ here is added by the main thread**, because the register is shared state — `CO
 
 | Date | Question | Issue | Status | Conclusion | Superseded by |
 |---|---|---|---|---|---|
+| 2026-11-20 | [Context of 12 hits instead of 8](2026-11-20-context-k-12.md) | #36 | approved | inconclusive, 8 kept: EVAL-009 +0.002 [−0.024, +0.029]; EVAL-006 +0.022 [−0.011, +0.052] | |
 | 2026-11-20 | [Prompt for every part of the question, two runs per arm](2026-11-20-every-part-prompt-two-runs.md) | #38 | approved | inconclusive, prompt reverted: EVAL-009 +0.007 [−0.019, +0.033]; EVAL-006 +0.057 [+0.022, +0.092] | |
 | 2026-11-20 | [Run-to-run noise in EVAL-006](2026-11-20-eval006-noise.md) | #37 | approved | k = 2 runs per arm: projected half-width ±0.028 against ±0.040 for one; the judge alone changes 4 of 184 verdicts | |
 | 2026-11-19 | [Prompt for every part of the question](2026-11-19-every-part-prompt.md) | #34 | approved | inconclusive, prompt reverted: EVAL-006 +0.027 [−0.016, +0.071] | |
